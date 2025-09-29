@@ -1,12 +1,13 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-    </section><!-- /.section-content -->
+    </section><!-- /.content -->
 </aside><!-- /.right-side -->
+</div><!-- /.main -->
 </div><!-- /.wrapper -->
 <!-- Footer -->
 <div class="footer-main">
     Copyright &copy; CRM, 2025
 </div>
-<!-- JS Scripts -->
+<!-- JS Scripts --> 
 <script src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/morris/morris.min.js"></script>
@@ -16,3 +17,4 @@
 <script src="${pageContext.request.contextPath}/js/iCheck/icheck.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/app.js"></script>
 </body>
+</html>
