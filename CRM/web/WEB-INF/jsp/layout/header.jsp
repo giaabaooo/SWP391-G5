@@ -269,5 +269,3 @@
         </div>
     </nav>
 </header>
-<div class="wrapper">
-    <div class="main">

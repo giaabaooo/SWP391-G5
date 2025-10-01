@@ -1,4 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+    <div class="main">
 <aside class="left-side sidebar-offcanvas">
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
@@ -14,24 +15,9 @@
         </div>
         <!-- sidebar menu: : style can be found in sidebar.less -->
         <ul class="sidebar-menu">
-            <li class="active">
-                <a href="index.html">
-                    <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                </a>
-            </li>
             <li>
-                <a href="general.html">
-                    <i class="fa fa-gavel"></i> <span>General</span>
-                </a>
-            </li>
-            <li>
-                <a href="basic_form.html">
-                    <i class="fa fa-globe"></i> <span>Basic Elements</span>
-                </a>
-            </li>
-            <li>
-                <a href="simple.html">
-                    <i class="fa fa-glass"></i> <span>Simple tables</span>
+                <a href="${pageContext.request.contextPath}/cskh/user?action=list">
+                    <i class="fa fa-users"></i> <span>User Manager</span>
                 </a>
             </li>
         </ul>

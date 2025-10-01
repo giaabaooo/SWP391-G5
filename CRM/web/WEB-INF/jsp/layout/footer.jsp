@@ -2,7 +2,6 @@
     </section><!-- /.content -->
 </aside><!-- /.right-side -->
 </div><!-- /.main -->
-</div><!-- /.wrapper -->
 <!-- Footer -->
 <div class="footer-main">
     Copyright &copy; CRM, 2025
