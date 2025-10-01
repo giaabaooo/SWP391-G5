@@ -11,7 +11,7 @@ public class UserDBContext extends DBContext {
     public User checkLogin(String username, String password) {
         String sql = "SELECT u.*, r.id AS role_id, r.name AS role_name, r.description AS role_desc, r.is_active AS role_active " +
                      "FROM User u INNER JOIN Role r ON u.role_id = r.id " +
-                     "WHERE u.username=? AND u.password=MD5(?) AND u.is_active=1";
+                     "WHERE u.username=? AND u.password=? AND u.is_active=1";
 
         try (
              PreparedStatement stmt = connection.prepareStatement(sql)) {

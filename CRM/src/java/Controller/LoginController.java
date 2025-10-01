@@ -22,18 +22,34 @@ public class LoginController extends HttpServlet {
 
         User user = UserDBContext.checkLogin(username, password);
 
-        if (user != null) {
+         if (user != null) {
             HttpSession session = req.getSession();
             session.setAttribute("user", user);
 
-            // Redirect theo role
-            String role = user.getRole().getName();
-            if ("ADMIN".equalsIgnoreCase(role)) {
-                resp.sendRedirect("admin/dashboard.jsp");
-            } else if ("USER".equalsIgnoreCase(role)) {
-                resp.sendRedirect("user/home.jsp");
-            } else {
-                resp.sendRedirect("index.jsp"); // fallback
+            // Lấy role name từ DB
+            String role = user.getRole().getName().toUpperCase();
+
+            switch (role) {
+                case "ADMIN":
+                    resp.sendRedirect("admin/dashboard.jsp");
+                    break;
+                case "CUSTOMER":
+                    resp.sendRedirect("customer/dashboard.jsp");
+                    break;
+                case "CUSTOMER_STAFF":
+                    resp.sendRedirect("staff/dashboard.jsp");
+                    break;
+                case "TECH_MANAGER":
+                    resp.sendRedirect("techmanager/dashboard.jsp");
+                    break;
+                case "TECHNICIAN":
+                    resp.sendRedirect("technician/dashboard.jsp");
+                    break;
+                case "WAREHOUSE":
+                    resp.sendRedirect("warehouse/dashboard.jsp");
+                    break;
+                default:
+                    resp.sendRedirect("index.jsp"); // fallback
             }
         } else {
             req.setAttribute("error", "Sai username hoặc mật khẩu!");
