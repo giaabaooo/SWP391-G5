@@ -248,3 +248,33 @@ VALUES
 UPDATE User
 SET password = '123'
 WHERE id > 0;
+INSERT INTO Role (name, description, is_active) VALUES
+('CUSTOMER', 'Khách hàng', 1),
+('CUSTOMER_STAFF', 'Nhân viên chăm sóc khách hàng', 1),
+('TECH_MANAGER', 'Trưởng phòng kỹ thuật', 1),
+('TECHNICIAN', 'Nhân viên kỹ thuật', 1),
+('WAREHOUSE', 'Thủ kho quản lý linh kiện', 1);
+-- Customer
+INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
+VALUES ((SELECT id FROM Role WHERE name='CUSTOMER'),
+        'customer', '123', 'Gia Bao', 'giabao@gmail.com', '0901111111', 1);
+
+-- Customer Staff
+INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
+VALUES ((SELECT id FROM Role WHERE name='CUSTOMER_STAFF'),
+        'staff', '123', 'Doan Duy', 'doanduy@gmail.com', '0922222222', 1);
+
+-- Technical Manager
+INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
+VALUES ((SELECT id FROM Role WHERE name='TECH_MANAGER'),
+        'techmanager', '123', 'Minh Duc', 'minhduc@gmail.com', '0903333333', 1);
+
+-- Technician
+INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
+VALUES ((SELECT id FROM Role WHERE name='TECHNICIAN'),
+        'technician', '123', 'Cong Tinh', 'congtinh@gmail.com', '0904444444', 1);
+
+-- Warehouse
+INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
+VALUES ((SELECT id FROM Role WHERE name='WAREHOUSE'),
+        'warehouse', '123', 'Thanh Trung', 'thanhtrung@gmail.com', '0905555555', 1);
