@@ -46,7 +46,7 @@
                             <a data-toggle="modal" href="#modal-user-settings"><i class="fa fa-cog fa-fw pull-right"></i> Settings</a>
                         </li>
                         <li class="divider"></li>
-                        <li><a href="#"><i class="fa fa-ban fa-fw pull-right"></i> Logout</a></li>
+                        <li><a href="../user/logout"><i class="fa fa-ban fa-fw pull-right"></i> Logout</a></li>
                     </ul>
                 </li>
             </ul>
