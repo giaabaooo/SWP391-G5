@@ -103,7 +103,7 @@
 
                         <!-- My Devices -->
                         <li>
-                            <a href="devices.jsp"> <span>My Devices</span></a>
+                            <a href="${pageContext.request.contextPath}/customer/devices"> <span>My Devices</span></a>
                         </li>
 
                         <!-- My Profile -->
