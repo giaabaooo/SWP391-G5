@@ -1,5 +1,103 @@
+# ===========================================
+# Java Web Project with NetBeans - .gitignore
+# ===========================================
+
+# NetBeans IDE files
 /CRM/nbproject/private/
+/CRM/nbproject/build-impl.xml
+/CRM/nbproject/genfiles.properties
+/CRM/nbproject/project.properties
+/CRM/nbproject/project.xml
+/CRM/nbproject/ant-deploy.xml
+
+# Build and distribution files
 /CRM/dist/
 /CRM/build/
+/CRM/web/WEB-INF/classes/
 
-/CRM/nbproject/project.properties
+# Compiled class files
+*.class
+
+# Log files
+*.log
+*.log.*
+
+# Package Files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# IDE specific files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files with sensitive data
+application-local.properties
+application-dev.properties
+config/local.properties
+config/development.properties
+
+# Test output
+/test-output/
+/test-results/
+
+# Coverage reports
+/coverage/
+*.lcov
+
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Cache directories
+.cache/
+*.cache
+
+# Documentation build
+/docs/build/
+/site/
