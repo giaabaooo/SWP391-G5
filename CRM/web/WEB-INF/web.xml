@@ -1,17 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+
+    <!-- Login -->
     <servlet>
         <servlet-name>LoginController</servlet-name>
         <servlet-class>Controller.LoginController</servlet-class>
     </servlet>
+<<<<<<< Updated upstream
+    <servlet>
+        <servlet-name>DevicesController</servlet-name>
+        <servlet-class>Controller.customer.DevicesController</servlet-class>
+    </servlet>
+=======
+>>>>>>> Stashed changes
+    <servlet-mapping>
+        <servlet-name>LoginController</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+<<<<<<< Updated upstream
+=======
+
+    <!-- User -->
+    <servlet>
+        <servlet-name>UserController</servlet-name>
+        <servlet-class>Controller.cskh.UserController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserController</servlet-name>
+        <url-pattern>/UserController</url-pattern>
+    </servlet-mapping>
+
+    <!-- Devices -->
     <servlet>
         <servlet-name>DevicesController</servlet-name>
         <servlet-class>Controller.customer.DevicesController</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>LoginController</servlet-name>
-        <url-pattern>/login</url-pattern>
+        <servlet-name>DevicesController</servlet-name>
+        <url-pattern>/customer/devices</url-pattern>
     </servlet-mapping>
+
+    <!-- Logout -->
+>>>>>>> Stashed changes
     <servlet>
         <servlet-name>LogoutController</servlet-name>
         <servlet-class>Controller.LogoutController</servlet-class>
@@ -26,11 +58,10 @@
         <url-pattern>/technician/logout</url-pattern>
         <url-pattern>/warehouse/logout</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>DevicesController</servlet-name>
-        <url-pattern>/customer/devices</url-pattern>
-    </servlet-mapping>
+
+    <!-- Welcome page -->
     <welcome-file-list>
         <welcome-file>redirect.jsp</welcome-file>
     </welcome-file-list>
+
 </web-app>
