@@ -19,12 +19,21 @@ public class LoginController extends HttpServlet {
             throws ServletException, IOException {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
+        
+        // Check blank
+    if (username == null || username.trim().isEmpty() ||
+        password == null || password.trim().isEmpty()) {
+        req.setAttribute("error", "Username or password cannot be blank!");
+        req.getRequestDispatcher("login.jsp").forward(req, resp);
+        return;
+    }
 
         User user = UserDBContext.checkLogin(username, password);
 
          if (user != null) {
             HttpSession session = req.getSession();
             session.setAttribute("user", user);
+            
 
             // Lấy role name từ DB
             String role = user.getRole().getName().toUpperCase();
@@ -53,7 +62,7 @@ public class LoginController extends HttpServlet {
             }
         } else {
             req.setAttribute("error", "Sai username hoặc mật khẩu!");
-            
+            req.getRequestDispatcher("login.jsp").forward(req, resp);
         }
     }
 
