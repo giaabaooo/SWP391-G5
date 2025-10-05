@@ -10,6 +10,7 @@ public class Devices {
     private String imageUrl;
     private Date warrantyExpiration;
     private String status;
+    private String brandName;
 
     public Devices() {
     }
@@ -23,6 +24,8 @@ public class Devices {
         this.imageUrl = imageUrl;
         this.warrantyExpiration = warrantyExpiration;
         this.status = status;
+        this.brandName = brandName;
+        
     }
 
     // Method kiểm tra bảo hành
@@ -88,4 +91,6 @@ public class Devices {
     public void setStatus(String status) {
         this.status = status;
     }
+    public String getBrandName() { return brandName; }
+    public void setBrandName(String brandName) { this.brandName = brandName; }
 }
