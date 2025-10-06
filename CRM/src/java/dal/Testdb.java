@@ -1,4 +1,4 @@
-package test;
+package dal;
 
 import dal.DBContext;
 import java.sql.Connection;
