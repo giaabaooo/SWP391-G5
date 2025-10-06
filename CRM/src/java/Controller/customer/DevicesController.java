@@ -20,18 +20,36 @@ public class DevicesController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            // Chưa login thì redirect ra login
             response.sendRedirect("login");
             return;
         }
 
         User user = (User) session.getAttribute("user");
 
-        // Lấy danh sách device của user từ DB
-        List<Devices> devices = deviceDAO.getDevicesByUserId(user.getId());
+        String keyword = request.getParameter("search");
+        String brand = request.getParameter("brand");
+        String warranty = request.getParameter("warranty");
+        String pageParam = request.getParameter("page");
 
-        // Gửi sang JSP
+        int page = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
+        int limit = 3;
+        int offset = (page - 1) * limit;
+
+        DeviceDAO dao = new DeviceDAO();
+        List<Devices> devices = dao.getDevicesByUserId(user.getId(), keyword, brand, warranty, offset, limit);
+
+        int total = dao.countDevicesByUser(user.getId(), keyword, brand, warranty);
+        int totalPages = (int) Math.ceil((double) total / limit);
+
         request.setAttribute("devices", devices);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("search", keyword);
+        request.setAttribute("brand", brand);
+        request.setAttribute("warranty", warranty);
+
+        // để JSP có danh sách brand trong filter
+        request.setAttribute("brands", dao.getAllBrands());
         request.getRequestDispatcher("/customer/devices.jsp").forward(request, response);
     }
 }
