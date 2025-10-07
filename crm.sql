@@ -1,6 +1,7 @@
-CREATE DATABASE IF NOT EXISTS crm_device_management
-CHARACTER SET utf8mb4user
-COLLATE utf8mb4_unicode_ci;
+DROP DATABASE IF EXISTS crm_device_management;
+CREATE DATABASE crm_device_management
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
 USE crm_device_management;
 
 CREATE TABLE Role (
@@ -26,7 +27,8 @@ CREATE TABLE User (
 CREATE TABLE Permission (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
-    description VARCHAR(255)
+    description VARCHAR(255),
+    is_active TINYINT(1) DEFAULT 1
 );
 
 CREATE TABLE Role_Permission (
@@ -73,208 +75,117 @@ CREATE TABLE Inventory (
     FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE RESTRICT
 );
 
-CREATE TABLE DevicePurchase (
+CREATE TABLE Contract (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-	total_amount DECIMAL(15,2),
-    purchase_date DATE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id)
+    customer_id INT NOT NULL,
+    contract_code VARCHAR(50) UNIQUE,
+    contract_date DATE NOT NULL,
+    total_amount DECIMAL(15,2),
+    description TEXT,
+    FOREIGN KEY (customer_id) REFERENCES User(id) ON DELETE RESTRICT
 );
 
-CREATE TABLE DevicePurchaseDetail (
+CREATE TABLE ContractItem (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    purchase_id INT NOT NULL,
+    contract_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL CHECK (quantity > 0),
     unit_price DECIMAL(15,2) NOT NULL,
-    FOREIGN KEY (purchase_id) REFERENCES DevicePurchase(id) ON DELETE CASCADE,
+    warranty_months INT DEFAULT 12,
+    maintenance_months INT DEFAULT 36,
+    maintenance_frequency_months INT DEFAULT 6,
+    FOREIGN KEY (contract_id) REFERENCES Contract(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE Device (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    product_id INT NOT NULL,
-	UNIQUE (user_id, product_id),
-    is_active TINYINT(1) DEFAULT 1,
-    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE RESTRICT,
-    FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE RESTRICT
-);
-
-CREATE TABLE DeviceDetail (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    device_id INT NOT NULL,
-    purchase_detail_id INT NOT NULL,
+    contract_item_id INT NOT NULL,
     serial_number VARCHAR(100) UNIQUE,
-    warranty_expiration DATE NOT NULL,
-    status ENUM('ACTIVE','EXPIRED','REPLACED') DEFAULT 'ACTIVE',
-    FOREIGN KEY (device_id) REFERENCES Device(id),
-    FOREIGN KEY (purchase_detail_id) REFERENCES DevicePurchaseDetail(id)
-);
-
-CREATE TABLE Request (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    device_id INT NOT NULL,
-    device_detail_id INT NULL,
-    description TEXT NOT NULL,
-    status ENUM('PENDING', 'IN_PROGRESS', 'WAITING_CONFIRM', 'AWAITING_PAYMENT', 'COMPLETED', 'CLOSED') DEFAULT 'PENDING',
-    response_by_cskh TEXT,
-    forwarded_to_tech TINYINT(1) DEFAULT 0,
-    comment TEXT,
-    rating INT CHECK (rating BETWEEN 1 AND 5),
-    attachment TEXT,
-    is_active TINYINT(1) DEFAULT 1,
-    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE RESTRICT,
-    FOREIGN KEY (device_id) REFERENCES Device(id) ON DELETE RESTRICT,
-    FOREIGN KEY (device_detail_id) REFERENCES DeviceDetail(id) ON DELETE SET NULL
-);
-
-CREATE TABLE InventoryRequest (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    request_id INT NOT NULL,
-    status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
-    is_active TINYINT(1) DEFAULT 1,
-    FOREIGN KEY (request_id) REFERENCES Request(id) ON DELETE CASCADE
-);
-
-CREATE TABLE InventoryRequestDetail (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    inventory_request_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT NOT NULL CHECK (quantity > 0),
-	action ENUM('TAKEN','RETURNED') NOT NULL DEFAULT 'TAKEN',
-    is_active TINYINT(1) DEFAULT 1,
-    FOREIGN KEY (inventory_request_id) REFERENCES InventoryRequest(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE RESTRICT
+    warranty_expiration DATE,
+    status ENUM('InWarranty', 'OutOfWarranty', 'UnderRepair', 'Broken') DEFAULT 'InWarranty',
+    FOREIGN KEY (contract_item_id) REFERENCES ContractItem(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Transaction (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
-    type ENUM('IMPORT_SUPPLIER','EXPORT_REQUEST','RETURN_REQUEST') NOT NULL,
+    contract_id INT,
+    type ENUM('IMPORT','EXPORT') NOT NULL,
     quantity INT NOT NULL CHECK (quantity > 0),
-    inventory_request_detail_id INT NULL,
     transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    note TEXT,
     is_active TINYINT(1) DEFAULT 1,
     FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE RESTRICT,
-    FOREIGN KEY (inventory_request_detail_id) REFERENCES InventoryRequestDetail(id)
+    FOREIGN KEY (contract_id) REFERENCES Contract(id) ON DELETE SET NULL
+);
+
+CREATE TABLE CustomerRequest (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    device_id INT NOT NULL,
+    request_type ENUM('WARRANTY','MAINTENANCE','REPAIR') NOT NULL,
+    description TEXT,
+    request_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('PENDING','TRANSFERRED','ASSIGNED','IN_PROGRESS','COMPLETED','INVOICED','PAID','CLOSED') DEFAULT 'PENDING',
+    total_cost DECIMAL(15,2) DEFAULT 0,
+    customer_comment TEXT,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    is_active TINYINT(1) DEFAULT 1,
+    FOREIGN KEY (customer_id) REFERENCES User(id) ON DELETE RESTRICT,
+    FOREIGN KEY (device_id) REFERENCES Device(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE Task (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    request_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_time DATETIME,
+    end_time DATETIME,
+    status ENUM('PENDING','IN_PROGRESS','COMPLETED','CANCELLED') DEFAULT 'PENDING',
+    task_cost DECIMAL(15,2) DEFAULT 0,
+    FOREIGN KEY (request_id) REFERENCES CustomerRequest(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Task_Assignment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    task_id INT NOT NULL,
+    technician_id INT NOT NULL,
+    is_main BOOLEAN DEFAULT FALSE,
+    assigned_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES Task(id) ON DELETE CASCADE,
+    FOREIGN KEY (technician_id) REFERENCES User(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE MaintenanceSchedule (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    device_id INT NOT NULL,
+    next_maintenance_date DATE NOT NULL,
+    last_maintenance_date DATE,
+    is_auto_generated BOOLEAN DEFAULT TRUE,
+    status ENUM('PENDING','SCHEDULED','COMPLETED','OVERDUE') DEFAULT 'PENDING',
+    FOREIGN KEY (device_id) REFERENCES Device(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Invoice (
     id INT AUTO_INCREMENT PRIMARY KEY,
     request_id INT NOT NULL,
-    user_id INT NOT NULL,
+    customer_id INT NOT NULL,
     amount DECIMAL(15,2) NOT NULL,
-    status ENUM('PENDING', 'PAID', 'CANCELLED') DEFAULT 'PENDING',
+    paid_amount DECIMAL(15,2) DEFAULT 0,
+    status ENUM('UNPAID','PARTIALLY_PAID','PAID','CANCELLED') DEFAULT 'UNPAID',
     issue_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    is_active TINYINT(1) DEFAULT 1,
-    FOREIGN KEY (request_id) REFERENCES Request(id) ON DELETE RESTRICT,
-    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE RESTRICT
-);
-
-CREATE TABLE InvoiceItem (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    invoice_id INT NOT NULL,
-	product_id INT NOT NULL,
-    quantity INT NOT NULL CHECK (quantity > 0),
-    unit_price DECIMAL(15,2) NOT NULL,
-    subtotal DECIMAL(15,2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
-    description TEXT,
-    is_active TINYINT(1) DEFAULT 1,
-    FOREIGN KEY (invoice_id) REFERENCES Invoice(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE RESTRICT
+    due_date DATE,
+    FOREIGN KEY (request_id) REFERENCES CustomerRequest(id) ON DELETE RESTRICT,
+    FOREIGN KEY (customer_id) REFERENCES User(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE Payment (
     id INT AUTO_INCREMENT PRIMARY KEY,
     invoice_id INT NOT NULL,
     amount DECIMAL(15,2) NOT NULL,
-    status ENUM('PENDING', 'COMPLETED', 'FAILED') DEFAULT 'PENDING',
+    status ENUM('PENDING','COMPLETED','FAILED') DEFAULT 'PENDING',
     payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    is_active TINYINT(1) DEFAULT 1,
     FOREIGN KEY (invoice_id) REFERENCES Invoice(id) ON DELETE CASCADE
 );
--- 1. Tạo Role
-INSERT INTO Role (name, description, is_active)
-VALUES 
-('ADMIN', 'Quản trị viên có toàn quyền', 1),
-('USER', 'Người dùng bình thường', 1);
-
--- 2. Tạo User admin
-INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
-VALUES 
-((SELECT id FROM Role WHERE name='ADMIN'), 
- 'admin', 
- -- Mật khẩu hash MD5 ví dụ, bạn nên hash theo bcrypt trong thực tế
- MD5('admin123'), 
- 'Admin System', 
- 'admin@example.com', 
- '0123456789', 
- 1);
-
--- 3. Tạo Permission (ví dụ quyền CRUD cơ bản)
-INSERT INTO Permission (name, description)
-VALUES 
-('VIEW_USER', 'Xem danh sách người dùng'),
-('VIEW_USER_DETAIL', 'Xem chi tiết người dùng'),
-('MANAGE_USER', 'Tạo, sửa, xóa người dùng'),
-('VIEW_DEVICE', 'Xem thiết bị'),
-('MANAGE_DEVICE', 'Quản lý thiết bị'),
-('VIEW_REQUEST', 'Xem yêu cầu'),
-('MANAGE_REQUEST', 'Quản lý yêu cầu');
-
--- 4. Gán tất cả quyền cho role ADMIN
-INSERT INTO Role_Permission (role_id, permission_id)
-SELECT r.id, p.id 
-FROM Role r, Permission p
-WHERE r.name='ADMIN';
-
--- 5. Tạo một vài user mẫu
-INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
-VALUES 
-((SELECT id FROM Role WHERE name='USER'), 'user1', MD5('user123'), 'Nguyen Van A', 'user1@example.com', '0901234567', 1),
-((SELECT id FROM Role WHERE name='USER'), 'user2', MD5('user123'), 'Tran Thi B', 'user2@example.com', '0902345678', 1);
-
--- 6. Tạo dữ liệu mẫu Category và Brand
-INSERT INTO Category (name, description) VALUES ('Laptop','Máy tính xách tay'), ('Smartphone','Điện thoại thông minh');
-INSERT INTO Brand (name, description) VALUES ('Dell','Hãng Dell'), ('Apple','Hãng Apple');
-
--- 7. Tạo dữ liệu Product mẫu
-INSERT INTO Product (category_id, brand_id, name, purchase_price, selling_price)
-VALUES 
-((SELECT id FROM Category WHERE name='Laptop'), (SELECT id FROM Brand WHERE name='Dell'), 'Dell XPS 13', 2000, 2500),
-((SELECT id FROM Category WHERE name='Smartphone'), (SELECT id FROM Brand WHERE name='Apple'), 'iPhone 15', 1000, 1200);
-UPDATE User
-SET password = '123'
-WHERE id > 0;
-INSERT INTO Role (name, description, is_active) VALUES
-('CUSTOMER', 'Khách hàng', 1),
-('CUSTOMER_STAFF', 'Nhân viên chăm sóc khách hàng', 1),
-('TECH_MANAGER', 'Trưởng phòng kỹ thuật', 1),
-('TECHNICIAN', 'Nhân viên kỹ thuật', 1),
-('WAREHOUSE', 'Thủ kho quản lý linh kiện', 1);
--- Customer
-INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
-VALUES ((SELECT id FROM Role WHERE name='CUSTOMER'),
-        'customer', '123', 'Gia Bao', 'giabao@gmail.com', '0901111111', 1);
-
--- Customer Staff
-INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
-VALUES ((SELECT id FROM Role WHERE name='CUSTOMER_STAFF'),
-        'staff', '123', 'Doan Duy', 'doanduy@gmail.com', '0922222222', 1);
-
--- Technical Manager
-INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
-VALUES ((SELECT id FROM Role WHERE name='TECH_MANAGER'),
-        'techmanager', '123', 'Minh Duc', 'minhduc@gmail.com', '0903333333', 1);
-
--- Technician
-INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
-VALUES ((SELECT id FROM Role WHERE name='TECHNICIAN'),
-        'technician', '123', 'Cong Tinh', 'congtinh@gmail.com', '0904444444', 1);
-
--- Warehouse
-INSERT INTO User (role_id, username, password, full_name, email, phone, is_active)
-VALUES ((SELECT id FROM Role WHERE name='WAREHOUSE'),
-        'warehouse', '123', 'Thanh Trung', 'thanhtrung@gmail.com', '0905555555', 1);

@@ -137,6 +137,64 @@
             box-sizing: border-box;
         }
 
+        /* Dropdown with default arrow */
+        select.form-control {
+            /* Use browser default arrow (gray) */
+            cursor: pointer;
+        }
+
+        select.form-control option {
+            padding: 8px 12px;
+        }
+
+        /* Scrollable dropdown styling */
+        select.scrollable-dropdown {
+            cursor: pointer;
+        }
+
+        select.scrollable-dropdown.expanded {
+            z-index: 1000;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid #667eea !important;
+            max-height: 200px;
+            overflow-y: auto;
+            height: auto !important;
+        }
+
+        select.scrollable-dropdown.expanded option {
+            padding: 10px 12px;
+            cursor: pointer;
+        }
+
+        select.scrollable-dropdown.expanded option:hover {
+            background-color: #f7fafc;
+        }
+
+        select.scrollable-dropdown.expanded option:checked {
+            background-color: #667eea;
+            color: white;
+        }
+
+        /* Custom scrollbar for dropdown */
+        select.scrollable-dropdown.expanded::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        select.scrollable-dropdown.expanded::-webkit-scrollbar-track {
+            background: #f1f3f4;
+            border-radius: 2px;
+        }
+
+        select.scrollable-dropdown.expanded::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 2px;
+        }
+
+        select.scrollable-dropdown.expanded::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
         .form-control.error {
             border-color: #dc3545 !important;
             box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
@@ -396,7 +454,7 @@
                     </a>
                     <ul class="collapse" id="inventoryMenu">
                         <li><a href="inventory.jsp"><i class="fa fa-list"></i> View Inventory</a></li>
-                        <li class="active"><a href="../addNewProduct"><i class="fa fa-plus"></i> Add Product</a></li>
+                        <li class="active"><a href="../warestaff/addNewProduct"><i class="fa fa-plus"></i> Add Product</a></li>
                         <li><a href="updateItem.jsp"><i class="fa fa-edit"></i> Update Product</a></li>
                         <li><a href="deleteItem.jsp"><i class="fa fa-trash"></i> Delete Product</a></li>
                     </ul>
@@ -462,7 +520,7 @@
                             <h3><i class="fa fa-plus"></i> Product Information</h3>
                         </div>
                         <div class="card-body">
-                            <form method="post" action="addNewProduct" novalidate>
+                            <form method="post" action="../warestaff/addNewProduct" novalidate>
                                 <!-- Row 1: Product Name and Purchase Price -->
                                 <div class="form-row">
                                     <div class="form-col">
@@ -816,6 +874,57 @@
         // Auto-expand inventory menu since we're on add product page
         $('#inventoryMenu').addClass('in');
         $('.treeview').first().addClass('active');
+
+        // Add scroll to dropdowns (Category and Brand) - show max 5 items
+        function initializeScrollableDropdowns() {
+            const categorySelect = $('#categoryId');
+            const brandSelect = $('select[name="brand_id"]');
+            
+            // Create custom dropdown wrappers
+            [categorySelect, brandSelect].forEach(function(selectElement) {
+                if (selectElement.length === 0) return;
+                
+                const options = selectElement.find('option');
+                if (options.length > 6) { // 1 placeholder + 5 items
+                    // Add custom class for styling
+                    selectElement.addClass('scrollable-dropdown');
+                    
+                    // Handle click to show dropdown
+                    selectElement.on('mousedown', function(e) {
+                        const self = $(this);
+                        if (!self.hasClass('expanded')) {
+                            self.attr('size', Math.min(6, options.length)); // Show max 6 (including placeholder)
+                            self.addClass('expanded');
+                            e.preventDefault();
+                            setTimeout(function() {
+                                self.focus();
+                            }, 0);
+                        }
+                    });
+                    
+                    // Handle selection
+                    selectElement.on('change blur', function() {
+                        const self = $(this);
+                        if (self.hasClass('expanded')) {
+                            self.removeAttr('size');
+                            self.removeClass('expanded');
+                        }
+                    });
+                    
+                    // Close on outside click
+                    $(document).on('click', function(e) {
+                        if (!$(e.target).closest('.scrollable-dropdown').length) {
+                            $('.scrollable-dropdown.expanded').each(function() {
+                                $(this).removeAttr('size').removeClass('expanded');
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Initialize scrollable dropdowns
+        initializeScrollableDropdowns();
     });
 </script>
 </body>

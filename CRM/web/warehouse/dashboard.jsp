@@ -545,7 +545,7 @@
                     </a>
                     <ul class="collapse" id="inventoryMenu">
                         <li><a href="inventory.jsp"><i class="fa fa-list"></i> View Inventory</a></li>
-                        <li><a href="../addNewProduct"><i class="fa fa-plus"></i> Add Product</a></li>
+                        <li><a href="../warestaff/addNewProduct"><i class="fa fa-plus"></i> Add Product</a></li>
                         <li><a href="updateItem.jsp"><i class="fa fa-edit"></i> Update Product</a></li>
                         <li><a href="deleteItem.jsp"><i class="fa fa-trash"></i> Delete Product</a></li>
                     </ul>
@@ -648,7 +648,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <a href="../addNewProduct" class="action-btn">
+                                    <a href="../warestaff/addNewProduct" class="action-btn">
                                         <i class="fa fa-plus"></i> Add New Item
                                     </a>
                                 </div>

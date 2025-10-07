@@ -11,7 +11,7 @@
     </servlet>
     <servlet>
         <servlet-name>AddNewProductController</servlet-name>
-        <servlet-class>Controller.AddNewProductController</servlet-class>
+        <servlet-class>Controller.warestaff.AddNewProductController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
@@ -60,6 +60,6 @@
     </welcome-file-list>
     <servlet-mapping>
         <servlet-name>AddNewProductController</servlet-name>
-        <url-pattern>/addNewProduct</url-pattern>
+        <url-pattern>/warestaff/addNewProduct</url-pattern>
     </servlet-mapping>
 </web-app>
