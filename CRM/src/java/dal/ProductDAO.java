@@ -394,7 +394,7 @@ public class ProductDAO extends DBContext {
      * @return Total number of matching products
      */
     public int getTotalProductsWithFilters(String searchQuery, Integer categoryId, Integer brandId) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) as total FROM Product WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) as total FROM Product WHERE is_active = 1");
         
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             sql.append(" AND (name LIKE ? OR description LIKE ?)");
@@ -454,7 +454,7 @@ public class ProductDAO extends DBContext {
         
         StringBuilder sql = new StringBuilder(
             "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active " +
-            "FROM Product WHERE 1=1"
+            "FROM Product WHERE is_active = 1"
         );
         
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
@@ -512,5 +512,79 @@ public class ProductDAO extends DBContext {
         }
         
         return products;
+    }
+    
+    /**
+     * Update an existing product
+     * @param product Product object with updated information
+     * @return true if update was successful, false otherwise
+     */
+    public boolean updateProduct(Product product) {
+        String sql = "UPDATE Product SET category_id = ?, brand_id = ?, image_url = ?, name = ?, description = ?, purchase_price = ?, selling_price = ?, is_active = ? WHERE id = ?";
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, product.getCategoryId());
+            statement.setObject(2, product.getBrandId());
+            statement.setString(3, product.getImageUrl());
+            statement.setString(4, product.getName());
+            statement.setString(5, product.getDescription());
+            statement.setBigDecimal(6, product.getPurchasePrice());
+            statement.setBigDecimal(7, product.getSellingPrice());
+            statement.setBoolean(8, product.isActive());
+            statement.setInt(9, product.getId());
+            
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+            
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating product: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Delete a product by ID
+     * @param productId Product ID to delete
+     * @return true if deletion was successful, false otherwise
+     */
+    public boolean deleteProduct(int productId) {
+        String sql = "DELETE FROM Product WHERE id = ?";
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, productId);
+            
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+            
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting product: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Soft delete a product (set is_active to false)
+     * @param productId Product ID to deactivate
+     * @return true if deactivation was successful, false otherwise
+     */
+    public boolean deactivateProduct(int productId) {
+        String sql = "UPDATE Product SET is_active = 0 WHERE id = ?";
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, productId);
+            
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+            
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deactivating product: " + e.getMessage());
+            return false;
+        }
     }
 }

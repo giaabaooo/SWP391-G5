@@ -416,6 +416,159 @@
             font-weight: 600;
         }
 
+        /* Custom Delete Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .delete-modal {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            width: 90%;
+            animation: slideDown 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modal-header-custom {
+            padding: 2rem;
+            background: #ffc107;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: rgba(220, 53, 69, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #dc3545;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .modal-header-custom h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-body-custom {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .product-name-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #dc3545;
+            background: #fff5f5;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            word-break: break-word;
+            border: 1px solid #fecaca;
+        }
+
+        .warning-text {
+            color: #4a5568;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+
+        .warning-badge {
+            background: #fff5f5;
+            color: #dc3545;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 0.5rem;
+            border: 1px solid #fecaca;
+        }
+
+        .modal-footer-custom {
+            padding: 1.5rem 2rem;
+            background: #f8f9fa;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+
+        .modal-btn-cancel {
+            background: white;
+            color: #4a5568;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #f8f9fa;
+            border-color: #cbd5e0;
+        }
+
+        .modal-btn-delete {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .modal-btn-delete:hover {
+            background: #c82333;
+            border-color: #c82333;
+        }
+
         /* Remove sidebar dots and search */
         .sidebar-menu li {
             list-style: none;
@@ -542,6 +695,20 @@
                             <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
                         </div>
                     <% } %>
+                    
+                    <%-- Display success message if any --%>
+                    <% if (request.getParameter("success") != null) { %>
+                        <div class="alert alert-success" style="background-color: #d1fae5; border: 1px solid #86efac; color: #059669; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <i class="fa fa-check-circle"></i> <%= request.getParameter("success") %>
+                        </div>
+                    <% } %>
+                    
+                    <%-- Display error message from URL parameter --%>
+                    <% if (request.getParameter("error") != null) { %>
+                        <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <i class="fa fa-exclamation-circle"></i> <%= request.getParameter("error") %>
+                        </div>
+                    <% } %>
                 </div>
             </div>
 
@@ -657,10 +824,10 @@
                                                 <a href="../warestaff/viewProductDetail?id=<%= product.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
                                                     <i class="fa fa-eye"></i> View
                                                 </a>
-                                                <button class="btn btn-action btn-edit" data-product-id="<%= product.getId() %>">
+                                                <a href="../warestaff/editProduct?id=<%= product.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                     <i class="fa fa-edit"></i> Edit
-                                                </button>
-                                                <button class="btn btn-action btn-delete" data-product-id="<%= product.getId() %>">
+                                                </a>
+                                                <button class="btn btn-action btn-delete" data-product-id="<%= product.getId() %>" data-product-name="<%= product.getName() %>">
                                                     <i class="fa fa-trash"></i> Delete
                                                 </button>
                                             </td>
@@ -725,6 +892,34 @@
         </section>
         <div class="footer-main">Copyright &copy; Warehouse Management System, 2024</div>
     </aside>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-overlay">
+    <div class="delete-modal">
+        <div class="modal-header-custom">
+            <div class="modal-icon">
+                <i class="fa fa-trash"></i>
+            </div>
+            <h3>Delete Product</h3>
+        </div>
+        <div class="modal-body-custom">
+            <p class="warning-text">Are you sure you want to delete this product?</p>
+            <div class="product-name-display" id="modalProductName">Product Name</div>
+            <p class="warning-text">This will permanently remove the product from your inventory.</p>
+            <span class="warning-badge">
+                <i class="fa fa-exclamation-triangle"></i> This action cannot be undone!
+            </span>
+        </div>
+        <div class="modal-footer-custom">
+            <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
+                <i class="fa fa-times"></i> Cancel
+            </button>
+            <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn">
+                <i class="fa fa-trash"></i> Delete Product
+            </button>
+        </div>
+    </div>
 </div>
 
 <!-- SCRIPTS -->
@@ -907,19 +1102,61 @@
     
     // Note: Search is now handled server-side via applyFilters() function
 
-    // Edit product button click handler
-    $('.btn-edit').on('click', function() {
-        var productId = $(this).data('product-id');
-        // TODO: Navigate to edit page
-        alert('Edit product ID: ' + productId);
-    });
-
     // Delete product button click handler
+    var currentDeleteProductId = null;
+    
     $('.btn-delete').on('click', function() {
         var productId = $(this).data('product-id');
-        if (confirm('Are you sure you want to delete this product?')) {
-            // TODO: Implement delete functionality
-            alert('Delete product ID: ' + productId);
+        var productName = $(this).closest('tr').find('td:eq(1) strong').text();
+        
+        // Store product info
+        currentDeleteProductId = productId;
+        
+        // Update modal content
+        $('#modalProductName').text(productName);
+        
+        // Show modal
+        $('#deleteModal').addClass('active');
+    });
+    
+    // Close modal function
+    window.closeDeleteModal = function() {
+        $('#deleteModal').removeClass('active');
+        currentDeleteProductId = null;
+    };
+    
+    // Close modal when clicking outside
+    $('#deleteModal').on('click', function(e) {
+        if ($(e.target).is('#deleteModal')) {
+            closeDeleteModal();
+        }
+    });
+    
+    // Close modal on ESC key
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && $('#deleteModal').hasClass('active')) {
+            closeDeleteModal();
+        }
+    });
+    
+    // Confirm delete button
+    $('#confirmDeleteBtn').on('click', function() {
+        if (currentDeleteProductId) {
+            // Create and submit form
+            var form = $('<form>', {
+                'method': 'POST',
+                'action': '../warestaff/deleteProduct'
+            });
+            
+            var input = $('<input>', {
+                'type': 'hidden',
+                'name': 'id',
+                'value': currentDeleteProductId
+            });
+            
+            form.append(input);
+            $('body').append(form);
+            form.submit();
         }
     });
 
@@ -945,6 +1182,16 @@
     
     // Initialize pagination on page load
     initPagination();
+    
+    // Auto-hide success and error messages after 3 seconds
+    setTimeout(function() {
+        $('.alert-success').fadeOut(500, function() {
+            $(this).remove();
+        });
+        $('.alert-danger').fadeOut(500, function() {
+            $(this).remove();
+        });
+    }, 3000);
     
     // Apply filters function
     window.applyFilters = function() {

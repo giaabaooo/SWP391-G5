@@ -506,9 +506,9 @@
                                 <a href="../warestaff/viewListProduct" class="btn btn-default" style="margin-right: 1rem;">
                                     <i class="fa fa-arrow-left"></i> Back to List
                                 </a>
-                                <button class="btn btn-primary" onclick="editProduct(<%= product.getId() %>)" style="margin-right: 1rem;">
+                                <a href="../warestaff/editProduct?id=<%= product.getId() %>" class="btn btn-primary" style="margin-right: 1rem; text-decoration: none;">
                                     <i class="fa fa-edit"></i> Edit Product
-                                </button>
+                                </a>
                                 <button class="btn btn-danger" onclick="deleteProduct(<%= product.getId() %>)">
                                     <i class="fa fa-trash"></i> Delete Product
                                 </button>
@@ -564,12 +564,6 @@
         // Auto-expand Products menu
         $('#inventoryMenu').addClass('in');
     });
-
-    // Edit product function
-    function editProduct(id) {
-        // TODO: Navigate to edit page
-        alert('Edit product ID: ' + id);
-    }
 
     // Delete product function
     function deleteProduct(id) {
