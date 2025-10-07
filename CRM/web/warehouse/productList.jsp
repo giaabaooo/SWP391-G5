@@ -213,24 +213,34 @@
             background: #f8f9fa;
             border-bottom: 1px solid #e2e8f0;
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             align-items: center;
             flex-wrap: wrap;
         }
 
         .search-input {
             flex: 1;
-            min-width: 250px;
+            min-width: 150px;
             padding: 0.6rem 1rem;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
 
         .search-input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        select.search-input {
+            cursor: pointer;
+            background: white;
+        }
+        
+        select.search-input:hover {
+            border-color: #cbd5e0;
         }
 
         .btn-primary {
@@ -265,6 +275,116 @@
         .empty-state h4 {
             color: #4a5568;
             margin-bottom: 0.5rem;
+        }
+
+        /* Pagination Styles */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-top: 1px solid #f1f3f4;
+            background: #fafbfc;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pagination-info {
+            color: #4a5568;
+            font-size: 0.875rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #4a5568;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+            font-weight: 600;
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #4a5568;
+        }
+
+        .page-size-selector select {
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            color: #4a5568;
+            cursor: pointer;
+        }
+
+        /* Responsive pagination */
+        @media (max-width: 768px) {
+            .pagination-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pagination-info,
+            .page-size-selector {
+                text-align: center;
+                justify-content: center;
+            }
+
+            .pagination-controls {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .pagination-btn {
+                font-size: 0.75rem;
+                padding: 0.4rem 0.6rem;
+                min-width: 35px;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input {
+                width: 100%;
+                min-width: 100%;
+            }
+            
+            .filter-bar .btn-primary {
+                width: 100%;
+            }
         }
 
         /* Active menu highlighting */
@@ -427,9 +547,46 @@
 
                         <!-- Filter Bar -->
                         <div class="filter-bar">
-                            <input type="text" id="searchInput" class="search-input" placeholder="Search by product name...">
-                            <button class="btn btn-primary" onclick="searchProducts()">
-                                <i class="fa fa-search"></i> Search
+                            <input type="text" id="searchInput" class="search-input" placeholder="Search by product name..." 
+                                   value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>">
+                            
+                            <select id="categoryFilter" class="search-input" style="min-width: 150px;">
+                                <option value="">All Categories</option>
+                                <% 
+                                    java.util.List<data.Category> categories = (java.util.List<data.Category>) request.getAttribute("categories");
+                                    Integer selectedCategoryId = (Integer) request.getAttribute("selectedCategoryId");
+                                    if (categories != null) {
+                                        for (data.Category category : categories) {
+                                            String selected = (selectedCategoryId != null && selectedCategoryId.equals(category.getId())) ? "selected" : "";
+                                %>
+                                    <option value="<%= category.getId() %>" <%= selected %>><%= category.getName() %></option>
+                                <% 
+                                        }
+                                    }
+                                %>
+                            </select>
+                            
+                            <select id="brandFilter" class="search-input" style="min-width: 150px;">
+                                <option value="">All Brands</option>
+                                <% 
+                                    java.util.List<data.Brand> brands = (java.util.List<data.Brand>) request.getAttribute("brands");
+                                    Integer selectedBrandId = (Integer) request.getAttribute("selectedBrandId");
+                                    if (brands != null) {
+                                        for (data.Brand brand : brands) {
+                                            String selected = (selectedBrandId != null && selectedBrandId.equals(brand.getId())) ? "selected" : "";
+                                %>
+                                    <option value="<%= brand.getId() %>" <%= selected %>><%= brand.getName() %></option>
+                                <% 
+                                        }
+                                    }
+                                %>
+                            </select>
+                            
+                            <button class="btn btn-primary" onclick="applyFilters()">
+                                <i class="fa fa-filter"></i> Filter
+                            </button>
+                            <button class="btn btn-primary" onclick="clearFilters()" style="background: #6c757d; border-color: #6c757d;">
+                                <i class="fa fa-times"></i> Clear
                             </button>
                         </div>
 
@@ -498,6 +655,44 @@
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            <!-- Pagination Controls -->
+                            <div class="pagination-container">
+                                <div class="pagination-info">
+                                    <span id="paginationInfo">Showing 1 to 10 of 0 products</span>
+                                </div>
+                                
+                                <div class="page-size-selector">
+                                    <label for="pageSize">Show:</label>
+                                    <select id="pageSize" onchange="changePageSize()">
+                                        <option value="5">5</option>
+                                        <option value="10" selected>10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                    <span>per page</span>
+                                </div>
+                                
+                                <div class="pagination-controls">
+                                    <button class="pagination-btn" id="firstPageBtn" onclick="goToFirstPage()">
+                                        <i class="fa fa-angle-double-left"></i>
+                                    </button>
+                                    <button class="pagination-btn" id="prevPageBtn" onclick="goToPrevPage()">
+                                        <i class="fa fa-angle-left"></i>
+                                    </button>
+                                    
+                                    <div id="pageNumbers"></div>
+                                    
+                                    <button class="pagination-btn" id="nextPageBtn" onclick="goToNextPage()">
+                                        <i class="fa fa-angle-right"></i>
+                                    </button>
+                                    <button class="pagination-btn" id="lastPageBtn" onclick="goToLastPage()">
+                                        <i class="fa fa-angle-double-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
                             <% } else { %>
                             <div class="empty-state">
                                 <i class="fa fa-inbox"></i>
@@ -531,35 +726,172 @@
 
 <script>
     $(function() {
-    // Search functionality
-    function searchProducts() {
-        var input = document.getElementById('searchInput');
-        var filter = input.value.toLowerCase();
-        var table = document.getElementById('productTableBody');
-        var rows = table.getElementsByTagName('tr');
-
-        for (var i = 0; i < rows.length; i++) {
-            var productName = rows[i].getElementsByTagName('td')[1];
-            if (productName) {
-                var textValue = productName.textContent || productName.innerText;
-                if (textValue.toLowerCase().indexOf(filter) > -1) {
-                    rows[i].style.display = '';
-                } else {
-                    rows[i].style.display = 'none';
-                }
+    // Pagination variables
+    let currentPage = 1;
+    let pageSize = 10;
+    let allRows = [];
+    let filteredRows = [];
+    
+    // Helper function to get current URL parameters
+    function getUrlParams() {
+        var params = new URLSearchParams(window.location.search);
+        var urlParams = {};
+        
+        if (params.get('search')) {
+            urlParams.search = params.get('search');
+        }
+        if (params.get('categoryId')) {
+            urlParams.categoryId = params.get('categoryId');
+        }
+        if (params.get('brandId')) {
+            urlParams.brandId = params.get('brandId');
+        }
+        if (params.get('pageSize')) {
+            urlParams.pageSize = params.get('pageSize');
+        }
+        
+        return urlParams;
+    }
+    
+    // Helper function to build URL with parameters
+    function buildUrlWithParams(params) {
+        var url = window.location.pathname + '?';
+        var paramArray = [];
+        
+        for (var key in params) {
+            if (params[key] && params[key] !== '') {
+                paramArray.push(key + '=' + encodeURIComponent(params[key]));
+            }
+        }
+        
+        return url + paramArray.join('&');
+    }
+    
+    // Initialize pagination (server-side)
+    function initPagination() {
+        renderPagination();
+        updatePaginationInfo();
+    }
+    
+    // Update pagination info text (from server data)
+    function updatePaginationInfo() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+        var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
+        var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>;
+        
+        var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
+        var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalProducts);
+        
+        var infoElement = document.getElementById('paginationInfo');
+        if (infoElement) {
+            if (totalProducts === 0) {
+                infoElement.textContent = 'No products to display';
+            } else {
+                infoElement.textContent = 
+                    'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' products';
             }
         }
     }
-
-    // Search on Enter key
-    document.getElementById('searchInput').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            searchProducts();
+    
+    // Render pagination buttons
+    function renderPagination() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+        var pageNumbersDiv = document.getElementById('pageNumbers');
+        
+        if (!pageNumbersDiv) return;
+        
+        pageNumbersDiv.innerHTML = '';
+        
+        // Determine which pages to show
+        var startPage = Math.max(1, currentPageFromUrl - 2);
+        var endPage = Math.min(totalPages, currentPageFromUrl + 2);
+        
+        // Adjust if near the beginning
+        if (currentPageFromUrl <= 3) {
+            endPage = Math.min(5, totalPages);
         }
-    });
-
-    // Real-time search
-    document.getElementById('searchInput').addEventListener('input', searchProducts);
+        
+        // Adjust if near the end
+        if (currentPageFromUrl > totalPages - 3) {
+            startPage = Math.max(1, totalPages - 4);
+        }
+        
+        // Create page buttons
+        for (var i = startPage; i <= endPage; i++) {
+            var btn = document.createElement('button');
+            btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
+            btn.textContent = i;
+            btn.onclick = (function(pageNum) {
+                return function() { goToPage(pageNum); };
+            })(i);
+            pageNumbersDiv.appendChild(btn);
+        }
+        
+        updatePaginationButtons();
+    }
+    
+    // Update pagination button states
+    function updatePaginationButtons() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+        
+        var firstBtn = document.getElementById('firstPageBtn');
+        var prevBtn = document.getElementById('prevPageBtn');
+        var nextBtn = document.getElementById('nextPageBtn');
+        var lastBtn = document.getElementById('lastPageBtn');
+        
+        if (firstBtn) firstBtn.disabled = currentPageFromUrl === 1;
+        if (prevBtn) prevBtn.disabled = currentPageFromUrl === 1;
+        if (nextBtn) nextBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+        if (lastBtn) lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+    }
+    
+    // Pagination navigation functions (with URL parameters preserved)
+    window.goToPage = function(page) {
+        var params = getUrlParams();
+        params.page = page;
+        window.location.href = buildUrlWithParams(params);
+    };
+    
+    window.goToFirstPage = function() {
+        goToPage(1);
+    };
+    
+    window.goToPrevPage = function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var currentPage = parseInt(urlParams.get('page')) || 1;
+        if (currentPage > 1) {
+            goToPage(currentPage - 1);
+        }
+    };
+    
+    window.goToNextPage = function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var currentPage = parseInt(urlParams.get('page')) || 1;
+        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+        if (currentPage < totalPages) {
+            goToPage(currentPage + 1);
+        }
+    };
+    
+    window.goToLastPage = function() {
+        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+        goToPage(totalPages);
+    };
+    
+    window.changePageSize = function() {
+        var newPageSize = document.getElementById('pageSize').value;
+        var params = getUrlParams();
+        params.pageSize = newPageSize;
+        params.page = 1; // Reset to first page when changing page size
+        window.location.href = buildUrlWithParams(params);
+    };
+    
+    // Note: Search is now handled server-side via applyFilters() function
 
     // Edit product button click handler
     $('.btn-edit').on('click', function() {
@@ -586,6 +918,63 @@
 
     // Auto-expand Products menu since we're on view list product page
     $('#inventoryMenu').addClass('in');
+    
+    // Set page size from URL parameter
+    var urlParams = new URLSearchParams(window.location.search);
+    var pageSizeFromUrl = urlParams.get('pageSize');
+    if (pageSizeFromUrl) {
+        var pageSizeSelect = document.getElementById('pageSize');
+        if (pageSizeSelect) {
+            pageSizeSelect.value = pageSizeFromUrl;
+        }
+    }
+    
+    // Initialize pagination on page load
+    initPagination();
+    
+    // Apply filters function
+    window.applyFilters = function() {
+        var searchQuery = document.getElementById('searchInput').value;
+        var categoryId = document.getElementById('categoryFilter').value;
+        var brandId = document.getElementById('brandFilter').value;
+        
+        // Build URL with parameters
+        var url = window.location.pathname + '?';
+        var params = [];
+        
+        if (searchQuery && searchQuery.trim() !== '') {
+            params.push('search=' + encodeURIComponent(searchQuery));
+        }
+        if (categoryId && categoryId !== '') {
+            params.push('categoryId=' + categoryId);
+        }
+        if (brandId && brandId !== '') {
+            params.push('brandId=' + brandId);
+        }
+        
+        url += params.join('&');
+        
+        // Redirect to filtered URL
+        window.location.href = url;
+    };
+    
+    // Clear filters function
+    window.clearFilters = function() {
+        // Redirect to page without parameters
+        window.location.href = window.location.pathname;
+    };
+    
+    // Handle Enter key in search input
+    $('#searchInput').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+            applyFilters();
+        }
+    });
+    
+    // Handle change event for dropdowns
+    $('#categoryFilter, #brandFilter').on('change', function() {
+        applyFilters();
+    });
     });
 </script>
 </body>
