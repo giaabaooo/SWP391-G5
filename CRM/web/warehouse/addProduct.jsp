@@ -399,7 +399,7 @@
 
 <!-- HEADER -->
 <header class="header">
-    <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
+    <a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
     <nav class="navbar navbar-static-top" role="navigation">
         <!-- <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
             <span class="sr-only">Toggle navigation</span>
@@ -445,18 +445,16 @@
             </div>
 
             <ul class="sidebar-menu">
-                <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                <li><a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
-                <!-- Inventory Management -->
+                <!-- Products -->
                 <li class="treeview">
                     <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
-                        <i class="fa fa-cubes"></i> <span>Inventory Management</span>
+                        <i class="fa fa-cubes"></i> <span>Products</span>
                     </a>
                     <ul class="collapse" id="inventoryMenu">
-                        <li><a href="inventory.jsp"><i class="fa fa-list"></i> View Inventory</a></li>
+                        <li><a href="../warestaff/viewListProduct"><i class="fa fa-list"></i> View List Product</a></li>
                         <li class="active"><a href="../warestaff/addNewProduct"><i class="fa fa-plus"></i> Add Product</a></li>
-                        <li><a href="updateItem.jsp"><i class="fa fa-edit"></i> Update Product</a></li>
-                        <li><a href="deleteItem.jsp"><i class="fa fa-trash"></i> Delete Product</a></li>
                     </ul>
                 </li>
 
@@ -629,7 +627,7 @@
                                         <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                             <i class="fa fa-save"></i> Save Product
                                         </button>
-                                        <a href="dashboard.jsp" class="btn btn-default" style="min-width: 150px;">
+                                        <a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp" class="btn btn-default" style="min-width: 150px;">
                                             <i class="fa fa-arrow-left"></i> Back to Dashboard
                                         </a>
                                     </div>

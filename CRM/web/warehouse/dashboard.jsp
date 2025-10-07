@@ -538,16 +538,14 @@
             <ul class="sidebar-menu">
                 <li class="active"><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
                 
-                <!-- Inventory Management -->
+                <!-- Product -->
                 <li class="treeview">
                     <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
-                        <i class="fa fa-cubes"></i> <span>Inventory Management</span>
+                        <i class="fa fa-cubes"></i> <span>Products</span>
                     </a>
                     <ul class="collapse" id="inventoryMenu">
-                        <li><a href="inventory.jsp"><i class="fa fa-list"></i> View Inventory</a></li>
+                        <li><a href="../warestaff/viewListProduct"><i class="fa fa-list"></i> View List Product</a></li>
                         <li><a href="../warestaff/addNewProduct"><i class="fa fa-plus"></i> Add Product</a></li>
-                        <li><a href="updateItem.jsp"><i class="fa fa-edit"></i> Update Product</a></li>
-                        <li><a href="deleteItem.jsp"><i class="fa fa-trash"></i> Delete Product</a></li>
                     </ul>
                 </li>
                 
@@ -653,8 +651,8 @@
                                     </a>
                                 </div>
                                 <div class="col-md-6">
-                                    <a href="inventory.jsp" class="action-btn info">
-                                        <i class="fa fa-list"></i> View Inventory
+                                    <a href="../warestaff/viewListProduct" class="action-btn info">
+                                        <i class="fa fa-list"></i> View List Product
                                     </a>
                                 </div>
                             </div>
