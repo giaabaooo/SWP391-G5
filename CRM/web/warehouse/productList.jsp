@@ -207,6 +207,17 @@
             color: white;
         }
 
+        .btn-view {
+            background-color: #8b5cf6;
+            color: white;
+            border: 1px solid #8b5cf6;
+        }
+
+        .btn-view:hover {
+            background-color: #7c3aed;
+            color: white;
+        }
+
         /* Search & Filter Bar */
         .filter-bar {
             padding: 1.5rem;
@@ -643,6 +654,9 @@
                                                 <% } %>
                                             </td>
                                             <td>
+                                                <a href="../warestaff/viewProductDetail?id=<%= product.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
+                                                    <i class="fa fa-eye"></i> View
+                                                </a>
                                                 <button class="btn btn-action btn-edit" data-product-id="<%= product.getId() %>">
                                                     <i class="fa fa-edit"></i> Edit
                                                 </button>

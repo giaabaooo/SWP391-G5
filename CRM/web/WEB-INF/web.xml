@@ -17,6 +17,10 @@
         <servlet-name>ViewListProductController</servlet-name>
         <servlet-class>Controller.warestaff.ViewListProductController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ViewProductDetailController</servlet-name>
+        <servlet-class>Controller.warestaff.ViewProductDetailController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
         <url-pattern>/login</url-pattern>
@@ -69,5 +73,9 @@
     <servlet-mapping>
         <servlet-name>ViewListProductController</servlet-name>
         <url-pattern>/warestaff/viewListProduct</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewProductDetailController</servlet-name>
+        <url-pattern>/warestaff/viewProductDetail</url-pattern>
     </servlet-mapping>
 </web-app>
