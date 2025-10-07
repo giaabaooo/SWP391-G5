@@ -25,6 +25,10 @@
 *.tar.gz
 *.rar
 
+# Exception: Allow jar files in CRM/lib folder
+!CRM/lib/
+!CRM/lib/*.jar
+
 # Virtual machine crash logs
 hs_err_pid*
 replay_pid*
