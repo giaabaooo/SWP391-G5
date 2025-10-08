@@ -1,117 +1,468 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="data.Product" %>
+<%@ page import="data.Category" %>
+<%@ page import="data.Brand" %>
+<%@ page import="data.Device" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>My Devices</title>
+        <title>Customer | Device Details</title>
         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-        <meta name="description" content="Developed By M Abdur Rokib Promy">
-        <meta name="keywords" content="Admin, Bootstrap 3, Template, Theme, Responsive">
-        <link href="../css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-        <link href="../css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-        <link href="../css/admin/style.css" rel="stylesheet" type="text/css" />
-        <link href="../css/ionicons.min.css" rel="stylesheet" type="text/css" />
-        <link href="../css/morris/morris.css" rel="stylesheet" type="text/css" />
-        <link href="../css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
-        <link href="../css/datepicker/datepicker3.css" rel="stylesheet" type="text/css" />
-        <link href="../css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
-        <link href="css/iCheck/all.css" rel="stylesheet" type="text/css" />
+        <meta name="description" content="Warehouse Management System">
+        <meta name="keywords" content="Warehouse, Inventory, Management">
+        <!-- bootstrap 3.0.2 -->
+        <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/morris/morris.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/iCheck/all.css" rel="stylesheet" type="text/css" />
         <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/admin/style.css" rel="stylesheet" type="text/css" />
+        <style>
+            /* Professional Dashboard Styles */
+            html, body {
+                height: 100%;
+                overflow: hidden;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: #ffffff;
+            }
+
+            .wrapper {
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .right-side {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                position: relative;
+                height: 100%;
+                background: #ffffff;
+                min-height: 100vh;
+            }
+
+            .content {
+                flex: 1;
+                padding: 2rem;
+                background: #ffffff;
+                overflow-y: auto;
+                min-height: 0;
+                padding-bottom: 2rem;
+            }
+
+            .footer-main {
+                background-color: #ffffff;
+                padding: 1rem;
+                border-top: 1px solid #e8ecef;
+                text-align: center;
+                position: relative;
+                margin-top: auto;
+                z-index: 1000;
+                font-size: 0.875rem;
+                color: #6c757d;
+                font-weight: 400;
+                box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+                flex-shrink: 0;
+            }
+
+            /* Remove sidebar dots and search */
+            .sidebar-menu li {
+                list-style: none;
+            }
+
+            .sidebar-menu li:before {
+                display: none;
+            }
+
+            .sidebar-form {
+                display: none;
+            }
+
+            /* Product Detail Card */
+            .product-detail-card {
+                background: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+                margin-bottom: 1.5rem;
+                border: 1px solid #f1f3f4;
+            }
+
+            .card-header {
+                padding: 1.25rem 1.5rem;
+                border-bottom: 1px solid #f1f3f4;
+                background: #fafbfc;
+                border-radius: 12px 12px 0 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .card-header h3 {
+                margin: 0;
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #2d3748;
+                display: flex;
+                align-items: center;
+            }
+
+            .card-header h3 i {
+                margin-right: 0.5rem;
+                color: #667eea;
+            }
+
+            .card-body {
+                padding: 2rem;
+            }
+
+            /* Product Image */
+            .product-image-container {
+                text-align: center;
+                padding: 2rem;
+                background: #f8f9fa;
+                border-radius: 12px;
+                margin-bottom: 2rem;
+            }
+
+            .product-image {
+                max-width: 100%;
+                max-height: 400px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .no-image {
+                width: 300px;
+                height: 300px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 12px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 5rem;
+            }
+
+            /* Product Info */
+            .info-row {
+                display: flex;
+                padding: 1rem 0;
+                border-bottom: 1px solid #f1f3f4;
+            }
+
+            .info-row:last-child {
+                border-bottom: none;
+            }
+
+            .info-label {
+                flex: 0 0 200px;
+                font-weight: 600;
+                color: #4a5568;
+                display: flex;
+                align-items: center;
+            }
+
+            .info-label i {
+                margin-right: 0.5rem;
+                color: #667eea;
+                width: 20px;
+            }
+
+            .info-value {
+                flex: 1;
+                color: #2d3748;
+                font-size: 1rem;
+            }
+
+            /* Status Badge */
+            .status-badge {
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-weight: 600;
+                font-size: 0.875rem;
+                display: inline-block;
+            }
+
+            .status-active {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            .status-inactive {
+                background: #fee2e2;
+                color: #dc2626;
+            }
+
+            /* Price Display */
+            .price-display {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #667eea;
+            }
+
+            /* Action Buttons */
+            .btn-primary {
+                background: #6366f1;
+                border: 1px solid #6366f1;
+                border-radius: 8px;
+                padding: 0.75rem 1.5rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .btn-primary:hover {
+                background: #5b5ff5;
+                border-color: #5b5ff5;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            }
+
+            .btn-default {
+                background: #f8f9fa;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 0.75rem 1.5rem;
+                font-weight: 500;
+                color: #4a5568;
+                transition: all 0.3s ease;
+            }
+
+            .btn-default:hover {
+                background: #e2e8f0;
+                border-color: #cbd5e0;
+                transform: translateY(-1px);
+                color: #2d3748;
+            }
+
+            .btn-danger {
+                background: #ef4444;
+                border: 1px solid #ef4444;
+                border-radius: 8px;
+                padding: 0.75rem 1.5rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .btn-danger:hover {
+                background: #dc2626;
+                border-color: #dc2626;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .content {
+                    padding: 1rem;
+                }
+
+                .info-row {
+                    flex-direction: column;
+                }
+
+                .info-label {
+                    margin-bottom: 0.5rem;
+                }
+
+                .card-body {
+                    padding: 1.5rem;
+                }
+            }
+        </style>
     </head>
     <body class="skin-black">
 
+        <!-- HEADER -->
         <header class="header">
-            <a href="dashboard.jsp" class="logo">${sessionScope.user.role.name}</a>
+            <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
-
+                <div class="navbar-right">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-user"></i>
+                                <span>${sessionScope.user.fullName} <i class="caret"></i></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-custom dropdown-menu-right">
+                                <li class="dropdown-header text-center">Account</li>
+                                <li>
+                                    <a href="#"><i class="fa fa-user fa-fw pull-right"></i> Profile</a>
+                                    <a data-toggle="modal" href="#modal-user-settings"><i class="fa fa-cog fa-fw pull-right"></i> Settings</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li><a href="../login.jsp"><i class="fa fa-ban fa-fw pull-right"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </nav>
         </header>
 
         <div class="wrapper row-offcanvas row-offcanvas-left">
+
             <!-- SIDEBAR -->
             <aside class="left-side sidebar-offcanvas">
                 <section class="sidebar">
                     <div class="user-panel">
+
                         <div class="pull-left info">
                             <p>${sessionScope.user.fullName}</p>
+                            <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
                         </div>
                     </div>
-                    <ul class="sidebar-menu">
-                        <li><a href="dashboard.jsp"><span>Home</span></a></li>
-                        <li class="treeview">
-                            <a href="#ticketsMenu" data-toggle="collapse" aria-expanded="false style="text-decoration:none;">
-                                <span>Tickets</span>
 
+                    <ul class="sidebar-menu">
+                        <li class="active"><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+
+
+                        <li class="treeview">
+                            <a href="#categoryMenu" data-toggle="collapse" aria-expanded="false">
+                                <i class="fa fa-tags"></i> <span>Request</span>
                             </a>
-                            <ul class="collapse" id="ticketsMenu">
-                                <li><a href="ticket_create.jsp"> Create Ticket</a></li>
-                                <li><a href="ticket_list.jsp"> View List Ticket</a></li>
-                                <li><a href="ticket_status.jsp"> Track Status</a></li>
+                            <ul class="collapse" id="categoryMenu">
+                                <li><a href="createRequest.jsp"><i class="fa fa-plus"></i> Create Request</a></li>
+                                <li><a href="listRequest.jsp"><i class="fa fa-eye"></i> View List Request</a></li>
+                                <li><a href="statusRequest.jsp"><i class="fa fa-edit"></i> Track Status Request</a></li>
+
                             </ul>
                         </li>
-                        <li class="active"><a href="${pageContext.request.contextPath}/customer/devices"><span>My Devices</span></a></li>
-                        <li><a href="profile.jsp"><span>My Profile</span></a></li>
-                        <li><a href="payments.jsp"><span>Payments</span></a></li>
-                        <li><a href="feedback.jsp"><span>Feedback</span></a></li>
-                        <li><a href="logout">Sign Out</a></li>
+                        <li>
+                            <a href="${pageContext.request.contextPath}/customer/devices"><i class="fa fa-cube"></i>My Devices </a>
+                        </li>
+
+
+                        <li>
+                        <li><a href="contract.jsp"><i class="fa fa-plus"></i> Contract</a></li>
+                        </li>
+
+
+
+
+                        <li>
+                            <a href="feedback.jsp"><i class="fa fa-edit"></i>  <span>Feedback</span></a>
+                        </li>
                     </ul>
                 </section>
             </aside>
-
             <!-- MAIN CONTENT -->
-    <aside class="right-side">
-        <section class="content">
-            <h1>Device Detail</h1>
+            <aside class="right-side">
+                <section class="content">
+                    <%
+                        Device device = (Device) request.getAttribute("device");
+                
+                        
+                    %>
 
-            <c:if test="${not empty device}">
-                <div class="panel panel-default" style="max-width:500px; margin:auto;">
-                    <div class="panel-heading text-center">
-                        <strong>${device.productName}</strong>
+                    <!-- Page Header -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Device Details</h1>
+                            <p style="color: #718096; margin-bottom: 2rem;">View detailed information about this device</p>
+                        </div>
                     </div>
-                    <div class="panel-body text-center">
-                        <img src="${pageContext.request.contextPath}/${device.imageUrl}" 
-                             alt="${device.productName}" 
-                             class="img-responsive img-thumbnail"
-                             style="max-height:300px; margin:auto;">
 
-                        <p><strong>Serial:</strong> ${device.serialNumber}</p>
-                        <p><strong>Brand:</strong> ${device.brandName}</p>
-                        <p><strong>Status:</strong> ${device.status}</p>
-                        <p><strong>Warranty Expiration:</strong> 
-                            <fmt:formatDate value="${device.warrantyExpiration}" pattern="dd/MM/yyyy"/>
-                        </p>
+                    <!-- Product Detail Card -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <% if (device != null) { %>
+                            <div class="card product-detail-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h3><i class="fa fa-cube"></i> <%= device.getProductName() %></h3>
+                                    <span class="status-badge <%= device.getStatus().equals("InWarranty") ? "status-active" : "status-inactive" %>">
+                                        <i class="fa <%= device.getStatus().equals("InWarranty") ? "fa-check-circle" : "fa-exclamation-circle" %>"></i> <%= device.getStatus() %>
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <h4><i class="fa fa-info-circle"></i> Device Information</h4>
+                                    <div class="info-row">
+                                        <strong>Device ID:</strong> <%= device.getId() %>
+                                    </div>
+                                    <div class="info-row">
+                                        <strong>Product Name:</strong> <%= device.getProductName() %>
+                                    </div>
+                                    <div class="info-row">
+                                        <strong>Brand:</strong> <%= device.getBrandName() != null ? device.getBrandName() : "N/A" %>
+                                    </div>
+                                    <div class="info-row">
+                                        <strong>Category:</strong> <%= device.getCategoryName() != null ? device.getCategoryName() : "N/A" %>
+                                    </div>
+                                    <div class="info-row">
+                                        <strong>Serial Number:</strong> <%= device.getSerialNumber() != null ? device.getSerialNumber() : "N/A" %>
+                                    </div>
+                                    <div class="info-row">
+                                        <strong>Warranty Expiration:</strong> <%= device.getWarrantyExpiration() != null ? device.getWarrantyExpiration() : "N/A" %>
+                                    </div>
 
-                        <p>
-                            <a href="${pageContext.request.contextPath}/customer/devices" class="btn btn-primary">Back</a>
-                        </p>
+                                    <div class="mt-3 text-center">
+                                        <a href="devices" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back to Devices</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
                     </div>
-                </div>
-            </c:if>
 
-            <c:if test="${empty device}">
-                <p class="text-center text-danger">Device not found.</p>
-            </c:if>
-        </section>
-    </aside>
+                    <% } else { %>
+                    <!-- Error State -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="product-detail-card">
+                                <div class="card-body" style="text-align: center; padding: 3rem;">
+                                    <i class="fa fa-exclamation-triangle" style="font-size: 4rem; color: #ef4444; margin-bottom: 1rem;"></i>
+                                    <h3 style="color: #2d3748; margin-bottom: 1rem;">Product Not Found</h3>
+                                    <p style="color: #718096; margin-bottom: 2rem;">The product you are looking for does not exist or has been removed.</p>
+                                    <a href="../customer/devices" class="btn btn-primary">
+                                        <i class="fa fa-arrow-left"></i> Back to Product List
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
+
+                </section>
+                <div class="footer-main">Copyright &copy; Warehouse Management System, 2024</div>
+            </aside>
         </div>
-        
 
-
+        <!-- SCRIPTS -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+        <script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/daterangepicker.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/chart.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/icheck.min.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/fullcalendar.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
 
-        <script src="js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
-        <script src="js/bootstrap.min.js" type="text/javascript"></script>
-        <script src="js/daterangepicker.js" type="text/javascript"></script>
-        <script src="js/chart.js" type="text/javascript"></script>
-        <script src="js/icheck.min.js" type="text/javascript"></script>
-        <script src="js/fullcalendar.js" type="text/javascript"></script>
-        <script src="js/app.js" type="text/javascript"></script>
-        <script src="js/dashboard.js" type="text/javascript"></script>
-        <!-- Bootstrap 5 Bundle JS (gồm cả Popper.js) -->
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script>
+            $(function () {
+                // Handle collapsible menu
+                $('.treeview > a').click(function (e) {
+                    e.preventDefault();
+                    var target = $(this).attr('href');
+                    $(target).collapse('toggle');
+                });
+
+                // Auto-expand Products menu
+                $('#inventoryMenu').addClass('in');
+            });
+
+            // Delete product function
+            function deleteProduct(id) {
+                if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                    // TODO: Implement delete functionality
+                    alert('Delete product ID: ' + id);
+                }
+            }
+        </script>
     </body>
 </html>

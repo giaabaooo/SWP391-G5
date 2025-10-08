@@ -778,10 +778,17 @@
                                                         <td><%= d.getProductName() %></td>
                                                         <td><%= d.getCategoryName() %></td>
                                                         <td><%= d.getBrandName() %></td>
-
                                                         <td><%= d.getStatus() %></td>
                                                         <td>
-                                                            <a href="deviceDetail?id=<%= d.getId() %>">Detail</a>
+                                                            <a href="detailDevice?id=<%= d.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
+                                                                <i class="fa fa-eye"></i> Detail
+                                                            </a>
+                                                            <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                                <i class="fa fa-edit"></i> Wa
+                                                            </a>
+                                                            <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                                <i class="fa fa-edit"></i> Repair
+                                                            </a>
                                                         </td>
                                                     </tr>
                                                     <%
@@ -881,7 +888,7 @@
                                                             if (params.get('brand')) {
                                                                 urlParams.brand = params.get('brand');
                                                             }
-                                                            if (params.get('status')) { 
+                                                            if (params.get('status')) {
                                                                 urlParams.status = params.get('status');
                                                             }
                                                             if (params.get('pageSize')) {
