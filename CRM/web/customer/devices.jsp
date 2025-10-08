@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -26,14 +27,7 @@
         <header class="header">
             <a href="dashboard.jsp" class="logo">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
-                <form action="#" method="get" class="sidebar-form">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control" placeholder="Search..."/>
-                        <span class="input-group-btn">
-                            <button type='submit' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
-                        </span>
-                    </div>
-                </form>
+
             </nav>
         </header>
 
@@ -71,9 +65,29 @@
             <!-- MAIN CONTENT -->
             <aside class="right-side">
                 <section class="content">
-                    <h2>My Devices</h2>
+                    <h1>My Devices</h1>
+                    <form method="get" action="${pageContext.request.contextPath}/customer/devices" class="form-inline mb-3">
+                        <input type="text" name="search" value="${param.search}" placeholder="Search by name or serial..." class="form-control" />
+
+                        <select name="brand" class="form-control">
+                            <option value="ALL" ${param.brand == 'ALL' ? 'selected' : ''}>All Brands</option>
+                            <c:forEach var="b" items="${brands}">
+                                <option value="${b}" ${param.brand == b ? 'selected' : ''}>${b}</option>
+                            </c:forEach>
+                        </select>
+
+                        <select name="warranty" class="form-control">
+                            <option value="ALL" ${param.warranty == 'ALL' ? 'selected' : ''}>All</option>
+                            <option value="UNDER" ${param.warranty == 'UNDER' ? 'selected' : ''}>Under Warranty</option>
+                            <option value="EXPIRED" ${param.warranty == 'EXPIRED' ? 'selected' : ''}>Expired</option>
+                        </select>
+
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                    </form>
                     <div class="row">
+                        
                         <c:forEach var="device" items="${devices}">
+
                             <div class="col-md-4">
                                 <div class="panel panel-default">
                                     <div class="panel-heading text-center">
@@ -89,17 +103,19 @@
                                         <p><strong>Warranty Expiration:</strong>
                                             <fmt:formatDate value="${device.warrantyExpiration}" pattern="dd/MM/yyyy"/>
                                         </p>
-                                        <c:if test="${!device.underWarranty}">
-                                            <p style="color:red; font-weight:bold;">⚠ This device is out of warranty!</p>
-                                        </c:if>
+
 
                                         <div class="btn-group" style="margin-top:10px;">
                                             <c:choose>
+                                                
                                                 <c:when test="${device.underWarranty}">
+                                                    <button class="btn btn-info" onclick="location.href='${pageContext.request.contextPath}/customer/detailDevice?deviceId=${device.deviceId}'">Detail</button>
+
                                                     <button class="btn btn-success">Warranty</button>
                                                     <button class="btn btn-primary">Repair</button>
                                                 </c:when>
                                                 <c:otherwise>
+                                                    <button class="btn btn-info" onclick="location.href='${pageContext.request.contextPath}/customer/detailDevice?deviceId=${device.deviceId}'">Detail</button>
                                                     <button class="btn btn-default" disabled>Warranty</button>
                                                     <button class="btn btn-primary" >Repair</button>
                                                 </c:otherwise>
@@ -113,6 +129,44 @@
                 </section>
             </aside>
         </div>
+        <!-- Pagination -->
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <ul class="pagination">
+                    <!-- Previous -->
+                    <c:choose>
+                        <c:when test="${currentPage > 1}">
+                            <li>
+                                <a href="${pageContext.request.contextPath}/customer/devices?page=${currentPage - 1}&search=${fn:escapeXml(search)}&brand=${fn:escapeXml(brand)}&warranty=${fn:escapeXml(warranty)}">Previous</a>
+                            </li>
+                        </c:when>
+                        <c:otherwise>
+                            <li class="disabled"><a href="#">Previous</a></li>
+                            </c:otherwise>
+                        </c:choose>
+
+                    <!-- Page numbers -->
+                    <c:forEach var="i" begin="1" end="${totalPages}">
+                        <li class="${i == currentPage ? 'active' : ''}">
+                            <a href="${pageContext.request.contextPath}/customer/devices?page=${i}&search=${fn:escapeXml(search)}&brand=${fn:escapeXml(brand)}&warranty=${fn:escapeXml(warranty)}">${i}</a>
+                        </li>
+                    </c:forEach>
+
+                    <!-- Next -->
+                    <c:choose>
+                        <c:when test="${currentPage < totalPages}">
+                            <li>
+                                <a href="${pageContext.request.contextPath}/customer/devices?page=${currentPage + 1}&search=${fn:escapeXml(search)}&brand=${fn:escapeXml(brand)}&warranty=${fn:escapeXml(warranty)}">Next</a>
+                            </li>
+                        </c:when>
+                        <c:otherwise>
+                            <li class="disabled"><a href="#">Next</a></li>
+                            </c:otherwise>
+                        </c:choose>
+                </ul>
+            </div>
+        </div>
+
 
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 

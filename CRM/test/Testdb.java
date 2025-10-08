@@ -1,5 +1,3 @@
-package dal;
-
 import dal.DBContext;
 import java.sql.Connection;
 import java.sql.SQLException;
