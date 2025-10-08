@@ -172,4 +172,36 @@ public class DeviceDAO extends DBContext {
         } catch (Exception e) { e.printStackTrace(); }
         return statuses;
     }
+    public Device getDeviceById(int deviceId) {
+        String sql = """
+            SELECT d.id, d.contract_item_id, d.serial_number, d.warranty_expiration, d.status,
+                   p.name AS product_name, b.name AS brand_name, c.name AS category_name
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Product p ON ci.product_id = p.id
+            JOIN Brand b ON p.brand_id = b.id
+            JOIN Category c ON p.category_id = c.id
+            WHERE d.id = ?
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, deviceId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Device d = new Device();
+                d.setId(rs.getInt("id"));
+                d.setContractItemId(rs.getInt("contract_item_id"));
+                d.setSerialNumber(rs.getString("serial_number"));
+                d.setWarrantyExpiration(rs.getDate("warranty_expiration"));
+                d.setStatus(rs.getString("status"));
+                d.setProductName(rs.getString("product_name"));
+                d.setBrandName(rs.getString("brand_name"));
+                d.setCategoryName(rs.getString("category_name"));
+                return d;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
