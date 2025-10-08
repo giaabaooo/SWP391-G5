@@ -125,36 +125,38 @@ CREATE TABLE CustomerRequest (
     customer_id INT NOT NULL,
     device_id INT NOT NULL,
     request_type ENUM('WARRANTY','MAINTENANCE','REPAIR') NOT NULL,
+    title VARCHAR(255),
     description TEXT,
     request_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('PENDING','TRANSFERRED','ASSIGNED','IN_PROGRESS','COMPLETED','INVOICED','PAID','CLOSED') DEFAULT 'PENDING',
-    total_cost DECIMAL(15,2) DEFAULT 0,
-    customer_comment TEXT,
-    rating INT CHECK (rating BETWEEN 1 AND 5),
+    status ENUM('PENDING','TRANSFERRED','ASSIGNED','IN_PROGRESS','COMPLETED','AWAITING_PAYMENT','PAID','CLOSED','CANCELLED') DEFAULT 'PENDING',
     is_active TINYINT(1) DEFAULT 1,
     FOREIGN KEY (customer_id) REFERENCES User(id) ON DELETE RESTRICT,
     FOREIGN KEY (device_id) REFERENCES Device(id) ON DELETE RESTRICT
 );
 
-CREATE TABLE Task (
+CREATE TABLE CustomerRequestMeta (
     id INT AUTO_INCREMENT PRIMARY KEY,
     request_id INT NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    start_time DATETIME,
-    end_time DATETIME,
-    status ENUM('PENDING','IN_PROGRESS','COMPLETED','CANCELLED') DEFAULT 'PENDING',
-    task_cost DECIMAL(15,2) DEFAULT 0,
+    priority ENUM('LOW','MEDIUM','HIGH','URGENT') DEFAULT 'MEDIUM',
+    reject_reason TEXT,
+    total_cost DECIMAL(15,2) DEFAULT 0,
+    paid_amount DECIMAL(15,2) DEFAULT 0,
+    payment_status ENUM('UNPAID','PARTIALLY_PAID','PAID') DEFAULT 'UNPAID',
+    payment_due_date DATE,
+    customer_comment TEXT,
+    customer_service_response TEXT,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
     FOREIGN KEY (request_id) REFERENCES CustomerRequest(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Task_Assignment (
+
+CREATE TABLE CustomerRequest_Assignment (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    task_id INT NOT NULL,
+    request_id INT NOT NULL,
     technician_id INT NOT NULL,
     is_main BOOLEAN DEFAULT FALSE,
     assigned_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (task_id) REFERENCES Task(id) ON DELETE CASCADE,
+    FOREIGN KEY (request_id) REFERENCES CustomerRequest(id) ON DELETE CASCADE,
     FOREIGN KEY (technician_id) REFERENCES User(id) ON DELETE RESTRICT
 );
 
@@ -168,24 +170,12 @@ CREATE TABLE MaintenanceSchedule (
     FOREIGN KEY (device_id) REFERENCES Device(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Invoice (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    request_id INT NOT NULL,
-    customer_id INT NOT NULL,
-    amount DECIMAL(15,2) NOT NULL,
-    paid_amount DECIMAL(15,2) DEFAULT 0,
-    status ENUM('UNPAID','PARTIALLY_PAID','PAID','CANCELLED') DEFAULT 'UNPAID',
-    issue_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    due_date DATE,
-    FOREIGN KEY (request_id) REFERENCES CustomerRequest(id) ON DELETE RESTRICT,
-    FOREIGN KEY (customer_id) REFERENCES User(id) ON DELETE RESTRICT
-);
 
 CREATE TABLE Payment (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    invoice_id INT NOT NULL,
+    request_id INT NOT NULL,
     amount DECIMAL(15,2) NOT NULL,
     status ENUM('PENDING','COMPLETED','FAILED') DEFAULT 'PENDING',
     payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (invoice_id) REFERENCES Invoice(id) ON DELETE CASCADE
+    FOREIGN KEY (request_id) REFERENCES CustomerRequest(id) ON DELETE CASCADE
 );

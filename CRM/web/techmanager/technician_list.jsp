@@ -7,20 +7,29 @@
 <section class="content-header">
     <h1>Technician Management</h1>
     <ol class="breadcrumb">
-        <li><a href="${pageContext.request.contextPath}/cskh/home"><i class="fa fa-dashboard"></i> Technican</a></li>
-        <li class="active">Technician List</li>
+        <li><a href="${pageContext.request.contextPath}/techmanager/dashboard.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li class="active"><a href="${pageContext.request.contextPath}/techmanager/technician_list.jsp">Technician List</a></li>
     </ol>
 </section>
 
 <section class="content">
 
     <!-- Filter -->
-    <form method="get" action="${pageContext.request.contextPath}/cskh/user" class="row mb-3">
+    <form method="get" action="${pageContext.request.contextPath}/techmanager/technician" class="row mb-3">
         <input type="hidden" name="action" value="list"/>
         <div class="col-md-3">
             <input type="text" name="keyword" value="${param.keyword}" placeholder="Search username/email" class="form-control"/>
         </div>
-        
+<!--        <div class="col-md-3">
+            <select name="role" class="form-control">
+                <option value="">--Select Role--</option>
+                <c:forEach var="r" items="${roles}">
+                    <option value="${r.name}" ${param.role==r.name?"selected":""}>
+                        ${r.name}
+                    </option>
+                </c:forEach>
+            </select>
+        </div>-->
         <div class="col-md-2">
             <select name="status" class="form-control">
                 <option value="">--Status--</option>
@@ -30,7 +39,7 @@
         </div>
         <div class="col-md-4">
             <button type="submit" class="btn btn-primary">Filter</button>
-            <a href="${pageContext.request.contextPath}/cskh/user?action=new" class="btn btn-success">+ Add User</a>
+<!--            <a href="${pageContext.request.contextPath}/cskh/user?action=new" class="btn btn-success">+ Add User</a>-->
             <a href="${pageContext.request.contextPath}/cskh/user?action=list" class="btn btn-secondary">Clear</a>
         </div>
     </form>
@@ -46,7 +55,7 @@
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Phone</th>
-                        <!--<th>Role</th>-->
+<!--                        <th>Role</th>-->
                         <th>Status</th>
                         <th style="width:150px;">Actions</th>
                     </tr>
@@ -59,7 +68,7 @@
                             <td>${u.fullName}</td>
                             <td>${u.email}</td>
                             <td>${u.phone}</td>
-                            <!--<td>${u.role.name}</td>-->
+<!--                            <td>${u.role.name}</td>-->
                             <td>
                                 <span class="label ${u.isActive?'label-success':'label-danger'}">
                                     ${u.isActive?'Active':'Inactive'}
