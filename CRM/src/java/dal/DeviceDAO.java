@@ -1,163 +1,175 @@
 package dal;
 
-import data.Devices;
+import data.Device;
 import java.sql.*;
 import java.util.*;
 
 public class DeviceDAO extends DBContext {
-    public List<Devices> getDevicesByUserId(
-        int userId, String keyword, String brandFilter, String warrantyStatus, int offset, int limit) {
 
-    List<Devices> list = new ArrayList<>();
-    String sql = "SELECT d.id AS device_id, dd.id AS device_detail_id, " +
-                 "p.name AS productName, p.image_url, dd.serial_number, " +
-                 "dd.warranty_expiration, dd.status, b.name AS brandName " +
-                 "FROM Device d " +
-                 "JOIN Product p ON d.product_id = p.id " +
-                 "JOIN Brand b ON p.brand_id = b.id " +
-                 "JOIN DeviceDetail dd ON d.id = dd.device_id " +
-                 "WHERE d.user_id = ? ";
+    // Lấy danh sách device theo user + filter + pagination
+    public List<Device> getDevicesByUserId(int userId, String keyword, String brand, String category, String status, int offset, int limit) {
+        List<Device> devices = new ArrayList<>();
 
-    // search theo tên hoặc serial
-    if (keyword != null && !keyword.isEmpty()) {
-        sql += "AND (p.name LIKE ? OR dd.serial_number LIKE ?) ";
-    }
-
-    // filter theo hãng
-    if (brandFilter != null && !brandFilter.equals("ALL")) {
-        sql += "AND b.name = ? ";
-    }
-
-    // filter theo bảo hành
-    if (warrantyStatus != null && !warrantyStatus.equals("ALL")) {
-        if (warrantyStatus.equals("UNDER")) {
-            sql += "AND dd.warranty_expiration >= CURDATE() ";
-        } else if (warrantyStatus.equals("EXPIRED")) {
-            sql += "AND dd.warranty_expiration < CURDATE() ";
-        }
-    }
-
-    sql += "ORDER BY dd.warranty_expiration DESC LIMIT ? OFFSET ?";
-
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        int index = 1;
-        ps.setInt(index++, userId);
+        StringBuilder sql = new StringBuilder("""
+            SELECT 
+                d.id AS device_id,
+                d.status AS device_status,
+                p.name AS product_name,
+                c.name AS category_name,
+                b.name AS brand_name,
+                p.purchase_price,
+                p.selling_price
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Product p ON ci.product_id = p.id
+            JOIN Category c ON p.category_id = c.id
+            JOIN Brand b ON p.brand_id = b.id
+            JOIN Contract con ON ci.contract_id = con.id
+            WHERE con.customer_id = ?
+        """);
 
         if (keyword != null && !keyword.isEmpty()) {
-            ps.setString(index++, "%" + keyword + "%");
-            ps.setString(index++, "%" + keyword + "%");
+            sql.append(" AND p.name LIKE ? ");
+        }
+        if (brand != null && !brand.equalsIgnoreCase("ALL")) {
+            sql.append(" AND b.name = ? ");
+        }
+        if (category != null && !category.equalsIgnoreCase("ALL")) {
+            sql.append(" AND c.name = ? ");
+        }
+        if (status != null && !status.equalsIgnoreCase("ALL")) {
+            sql.append(" AND d.status = ? ");
         }
 
-        if (brandFilter != null && !brandFilter.equals("ALL")) {
-            ps.setString(index++, brandFilter);
-        }
+        sql.append(" ORDER BY d.id ASC LIMIT ? OFFSET ?");
 
-        ps.setInt(index++, limit);
-        ps.setInt(index, offset);
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            ps.setInt(index++, userId);
 
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            Devices device = new Devices();
-            device.setDeviceId(rs.getInt("device_id"));
-            device.setDeviceDetailId(rs.getInt("device_detail_id"));
-            device.setProductName(rs.getString("productName"));
-            device.setImageUrl(rs.getString("image_url"));
-            device.setSerialNumber(rs.getString("serial_number"));
-            device.setWarrantyExpiration(rs.getDate("warranty_expiration"));
-            device.setStatus(rs.getString("status"));
-            device.setBrandName(rs.getString("brandName"));
-            list.add(device);
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return list;
-}
-    
-    public int countDevicesByUser(
-        int userId, String keyword, String brandFilter, String warrantyStatus) {
-    String sql = "SELECT COUNT(*) FROM Device d " +
-                 "JOIN Product p ON d.product_id = p.id " +
-                 "JOIN Brand b ON p.brand_id = b.id " +
-                 "JOIN DeviceDetail dd ON d.id = dd.device_id " +
-                 "WHERE d.user_id = ? ";
+            if (keyword != null && !keyword.isEmpty()) ps.setString(index++, "%" + keyword + "%");
+            if (brand != null && !brand.equalsIgnoreCase("ALL")) ps.setString(index++, brand);
+            if (category != null && !category.equalsIgnoreCase("ALL")) ps.setString(index++, category);
+            if (status != null && !status.equalsIgnoreCase("ALL")) ps.setString(index++, status);
 
-    if (keyword != null && !keyword.isEmpty()) {
-        sql += "AND (p.name LIKE ? OR dd.serial_number LIKE ?) ";
-    }
-    if (brandFilter != null && !brandFilter.equals("ALL")) {
-        sql += "AND b.name = ? ";
-    }
-    if (warrantyStatus != null && !warrantyStatus.equals("ALL")) {
-        if (warrantyStatus.equals("UNDER")) {
-            sql += "AND dd.warranty_expiration >= CURDATE() ";
-        } else if (warrantyStatus.equals("EXPIRED")) {
-            sql += "AND dd.warranty_expiration < CURDATE() ";
-        }
-    }
+            ps.setInt(index++, limit);
+            ps.setInt(index, offset);
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        int index = 1;
-        ps.setInt(index++, userId);
-
-        if (keyword != null && !keyword.isEmpty()) {
-            ps.setString(index++, "%" + keyword + "%");
-            ps.setString(index++, "%" + keyword + "%");
-        }
-        if (brandFilter != null && !brandFilter.equals("ALL")) {
-            ps.setString(index++, brandFilter);
-        }
-
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) return rs.getInt(1);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return 0;
-}
-     public List<String> getAllBrands() {
-    List<String> brands = new ArrayList<>();
-    String sql = "SELECT name FROM Brand";
-    try (PreparedStatement ps = connection.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) {
-            brands.add(rs.getString("name"));
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return brands;
-}
-public Devices getDeviceById(int deviceId) {
-    String sql = "SELECT d.id AS device_id, dd.id AS device_detail_id, " +
-                 "p.name AS productName, p.image_url, dd.serial_number, " +
-                 "dd.warranty_expiration, dd.status, b.name AS brandName " +
-                 "FROM Device d " +
-                 "JOIN Product p ON d.product_id = p.id " +
-                 "JOIN Brand b ON p.brand_id = b.id " +
-                 "JOIN DeviceDetail dd ON d.id = dd.device_id " +
-                 "WHERE d.id = ?";
-
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, deviceId);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                Devices device = new Devices();
-                device.setDeviceId(rs.getInt("device_id"));
-                device.setDeviceDetailId(rs.getInt("device_detail_id"));
-                device.setProductName(rs.getString("productName"));
-                device.setImageUrl(rs.getString("image_url"));
-                device.setSerialNumber(rs.getString("serial_number"));
-                device.setWarrantyExpiration(rs.getDate("warranty_expiration"));
-                device.setStatus(rs.getString("status"));
-                device.setBrandName(rs.getString("brandName"));
-                return device;
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Device d = new Device();
+                d.setId(rs.getInt("device_id"));
+                d.setProductName(rs.getString("product_name"));
+                d.setCategoryName(rs.getString("category_name"));
+                d.setBrandName(rs.getString("brand_name"));
+                d.setStatus(rs.getString("device_status"));
+                d.setPurchasePrice(rs.getBigDecimal("purchase_price"));
+                d.setSellingPrice(rs.getBigDecimal("selling_price"));
+                devices.add(d);
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+
+        return devices;
     }
-    return null; // Nếu không tìm thấy
-}
-    
+
+    // Đếm tổng device của user theo filter (để pagination)
+    public int countDevicesByUser(int userId, String keyword, String brand, String category, String status) {
+        int total = 0;
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT COUNT(*) AS total
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Product p ON ci.product_id = p.id
+            JOIN Category c ON p.category_id = c.id
+            JOIN Brand b ON p.brand_id = b.id
+            JOIN Contract con ON ci.contract_id = con.id
+            WHERE con.customer_id = ?
+        """);
+
+        if (keyword != null && !keyword.isEmpty()) sql.append(" AND p.name LIKE ? ");
+        if (brand != null && !brand.equalsIgnoreCase("ALL")) sql.append(" AND b.name = ? ");
+        if (category != null && !category.equalsIgnoreCase("ALL")) sql.append(" AND c.name = ? ");
+        if (status != null && !status.equalsIgnoreCase("ALL")) sql.append(" AND d.status = ? ");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            ps.setInt(index++, userId);
+
+            if (keyword != null && !keyword.isEmpty()) ps.setString(index++, "%" + keyword + "%");
+            if (brand != null && !brand.equalsIgnoreCase("ALL")) ps.setString(index++, brand);
+            if (category != null && !category.equalsIgnoreCase("ALL")) ps.setString(index++, category);
+            if (status != null && !status.equalsIgnoreCase("ALL")) ps.setString(index++, status);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) total = rs.getInt("total");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
+
+    // Lấy danh sách brand/category/status để hiển thị filter
+    public List<String> getBrandsByUserId(int userId) {
+        List<String> brands = new ArrayList<>();
+        String sql = """
+            SELECT DISTINCT b.name
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Product p ON ci.product_id = p.id
+            JOIN Brand b ON p.brand_id = b.id
+            JOIN Contract con ON ci.contract_id = con.id
+            WHERE con.customer_id = ?
+            ORDER BY b.name
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) brands.add(rs.getString("name"));
+        } catch (Exception e) { e.printStackTrace(); }
+        return brands;
+    }
+
+    public List<String> getCategoriesByUserId(int userId) {
+        List<String> categories = new ArrayList<>();
+        String sql = """
+            SELECT DISTINCT c.name
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Product p ON ci.product_id = p.id
+            JOIN Category c ON p.category_id = c.id
+            JOIN Contract con ON ci.contract_id = con.id
+            WHERE con.customer_id = ?
+            ORDER BY c.name
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) categories.add(rs.getString("name"));
+        } catch (Exception e) { e.printStackTrace(); }
+        return categories;
+    }
+
+    public List<String> getStatusesByUserId(int userId) {
+        List<String> statuses = new ArrayList<>();
+        String sql = """
+            SELECT DISTINCT d.status
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Contract con ON ci.contract_id = con.id
+            WHERE con.customer_id = ?
+            ORDER BY d.status
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) statuses.add(rs.getString("status"));
+        } catch (Exception e) { e.printStackTrace(); }
+        return statuses;
+    }
 }
