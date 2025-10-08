@@ -8,12 +8,12 @@ USE crm_device_management;
 
 -- 1. INSERT ROLES
 INSERT INTO Role (name, description, is_active) VALUES
-('Admin', 'System Administrator - Full access', 1),
-('Customer Support Staff', 'Customer Support - Handle requests and contracts', 1),
-('Technical Manager', 'Technical Manager - Supervise maintenance and repairs', 1),
-('Technician', 'Technical Staff - Perform maintenance & repair', 1),
-('Warehouse Staff', 'Warehouse Staff - Manage inventory', 1),
-('Customer', 'Client - Manufacturing Factories', 1);
+('ADMIN', 'System Administrator - Full access', 1),
+('CUSTOMER_STAFF', 'Customer Support - Handle requests and contracts', 1),
+('TECH_MANAGER', 'Technical Manager - Supervise maintenance and repairs', 1),
+('TECHNICIAN', 'Technical Staff - Perform maintenance & repair', 1),
+('WAREHOUSE', 'Warehouse Staff - Manage inventory', 1),
+('CUSTOMER', 'Client - Manufacturing Factories', 1);
 
 -- 2. INSERT PERMISSIONS
 INSERT INTO Permission (name, description, is_active) VALUES

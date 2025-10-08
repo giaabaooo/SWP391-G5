@@ -346,6 +346,19 @@
                     </ul>
                 </li>
 
+                <!-- Brands -->
+                <li class="treeview">
+                    <a href="#brandMenu" data-toggle="collapse" aria-expanded="false">
+                        <i class="fa fa-bookmark"></i> <span>Brands</span>
+                    </a>
+                    <ul class="collapse" id="brandMenu">
+                        <li><a href="viewBrands.jsp"><i class="fa fa-eye"></i> View Brands</a></li>
+                        <li><a href="addBrand.jsp"><i class="fa fa-plus"></i> Add Brand</a></li>
+                        <li><a href="updateBrand.jsp"><i class="fa fa-edit"></i> Update Brand</a></li>
+                        <li><a href="deleteBrand.jsp"><i class="fa fa-trash"></i> Delete Brand</a></li>
+                    </ul>
+                </li>
+
                 <!-- Transactions -->
                 <li class="treeview">
                     <a href="#transactionMenu" data-toggle="collapse" aria-expanded="false">
