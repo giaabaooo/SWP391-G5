@@ -309,19 +309,29 @@ public class ProductDAO extends DBContext {
     }
     
     /**
-     * Get total count of products matching search query
+     * Get total count of products matching search query using Full-Text Search
      * @param searchQuery Search term
      * @return Total number of matching products
      */
     public int getTotalProductsWithSearch(String searchQuery) {
-        String sql = "SELECT COUNT(*) as total FROM Product WHERE name LIKE ? OR description LIKE ?";
         int total = 0;
         
         try {
+            // Use Full-Text Search with BOOLEAN MODE for flexible searching
+            String sql = "SELECT COUNT(*) as total FROM Product " +
+                        "WHERE MATCH(name, description) AGAINST(? IN BOOLEAN MODE)";
+            
             PreparedStatement statement = connection.prepareStatement(sql);
-            String searchPattern = "%" + searchQuery + "%";
-            statement.setString(1, searchPattern);
-            statement.setString(2, searchPattern);
+            
+            // Prepare search string: add + before each word to require all words
+            String[] keywords = searchQuery.trim().split("\\s+");
+            StringBuilder ftSearchQuery = new StringBuilder();
+            for (String keyword : keywords) {
+                ftSearchQuery.append("+").append(keyword).append("* ");
+            }
+            
+            statement.setString(1, ftSearchQuery.toString().trim());
+            
             ResultSet rs = statement.executeQuery();
             
             if (rs.next()) {
@@ -338,7 +348,7 @@ public class ProductDAO extends DBContext {
     }
     
     /**
-     * Get products with pagination and search
+     * Get products with pagination and search using Full-Text Search
      * @param page Page number (starting from 1)
      * @param pageSize Number of products per page
      * @param searchQuery Search term
@@ -347,19 +357,27 @@ public class ProductDAO extends DBContext {
     public List<Product> getProductsPaginatedWithSearch(int page, int pageSize, String searchQuery) {
         List<Product> products = new ArrayList<>();
         int offset = (page - 1) * pageSize;
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active " +
-                     "FROM Product " +
-                     "WHERE name LIKE ? OR description LIKE ? " +
-                     "ORDER BY id DESC " +
-                     "LIMIT ? OFFSET ?";
         
         try {
+            // Use Full-Text Search with BOOLEAN MODE
+            String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active " +
+                        "FROM Product " +
+                        "WHERE MATCH(name, description) AGAINST(? IN BOOLEAN MODE) " +
+                        "ORDER BY id DESC LIMIT ? OFFSET ?";
+            
             PreparedStatement statement = connection.prepareStatement(sql);
-            String searchPattern = "%" + searchQuery + "%";
-            statement.setString(1, searchPattern);
-            statement.setString(2, searchPattern);
-            statement.setInt(3, pageSize);
-            statement.setInt(4, offset);
+            
+            // Prepare search string: add + before each word to require all words
+            String[] keywords = searchQuery.trim().split("\\s+");
+            StringBuilder ftSearchQuery = new StringBuilder();
+            for (String keyword : keywords) {
+                ftSearchQuery.append("+").append(keyword).append("* ");
+            }
+            
+            statement.setString(1, ftSearchQuery.toString().trim());
+            statement.setInt(2, pageSize);
+            statement.setInt(3, offset);
+            
             ResultSet rs = statement.executeQuery();
             
             while (rs.next()) {
@@ -387,7 +405,7 @@ public class ProductDAO extends DBContext {
     }
     
     /**
-     * Get total count of products with filters
+     * Get total count of products with filters using Full-Text Search
      * @param searchQuery Search term (can be null)
      * @param categoryId Category ID (can be null)
      * @param brandId Brand ID (can be null)
@@ -396,9 +414,12 @@ public class ProductDAO extends DBContext {
     public int getTotalProductsWithFilters(String searchQuery, Integer categoryId, Integer brandId) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) as total FROM Product WHERE is_active = 1");
         
-        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            sql.append(" AND (name LIKE ? OR description LIKE ?)");
+        // Add Full-Text Search condition if search query exists
+        boolean hasSearch = (searchQuery != null && !searchQuery.trim().isEmpty());
+        if (hasSearch) {
+            sql.append(" AND MATCH(name, description) AGAINST(? IN BOOLEAN MODE)");
         }
+        
         if (categoryId != null && categoryId > 0) {
             sql.append(" AND category_id = ?");
         }
@@ -412,11 +433,16 @@ public class ProductDAO extends DBContext {
             PreparedStatement statement = connection.prepareStatement(sql.toString());
             int paramIndex = 1;
             
-            if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-                String searchPattern = "%" + searchQuery + "%";
-                statement.setString(paramIndex++, searchPattern);
-                statement.setString(paramIndex++, searchPattern);
+            // Set Full-Text Search parameter
+            if (hasSearch) {
+                String[] keywords = searchQuery.trim().split("\\s+");
+                StringBuilder ftSearchQuery = new StringBuilder();
+                for (String keyword : keywords) {
+                    ftSearchQuery.append("+").append(keyword).append("* ");
+                }
+                statement.setString(paramIndex++, ftSearchQuery.toString().trim());
             }
+            
             if (categoryId != null && categoryId > 0) {
                 statement.setInt(paramIndex++, categoryId);
             }
@@ -440,7 +466,7 @@ public class ProductDAO extends DBContext {
     }
     
     /**
-     * Get products with pagination and filters
+     * Get products with pagination and filters using Full-Text Search
      * @param page Page number (starting from 1)
      * @param pageSize Number of products per page
      * @param searchQuery Search term (can be null)
@@ -457,9 +483,12 @@ public class ProductDAO extends DBContext {
             "FROM Product WHERE is_active = 1"
         );
         
-        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            sql.append(" AND (name LIKE ? OR description LIKE ?)");
+        // Add Full-Text Search condition if search query exists
+        boolean hasSearch = (searchQuery != null && !searchQuery.trim().isEmpty());
+        if (hasSearch) {
+            sql.append(" AND MATCH(name, description) AGAINST(? IN BOOLEAN MODE)");
         }
+        
         if (categoryId != null && categoryId > 0) {
             sql.append(" AND category_id = ?");
         }
@@ -473,11 +502,16 @@ public class ProductDAO extends DBContext {
             PreparedStatement statement = connection.prepareStatement(sql.toString());
             int paramIndex = 1;
             
-            if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-                String searchPattern = "%" + searchQuery + "%";
-                statement.setString(paramIndex++, searchPattern);
-                statement.setString(paramIndex++, searchPattern);
+            // Set Full-Text Search parameter
+            if (hasSearch) {
+                String[] keywords = searchQuery.trim().split("\\s+");
+                StringBuilder ftSearchQuery = new StringBuilder();
+                for (String keyword : keywords) {
+                    ftSearchQuery.append("+").append(keyword).append("* ");
+                }
+                statement.setString(paramIndex++, ftSearchQuery.toString().trim());
             }
+            
             if (categoryId != null && categoryId > 0) {
                 statement.setInt(paramIndex++, categoryId);
             }
