@@ -759,7 +759,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>ID</th>
-                                                        <th>Product Name</th>
+                                                        <th>Name</th>
                                                         <th>Category</th>
                                                         <th>Brand</th>                                                       
                                                         <th>Status</th>
@@ -848,7 +848,7 @@
                         </div>
                     </form>
                 </section>
-                <div class="footer-main">Copyright &copy; Warehouse Management System, 2024</div>
+                <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>
             </aside>
         </div>
 

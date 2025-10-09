@@ -74,6 +74,7 @@ public class DeviceDAO extends DBContext {
 
         return devices;
     }
+   
 
     // Đếm tổng device của user theo filter (để pagination)
     public int countDevicesByUser(int userId, String keyword, String brand, String category, String status) {
@@ -204,4 +205,5 @@ public class DeviceDAO extends DBContext {
         }
         return null;
     }
+    
 }
