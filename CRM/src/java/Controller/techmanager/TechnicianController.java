@@ -4,6 +4,7 @@
  */
 package Controller.techmanager;
 
+import Controller.techmanager.*;
 import dal.UserDBContext;
 import data.Role;
 import data.User;
@@ -18,7 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author admin
  */
-@WebServlet("/technician_list")
+@WebServlet("/techmanager/technician")
 public class TechnicianController extends HttpServlet {
     UserDBContext db = new UserDBContext();
     
@@ -29,7 +30,7 @@ public class TechnicianController extends HttpServlet {
 
         switch (action) {
             case "new":
-                req.getRequestDispatcher("/techmanager/cskh/user_form.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/jsp/cskh/user_form.jsp").forward(req, resp);
                 break;
             case "edit":
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -57,7 +58,7 @@ public class TechnicianController extends HttpServlet {
                 req.setAttribute("pageSize", size);
                 req.setAttribute("roles", db.getAllRoles());
 
-                req.getRequestDispatcher("/technician_list.jsp").forward(req, resp);
+                req.getRequestDispatcher("/techmanager/technician_list.jsp").forward(req, resp);
         }
     }
 
@@ -82,6 +83,6 @@ public class TechnicianController extends HttpServlet {
             u.setId(Integer.parseInt(id));
             db.update(u);
         }
-        resp.sendRedirect("user");
+        resp.sendRedirect("technician");
     }
 }
