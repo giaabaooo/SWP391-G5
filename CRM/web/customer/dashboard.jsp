@@ -837,7 +837,7 @@
                     </div>
 
                 </section>
-                <div class="footer-main">Copyright &copy; Warehouse Management System, 2024</div>
+                <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>
             </aside>
         </div>
 

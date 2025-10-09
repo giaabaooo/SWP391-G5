@@ -356,7 +356,7 @@
                 <section class="content">
                     <%
                         Device device = (Device) request.getAttribute("device");
-                
+                Product product = (Product) request.getAttribute("product");
                         
                     %>
 
@@ -380,24 +380,92 @@
                                     </span>
                                 </div>
                                 <div class="card-body">
-                                    <h4><i class="fa fa-info-circle"></i> Device Information</h4>
+
+                                    <h4 style="color: #2d3748; font-weight: 600; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
+                                        <i class="fa fa-info-circle" style="color: #667eea;"></i> Device Information
+                                    </h4>
+
                                     <div class="info-row">
-                                        <strong>Device ID:</strong> <%= device.getId() %>
+                                        <div class="info-label">
+                                            <i class="fa fa-hashtag"></i>ID
+                                        </div>
+                                        <div class="info-row">
+                                            <strong><%= device.getId() %></strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-tag"></i> Device
+                                        </div>
+                                        <div class="info-row">
+                                            <%= device.getProductName() %>
+                                        </div>
                                     </div>
                                     <div class="info-row">
-                                        <strong>Product Name:</strong> <%= device.getProductName() %>
+                                        <div class="info-label">
+                                            <i class="fa fa-align-left"></i> Description
+                                        </div>
+                                        <div class="info-row">
+                                            <%= product.getDescription() != null && !product.getDescription().isEmpty() 
+                                                ? product.getDescription() 
+                                                : "<em style='color: #a0aec0;'>No description available</em>" %>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-folder"></i> Category
+                                        </div>
+                                        <div class="info-row">
+                                            <%= device.getCategoryName() != null ? device.getCategoryName() : "N/A" %>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-bookmark"></i> Brand
+                                        </div>
+                                        <div class="info-row">
+                                            <%= device.getBrandName() != null ? device.getBrandName() : "N/A" %>
+                                        </div>
                                     </div>
                                     <div class="info-row">
-                                        <strong>Brand:</strong> <%= device.getBrandName() != null ? device.getBrandName() : "N/A" %>
+                                        <div class="info-label">
+                                            <i class="fa fa-barcode"></i> Serial Number
+                                        </div>
+                                        <div class="info-row">
+                                            <%= device.getSerialNumber() != null ? device.getSerialNumber() : "N/A" %>
+                                        </div>
                                     </div>
                                     <div class="info-row">
-                                        <strong>Category:</strong> <%= device.getCategoryName() != null ? device.getCategoryName() : "N/A" %>
+                                        <div class="info-label">
+                                            <i class="fa fa-dollar"></i> Purchase Price (Cost)
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="price-display">$<%= String.format("%,.2f", product.getPurchasePrice()) %></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-money"></i> Selling Price
+                                        </div>
+                                        <div class="info-row">
+                                            <% if (product.getSellingPrice() != null) { %>
+                                            <span class="price-display">$<%= String.format("%,.2f", product.getSellingPrice()) %></span>
+                                            <% } else { %>
+                                            <em style="color: #a0aec0;">Not set</em>
+                                            <% } %>
+                                        </div>
                                     </div>
                                     <div class="info-row">
-                                        <strong>Serial Number:</strong> <%= device.getSerialNumber() != null ? device.getSerialNumber() : "N/A" %>
-                                    </div>
-                                    <div class="info-row">
-                                        <strong>Warranty Expiration:</strong> <%= device.getWarrantyExpiration() != null ? device.getWarrantyExpiration() : "N/A" %>
+                                        <div class="info-label">
+                                            <i class="fa fa-calendar"></i> Warranty Expiration
+                                        </div>
+                                        <div class="info-row">
+                                            <%= device.getWarrantyExpiration() != null ? device.getWarrantyExpiration() : "N/A" %>
+                                        </div>
                                     </div>
 
                                     <div class="mt-3 text-center">
@@ -405,7 +473,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
 
@@ -428,7 +496,7 @@
                     <% } %>
 
                 </section>
-                <div class="footer-main">Copyright &copy; Warehouse Management System, 2024</div>
+                <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>
             </aside>
         </div>
 
