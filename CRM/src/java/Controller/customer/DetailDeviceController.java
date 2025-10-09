@@ -1,7 +1,7 @@
 package Controller.customer;
 
 import dal.DeviceDAO;
-import data.Devices;
+import data.Device;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,11 +17,11 @@ public class DetailDeviceController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        String deviceIdStr = request.getParameter("deviceId");
-        if (deviceIdStr != null) {
+        String idParam  = request.getParameter("id");
+        if (idParam  != null) {
             try {
-                int deviceId = Integer.parseInt(deviceIdStr.trim());
-                Devices device = deviceDAO.getDeviceById(deviceId);
+                int deviceId = Integer.parseInt(idParam .trim());
+                Device device = deviceDAO.getDeviceById(deviceId);
                 if (device != null) {
                     request.setAttribute("device", device);
                     request.getRequestDispatcher("/customer/detailDevice.jsp").forward(request, response);
