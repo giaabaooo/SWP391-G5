@@ -25,6 +25,12 @@
                         <i class="fa fa-user"></i> <span>Customer Manager</span>
                     </a>
                 </li>
+                
+                <li>
+                    <a href="${pageContext.request.contextPath}/cskh/contract">
+                        <i class="fa fa-file-text-o"></i> <span>Contract Manager</span>
+                    </a>
+                </li>
             </ul>
         </section>
         <!-- /.sidebar -->

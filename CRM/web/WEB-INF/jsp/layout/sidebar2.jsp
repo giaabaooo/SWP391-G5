@@ -20,55 +20,6 @@
                     <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
                 </div>
             </div>
-
-            <!--            <ul class="sidebar-menu">
-                            <li class="active"><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-                            
-                             Inventory Management 
-                            <li class="treeview">
-                                <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
-                                    <i class="fa fa-cubes"></i> <span>Inventory Management</span>
-                                </a>
-                                <ul class="collapse" id="inventoryMenu">
-                                    <li><a href="inventory.jsp"><i class="fa fa-list"></i> View Inventory</a></li>
-                                    <li><a href="../addNewProduct"><i class="fa fa-plus"></i> Add Product</a></li>
-                                    <li><a href="updateItem.jsp"><i class="fa fa-edit"></i> Update Product</a></li>
-                                    <li><a href="deleteItem.jsp"><i class="fa fa-trash"></i> Delete Product</a></li>
-                                </ul>
-                            </li>
-                            
-                             Categories 
-                            <li class="treeview">
-                                <a href="#categoryMenu" data-toggle="collapse" aria-expanded="false">
-                                    <i class="fa fa-tags"></i> <span>Categories</span>
-                                </a>
-                                <ul class="collapse" id="categoryMenu">
-                                    <li><a href="viewCategories.jsp"><i class="fa fa-eye"></i> View Categories</a></li>
-                                    <li><a href="addCategory.jsp"><i class="fa fa-plus"></i> Add Category</a></li>
-                                    <li><a href="updateCategory.jsp"><i class="fa fa-edit"></i> Update Category</a></li>
-                                    <li><a href="deleteCategory.jsp"><i class="fa fa-trash"></i> Delete Category</a></li>
-                                </ul>
-                            </li>
-                            
-                             Transactions 
-                            <li class="treeview">
-                                <a href="#transactionMenu" data-toggle="collapse" aria-expanded="false">
-                                    <i class="fa fa-exchange"></i> <span>Transactions</span>
-                                </a>
-                                <ul class="collapse" id="transactionMenu">
-                                    <li><a href="transactions.jsp"><i class="fa fa-list"></i> View Transactions</a></li>
-                                    <li><a href="spareParts.jsp"><i class="fa fa-cogs"></i> Manage Spare Parts</a></li>
-                                    <li><a href="importExport.jsp"><i class="fa fa-upload"></i> Import/Export</a></li>
-                                </ul>
-                            </li>
-                            
-                             Requests 
-                            <li><a href="requests.jsp"><i class="fa fa-clipboard"></i> Inventory Requests</a></li>
-                            
-                             Reports 
-                            <li><a href="reports.jsp"><i class="fa fa-bar-chart"></i> Inventory Reports</a></li>
-                        </ul>-->
-
             <ul class="sidebar-menu">
                 <li>
                     <a href="${pageContext.request.contextPath}/cskh/user?action=list">
@@ -78,6 +29,12 @@
                 <li>
                     <a href="${pageContext.request.contextPath}/cskh/customer?action=list">
                         <i class="fa fa-user"></i> <span>Customer Manager</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="${pageContext.request.contextPath}/cskh/contract">
+                        <i class="fa fa-file-text-o"></i> <span>Contract Manager</span>
                     </a>
                 </li>
             </ul>
