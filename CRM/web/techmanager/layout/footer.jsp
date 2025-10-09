@@ -1,19 +1,43 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-    </section><!-- /.content -->
-</aside><!-- /.right-side -->
-</div><!-- /.main -->
-<!-- Footer -->
-<div class="footer-main">
-    Copyright &copy; CRM, 2025
-</div>
-<!-- JS Scripts --> 
-<script src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/bootstrap.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/morris/morris.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/datepicker/bootstrap-datepicker.js"></script>
-<script src="${pageContext.request.contextPath}/js/daterangepicker/daterangepicker.js"></script>
-<script src="${pageContext.request.contextPath}/js/iCheck/icheck.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/app.js"></script>
-</body>
-</html>
+
+<script>
+    $(function () {
+        // Initialize iCheck for checkboxes
+        $('input[type="checkbox"].flat-grey').iCheck({
+            checkboxClass: 'icheckbox_flat-grey'
+        });
+
+        // Handle checkbox events
+        $('input').on('ifChecked', function (event) {
+            $(this).parents('li').addClass("task-done");
+        });
+        $('input').on('ifUnchecked', function (event) {
+            $(this).parents('li').removeClass("task-done");
+        });
+
+        // Handle approve/reject buttons
+        $('.btn-approve').click(function () {
+            var requestId = $(this).closest('.request-item').find('.request-header').text();
+            if (confirm('Are you sure you want to approve ' + requestId + '?')) {
+                // Add AJAX call to approve request
+                $(this).closest('.request-item').fadeOut();
+            }
+        });
+
+        $('.btn-reject').click(function () {
+            var requestId = $(this).closest('.request-item').find('.request-header').text();
+            if (confirm('Are you sure you want to reject ' + requestId + '?')) {
+                // Add AJAX call to reject request
+                $(this).closest('.request-item').fadeOut();
+            }
+        });
+
+        // Auto-refresh statistics every 30 seconds
+        setInterval(function () {
+            // You can add AJAX calls here to refresh data
+            console.log('Refreshing warehouse data...');
+        }, 30000);
+    });
+</script>
+
+

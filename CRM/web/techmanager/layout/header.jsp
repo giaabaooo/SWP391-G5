@@ -1,271 +1,623 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Director | Dashboard</title>
-    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-    <meta name="description" content="Developed By M Abdur Rokib Promy">
-    <meta name="keywords" content="Admin, Bootstrap 3, Template, Theme, Responsive">
-    <!-- bootstrap 3.0.2 -->
-    <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <!-- font Awesome -->
-    <link href="${pageContext.request.contextPath}/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-    <!-- Ionicons -->
-    <link href="${pageContext.request.contextPath}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
-    <!-- Morris chart -->
-    <link href="${pageContext.request.contextPath}/css/morris/morris.css" rel="stylesheet" type="text/css" />
-    <!-- jvectormap -->
-    <link href="${pageContext.request.contextPath}/css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
-    <!-- Date Picker -->
-    <link href="${pageContext.request.contextPath}/css/datepicker/datepicker3.css" rel="stylesheet" type="text/css" />
-    <!-- Daterange picker -->
-    <link href="${pageContext.request.contextPath}/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
-    <!-- iCheck for checkboxes and radio inputs -->
-    <link href="${pageContext.request.contextPath}/css/iCheck/all.css" rel="stylesheet" type="text/css" />
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <!-- Theme style -->
-    <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet" type="text/css" />
-
-<style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            position: relative;
-            z-index: 1000;
-            flex-shrink: 0;
-            margin-bottom: 0;
-        }
-
-        .wrapper {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-            margin-top: 0;
-        }
-
-        .main {
-            display: flex;
-            width: 100%;
-        }
-
-        .left-side {
-            width: 220px;
-            flex-shrink: 0;
-            background: #222d32;
-            color: #fff;
-            overflow-y: auto;
-            margin-top: 0;
-            padding-top: 0;
-            position: relative !important;
-            top: 0 !important;
-        }
-
-        .right-side {
-            flex: 1;
-            background: #f4f4f4;
-            overflow-y: auto;
-        }
-
-        .content {
-            padding: 20px;
-            min-height: calc(100vh - 150px);
-        }
-
-        .footer-main {
-            background: #333;
-            color: #fff;
-            text-align: center;
-            padding: 15px;
-            flex-shrink: 0;
-        }
-
-        .navbar {
-            margin-bottom: 0;
-        }
-
-        .sidebar-offcanvas {
-            position: relative;
-        }
-
-        .logo {
-            margin-bottom: 0 !important;
-        }
-        
-        .navbar {
-            margin-bottom: 0 !important;
-        }
-        
-        .sidebar {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
-
-        @media screen and (min-width: 992px) {
-            .left-side {
-                top: 0 !important;
+    <head>
+        <meta charset="UTF-8">
+        <title>Customer | Dashboard</title>
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+        <meta name="description" content="Warehouse Management System">
+        <meta name="keywords" content="Warehouse, Inventory, Management">
+        <!-- bootstrap 3.0.2 -->
+        <link href="../css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="../css/ionicons.min.css" rel="stylesheet" type="text/css" />
+        <link href="../css/morris/morris.css" rel="stylesheet" type="text/css" />
+        <link href="../css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+        <link href="../css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+        <link href="../css/iCheck/all.css" rel="stylesheet" type="text/css" />
+        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+        <link href="../css/admin/style.css" rel="stylesheet" type="text/css" />
+        <style>
+            /* Professional Dashboard Styles */
+            html, body {
+                height: 100%;
+                overflow: hidden;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: #ffffff;
             }
-        }
-        
-        body > .header {
-            position: relative !important;
-        }
 
-        /* Fix cho responsive */
-        @media (max-width: 768px) {
             .wrapper {
+                height: 100vh;
+                display: flex;
                 flex-direction: column;
+                overflow: hidden;
             }
-            .left-side {
+
+            .right-side {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                position: relative;
+                height: 100%;
+                background: #ffffff;
+                min-height: 100vh;
+            }
+
+            .content {
+                flex: 1;
+                padding: 2rem;
+                background: #ffffff;
+                overflow-y: auto;
+                min-height: 0;
+                padding-bottom: 2rem;
+            }
+
+            .footer-main {
+                background-color: #ffffff;
+                padding: 1rem;
+                border-top: 1px solid #e8ecef;
+                text-align: center;
+                position: relative;
+                margin-top: auto;
+                z-index: 1000;
+                font-size: 0.875rem;
+                color: #6c757d;
+                font-weight: 400;
+                box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+                flex-shrink: 0;
+            }
+
+            /* Remove sidebar dots and search */
+            .sidebar-menu li {
+                list-style: none;
+            }
+
+            .sidebar-menu li:before {
+                display: none;
+            }
+
+            .sidebar-form {
+                display: none;
+            }
+
+            /* Statistics Cards */
+            .stats-row {
+                margin-bottom: 2rem;
+            }
+
+            .stat-card {
+                background: #6366f1;
+                border-radius: 12px;
+                padding: 1.5rem;
+                color: white;
+                margin-bottom: 1rem;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            }
+
+            .stat-card.red {
+                background: #ef4444;
+                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+            }
+
+            .stat-card.red:hover {
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+            }
+
+            .stat-card.yellow {
+                background: #f59e0b;
+                box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+            }
+
+            .stat-card.yellow:hover {
+                box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+            }
+
+            .stat-card.green {
+                background: #10b981;
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+            }
+
+            .stat-card.green:hover {
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            }
+
+            .stat-icon {
+                font-size: 2.5rem;
+                margin-bottom: 0.5rem;
+                opacity: 0.9;
+                text-align: center;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 0.25rem;
+                text-align: center;
+            }
+
+            .stat-label {
+                font-size: 0.9rem;
+                opacity: 0.9;
+                font-weight: 500;
+                text-align: center;
+            }
+
+            /* Content Cards */
+            .content-card {
+                background: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+                margin-bottom: 1.5rem;
+                border: 1px solid #f1f3f4;
+                transition: box-shadow 0.3s ease;
+            }
+
+            .content-card:hover {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            }
+
+            .card-header {
+                padding: 1.25rem 1.5rem;
+                border-bottom: 1px solid #f1f3f4;
+                background: #fafbfc;
+                border-radius: 12px 12px 0 0;
+            }
+
+            .card-header h3 {
+                margin: 0;
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #2d3748;
+                display: flex;
+                align-items: center;
+            }
+
+            .card-header h3 i {
+                margin-right: 0.5rem;
+                color: #667eea;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            /* Low Stock Alert specific styling */
+            .low-stock-card .card-body {
+                padding: 1.3rem;
+            }
+
+            /* Quick Action Buttons */
+            .action-btn {
+                background: #f0f4ff;
+                border: 1px solid #a5b4fc;
+                border-radius: 8px;
+                padding: 2.3rem 1rem;
+                color: #6366f1;
+                font-weight: 500;
+                margin-bottom: 1rem;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-block;
                 width: 100%;
-                height: auto;
+                text-align: center;
             }
-        }
-    </style>
-</head>
-<body class="skin-black">
-<!-- header logo: style can be found in header.less -->
-<header class="header">
-    <a href="index.html" class="logo">
-        Director
-    </a>
-    <!-- Header Navbar: style can be found in header.less -->
-    <nav class="navbar navbar-static-top" role="navigation">
-        <!-- Sidebar toggle button-->
-        <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </a>
-        <div class="navbar-right">
-            <ul class="nav navbar-nav">
-                <!-- Messages: style can be found in dropdown.less-->
-                <li class="dropdown messages-menu">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-envelope"></i>
-                        <span class="label label-success">4</span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li class="header">You have 4 messages</li>
-                        <li>
-                            <!-- inner menu: contains the actual data -->
-                            <ul class="menu">
-                                <li><!-- start message -->
-                                    <a href="#">
-                                        <div class="pull-left">
-                                            <img src="${pageContext.request.contextPath}/img/26115.jpg" class="img-circle" alt="User Image"/>
-                                        </div>
-                                        <h4>
-                                            Support Team
-                                        </h4>
-                                        <p>Why not buy a new awesome theme?</p>
-                                        <small class="pull-right"><i class="fa fa-clock-o"></i> 5 mins</small>
-                                    </a>
-                                </li><!-- end message -->
+
+            .action-btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
+                color: #6366f1;
+                text-decoration: none;
+                background: #f0f4ff;
+                border-color: #a5b4fc;
+            }
+
+            .action-btn.info {
+                background: #ecfeff;
+                border: 1px solid #67e8f9;
+                color: #0891b2;
+            }
+
+            .action-btn.info:hover {
+                background: #ecfeff;
+                border-color: #67e8f9;
+                box-shadow: 0 4px 15px rgba(6, 182, 212, 0.15);
+                color: #0891b2;
+            }
+
+            .action-btn.warning {
+                background: #fffbeb;
+                border: 1px solid #fbbf24;
+                color: #d97706;
+            }
+
+            .action-btn.warning:hover {
+                background: #fffbeb;
+                border-color: #fbbf24;
+                box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);
+                color: #d97706;
+            }
+
+            .action-btn.success {
+                background: #f0fdf4;
+                border: 1px solid #86efac;
+                color: #059669;
+            }
+
+            .action-btn.success:hover {
+                background: #f0fdf4;
+                border-color: #86efac;
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+                color: #059669;
+            }
+
+            /* Special styling for bottom action buttons */
+            .action-btn[style*="width: auto"] {
+                background: #6366f1 !important;
+                border: 1px solid #6366f1 !important;
+                color: white !important;
+            }
+
+            .action-btn[style*="width: auto"]:hover {
+                background: #5b5ff5 !important;
+                border-color: #5b5ff5 !important;
+                color: white !important;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
+            }
+
+            .action-btn.warning[style*="width: auto"] {
+                background: #f59e0b !important;
+                border: 1px solid #f59e0b !important;
+                color: white !important;
+            }
+
+            .action-btn.warning[style*="width: auto"]:hover {
+                background: #d97706 !important;
+                border-color: #d97706 !important;
+                color: white !important;
+                box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3) !important;
+            }
+
+            /* Activity List */
+            .activity-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .activity-item {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid #f1f3f4;
+            }
+
+            .activity-item:last-child {
+                border-bottom: none;
+            }
+
+            .activity-checkbox {
+                margin-right: 1rem;
+            }
+
+            .activity-content {
+                flex: 1;
+            }
+
+            .activity-text {
+                font-size: 0.9rem;
+                color: #4a5568;
+                margin-bottom: 0.25rem;
+            }
+
+            .activity-time {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+                border-radius: 12px;
+                color: white;
+            }
+
+            /* Request Cards */
+            .request-item {
+                background: #fafbfc;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 1rem;
+                margin-bottom: 0.75rem;
+                transition: all 0.3s ease;
+            }
+
+            .request-item:hover {
+                border-color: #667eea;
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+            }
+
+            .request-header {
+                font-weight: 600;
+                color: #2d3748;
+                margin-bottom: 0.25rem;
+            }
+
+            .request-description {
+                font-size: 0.85rem;
+                color: #718096;
+                margin-bottom: 0.75rem;
+            }
+
+            .request-actions {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .btn-sm {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.8rem;
+                border-radius: 6px;
+                border: none;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .btn-approve {
+                background: #48cab2;
+                color: white;
+            }
+
+            .btn-approve:hover {
+                background: #38a89d;
+                transform: translateY(-1px);
+            }
+
+            .btn-reject {
+                background: #ff6b6b;
+                color: white;
+            }
+
+            .btn-reject:hover {
+                background: #ff5252;
+                transform: translateY(-1px);
+            }
+
+            /* Table Styles */
+            .modern-table {
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+
+            .modern-table th {
+                background: #f8f9fa;
+                color: #495057;
+                font-weight: 600;
+                font-size: 0.85rem;
+                padding: 0.75rem;
+                border: none;
+            }
+
+            .modern-table td {
+                padding: 0.75rem;
+                border: none;
+                border-bottom: 1px solid #f1f3f4;
+                font-size: 0.85rem;
+                color: #4a5568;
+            }
+
+            .modern-table tbody tr:hover {
+                background: #f8f9fa;
+            }
+
+            /* Status Labels */
+            .status-label {
+                padding: 0.25rem 0.75rem;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .status-critical {
+                background: #fee2e2;
+                color: #dc2626;
+            }
+
+            .status-warning {
+                background: #fef3c7;
+                color: #d97706;
+            }
+
+            .status-success {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            .status-info {
+                background: #dbeafe;
+                color: #2563eb;
+            }
+
+            /* Priority Labels */
+            .priority-high {
+                background: #fee2e2;
+                color: #dc2626;
+            }
+
+            .priority-medium {
+                background: #fef3c7;
+                color: #d97706;
+            }
+
+            .priority-low {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .content {
+                    padding: 1rem;
+                    padding-bottom: 2rem;
+                }
+
+                .footer-main {
+                    position: relative;
+                    margin-top: auto;
+                    flex-shrink: 0;
+                }
+
+                .stat-card {
+                    margin-bottom: 1rem;
+                }
+
+                .stat-number {
+                    font-size: 1.5rem;
+                }
+
+                .stat-icon {
+                    font-size: 2rem;
+                }
+            }
+        </style>
+    </head>
+    <body class="skin-black">
+        <!-- header logo: style can be found in header.less -->
+        <header class="header">
+            <a href="index.html" class="logo">
+                Director
+            </a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top" role="navigation">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+                <div class="navbar-right">
+                    <ul class="nav navbar-nav">
+                        <!-- Messages: style can be found in dropdown.less-->
+                        <li class="dropdown messages-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-envelope"></i>
+                                <span class="label label-success">4</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="header">You have 4 messages</li>
+                                <li>
+                                    <!-- inner menu: contains the actual data -->
+                                    <ul class="menu">
+                                        <li><!-- start message -->
+                                            <a href="#">
+                                                <div class="pull-left">
+                                                    <img src="${pageContext.request.contextPath}/img/26115.jpg" class="img-circle" alt="User Image"/>
+                                                </div>
+                                                <h4>
+                                                    Support Team
+                                                </h4>
+                                                <p>Why not buy a new awesome theme?</p>
+                                                <small class="pull-right"><i class="fa fa-clock-o"></i> 5 mins</small>
+                                            </a>
+                                        </li><!-- end message -->
+                                    </ul>
+                                </li>
+                                <li class="footer"><a href="#">See All Messages</a></li>
                             </ul>
                         </li>
-                        <li class="footer"><a href="#">See All Messages</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown tasks-menu">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-tasks"></i>
-                        <span class="label label-danger">9</span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li class="header">You have 9 tasks</li>
-                        <li>
-                            <!-- inner menu: contains the actual data -->
-                            <ul class="menu">
-                                <li><!-- Task item -->
-                                    <a href="#">
-                                        <h3>
-                                            Design some buttons
-                                            <small class="pull-right">20%</small>
-                                        </h3>
-                                        <div class="progress progress-striped xs">
-                                            <div class="progress-bar progress-bar-success" style="width: 20%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-                                                <span class="sr-only">20% Complete</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li><!-- end task item -->
-                                <li><!-- Task item -->
-                                    <a href="#">
-                                        <h3>
-                                            Create a nice theme
-                                            <small class="pull-right">40%</small>
-                                        </h3>
-                                        <div class="progress progress-striped xs">
-                                            <div class="progress-bar progress-bar-danger" style="width: 40%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-                                                <span class="sr-only">40% Complete</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li><!-- end task item -->
+                        <li class="dropdown tasks-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-tasks"></i>
+                                <span class="label label-danger">9</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="header">You have 9 tasks</li>
+                                <li>
+                                    <!-- inner menu: contains the actual data -->
+                                    <ul class="menu">
+                                        <li><!-- Task item -->
+                                            <a href="#">
+                                                <h3>
+                                                    Design some buttons
+                                                    <small class="pull-right">20%</small>
+                                                </h3>
+                                                <div class="progress progress-striped xs">
+                                                    <div class="progress-bar progress-bar-success" style="width: 20%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                                                        <span class="sr-only">20% Complete</span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li><!-- end task item -->
+                                        <li><!-- Task item -->
+                                            <a href="#">
+                                                <h3>
+                                                    Create a nice theme
+                                                    <small class="pull-right">40%</small>
+                                                </h3>
+                                                <div class="progress progress-striped xs">
+                                                    <div class="progress-bar progress-bar-danger" style="width: 40%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+                                                        <span class="sr-only">40% Complete</span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li><!-- end task item -->
+                                    </ul>
+                                </li>
+                                <li class="footer">
+                                    <a href="#">View all tasks</a>
+                                </li>
                             </ul>
                         </li>
-                        <li class="footer">
-                            <a href="#">View all tasks</a>
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-user"></i>
+                                <span>Jane Doe <i class="caret"></i></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-custom dropdown-menu-right">
+                                <li class="dropdown-header text-center">Account</li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa fa-clock-o fa-fw pull-right"></i>
+                                        <span class="badge badge-success pull-right">10</span> Updates
+                                    </a>
+                                    <a href="#">
+                                        <i class="fa fa-envelope-o fa-fw pull-right"></i>
+                                        <span class="badge badge-danger pull-right">5</span> Messages
+                                    </a>
+                                    <a href="#">
+                                        <i class="fa fa-magnet fa-fw pull-right"></i>
+                                        <span class="badge badge-info pull-right">3</span> Subscriptions
+                                    </a>
+                                    <a href="#">
+                                        <i class="fa fa-question fa-fw pull-right"></i>
+                                        <span class="badge pull-right">11</span> FAQ
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa fa-user fa-fw pull-right"></i>
+                                        Profile
+                                    </a>
+                                    <a data-toggle="modal" href="#modal-user-settings">
+                                        <i class="fa fa-cog fa-fw pull-right"></i>
+                                        Settings
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="#"><i class="fa fa-ban fa-fw pull-right"></i> Logout</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
-                </li>
-                <!-- User Account: style can be found in dropdown.less -->
-                <li class="dropdown user user-menu">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-user"></i>
-                        <span>Jane Doe <i class="caret"></i></span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-custom dropdown-menu-right">
-                        <li class="dropdown-header text-center">Account</li>
-                        <li>
-                            <a href="#">
-                                <i class="fa fa-clock-o fa-fw pull-right"></i>
-                                <span class="badge badge-success pull-right">10</span> Updates
-                            </a>
-                            <a href="#">
-                                <i class="fa fa-envelope-o fa-fw pull-right"></i>
-                                <span class="badge badge-danger pull-right">5</span> Messages
-                            </a>
-                            <a href="#">
-                                <i class="fa fa-magnet fa-fw pull-right"></i>
-                                <span class="badge badge-info pull-right">3</span> Subscriptions
-                            </a>
-                            <a href="#">
-                                <i class="fa fa-question fa-fw pull-right"></i>
-                                <span class="badge pull-right">11</span> FAQ
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="#">
-                                <i class="fa fa-user fa-fw pull-right"></i>
-                                Profile
-                            </a>
-                            <a data-toggle="modal" href="#modal-user-settings">
-                                <i class="fa fa-cog fa-fw pull-right"></i>
-                                Settings
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="#"><i class="fa fa-ban fa-fw pull-right"></i> Logout</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </nav>
-</header>
+                </div>
+            </nav>
+        </header>
