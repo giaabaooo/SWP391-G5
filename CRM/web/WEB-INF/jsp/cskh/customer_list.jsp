@@ -1,8 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@ include file="/WEB-INF/jsp/layout/header.jsp" %>
-<%@ include file="/WEB-INF/jsp/layout/sidebar_cskh.jsp" %>
+<%@ include file="/WEB-INF/jsp/layout/header2.jsp" %>
+<%@ include file="/WEB-INF/jsp/layout/sidebar2.jsp" %>
 
 <section class="content-header">
     <h1>Customer Management</h1>
@@ -104,4 +104,4 @@
 
 </section>
 
-<%@ include file="/WEB-INF/jsp/layout/footer.jsp" %>
+<%@ include file="/WEB-INF/jsp/layout/footer2.jsp" %>
