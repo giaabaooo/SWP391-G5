@@ -1,18 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
-
+<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <!-- Login -->
     <servlet>
         <servlet-name>LoginController</servlet-name>
         <servlet-class>Controller.LoginController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DetailDeviceController</servlet-name>
+        <servlet-class>Controller.customer.DetailDeviceController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddNewProductController</servlet-name>
+        <servlet-class>Controller.warestaff.AddNewProductController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewListProductController</servlet-name>
+        <servlet-class>Controller.warestaff.ViewListProductController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewProductDetailController</servlet-name>
+        <servlet-class>Controller.warestaff.ViewProductDetailController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteProductController</servlet-name>
+        <servlet-class>Controller.warestaff.DeleteProductController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EditProductController</servlet-name>
+        <servlet-class>Controller.warestaff.EditProductController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
-
     <!-- User -->
     <servlet>
         <servlet-name>UserController</servlet-name>
@@ -22,7 +42,6 @@
         <servlet-name>UserController</servlet-name>
         <url-pattern>/UserController</url-pattern>
     </servlet-mapping>
-
     <!-- Devices -->
     <servlet>
         <servlet-name>DevicesController</servlet-name>
@@ -32,7 +51,6 @@
         <servlet-name>DevicesController</servlet-name>
         <url-pattern>/customer/devices</url-pattern>
     </servlet-mapping>
-
     <!-- Logout -->
     <servlet>
         <servlet-name>LogoutController</servlet-name>
@@ -48,10 +66,32 @@
         <url-pattern>/technician/logout</url-pattern>
         <url-pattern>/warehouse/logout</url-pattern>
     </servlet-mapping>
-
     <!-- Welcome page -->
+    <servlet-mapping>
+        <servlet-name>DetailDeviceController</servlet-name>
+        <url-pattern>/customer/detailDevice</url-pattern>
+    </servlet-mapping>
     <welcome-file-list>
         <welcome-file>redirect.jsp</welcome-file>
     </welcome-file-list>
-
+    <servlet-mapping>
+        <servlet-name>AddNewProductController</servlet-name>
+        <url-pattern>/warestaff/addNewProduct</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewListProductController</servlet-name>
+        <url-pattern>/warestaff/viewListProduct</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewProductDetailController</servlet-name>
+        <url-pattern>/warestaff/viewProductDetail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteProductController</servlet-name>
+        <url-pattern>/warestaff/deleteProduct</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditProductController</servlet-name>
+        <url-pattern>/warestaff/editProduct</url-pattern>
+    </servlet-mapping>
 </web-app>
