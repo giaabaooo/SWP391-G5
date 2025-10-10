@@ -644,7 +644,7 @@
                                                     <th>Request Date</th>
                                                     <th>Status</th>
                                                     <th>Is Active</th>
-                                                    <th style="width:150px;">Actions</th>
+                                                    <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -664,14 +664,16 @@
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            <a href="${pageContext.request.contextPath}/techmanager/request?action=detail&id=${u.id}" class="btn btn-xs btn-view">
+                                                            <a href="${pageContext.request.contextPath}/techmanager/request?action=detail&id=${u.id}" class="btn btn-action btn-view">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
 
-                                                            <a href="${pageContext.request.contextPath}/cskh/user?action=delete&id=${u.id}" 
-                                                               class="btn btn-xs btn-danger"
-                                                               onclick="return confirm('Delete this user?');">
-                                                                <i class="fa fa-trash"></i> Delete
+                                                            <a href="${pageContext.request.contextPath}/techmanager/request?action=reject&id=${u.id}" class="btn btn-action btn-delete">
+                                                                <i class="fa fa-trash"></i> Reject
+                                                            </a>
+                                                                
+                                                            <a href="${pageContext.request.contextPath}/cskh/user?action=delete&id=${u.id}" class="btn btn-action btn-edit">
+                                                                <i class="fa fa-angle-right"></i> Assign
                                                             </a>
                                                         </td>
                                                     </tr>

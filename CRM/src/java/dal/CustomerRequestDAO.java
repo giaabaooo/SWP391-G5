@@ -9,6 +9,7 @@ import data.User;
 import data.Device;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -129,6 +130,25 @@ public class CustomerRequestDAO extends DBContext {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean rejectRequest(int requestId, String rejectReason) {
+        String sql = "UPDATE customerrequest SET \n"
+                + "status = 'REJECT' ,\n"
+                + "is_active = 0\n"
+                + "WHERE id = ? ";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, requestId);
+
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating product: " + e.getMessage());
+            return false;
+        }
     }
 
 }
