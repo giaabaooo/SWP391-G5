@@ -71,7 +71,7 @@
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between mb-4">
 
-                                    <a href="">Forgot Password</a>
+                                    <a href="forgetPassword.jsp">Forgot Password</a>
                                 </div>
                                 <button type="submit" value="Login" class="btn btn-primary py-3 w-100 mb-4">Sign In</button>
 
