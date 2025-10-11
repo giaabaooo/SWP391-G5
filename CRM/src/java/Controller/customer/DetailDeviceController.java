@@ -37,7 +37,7 @@ ProductDAO productDAO = new ProductDAO();
                 e.printStackTrace();
             }
         }
-        // Nếu deviceId null hoặc không tìm thấy
+        
         response.sendRedirect(request.getContextPath() + "/customer/devices");
     }
 }
