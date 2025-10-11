@@ -170,7 +170,7 @@
                                         </select>
 
 
-                                        <button class="btn btn-primary" onclick="applyFilters()">
+                                        <button type="button" class="btn btn-primary" onclick="applyFilters()">
                                             <i class="fa fa-filter"></i> Filter
                                         </button>
                                         <button class="btn btn-primary" onclick="clearFilters()" style="background: #6c757d; border-color: #6c757d;">
@@ -187,7 +187,7 @@
                                                         <th>No</th>
                                                         <th>Contract Code</th>
                                                         <th>Date</th>
-                                                        <th>Product</th>
+                                                        <th>Device</th>
                                                         <th>Category</th>
                                                         <th>Brand</th>
                                                         <th>Actions</th>
@@ -232,7 +232,7 @@
                                         <!-- Pagination Controls -->
                                         <div class="pagination-container">
                                             <div class="pagination-info">
-                                                <span id="paginationInfo">Showing 1 to 10 of 0 products</span>
+                                                <span id="paginationInfo">Showing contracts</span>
                                             </div>
 
                                             <div class="page-size-selector">
@@ -464,6 +464,7 @@
                                                             if (params.length > 0) {
                                                                 url += '?' + params.join('&');
                                                             }
+                                                            console.log("Redirect to:", url);
 
                                                             window.location.href = url;
                                                         };
