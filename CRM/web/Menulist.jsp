@@ -1,8 +1,3 @@
-<%-- 
-    Document   : Menulist
-    Created on : Mar 2, 2025, 1:30:35 AM
-    Author     : Nhat Anh
---%>
 
 
 <!DOCTYPE html>
@@ -36,17 +31,17 @@
                 position: fixed;
                 top: 0;
                 left: 0;
-                width: 250px; /* ?i?u ch?nh theo kÌch th??c mong mu?n */
-                height: 100vh; /* Chi?m to‡n b? chi?u cao */
-                background-color: #fff; /* ??i m‡u n?n n?u c?n */
+                width: 250px; /* ?i?u ch?nh theo k√≠ch th??c mong mu?n */
+                height: 100vh; /* Chi?m to√†n b? chi?u cao */
+                background-color: #fff; /* ??i m√†u n?n n?u c?n */
                 box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-                z-index: 1000; /* ??m b?o menu n?m trÍn c·c ph?n kh·c */
+                z-index: 1000; /* ??m b?o menu n?m tr√™n c√°c ph?n kh√°c */
             }
 
             .list-group-item {
                 font-size: 16px; /* Gi? font ch? ?n ??nh */
-                padding: 10px 15px; /* ??m b?o kho?ng c·ch ??u */
-                text-align: left; /* Gi? v?n b?n c?n ch?nh h?p l˝ */
+                padding: 10px 15px; /* ??m b?o kho?ng c√°ch ??u */
+                text-align: left; /* Gi? v?n b?n c?n ch?nh h?p l√Ω */
                 font-family: "Roboto", sans-serif;
             }
         </style>
