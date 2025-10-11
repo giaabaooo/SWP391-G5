@@ -22,6 +22,10 @@
             <li>
                 <a href="${pageContext.request.contextPath}/techmanager/request?action=list"><i class="fa fa-plus"></i>Task Manager</a>
             </li>
+            
+            <li>
+                <a href="${pageContext.request.contextPath}/techmanager/task?action=list"><i class="fa fa-plus"></i>Task Manager</a>
+            </li>
 
         </ul>
     </section>

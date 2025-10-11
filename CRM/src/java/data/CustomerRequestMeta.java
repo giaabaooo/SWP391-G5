@@ -22,11 +22,12 @@ public class CustomerRequestMeta {
     private String customer_comment;
     private String customer_service_response;
     private int rating;
+    private CustomerRequest customerRequest;
 
     public CustomerRequestMeta() {
     }
 
-    public CustomerRequestMeta(int id, int request_id, String priority, String reject_reason, double total_cost, double paid_amount, String payment_status, Date payment_due_date, String customer_comment, String customer_service_response, int rating) {
+    public CustomerRequestMeta(int id, int request_id, String priority, String reject_reason, double total_cost, double paid_amount, String payment_status, Date payment_due_date, String customer_comment, String customer_service_response, int rating, CustomerRequest customerRequest) {
         this.id = id;
         this.request_id = request_id;
         this.priority = priority;
@@ -38,6 +39,15 @@ public class CustomerRequestMeta {
         this.customer_comment = customer_comment;
         this.customer_service_response = customer_service_response;
         this.rating = rating;
+        this.customerRequest = customerRequest;
+    }
+
+    public CustomerRequest getCustomerRequest() {
+        return customerRequest;
+    }
+
+    public void setCustomerRequest(CustomerRequest customerRequest) {
+        this.customerRequest = customerRequest;
     }
 
     public int getId() {

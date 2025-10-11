@@ -11,7 +11,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Date;
 
 /**
  *
@@ -25,6 +24,7 @@ public class RequestController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
+
         if (action == null) {
             action = "list";
         }
@@ -38,10 +38,11 @@ public class RequestController extends HttpServlet {
                 req.setAttribute("requests", db.getRequestById(id));
                 req.getRequestDispatcher("/techmanager/request_detail.jsp").forward(req, resp);
                 break;
-//            case "delete":
-//                db.delete(Integer.parseInt(req.getParameter("id")));
-//                resp.sendRedirect("user");
-//                break;
+            case "reject":
+                int id_reject = Integer.parseInt(req.getParameter("id"));
+                req.setAttribute("requests", db.getRequestById(id_reject));
+                req.getRequestDispatcher("/techmanager/reject_request.jsp").forward(req, resp);
+                break;
             case "list":
             default:
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
@@ -83,7 +84,7 @@ public class RequestController extends HttpServlet {
                     return;
                 }
 
-                req.setAttribute("requests", db.list(page, size, keyword, status, fromDate, toDate));
+                req.setAttribute("requests", db.getListRequest(page, size, keyword, status, fromDate, toDate));
                 //req.setAttribute("total", total);
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
@@ -95,25 +96,19 @@ public class RequestController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        String id = req.getParameter("id");
-//        User u = new User();
-//        u.setUsername(req.getParameter("username"));
-//        u.setFullName(req.getParameter("fullName"));
-//        u.setEmail(req.getParameter("email"));
-//        u.setPhone(req.getParameter("phone"));
-//        u.setAddress(req.getParameter("address"));
-//        Role r = new Role();
-//        r.setId(Integer.parseInt(req.getParameter("roleId")));
-//        u.setRole(r);
-//        u.setIsActive(req.getParameter("is_active") != null);
-//
-//        if (id == null || id.isEmpty()) {
-//            u.setPassword("123456"); // TODO: hash password
-//            db.insert(u);
-//        } else {
-//            u.setId(Integer.parseInt(id));
-//            db.update(u);
-//        }
+
+        String id = req.getParameter("requestId");
+        String reason = req.getParameter("reason");
+
+        if (id == null || reason == null || reason.trim().isEmpty()) {
+            req.setAttribute("error", "Reject reason is required!");
+            req.getRequestDispatcher("/techmanager/requestdetail.jsp").forward(req, resp);
+            return;
+        }
+
+        db.rejectRequest(Integer.parseInt(id));
+        db.insertRejectReason(Integer.parseInt(id), reason);
+
         resp.sendRedirect("request");
     }
 }
