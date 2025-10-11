@@ -5,6 +5,7 @@
 package dal;
 
 import data.CustomerRequest;
+import data.CustomerRequestAssignment;
 import data.User;
 import data.Device;
 import java.sql.PreparedStatement;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
  */
 public class CustomerRequestDAO extends DBContext {
 
-    public ArrayList<CustomerRequest> list(int page, int pageSize, String keyword, String status, String fromDate, String toDate) {
+    public ArrayList<CustomerRequest> getListRequest(int page, int pageSize, String keyword, String status, String fromDate, String toDate) {
         ArrayList<CustomerRequest> listRequest = new ArrayList<>();
 
         String sql = "SELECT cr.*,u.full_name,p.name FROM customerrequest cr\n"
@@ -132,9 +133,9 @@ public class CustomerRequestDAO extends DBContext {
         return null;
     }
 
-    public boolean rejectRequest(int requestId, String rejectReason) {
+    public boolean rejectRequest(int requestId) {
         String sql = "UPDATE customerrequest SET \n"
-                + "status = 'REJECT' ,\n"
+                + "status = 'REJECTED' ,\n"
                 + "is_active = 0\n"
                 + "WHERE id = ? ";
         try {
@@ -146,9 +147,21 @@ public class CustomerRequestDAO extends DBContext {
 
             return rowsAffected > 0;
         } catch (SQLException e) {
-            System.err.println("Error updating product: " + e.getMessage());
+            System.err.println("Error updating : " + e.getMessage());
             return false;
         }
     }
 
+    public boolean insertRejectReason(int requestId, String rejectReason) {
+        String sql = "INSERT INTO customerrequestmeta (request_id, reject_reason) VALUES (?, ?)";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, requestId);
+            statement.setString(2, rejectReason);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error inserting reject reason: " + e.getMessage());
+            return false;
+        }
+    }
 }

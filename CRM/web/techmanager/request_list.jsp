@@ -595,14 +595,14 @@
                         </div>
                     </div>
 
-                    <!-- Inventory Table -->
+                    <!-- Request Table -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="content-card">
                                 <div class="card-header">
                                     <h3><i class="fa fa-list"></i> Request List</h3>
                                     <a href="../warestaff/addNewProduct" class="btn btn-primary">
-                                        <i class="fa fa-plus"></i> Add New Task
+                                        <i class="fa fa-plus"></i> Assign Task
                                     </a>
                                 </div>
 
@@ -667,14 +667,15 @@
                                                             <a href="${pageContext.request.contextPath}/techmanager/request?action=detail&id=${u.id}" class="btn btn-action btn-view">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
+                                                            <c:if test="${u.status ne 'REJECTED'}">
+                                                                <a href="${pageContext.request.contextPath}/techmanager/request?action=reject&id=${u.id}" class="btn btn-action btn-delete">
+                                                                    <i class="fa fa-trash"></i> Reject
+                                                                </a>
 
-                                                            <a href="${pageContext.request.contextPath}/techmanager/request?action=reject&id=${u.id}" class="btn btn-action btn-delete">
-                                                                <i class="fa fa-trash"></i> Reject
-                                                            </a>
-                                                                
-                                                            <a href="${pageContext.request.contextPath}/cskh/user?action=delete&id=${u.id}" class="btn btn-action btn-edit">
-                                                                <i class="fa fa-angle-right"></i> Assign
-                                                            </a>
+                                                                <a href="${pageContext.request.contextPath}/cskh/user?action=delete&id=${u.id}" class="btn btn-action btn-edit">
+                                                                    <i class="fa fa-angle-right"></i> Assign
+                                                                </a>
+                                                            </c:if>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>

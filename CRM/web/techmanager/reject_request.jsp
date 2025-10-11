@@ -286,7 +286,7 @@
                                         <i class="fa fa-info-circle" style="color: #667eea;"></i> Request details
                                     </h4>
 
-                                    <form method="post" action="${pageContext.request.contextPath}/techmanager/reject">
+                                    <form method="post" action="${pageContext.request.contextPath}/techmanager/request">
                                         <input type="hidden" name="requestId" value="${requests.id}"/>
                                         
                                         <div class="info-row">

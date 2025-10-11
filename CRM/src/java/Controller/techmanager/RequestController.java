@@ -11,6 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 /**
  *
  * @author admin
@@ -23,7 +24,7 @@ public class RequestController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
-        
+
         if (action == null) {
             action = "list";
         }
@@ -83,7 +84,7 @@ public class RequestController extends HttpServlet {
                     return;
                 }
 
-                req.setAttribute("requests", db.list(page, size, keyword, status, fromDate, toDate));
+                req.setAttribute("requests", db.getListRequest(page, size, keyword, status, fromDate, toDate));
                 //req.setAttribute("total", total);
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
@@ -95,6 +96,7 @@ public class RequestController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         String id = req.getParameter("requestId");
         String reason = req.getParameter("reason");
 
@@ -103,8 +105,10 @@ public class RequestController extends HttpServlet {
             req.getRequestDispatcher("/techmanager/requestdetail.jsp").forward(req, resp);
             return;
         }
-        
-        
+
+        db.rejectRequest(Integer.parseInt(id));
+        db.insertRejectReason(Integer.parseInt(id), reason);
+
         resp.sendRedirect("request");
     }
 }
