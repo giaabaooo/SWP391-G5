@@ -20,7 +20,7 @@
             </li>
 
             <li>
-                <a href="${pageContext.request.contextPath}/techmanager/request?action=list"><i class="fa fa-plus"></i>Task Manager</a>
+                <a href="${pageContext.request.contextPath}/techmanager/request?action=list"><i class="fa fa-plus"></i>Request Manager</a>
             </li>
             
             <li>
