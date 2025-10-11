@@ -5,23 +5,23 @@
 package Controller.techmanager;
 
 import dal.CustomerRequestDAO;
-import dal.UserDBContext;
+import data.CustomerRequestAssignment;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Date;
 
 /**
  *
  * @author admin
  */
-@WebServlet("/techmanager/request")
-public class RequestController extends HttpServlet {
+@WebServlet("/techmanager/task")
+public class TaskController extends HttpServlet {
 
     CustomerRequestDAO db = new CustomerRequestDAO();
-    UserDBContext userDb = new UserDBContext();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -32,22 +32,10 @@ public class RequestController extends HttpServlet {
         }
 
         switch (action) {
-            
             case "detail":
                 int id = Integer.parseInt(req.getParameter("id"));
-                req.setAttribute("requests", db.getRequestById(id));
-                req.getRequestDispatcher("/techmanager/request_detail.jsp").forward(req, resp);
-                break;
-            case "reject":
-                int id_reject = Integer.parseInt(req.getParameter("id"));
-                req.setAttribute("requests", db.getRequestById(id_reject));
-                req.getRequestDispatcher("/techmanager/reject_request.jsp").forward(req, resp);
-                break;
-            case "assignTask":
-                
-                req.setAttribute("requestList", db.getListRequest(1, Integer.MAX_VALUE, "", "active", "", ""));
-                req.setAttribute("technicianList", userDb.list(1, Integer.MAX_VALUE, "", "TECHNICIAN", "active"));
-                req.getRequestDispatcher("/techmanager/assign_task.jsp").forward(req, resp);
+                req.setAttribute("tasks", db.getTaskById(id));
+                req.getRequestDispatcher("/techmanager/task_detail.jsp").forward(req, resp);
                 break;
             case "list":
             default:
@@ -55,7 +43,6 @@ public class RequestController extends HttpServlet {
                 int size = 10;
 
                 String keyword = req.getParameter("keyword");
-                String status = req.getParameter("status");
                 String fromDate = req.getParameter("fromDate");
                 String toDate = req.getParameter("toDate");
 
@@ -89,13 +76,12 @@ public class RequestController extends HttpServlet {
 
                     return;
                 }
-
-                req.setAttribute("requests", db.getListRequest(page, size, keyword, status, fromDate, toDate));
+                req.setAttribute("task", db.getListTask(page, size, keyword, fromDate, toDate));
                 //req.setAttribute("total", total);
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
 
-                req.getRequestDispatcher("/techmanager/request_list.jsp").forward(req, resp);
+                req.getRequestDispatcher("/techmanager/task_list.jsp").forward(req, resp);
 
         }
     }
@@ -103,18 +89,40 @@ public class RequestController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        String id = req.getParameter("requestId");
-        String reason = req.getParameter("reason");
+        try {
+            
+            int requestId = Integer.parseInt(req.getParameter("taskId"));
+            String[] technicianIds = req.getParameterValues("technicianIds");
+            String leaderId = req.getParameter("leaderId");
+            String assignedDate = req.getParameter("assignedDate");
 
-        if (id == null || reason == null || reason.trim().isEmpty()) {
-            req.setAttribute("error", "Reject reason is required!");
-            req.getRequestDispatcher("/techmanager/requestdetail.jsp").forward(req, resp);
-            return;
+            if (technicianIds != null) {
+                for (String techIdStr : technicianIds) {
+                    if (techIdStr == null || techIdStr.isEmpty()) {
+                        continue;
+                    }
+
+                    int techId = Integer.parseInt(techIdStr);
+                    boolean isLeader = (leaderId != null && leaderId.equals(techIdStr));
+
+                    CustomerRequestAssignment ca = new CustomerRequestAssignment();
+                    ca.setRequest_id(requestId);
+                    ca.setTechnician_id(techId);
+                    ca.setIs_main(isLeader ? 1 : 0);
+                    ca.setAssigned_date(java.sql.Date.valueOf(assignedDate));
+
+                    db.insert(ca);
+                }
+            }
+            db.updateRequest("PROCESSING", 1, requestId);
+            
+            resp.sendRedirect("task?msg=added");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            req.setAttribute("error", "Có lỗi xảy ra khi thêm task assignment!");
+            req.getRequestDispatcher("/techmanager/error.jsp").forward(req, resp);
         }
-
-        db.updateRequest("REJECT",0,Integer.parseInt(id));
-        db.insertRejectReason(Integer.parseInt(id), reason);
-
-        resp.sendRedirect("request");
     }
+
 }

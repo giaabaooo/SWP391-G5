@@ -4,6 +4,7 @@
  */
 package data;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -17,12 +18,12 @@ public class CustomerRequestAssignment {
     private int is_main;
     private Date assigned_date;
     private CustomerRequest customerRequest;
-    private User technician;
+    private ArrayList<User> technician;
 
     public CustomerRequestAssignment() {
     }
 
-    public CustomerRequestAssignment(int id, int request_id, int technician_id, int is_main, Date assigned_date, CustomerRequest customerRequest, User technician) {
+    public CustomerRequestAssignment(int id, int request_id, int technician_id, int is_main, Date assigned_date, CustomerRequest customerRequest, ArrayList<User> technician) {
         this.id = id;
         this.request_id = request_id;
         this.technician_id = technician_id;
@@ -31,24 +32,6 @@ public class CustomerRequestAssignment {
         this.customerRequest = customerRequest;
         this.technician = technician;
     }
-
-    public CustomerRequest getCustomerRequest() {
-        return customerRequest;
-    }
-
-    public void setCustomerRequest(CustomerRequest customerRequest) {
-        this.customerRequest = customerRequest;
-    }
-
-    public User getTechnician() {
-        return technician;
-    }
-
-    public void setTechnician(User technician) {
-        this.technician = technician;
-    }
-
-    
 
     public int getId() {
         return id;
@@ -89,6 +72,23 @@ public class CustomerRequestAssignment {
     public void setAssigned_date(Date assigned_date) {
         this.assigned_date = assigned_date;
     }
+
+    public CustomerRequest getCustomerRequest() {
+        return customerRequest;
+    }
+
+    public void setCustomerRequest(CustomerRequest customerRequest) {
+        this.customerRequest = customerRequest;
+    }
+
+    public ArrayList<User> getTechnician() {
+        return technician;
+    }
+
+    public void setTechnician(ArrayList<User> technician) {
+        this.technician = technician;
+    }
+
     
     
     

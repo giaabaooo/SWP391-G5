@@ -133,14 +133,16 @@ public class CustomerRequestDAO extends DBContext {
         return null;
     }
 
-    public boolean rejectRequest(int requestId) {
+    public boolean updateRequest( String status, int isActive,int requestId) {
         String sql = "UPDATE customerrequest SET \n"
-                + "status = 'REJECTED' ,\n"
-                + "is_active = 0\n"
+                + "status = ? ,\n"
+                + "is_active = ?\n"
                 + "WHERE id = ? ";
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, requestId);
+            statement.setString(1, status);
+            statement.setInt(2, isActive);
+            statement.setInt(3, requestId);
 
             int rowsAffected = statement.executeUpdate();
             statement.close();
@@ -164,4 +166,131 @@ public class CustomerRequestDAO extends DBContext {
             return false;
         }
     }
+
+    public ArrayList<CustomerRequestAssignment> getListTask(int page, int pageSize, String keyword, String fromDate, String toDate) {
+        ArrayList<CustomerRequestAssignment> listTask = new ArrayList<>();
+
+        String sql = "SELECT ca.* FROM customerrequest_assignment ca\n"
+                + "JOIN customerrequest cr on cr.id = ca.request_id \n"
+                + "JOIN user tech on tech.id = ca.technician_id\n"
+                + "where ca.is_main = 1";
+
+        ArrayList<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql += " AND (u.full_name LIKE ? OR p.name LIKE ?)";
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
+        }
+
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql += " AND ca.assigned_date >= ?";
+            params.add(fromDate);
+        }
+
+        if (toDate != null && !toDate.isEmpty()) {
+            sql += " AND ca.assigned_date <= ?";
+            params.add(toDate);
+        }
+
+        sql += " LIMIT ? OFFSET ?";
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                stm.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = stm.executeQuery();
+
+            UserDBContext db = new UserDBContext();
+
+            while (rs.next()) {
+
+                User tech = db.get(rs.getInt("technician_id"));
+
+                ArrayList<User> listTech = new ArrayList<>();
+                listTech.add(tech);
+
+                CustomerRequest cusRe = getRequestById(rs.getInt("request_id"));
+
+                CustomerRequestAssignment ca = new CustomerRequestAssignment();
+                ca.setId(rs.getInt("id"));
+                ca.setRequest_id(rs.getInt("request_id"));
+                ca.setTechnician_id(rs.getInt("technician_id"));
+                ca.setIs_main(rs.getInt("is_main"));
+                ca.setAssigned_date(rs.getDate("assigned_date"));
+
+                ca.setTechnician(listTech);
+                ca.setCustomerRequest(cusRe);
+
+                listTask.add(ca);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return listTask;
+    }
+
+    public CustomerRequestAssignment getTaskById(int id) {
+        CustomerRequestAssignment ca = null;
+
+        String sql = "SELECT ca.*, tech.id AS tech_id "
+                + "FROM customerrequest_assignment ca "
+                + "JOIN user tech ON tech.id = ca.technician_id "
+                + "WHERE ca.request_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, id);
+            ResultSet rs = stm.executeQuery();
+
+            UserDBContext db = new UserDBContext();
+            ArrayList<User> listTech = new ArrayList<>();
+            CustomerRequest cusRe = null;
+
+            while (rs.next()) {
+                if (ca == null) {
+                    ca = new CustomerRequestAssignment();
+                    ca.setId(rs.getInt("id"));
+                    ca.setRequest_id(rs.getInt("request_id"));
+                    ca.setIs_main(rs.getInt("is_main"));
+                    ca.setAssigned_date(rs.getDate("assigned_date"));
+
+                    cusRe = getRequestById(rs.getInt("request_id"));
+                    ca.setCustomerRequest(cusRe);
+                }
+
+                User tech = db.get(rs.getInt("tech_id"));
+                listTech.add(tech);
+            }
+
+            if (ca != null) {
+                ca.setTechnician(listTech);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ca;
+    }
+
+    public void insert(CustomerRequestAssignment ca) {
+        String sql = "INSERT INTO customerrequest_assignment (request_id, technician_id, is_main, assigned_date) "
+                + "VALUES (?, ?, ?, ?)";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, ca.getRequest_id());
+            stm.setInt(2, ca.getTechnician_id());
+            stm.setInt(3, ca.getIs_main());
+
+            java.util.Date utilDate = ca.getAssigned_date();
+            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            stm.setDate(4, sqlDate);
+
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
