@@ -656,10 +656,10 @@
                                                         <td>${u.customerRequest.status}</td>
 
                                                         <td>
-                                                            <a href="${pageContext.request.contextPath}/techmanager/task?action=detail&id=${u.id}" class="btn btn-action btn-view">
+                                                            <a href="${pageContext.request.contextPath}/techmanager/task?action=detail&id=${u.customerRequest.id}" class="btn btn-action btn-view">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
-                                                            <a href="${pageContext.request.contextPath}/techmanager/task?action=edit&id=${u.id}" class="btn btn-action btn-edit">
+                                                            <a href="${pageContext.request.contextPath}/techmanager/task?action=edit&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
                                                                 <i class="fa fa-pencil"></i> Edit
                                                             </a>
 

@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  *
@@ -133,7 +134,7 @@ public class CustomerRequestDAO extends DBContext {
         return null;
     }
 
-    public boolean updateRequest( String status, int isActive,int requestId) {
+    public boolean updateRequest(String status, int isActive, int requestId) {
         String sql = "UPDATE customerrequest SET \n"
                 + "status = ? ,\n"
                 + "is_active = ?\n"
@@ -291,6 +292,67 @@ public class CustomerRequestDAO extends DBContext {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void updateAssignedDate(int requestId, Date assignedDate) {
+        String sql = "UPDATE customerrequest_assignment SET assigned_date = ? WHERE request_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setDate(1, new java.sql.Date(assignedDate.getTime()));
+            stm.setInt(2, requestId);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateLeader(int requestId, int leaderId) {
+        try {
+            // Bỏ leader cũ
+            String sql1 = "UPDATE customerrequest_assignment SET is_main = 0 WHERE request_id = ?";
+            try (PreparedStatement stm = connection.prepareStatement(sql1)) {
+                stm.setInt(1, requestId);
+                stm.executeUpdate();
+            }
+
+            // Gán leader mới
+            String sql2 = "UPDATE customerrequest_assignment SET is_main = 1 WHERE request_id = ? AND technician_id = ?";
+            try (PreparedStatement stm = connection.prepareStatement(sql2)) {
+                stm.setInt(1, requestId);
+                stm.setInt(2, leaderId);
+                stm.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateTechnician(int requestId, int technicianId, Date assignedDate, int isMain) {
+        String sql = "UPDATE customerrequest_assignment SET assigned_date = ?, is_main = ? "
+                + "WHERE request_id = ? AND technician_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setDate(1, new java.sql.Date(assignedDate.getTime()));
+            stm.setInt(2, isMain);
+            stm.setInt(3, requestId);
+            stm.setInt(4, technicianId);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean existsAssignment(int requestId, int technicianId) {
+        String sql = "SELECT COUNT(*) FROM customerrequest_assignment WHERE request_id = ? AND technician_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, requestId);
+            stm.setInt(2, technicianId);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

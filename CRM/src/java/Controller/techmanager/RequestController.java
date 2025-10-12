@@ -112,7 +112,7 @@ public class RequestController extends HttpServlet {
             return;
         }
 
-        db.updateRequest("REJECT",0,Integer.parseInt(id));
+        db.updateRequest("REJECTED",0,Integer.parseInt(id));
         db.insertRejectReason(Integer.parseInt(id), reason);
 
         resp.sendRedirect("request");
