@@ -18,11 +18,15 @@
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/warestaff/ViewListProductController.java</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/dal/UserDBContext.java</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/warestaff/EditProductController.java</file>
+            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/data/CustomerRequest.java</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/techmanager/layout/header.jsp</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/techmanager/reject_request.jsp</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/cskh/ContractController.java</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/customer/DevicesController.java</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/dal/DAOAccount.java</file>
+            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/techmanager/dashboard.jsp</file>
+            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/techmanager/request_detail.jsp</file>
+            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/techmanager/DashBoardController.java</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/techmanager/edit_task.jsp</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/customer/ContractController.java</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/warehouse/dashboard.jsp</file>
@@ -30,8 +34,6 @@
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/cskh/CustomerController.java</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/forgetPassword.jsp</file>
             <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/techmanager/TechnicianController.java</file>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/techmanager/request_list.jsp</file>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/techmanager/technician_list.jsp</file>
         </group>
     </open-files>
 </project-private>
