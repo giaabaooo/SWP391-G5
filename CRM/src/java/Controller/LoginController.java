@@ -49,7 +49,7 @@ public class LoginController extends HttpServlet {
                     resp.sendRedirect("staff/dashboard.jsp");
                     break;
                 case "TECH_MANAGER":
-                    resp.sendRedirect("techmanager/dashboard.jsp");
+                    resp.sendRedirect("techmanager/dashboard");
                     break;
                 case "TECHNICIAN":
                     resp.sendRedirect("technician/dashboard.jsp");

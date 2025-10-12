@@ -12,7 +12,7 @@
 
         <ul class="sidebar-menu">
             <li>
-                <a href="${pageContext.request.contextPath}/techmanager/dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a>
+                <a href="${pageContext.request.contextPath}/techmanager/dashboard"><i class="fa fa-dashboard"></i> Dashboard</a>
             </li>
 
             <li>
