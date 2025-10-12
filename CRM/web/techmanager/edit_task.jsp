@@ -274,84 +274,87 @@
                             <p style="color: #718096; margin-bottom: 2rem;">View detailed information about this request</p>
                         </div>
                     </div>
-                    <!-- Add Task Assignment Card -->
+
+                    <!-- Edit Task Assignment Card -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card product-detail-card">
                                 <div class="card-body">
 
                                     <h4 style="color: #2d3748; font-weight: 600; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
-                                        <i class="fa fa-plus-circle" style="color: #667eea;"></i> Assign Task Assignment
+                                        <i class="fa fa-edit" style="color: #667eea;"></i> Edit Task 
                                     </h4>
 
-                                    <form method="post" action="${pageContext.request.contextPath}/techmanager/task?action=add">
+                                    <form method="post" action="${pageContext.request.contextPath}/techmanager/task?action=update">
+                                        <!-- Hidden assignment ID -->
+                                        <input type="hidden" name="id" value="${tasks.id}" />
 
+                                        
                                         <div class="info-row" style="margin-bottom: 1rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-tasks"></i> Task
                                             </div>
                                             <div class="info-value">
-                                                <select name="taskId" class="form-control" required>
-                                                    <option value="">-- Select Task --</option>
-                                                    <c:forEach var="task" items="${requestList}">
-                                                        <c:if test="${task.status == 'PENDING'}">
-                                                            <option value="${task.id}">
-                                                                ${task.request_type} ${task.device.productName} for ${task.customer.fullName}
-                                                            </option>
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </select>
+                                                <span>${tasks.customerRequest.request_type} ${tasks.customerRequest.device.productName} for ${tasks.customerRequest.customer.fullName}</span>
+                                                <input type="hidden" name="taskId" value="${tasks.customerRequest.id}" />
                                             </div>
                                         </div>
 
-                                        <!-- TECHNICIAN SELECTION -->
+                                        <!-- TECHNICIANS --> 
                                         <div class="info-row" style="margin-bottom: 1rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-user-cog"></i> Technician(s)
                                             </div>
                                             <div class="info-value">
                                                 <div id="technicianContainer">
-                                                    <div class="tech-row" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                                                        <select name="technicianIds" class="form-control technician-select" required>
-                                                            <option value="">-- Select Technician --</option>
-                                                            <c:forEach var="t" items="${technicianList}">
-                                                                <option value="${t.id}">${t.fullName}</option>
-                                                            </c:forEach>
-                                                        </select>
+                                                    <c:forEach var="techAssign" items="${tasks.technician}">
+                                                        <div class="tech-row" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                                                            <select name="technicianIds" class="form-control technician-select" required>
+                                                                <option value="">-- Select Technician --</option>
+                                                                <c:forEach var="t" items="${technicianList}">
+                                                                    <option value="${t.id}"
+                                                                            <c:if test="${t.id == techAssign.id}">selected</c:if>>
+                                                                        ${t.fullName}
+                                                                    </option>
+                                                                </c:forEach>
+                                                            </select>
 
-                                                        <label style="margin:0 8px; white-space:nowrap;">
-                                                            <input type="radio" name="leaderId" class="leader-radio" value=""> Leader
-                                                        </label>
+                                                            <label style="margin:0 8px; white-space:nowrap;">
+                                                                <input type="radio" name="leaderId" class="leader-radio"
+                                                                       value="${techAssign.id}"
+                                                                       <c:if test="${techAssign.id == leaderId}">checked</c:if>> Leader
+                                                                </label>
 
-                                                        <button type="button" class="btn btn-primary btn-sm addTechBtn">
-                                                            <i class="fa fa-plus"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-danger btn-sm removeTechBtn">
-                                                            <i class="fa fa-minus"></i>
-                                                        </button>
-                                                    </div>
+                                                                <button type="button" class="btn btn-success btn-sm addTechBtn">
+                                                                    <i class="fa fa-plus"></i>
+                                                                </button>
+                                                                <button type="button" class="btn btn-danger btn-sm removeTechBtn">
+                                                                    <i class="fa fa-minus"></i>
+                                                                </button>
+                                                            </div>
+                                                    </c:forEach>
                                                 </div>
                                             </div>
-
                                         </div>
 
-
+                                        <!-- ASSIGN DATE -->
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-calendar"></i> Assign Date
                                             </div>
                                             <div class="info-value">
-                                                <input type="date" name="assignedDate" class="form-control" required>
+                                                <input type="date" name="assignedDate" class="form-control"
+                                                       value="${tasks.assigned_date}" required>
                                             </div>
                                         </div>
 
-
+                                        <!-- BUTTONS -->
                                         <div class="mt-3 text-center">
-                                            <a href="${pageContext.request.contextPath}/techmanager/request" class="btn btn-default" style="min-width: 150px;">
+                                            <a href="${pageContext.request.contextPath}/techmanager/task" class="btn btn-default" style="min-width: 150px;">
                                                 <i class="fa fa-arrow-left"></i> Back to List
                                             </a>
                                             <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
-                                                <i class="fa fa-save"></i> Save
+                                                <i class="fa fa-save"></i> Update
                                             </button>
                                         </div>
 
@@ -391,35 +394,37 @@
                 $('#inventoryMenu').addClass('in');
             });
 
-            document.addEventListener("DOMContentLoaded", function () {
-                const container = document.getElementById("technicianContainer");
+            document.addEventListener('DOMContentLoaded', function () {
+                const container = document.getElementById('technicianContainer');
 
-                // Gán value radio theo technician được chọn
-                container.addEventListener("change", function (e) {
-                    if (e.target.classList.contains("technician-select")) {
-                        const select = e.target;
-                        const row = select.closest(".tech-row");
-                        const radio = row.querySelector(".leader-radio");
-                        radio.value = select.value; // Cập nhật value của radio
-                    }
-                });
-
-                // Thêm dòng mới
-                container.addEventListener("click", function (e) {
-                    if (e.target.closest(".addTechBtn")) {
-                        const row = e.target.closest(".tech-row");
+                // Add Technician Row
+                container.addEventListener('click', function (e) {
+                    if (e.target.closest('.addTechBtn')) {
+                        const row = e.target.closest('.tech-row');
                         const clone = row.cloneNode(true);
-                        clone.querySelector(".technician-select").value = "";
-                        clone.querySelector(".leader-radio").checked = false;
-                        clone.querySelector(".leader-radio").value = "";
+
+                        // Reset selection
+                        clone.querySelector('.technician-select').selectedIndex = 0;
+                        clone.querySelector('.leader-radio').checked = false;
+
                         container.appendChild(clone);
                     }
 
-                    // Xóa dòng
-                    if (e.target.closest(".removeTechBtn")) {
-                        const rows = container.querySelectorAll(".tech-row");
-                        if (rows.length > 1)
-                            e.target.closest(".tech-row").remove();
+                    // Remove Technician Row
+                    if (e.target.closest('.removeTechBtn')) {
+                        const rows = container.querySelectorAll('.tech-row');
+                        if (rows.length > 1) {
+                            e.target.closest('.tech-row').remove();
+                        }
+                    }
+                });
+
+                // Khi chọn kỹ thuật viên, tự gán value cho radio leader
+                container.addEventListener('change', function (e) {
+                    if (e.target.classList.contains('technician-select')) {
+                        const selectedTechId = e.target.value;
+                        const radio = e.target.closest('.tech-row').querySelector('.leader-radio');
+                        radio.value = selectedTechId;
                     }
                 });
             });

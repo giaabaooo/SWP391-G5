@@ -630,9 +630,9 @@
                             <div class="content-card">
                                 <div class="card-header">
                                     <h3><i class="fa fa-list"></i> Technician List</h3>
-                                    <a href="../warestaff/addNewProduct" class="btn btn-primary">
+<!--                                    <a href="../warestaff/addNewProduct" class="btn btn-primary">
                                         <i class="fa fa-plus"></i> Add New Technician
-                                    </a>
+                                    </a>-->
                                 </div>
 
                                 <!-- Filter Bar -->
