@@ -639,7 +639,7 @@
                                 <form method="get" action="${pageContext.request.contextPath}/techmanager/technician" >
                                     <div class="filter-bar">
                                         <input type="hidden" name="action" value="list"/>
-                                        <input type="text" name="keyword" class="search-input" placeholder="Search by product name..." 
+                                        <input type="text" name="keyword" class="search-input" placeholder="Search..." 
                                                value="${param.keyword}">
 
                                         <select name="status" class="search-input" style="min-width: 150px;">
