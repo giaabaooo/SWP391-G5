@@ -3,12 +3,12 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="data.Product" %>
-<%@ page import="data.Contract" %>
+<%@ page import="data.CustomerRequest" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Customer | Contract</title>
+        <title>Customer | View List Request</title>
         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
         <meta name="description" content="Warehouse Management System">
         <meta name="keywords" content="Warehouse, Inventory, Management">
@@ -23,6 +23,7 @@
         <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
         <link href="${pageContext.request.contextPath}/css/admin/style.css" rel="stylesheet" type="text/css" />
         <link href="${pageContext.request.contextPath}/css/warehouse/productList.css" rel="stylesheet" type="text/css" />
+
     </head>
     <body class="skin-black">
 
@@ -108,11 +109,11 @@
             <!-- MAIN CONTENT -->
             <aside class="right-side">
                 <section class="content">
-                    <form method="get" action="${pageContext.request.contextPath}/customer/contract" class="form-inline mb-3">
+                    <form method="get" action="${pageContext.request.contextPath}/customer/listRequest" class="form-inline mb-3">
                         <!-- Page Header -->
                         <div class="row">
                             <div class="col-md-12">
-                                <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Contract</h1>
+                                <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">View List Request</h1>
 
 
                                 <%-- Display error message if any --%>
@@ -143,14 +144,14 @@
                             <div class="col-md-12">
                                 <div class="content-card">
                                     <div class="card-header">
-                                        <h3><i class="fa fa-list"></i> Contract List</h3>
+                                        <h3><i class="fa fa-list"></i> Request List</h3>
 
                                     </div>
 
                                     <!-- Filter Bar -->
                                     <div class="filter-bar">
                                         <input type="text" id="searchInput" class="search-input" placeholder="Search by device name..." 
-                                               value="${search != null ? search : ''}">
+                                               value="<%= request.getAttribute("search") != null ? request.getAttribute("search") : "" %>">
 
                                         <select id="categoryFilter" class="search-input" style="min-width: 150px;">
 
@@ -168,9 +169,15 @@
                                             </c:forEach>
 
                                         </select>
+                                        <select id="statusFilter" class="search-input" style="min-width: 150px;">
+                                            <option value="ALL" ${param.status == 'ALL' ? 'selected' : ''}>All </option>
+                                            <c:forEach var="d" items="${statuses}">
+                                                <option value="${d}" ${param.status == d ? 'selected' : ''}>${d}</option>
+                                            </c:forEach>
 
+                                        </select>
 
-                                        <button type="button" class="btn btn-primary" onclick="applyFilters()">
+                                        <button class="btn btn-primary" onclick="applyFilters()">
                                             <i class="fa fa-filter"></i> Filter
                                         </button>
                                         <button class="btn btn-primary" onclick="clearFilters()" style="background: #6c757d; border-color: #6c757d;">
@@ -185,35 +192,39 @@
                                                 <thead>
                                                     <tr>
                                                         <th>No</th>
-                                                        <th>Contract Code</th>
-                                                        <th>Date</th>
                                                         <th>Device</th>
-                                                        <th>Category</th>
-                                                        <th>Brand</th>
+                                                        <th>Title</th>
+                                                        <th>Type</th>
+                                                        <th>Date</th>                                                       
+                                                        <th>Status</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
 
                                                 <tbody>
                                                     <% 
-                                                        List<Contract> contracts = (List<Contract>) request.getAttribute("contracts");
-                                                         if (contracts != null) {
-                                                         
-                                                         for (Contract ct : contracts) {
+                                                        List<CustomerRequest> list = (List<CustomerRequest>) request.getAttribute("list");                   
+                                                        int no = 1;
+                                                        if (list != null) {
+                                                        for (CustomerRequest req : list) {
                                                     %>
                                                     <tr>
-                                                        <td><%= ct.getId()  %></td>
-                                                        <td><%= ct.getContractCode()  %></td>
-                                                        <td><%= ct.getContractDate()  %></td>
-                                                        <td><%= ct.getProductName()  %></td>
-                                                        <td><%= ct.getCategoryName() %></td>
-                                                        <td><%= ct.getBrandName()  %></td>
+                                                        <td><%= no++ %></td>
+                                                        <td><%= req.getProductName() %></td>
+                                                        <td><%= req.getTitle() %></td>
+                                                        <td><%= req.getRequest_type() %></td>
+                                                        <td><%= req.getRequest_date() %></td>
+                                                        <td><%= req.getStatus() %></td>
                                                         <td>
-                                                            <a href="detailContract?id=<%= ct.getId() %>" 
-                                                               class="btn btn-action btn-view" 
-                                                               style="text-decoration: none;">
+                                                            <a href="requestDetail?id=<%= req.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
                                                                 <i class="fa fa-eye"></i> Detail
-                                                            </a>                                                          
+                                                            </a>
+                                                            <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                                <i class="fa fa-edit"></i> Update
+                                                            </a>
+                                                            <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                                <i class="fa fa-edit"></i> Delete
+                                                            </a>
                                                         </td>
                                                     </tr>
                                                     <%
@@ -221,7 +232,7 @@
                                                         } else {
                                                     %>
                                                     <tr>
-                                                        <td colspan="8">No devices found.</td>
+                                                        <td colspan="8">No request found.</td>
                                                     </tr>
                                                     <% } %>
 
@@ -232,7 +243,7 @@
                                         <!-- Pagination Controls -->
                                         <div class="pagination-container">
                                             <div class="pagination-info">
-                                                <span id="paginationInfo">Showing contracts</span>
+                                                <span id="paginationInfo">Showing 1 to 10 of 0 products</span>
                                             </div>
 
                                             <div class="page-size-selector">
@@ -290,31 +301,40 @@
         <script src="${pageContext.request.contextPath}/js/fullcalendar.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
-        <!--<script src="${pageContext.request.contextPath}/js/warehouse/productList.js" type="text/javascript"></script>-->
+
         <script>
                                                     $(function () {
                                                         // Pagination variables
                                                         let currentPage = 1;
                                                         let pageSize = 10;
+                                                        let allRows = [];
+                                                        let filteredRows = [];
 
-                                                        // ✅ Helper function to get current URL parameters
+                                                        // Helper function to get current URL parameters
                                                         function getUrlParams() {
                                                             var params = new URLSearchParams(window.location.search);
                                                             var urlParams = {};
 
-                                                            if (params.get('search'))
+                                                            if (params.get('search')) {
                                                                 urlParams.search = params.get('search');
-                                                            if (params.get('category'))
-                                                                urlParams.category = params.get('category');
-                                                            if (params.get('brand'))
+                                                            }
+                                                            if (params.get('category')) {
+                                                                urlParams.categories = params.get('category');
+                                                            }
+                                                            if (params.get('brand')) {
                                                                 urlParams.brand = params.get('brand');
-                                                            if (params.get('pageSize'))
+                                                            }
+                                                            if (params.get('status')) {
+                                                                urlParams.status = params.get('status');
+                                                            }
+                                                            if (params.get('pageSize')) {
                                                                 urlParams.pageSize = params.get('pageSize');
+                                                            }
 
                                                             return urlParams;
                                                         }
 
-                                                        // ✅ Build URL with parameters
+                                                        // Helper function to build URL with parameters
                                                         function buildUrlWithParams(params) {
                                                             var url = window.location.pathname + '?';
                                                             var paramArray = [];
@@ -328,51 +348,60 @@
                                                             return url + paramArray.join('&');
                                                         }
 
-                                                        // ✅ Init pagination
+                                                        // Initialize pagination (server-side)
                                                         function initPagination() {
                                                             renderPagination();
                                                             updatePaginationInfo();
                                                         }
 
-                                                        // ✅ Update pagination info text
+                                                        // Update pagination info text (from server data)
                                                         function updatePaginationInfo() {
                                                             var urlParams = new URLSearchParams(window.location.search);
                                                             var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
                                                             var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
-                                                            var totalContracts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>;
+                                                            var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>;
 
                                                             var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
-                                                            var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalContracts);
+                                                            var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalProducts);
 
                                                             var infoElement = document.getElementById('paginationInfo');
                                                             if (infoElement) {
-                                                                if (totalContracts === 0) {
+                                                                if (totalProducts === 0) {
                                                                     infoElement.textContent = '';
                                                                 } else {
                                                                     infoElement.textContent =
-                                                                            'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalContracts + ' contracts';
+                                                                            'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' products';
                                                                 }
                                                             }
                                                         }
 
-                                                        // ✅ Render pagination buttons
+                                                        // Render pagination buttons
                                                         function renderPagination() {
                                                             var urlParams = new URLSearchParams(window.location.search);
                                                             var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
                                                             var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
                                                             var pageNumbersDiv = document.getElementById('pageNumbers');
+
                                                             if (!pageNumbersDiv)
                                                                 return;
 
                                                             pageNumbersDiv.innerHTML = '';
+
+                                                            // Determine which pages to show
                                                             var startPage = Math.max(1, currentPageFromUrl - 2);
                                                             var endPage = Math.min(totalPages, currentPageFromUrl + 2);
 
-                                                            if (currentPageFromUrl <= 3)
+                                                            // Adjust if near the beginning
+                                                            if (currentPageFromUrl <= 3) {
                                                                 endPage = Math.min(5, totalPages);
-                                                            if (currentPageFromUrl > totalPages - 3)
-                                                                startPage = Math.max(1, totalPages - 4);
+                                                            }
 
+                                                            // Adjust if near the end
+                                                            if (currentPageFromUrl > totalPages - 3) {
+                                                                startPage = Math.max(1, totalPages - 4);
+                                                            }
+
+                                                            // Create page buttons
                                                             for (var i = startPage; i <= endPage; i++) {
                                                                 var btn = document.createElement('button');
                                                                 btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
@@ -388,7 +417,7 @@
                                                             updatePaginationButtons();
                                                         }
 
-                                                        // ✅ Update pagination button states
+                                                        // Update pagination button states
                                                         function updatePaginationButtons() {
                                                             var urlParams = new URLSearchParams(window.location.search);
                                                             var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
@@ -409,28 +438,34 @@
                                                                 lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
                                                         }
 
-                                                        // ✅ Navigation
+                                                        // Pagination navigation functions (with URL parameters preserved)
                                                         window.goToPage = function (page) {
                                                             var params = getUrlParams();
                                                             params.page = page;
                                                             window.location.href = buildUrlWithParams(params);
                                                         };
+
                                                         window.goToFirstPage = function () {
                                                             goToPage(1);
                                                         };
+
                                                         window.goToPrevPage = function () {
                                                             var urlParams = new URLSearchParams(window.location.search);
                                                             var currentPage = parseInt(urlParams.get('page')) || 1;
-                                                            if (currentPage > 1)
+                                                            if (currentPage > 1) {
                                                                 goToPage(currentPage - 1);
+                                                            }
                                                         };
+
                                                         window.goToNextPage = function () {
                                                             var urlParams = new URLSearchParams(window.location.search);
                                                             var currentPage = parseInt(urlParams.get('page')) || 1;
                                                             var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
-                                                            if (currentPage < totalPages)
+                                                            if (currentPage < totalPages) {
                                                                 goToPage(currentPage + 1);
+                                                            }
                                                         };
+
                                                         window.goToLastPage = function () {
                                                             var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
                                                             goToPage(totalPages);
@@ -440,52 +475,152 @@
                                                             var newPageSize = document.getElementById('pageSize').value;
                                                             var params = getUrlParams();
                                                             params.pageSize = newPageSize;
-                                                            params.page = 1;
+                                                            params.page = 1; // Reset to first page when changing page size
                                                             window.location.href = buildUrlWithParams(params);
                                                         };
 
-                                                        // ✅ Apply filters
-                                                        window.applyFilters = function () {
-                                                            const searchQuery = document.getElementById('searchInput')?.value.trim();
-                                                            const category = document.getElementById('categoryFilter')?.value;
-                                                            const brand = document.getElementById('brandFilter')?.value;
+                                                        // Note: Search is now handled server-side via applyFilters() function
 
-                                                            const params = [];
+                                                        // Delete product button click handler
+                                                        var currentDeleteProductId = null;
 
-                                                            if (searchQuery && searchQuery !== '')
-                                                                params.push('search=' + encodeURIComponent(searchQuery));
-                                                            if (category && category !== 'ALL')
-                                                                params.push('category=' + encodeURIComponent(category));
-                                                            if (brand && brand !== 'ALL')
-                                                                params.push('brand=' + encodeURIComponent(brand));
+                                                        $('.btn-delete').on('click', function () {
+                                                            var productId = $(this).data('product-id');
+                                                            var productName = $(this).closest('tr').find('td:eq(1) strong').text();
 
-                                                            // Chỉ thêm ? nếu có params
-                                                            let url = window.location.pathname;
-                                                            if (params.length > 0) {
-                                                                url += '?' + params.join('&');
+                                                            // Store product info
+                                                            currentDeleteProductId = productId;
+
+                                                            // Update modal content
+                                                            $('#modalProductName').text(productName);
+
+                                                            // Show modal
+                                                            $('#deleteModal').addClass('active');
+                                                        });
+
+                                                        // Close modal function
+                                                        window.closeDeleteModal = function () {
+                                                            $('#deleteModal').removeClass('active');
+                                                            currentDeleteProductId = null;
+                                                        };
+
+                                                        // Close modal when clicking outside
+                                                        $('#deleteModal').on('click', function (e) {
+                                                            if ($(e.target).is('#deleteModal')) {
+                                                                closeDeleteModal();
                                                             }
-                                                            console.log("Redirect to:", url);
+                                                        });
 
+                                                        // Close modal on ESC key
+                                                        $(document).on('keydown', function (e) {
+                                                            if (e.key === 'Escape' && $('#deleteModal').hasClass('active')) {
+                                                                closeDeleteModal();
+                                                            }
+                                                        });
+
+                                                        // Confirm delete button
+                                                        $('#confirmDeleteBtn').on('click', function () {
+                                                            if (currentDeleteProductId) {
+                                                                // Create and submit form
+                                                                var form = $('<form>', {
+                                                                    'method': 'POST',
+                                                                    'action': '../warestaff/deleteProduct'
+                                                                });
+
+                                                                var input = $('<input>', {
+                                                                    'type': 'hidden',
+                                                                    'name': 'id',
+                                                                    'value': currentDeleteProductId
+                                                                });
+
+                                                                form.append(input);
+                                                                $('body').append(form);
+                                                                form.submit();
+                                                            }
+                                                        });
+
+                                                        // Handle collapsible menu
+                                                        $('.treeview > a').click(function (e) {
+                                                            e.preventDefault();
+                                                            var target = $(this).attr('href');
+                                                            $(target).collapse('toggle');
+                                                        });
+
+                                                        // Auto-expand Products menu since we're on view list product page
+                                                        $('#inventoryMenu').addClass('in');
+
+                                                        // Set page size from URL parameter
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var pageSizeFromUrl = urlParams.get('pageSize');
+                                                        if (pageSizeFromUrl) {
+                                                            var pageSizeSelect = document.getElementById('pageSize');
+                                                            if (pageSizeSelect) {
+                                                                pageSizeSelect.value = pageSizeFromUrl;
+                                                            }
+                                                        }
+
+                                                        // Initialize pagination on page load
+                                                        initPagination();
+
+                                                        // Auto-hide success and error messages after 3 seconds
+                                                        setTimeout(function () {
+                                                            $('.alert-success').fadeOut(500, function () {
+                                                                $(this).remove();
+                                                            });
+                                                            $('.alert-danger').fadeOut(500, function () {
+                                                                $(this).remove();
+                                                            });
+                                                        }, 3000);
+
+                                                        // Apply filters function
+                                                        window.applyFilters = function () {
+                                                            var searchQuery = document.getElementById('searchInput').value;
+                                                            var category = document.getElementById('categoryFilter').value;
+                                                            var brand = document.getElementById('brandFilter').value;
+                                                            var status = document.getElementById('statusFilter').value;
+
+                                                            // Build URL with parameters
+                                                            var url = window.location.pathname + '?';
+                                                            var params = [];
+
+                                                            if (searchQuery && searchQuery.trim() !== '') {
+                                                                params.push('search=' + encodeURIComponent(searchQuery));
+                                                            }
+                                                            if (category && category !== 'ALL') {
+                                                                params.push('category=' + category);
+                                                            }
+                                                            if (brand && brand !== 'ALL') {
+                                                                params.push('brand=' + brand);
+                                                            }
+                                                            if (status && status !== '' && status !== 'ALL') {
+                                                                params.push('status=' + encodeURIComponent(status));
+                                                            }
+
+                                                            url += params.join('&');
+
+                                                            // Redirect to filtered URL
                                                             window.location.href = url;
                                                         };
 
-                                                        // ✅ Clear filters
+                                                        // Clear filters function
                                                         window.clearFilters = function () {
+                                                            // Redirect to page without parameters
                                                             window.location.href = window.location.pathname;
                                                         };
 
-                                                        // ✅ Handle Enter key in search box
+                                                        // Handle Enter key in search input
                                                         $('#searchInput').on('keypress', function (e) {
-                                                            if (e.which === 13) {
+                                                            if (e.which === 13) { // Enter key
                                                                 applyFilters();
                                                             }
                                                         });
 
-                                                        initPagination();
+                                                        // Handle change event for dropdowns
+                                                        $('#categoryFilter, #brandFilter, #statusFilter').on('change', function () {
+                                                            applyFilters();
+                                                        });
                                                     });
-
-
-        </script>   
+        </script>
     </body>
 </html>
 

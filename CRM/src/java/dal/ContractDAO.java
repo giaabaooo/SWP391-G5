@@ -155,10 +155,10 @@ public class ContractDAO extends DBContext {
             e.printStackTrace();
         }
     }
-    
-    public List<Contract> getContractsByUserId(int userId, String keyword, String brand, String category,int offset, int limit) {
-    List<Contract> contracts =  new ArrayList<>();
-    StringBuilder sql = new StringBuilder("""
+
+    public List<Contract> getContractsByUserId(int userId, String keyword, String brand, String category, int offset, int limit) {
+        List<Contract> contracts = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
         SELECT 
             ct.id AS contract_id,
             ct.contract_code,
@@ -176,7 +176,7 @@ public class ContractDAO extends DBContext {
             ct.customer_id = ?
         
         """);
-    if (keyword != null && !keyword.isEmpty()) {
+        if (keyword != null && !keyword.isEmpty()) {
             sql.append(" AND p.name LIKE ? ");
         }
         if (brand != null && !brand.equalsIgnoreCase("ALL")) {
@@ -187,31 +187,37 @@ public class ContractDAO extends DBContext {
         }
         sql.append(" ORDER BY ct.contract_date DESC LIMIT ? OFFSET ?");
 
-    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-        int index = 1;
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
             ps.setInt(index++, userId);
 
-            if (keyword != null && !keyword.isEmpty()) ps.setString(index++, "%" + keyword + "%");
-            if (brand != null && !brand.equalsIgnoreCase("ALL")) ps.setString(index++, brand);
-            if (category != null && !category.equalsIgnoreCase("ALL")) ps.setString(index++, category);
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(index++, "%" + keyword + "%");
+            }
+            if (brand != null && !brand.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, brand);
+            }
+            if (category != null && !category.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, category);
+            }
             ps.setInt(index++, limit);
             ps.setInt(index, offset);
-        ps.setInt(1, userId);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            Contract ct = new Contract();
-            ct.setId(rs.getInt("contract_id"));
-            ct.setContractCode(rs.getString("contract_code"));
-            ct.setContractDate(rs.getDate("contract_date"));            
-            // Thêm thông tin phụ từ join
-            ct.setProductName(rs.getString("product_name"));
-            ct.setBrandName(rs.getString("brand_name"));
-            ct.setCategoryName(rs.getString("category_name"));
-            contracts.add(ct);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Contract ct = new Contract();
+                ct.setId(rs.getInt("contract_id"));
+                ct.setContractCode(rs.getString("contract_code"));
+                ct.setContractDate(rs.getDate("contract_date"));
+                // Thêm thông tin phụ từ join
+                ct.setProductName(rs.getString("product_name"));
+                ct.setBrandName(rs.getString("brand_name"));
+                ct.setCategoryName(rs.getString("category_name"));
+                contracts.add(ct);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return contracts;
     }
-    return contracts;
-}
 }

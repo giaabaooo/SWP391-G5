@@ -23,11 +23,12 @@ public class CustomerRequest {
     private boolean isActive;
     private User customer ;
     private Device device ;
+    private String productName;
 
     public CustomerRequest() {
     }
 
-    public CustomerRequest(int id, int customer_id, int device_id, String request_type, String title, String description, Date request_date, String status, boolean isActive, User customer, Device device) {
+    public CustomerRequest(int id, int customer_id, int device_id, String request_type, String title, String description, Date request_date, String status, boolean isActive, User customer, Device device,String productName) {
         this.id = id;
         this.customer_id = customer_id;
         this.device_id = device_id;
@@ -39,6 +40,7 @@ public class CustomerRequest {
         this.isActive = isActive;
         this.customer = customer;
         this.device = device;
+        this.productName = productName;
     }
 
     public User getCustomer() {
@@ -132,6 +134,16 @@ public class CustomerRequest {
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+    
+    
     
     
 }

@@ -175,7 +175,7 @@
 
                                         </select>
 
-                                        <button class="btn btn-primary" onclick="applyFilters()">
+                                        <button type="button" class="btn btn-primary" onclick="applyFilters()">
                                             <i class="fa fa-filter"></i> Filter
                                         </button>
                                         <button class="btn btn-primary" onclick="clearFilters()" style="background: #6c757d; border-color: #6c757d;">

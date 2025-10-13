@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 
 /**
@@ -135,7 +136,81 @@ public class CustomerRequestDAO extends DBContext {
         return null;
     }
 
-    public boolean updateRequest(String status, int isActive, int requestId) {
+    public List<CustomerRequest> getRequestsByUserId(int userId, String keyword, String type, String status, int offset, int limit) {
+        List<CustomerRequest> list = new ArrayList<>();
+
+        String sql = """
+        SELECT 
+            cr.id AS request_id,
+            p.name AS product_name,
+            cr.title,
+            cr.request_type,
+            cr.request_date,
+            cr.status
+        FROM CustomerRequest cr
+        JOIN Device d ON cr.device_id = d.id
+        JOIN ContractItem ci ON d.contract_item_id = ci.id
+        JOIN Product p ON ci.product_id = p.id
+        LEFT JOIN CustomerRequestMeta crm ON cr.id = crm.request_id
+        JOIN Contract ct ON ci.contract_id = ct.id
+        WHERE ct.customer_id = ?
+    """;
+
+        // dynamic filters
+        if (keyword != null && !keyword.isEmpty()) {
+            sql += " AND (p.name LIKE ? OR cr.title LIKE ?) ";
+        }
+        if (type != null && !type.equalsIgnoreCase("ALL")) {
+            sql += " AND cr.request_type = ? ";
+        }
+        if (status != null && !status.equalsIgnoreCase("ALL")) {
+            sql += " AND cr.status = ? ";
+        }
+
+        sql += """
+        GROUP BY cr.id
+        ORDER BY cr.request_date DESC
+        LIMIT ? OFFSET ?
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            int index = 1;
+            ps.setInt(index++, userId);
+
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(index++, "%" + keyword + "%");
+                ps.setString(index++, "%" + keyword + "%");
+            }
+            if (type != null && !type.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, type);
+            }
+            if (status != null && !status.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, status);
+            }
+
+            ps.setInt(index++, limit);
+            ps.setInt(index++, offset);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                CustomerRequest req = new CustomerRequest();
+                req.setId(rs.getInt("request_id"));
+                req.setProductName(rs.getString("product_name"));
+                req.setTitle(rs.getString("title"));
+                req.setRequest_type(rs.getString("request_type"));
+                req.setRequest_date(rs.getTimestamp("request_date"));
+                req.setStatus(rs.getString("status"));
+                list.add(req);
+                }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+public boolean updateRequest(String status, int isActive, int requestId) {
         String sql = "UPDATE customerrequest SET \n"
                 + "status = ? ,\n"
                 + "is_active = ?\n"
@@ -279,7 +354,6 @@ public class CustomerRequestDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return ca;
     }
 
