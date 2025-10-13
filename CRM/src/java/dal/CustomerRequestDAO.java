@@ -6,6 +6,7 @@ package dal;
 
 import data.CustomerRequest;
 import data.CustomerRequestAssignment;
+import data.CustomerRequestMeta;
 import data.User;
 import data.Device;
 import java.sql.PreparedStatement;
@@ -168,15 +169,21 @@ public class CustomerRequestDAO extends DBContext {
         }
     }
 
-    public ArrayList<CustomerRequestAssignment> getListTask(int page, int pageSize, String keyword, String fromDate, String toDate) {
+    public ArrayList<CustomerRequestAssignment> getListTask(int page, int pageSize, String keyword, String fromDate, String toDate, String is_main) {
         ArrayList<CustomerRequestAssignment> listTask = new ArrayList<>();
 
         String sql = "SELECT ca.* FROM customerrequest_assignment ca\n"
                 + "JOIN customerrequest cr on cr.id = ca.request_id \n"
-                + "JOIN user tech on tech.id = ca.technician_id\n"
-                + "where ca.is_main = 1";
+                + "JOIN user tech on tech.id = ca.technician_id\n";
 
         ArrayList<Object> params = new ArrayList<>();
+
+        if (is_main != null && !is_main.trim().isEmpty()) {
+            sql += " where ca.is_main = ?";
+            params.add("%" + is_main + "%");
+        } else {
+            sql += "where ca.is_main = 1";
+        }
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql += " AND (u.full_name LIKE ? OR p.name LIKE ?)";
@@ -247,7 +254,7 @@ public class CustomerRequestDAO extends DBContext {
 
             UserDBContext db = new UserDBContext();
             ArrayList<User> listTech = new ArrayList<>();
-            CustomerRequest cusRe = null;
+            CustomerRequest cusRe;
 
             while (rs.next()) {
                 if (ca == null) {
@@ -355,4 +362,59 @@ public class CustomerRequestDAO extends DBContext {
         return false;
     }
 
+    public void insertCusRequestMeta(CustomerRequestMeta ca) {
+        String sql = "INSERT INTO `crm_device_management`.`customerrequestmeta` (`request_id`, `total_cost`, `paid_amount`, `payment_status`, `payment_due_date`) "
+                + "VALUES (?, ?, ?, ?, ?);";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, ca.getRequest_id());
+            stm.setDouble(2, ca.getTotal_cost());
+            stm.setDouble(3, ca.getPaid_amount());
+            stm.setString(4, ca.getPayment_status());
+
+            java.util.Date utilDate = ca.getPayment_due_date();
+            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            stm.setDate(5, sqlDate);
+
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public CustomerRequestMeta getCusRequestMetaById(int requestId) {
+        String sql = "SELECT * FROM `crm_device_management`.`customerrequestmeta` WHERE `request_id` = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, requestId);
+
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    CustomerRequestMeta ca = new CustomerRequestMeta();
+                    ca.setRequest_id(rs.getInt("request_id"));
+                    ca.setTotal_cost(rs.getDouble("total_cost"));
+                    ca.setPaid_amount(rs.getDouble("paid_amount"));
+                    ca.setPayment_status(rs.getString("payment_status"));
+
+                    java.sql.Date sqlDate = rs.getDate("payment_due_date");
+                    if (sqlDate != null) {
+                        ca.setPayment_due_date(new java.util.Date(sqlDate.getTime()));
+                    }
+
+                    return ca;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void deleteByRequestId(int requestId) {
+        String sql = "DELETE FROM customerrequest_assignment WHERE request_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, requestId);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

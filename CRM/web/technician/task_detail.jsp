@@ -1,8 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@ include file="/techmanager/layout/header.jsp" %>
-<%@ include file="/techmanager/layout/sidebar.jsp" %>
+<%@ include file="/technician/layout/header.jsp" %>
+<%@ include file="/technician/layout/sidebar.jsp" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -270,95 +270,102 @@
                     <!-- Page Header -->
                     <div class="row">
                         <div class="col-md-12">
-                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Request Details</h1>
-                            <p style="color: #718096; margin-bottom: 2rem;">View detailed information about this request</p>
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Task Details</h1>
+                            <p style="color: #718096; margin-bottom: 2rem;">View detailed information about this task</p>
                         </div>
                     </div>
-                    <!-- Add Task Assignment Card -->
+
+                    <!-- Product Detail Card -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card product-detail-card">
+
                                 <div class="card-body">
 
                                     <h4 style="color: #2d3748; font-weight: 600; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
-                                        <i class="fa fa-plus-circle" style="color: #667eea;"></i> Assign Task Assignment
+                                        <i class="fa fa-info-circle" style="color: #667eea;"></i> Task details
                                     </h4>
 
-                                    <form method="post" action="${pageContext.request.contextPath}/techmanager/task?action=add">
-
-                                        <div class="info-row" style="margin-bottom: 1rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-tasks"></i> Task
-                                            </div>
-                                            <div class="info-value">
-                                                <select name="taskId" class="form-control" required>
-                                                    <option value="">-- Select Task --</option>
-                                                    <c:forEach var="task" items="${requestList}">
-                                                        <c:if test="${task.status == 'PENDING'}">
-                                                            <option value="${task.id}">
-                                                                ${task.request_type} ${task.device.productName} for ${task.customer.fullName}
-                                                            </option>
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </select>
-                                            </div>
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-hashtag"></i>ID
                                         </div>
-
-                                        <!-- TECHNICIAN SELECTION -->
-                                        <div class="info-row" style="margin-bottom: 1rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-user-cog"></i> Technician(s)
-                                            </div>
-                                            <div class="info-value">
-                                                <div id="technicianContainer">
-                                                    <div class="tech-row" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                                                        <select name="technicianIds" class="form-control technician-select" required>
-                                                            <option value="">-- Select Technician --</option>
-                                                            <c:forEach var="t" items="${technicianList}">
-                                                                <option value="${t.id}">${t.fullName}</option>
-                                                            </c:forEach>
-                                                        </select>
-
-                                                        <label style="margin:0 8px; white-space:nowrap;">
-                                                            <!-- Radio có value bằng technicianId -->
-                                                            <input type="radio" name="leaderId" class="leader-radio" value="" /> Leader
-                                                        </label>
-
-                                                        <button type="button" class="btn btn-success btn-sm addTechBtn">
-                                                            <i class="fa fa-plus"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-danger btn-sm removeTechBtn">
-                                                            <i class="fa fa-minus"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        <div class="info-row">
+                                            <strong>${tasks.id}</strong>
                                         </div>
+                                    </div>
 
-
-
-                                        <div class="info-row" style="margin-bottom: 1.5rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-calendar"></i> Assign Date
-                                            </div>
-                                            <div class="info-value">
-                                                <input type="date" name="assignedDate" class="form-control" required>
-                                            </div>
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-hashtag"></i>Customer
                                         </div>
-
-
-                                        <div class="mt-3 text-center">
-                                            <a href="${pageContext.request.contextPath}/techmanager/request" class="btn btn-default" style="min-width: 150px;">
-                                                <i class="fa fa-arrow-left"></i> Back to List
-                                            </a>
-                                            <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
-                                                <i class="fa fa-save"></i> Save
-                                            </button>
+                                        <div class="info-row">
+                                            ${tasks.customerRequest.customer.fullName}
                                         </div>
+                                    </div>
 
-                                    </form>
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-tag"></i> Device
+                                        </div>
+                                        <div class="info-row">
+                                            ${tasks.customerRequest.device.productName}
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-tag"></i> Request Type
+                                        </div>
+                                        <div class="info-row">
+                                            ${tasks.customerRequest.request_type}
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-tag"></i> Title
+                                        </div>
+                                        <div class="info-row">
+                                            ${tasks.customerRequest.title}
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-align-left"></i> Description
+                                        </div>
+                                        <div class="info-row">
+                                            ${tasks.customerRequest.description}
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-calendar"></i> Technician
+                                        </div>
+                                        <div class="info-value">
+                                            <c:forEach var="a" items="${tasks.technician}" varStatus="st">
+                                                ${a.fullName}<c:if test="${!st.last}">, </c:if>
+                                            </c:forEach>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-ticket"></i> Assign Date
+                                        </div>
+                                        <div class="info-row">
+                                            ${tasks.assigned_date}
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3 text-center">
+                                        <a href="task" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back to Task list</a>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
 
@@ -383,83 +390,24 @@
 
         <script>
             $(function () {
+                // Handle collapsible menu
                 $('.treeview > a').click(function (e) {
                     e.preventDefault();
                     var target = $(this).attr('href');
                     $(target).collapse('toggle');
                 });
 
+                // Auto-expand Products menu
                 $('#inventoryMenu').addClass('in');
             });
 
-            document.addEventListener('DOMContentLoaded', function () {
-                const container = document.getElementById('technicianContainer');
-
-                // Cập nhật các option select để không trùng
-                function updateTechnicianOptions() {
-                    const selected = Array.from(container.querySelectorAll('.technician-select'))
-                            .map(s => s.value)
-                            .filter(v => v !== "");
-
-                    container.querySelectorAll('.technician-select').forEach(select => {
-                        const currentValue = select.value;
-                        Array.from(select.options).forEach(opt => {
-                            if (opt.value === "" || opt.value === currentValue) {
-                                opt.hidden = false;
-                            } else {
-                                opt.hidden = selected.includes(opt.value);
-                            }
-                        });
-                    });
+            // Delete product function
+            function deleteProduct(id) {
+                if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                    // TODO: Implement delete functionality
+                    alert('Delete product ID: ' + id);
                 }
-
-                // Khi select thay đổi, cập nhật value radio tương ứng
-                container.addEventListener('change', function (e) {
-                    if (e.target.classList.contains('technician-select')) {
-                        const row = e.target.closest('.tech-row');
-                        const radio = row.querySelector('.leader-radio');
-                        radio.value = e.target.value; // radio value = technicianId
-                        updateTechnicianOptions();
-                    }
-                });
-
-                // Xử lý nút + và -
-                container.addEventListener('click', function (e) {
-                    if (e.target.closest('.addTechBtn')) {
-                        const row = e.target.closest('.tech-row');
-                        const newRow = row.cloneNode(true);
-
-                        // Reset select và radio
-                        const select = newRow.querySelector('select');
-                        select.selectedIndex = 0;
-                        const radio = newRow.querySelector('.leader-radio');
-                        radio.checked = false;
-                        radio.value = ""; // reset value
-
-                        container.appendChild(newRow);
-                        updateTechnicianOptions();
-                    }
-
-                    if (e.target.closest('.removeTechBtn')) {
-                        const rows = container.querySelectorAll('.tech-row');
-                        if (rows.length > 1) {
-                            e.target.closest('.tech-row').remove();
-                            updateTechnicianOptions();
-                        }
-                    }
-                });
-
-                // Cập nhật ban đầu
-                // set radio value cho row đầu tiên
-                container.querySelectorAll('.tech-row').forEach(row => {
-                    const select = row.querySelector('.technician-select');
-                    const radio = row.querySelector('.leader-radio');
-                    radio.value = select.value || "";
-                });
-
-                updateTechnicianOptions();
-            });
-
+            }
         </script>
     </body>
 </html>
