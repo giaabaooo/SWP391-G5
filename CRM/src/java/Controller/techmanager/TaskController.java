@@ -13,7 +13,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Date;
 
 /**
  *
@@ -44,7 +43,7 @@ public class TaskController extends HttpServlet {
 
                 int leaderId = 0;
                 var a = db.getTaskById(id2);
-                var b = db.getListTask(1, Integer.MAX_VALUE, "", "", "");
+                var b = db.getListTask(1, Integer.MAX_VALUE, "", "", "","");
                 for (var i : b) {
                     if (i.getId() == a.getId()) {
                         leaderId = i.getTechnician_id();
@@ -94,7 +93,10 @@ public class TaskController extends HttpServlet {
 
                     return;
                 }
-                req.setAttribute("task", db.getListTask(page, size, keyword, fromDate, toDate));
+                
+                
+                
+                req.setAttribute("task", db.getListTask(page, size, keyword, fromDate, toDate,""));
                 //req.setAttribute("total", total);
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);

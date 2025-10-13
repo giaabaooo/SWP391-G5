@@ -1,8 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@ include file="/techmanager/layout/header.jsp" %>
-<%@ include file="/techmanager/layout/sidebar.jsp" %>
+<%@ include file="/technician/layout/header.jsp" %>
+<%@ include file="/technician/layout/sidebar.jsp" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -274,18 +274,20 @@
                             <p style="color: #718096; margin-bottom: 2rem;">View detailed information about this request</p>
                         </div>
                     </div>
-                    <!-- Add Task Assignment Card -->
+                    
+                    
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card product-detail-card">
                                 <div class="card-body">
 
                                     <h4 style="color: #2d3748; font-weight: 600; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
-                                        <i class="fa fa-plus-circle" style="color: #667eea;"></i> Assign Task Assignment
+                                        <i class="fa fa-file-invoice-dollar" style="color: #667eea;"></i> Create Bill
                                     </h4>
 
-                                    <form method="post" action="${pageContext.request.contextPath}/techmanager/task?action=add">
+                                    <form method="post" action="${pageContext.request.contextPath}/technician/task?action=add">
 
+                                        <!-- Task -->
                                         <div class="info-row" style="margin-bottom: 1rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-tasks"></i> Task
@@ -294,61 +296,64 @@
                                                 <select name="taskId" class="form-control" required>
                                                     <option value="">-- Select Task --</option>
                                                     <c:forEach var="task" items="${requestList}">
-                                                        <c:if test="${task.status == 'PENDING'}">
+                                                        
                                                             <option value="${task.id}">
-                                                                ${task.request_type} ${task.device.productName} for ${task.customer.fullName}
+                                                                ${task.request_type} - ${task.device.productName} (${task.customer.fullName})
                                                             </option>
-                                                        </c:if>
+                                                        
                                                     </c:forEach>
                                                 </select>
                                             </div>
                                         </div>
 
-                                        <!-- TECHNICIAN SELECTION -->
-                                        <div class="info-row" style="margin-bottom: 1rem;">
+                                        <!-- Total Cost -->
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
-                                                <i class="fa fa-user-cog"></i> Technician(s)
+                                                <i class="fa fa-money-bill"></i> Total Cost
                                             </div>
                                             <div class="info-value">
-                                                <div id="technicianContainer">
-                                                    <div class="tech-row" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                                                        <select name="technicianIds" class="form-control technician-select" required>
-                                                            <option value="">-- Select Technician --</option>
-                                                            <c:forEach var="t" items="${technicianList}">
-                                                                <option value="${t.id}">${t.fullName}</option>
-                                                            </c:forEach>
-                                                        </select>
-
-                                                        <label style="margin:0 8px; white-space:nowrap;">
-                                                            <!-- Radio có value bằng technicianId -->
-                                                            <input type="radio" name="leaderId" class="leader-radio" value="" /> Leader
-                                                        </label>
-
-                                                        <button type="button" class="btn btn-success btn-sm addTechBtn">
-                                                            <i class="fa fa-plus"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-danger btn-sm removeTechBtn">
-                                                            <i class="fa fa-minus"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                <input type="number" name="totalCost" class="form-control" placeholder="Enter total cost" required min="0">
                                             </div>
                                         </div>
 
+                                        <!-- Paid Amount -->
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                                            <div class="info-label">
+                                                <i class="fa fa-coins"></i> Paid Amount
+                                            </div>
+                                            <div class="info-value">
+                                                <input type="number" name="paidAmount" class="form-control" placeholder="Enter paid amount" required min="0">
+                                            </div>
+                                        </div>
 
+                                        <!-- Payment Status -->
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                                            <div class="info-label">
+                                                <i class="fa fa-credit-card"></i> Payment Status
+                                            </div>
+                                            <div class="info-value">
+                                                <select name="paymentStatus" class="form-control" required>
+                                                    <option value="">-- Select Status --</option>
+                                                    <option value="UNPAID">Unpaid</option>
+                                                    
+                                                    <option value="PAIDED">Paid</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
+                                        <!-- Assign Date -->
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-calendar"></i> Assign Date
                                             </div>
                                             <div class="info-value">
-                                                <input type="date" name="assignedDate" class="form-control" required>
+                                                <input type="date" name="assignDate" class="form-control" required>
                                             </div>
                                         </div>
 
-
+                                        <!-- Buttons -->
                                         <div class="mt-3 text-center">
-                                            <a href="${pageContext.request.contextPath}/techmanager/request" class="btn btn-default" style="min-width: 150px;">
+                                            <a href="${pageContext.request.contextPath}/technician/task" class="btn btn-default" style="min-width: 150px;">
                                                 <i class="fa fa-arrow-left"></i> Back to List
                                             </a>
                                             <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
@@ -357,10 +362,12 @@
                                         </div>
 
                                     </form>
+
                                 </div>
                             </div>
                         </div>
                     </div>
+
 
 
 
@@ -392,74 +399,38 @@
                 $('#inventoryMenu').addClass('in');
             });
 
-            document.addEventListener('DOMContentLoaded', function () {
-                const container = document.getElementById('technicianContainer');
+            document.addEventListener("DOMContentLoaded", function () {
+                const container = document.getElementById("technicianContainer");
 
-                // Cập nhật các option select để không trùng
-                function updateTechnicianOptions() {
-                    const selected = Array.from(container.querySelectorAll('.technician-select'))
-                            .map(s => s.value)
-                            .filter(v => v !== "");
-
-                    container.querySelectorAll('.technician-select').forEach(select => {
-                        const currentValue = select.value;
-                        Array.from(select.options).forEach(opt => {
-                            if (opt.value === "" || opt.value === currentValue) {
-                                opt.hidden = false;
-                            } else {
-                                opt.hidden = selected.includes(opt.value);
-                            }
-                        });
-                    });
-                }
-
-                // Khi select thay đổi, cập nhật value radio tương ứng
-                container.addEventListener('change', function (e) {
-                    if (e.target.classList.contains('technician-select')) {
-                        const row = e.target.closest('.tech-row');
-                        const radio = row.querySelector('.leader-radio');
-                        radio.value = e.target.value; // radio value = technicianId
-                        updateTechnicianOptions();
+                // Gán value radio theo technician được chọn
+                container.addEventListener("change", function (e) {
+                    if (e.target.classList.contains("technician-select")) {
+                        const select = e.target;
+                        const row = select.closest(".tech-row");
+                        const radio = row.querySelector(".leader-radio");
+                        radio.value = select.value; // Cập nhật value của radio
                     }
                 });
 
-                // Xử lý nút + và -
-                container.addEventListener('click', function (e) {
-                    if (e.target.closest('.addTechBtn')) {
-                        const row = e.target.closest('.tech-row');
-                        const newRow = row.cloneNode(true);
-
-                        // Reset select và radio
-                        const select = newRow.querySelector('select');
-                        select.selectedIndex = 0;
-                        const radio = newRow.querySelector('.leader-radio');
-                        radio.checked = false;
-                        radio.value = ""; // reset value
-
-                        container.appendChild(newRow);
-                        updateTechnicianOptions();
+                // Thêm dòng mới
+                container.addEventListener("click", function (e) {
+                    if (e.target.closest(".addTechBtn")) {
+                        const row = e.target.closest(".tech-row");
+                        const clone = row.cloneNode(true);
+                        clone.querySelector(".technician-select").value = "";
+                        clone.querySelector(".leader-radio").checked = false;
+                        clone.querySelector(".leader-radio").value = "";
+                        container.appendChild(clone);
                     }
 
-                    if (e.target.closest('.removeTechBtn')) {
-                        const rows = container.querySelectorAll('.tech-row');
-                        if (rows.length > 1) {
-                            e.target.closest('.tech-row').remove();
-                            updateTechnicianOptions();
-                        }
+                    // Xóa dòng
+                    if (e.target.closest(".removeTechBtn")) {
+                        const rows = container.querySelectorAll(".tech-row");
+                        if (rows.length > 1)
+                            e.target.closest(".tech-row").remove();
                     }
                 });
-
-                // Cập nhật ban đầu
-                // set radio value cho row đầu tiên
-                container.querySelectorAll('.tech-row').forEach(row => {
-                    const select = row.querySelector('.technician-select');
-                    const radio = row.querySelector('.leader-radio');
-                    radio.value = select.value || "";
-                });
-
-                updateTechnicianOptions();
             });
-
         </script>
     </body>
 </html>
