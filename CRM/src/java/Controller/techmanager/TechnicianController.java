@@ -29,9 +29,7 @@ public class TechnicianController extends HttpServlet {
         if (action == null) action = "list";
 
         switch (action) {
-            case "new":
-                req.getRequestDispatcher("/WEB-INF/jsp/cskh/user_form.jsp").forward(req, resp);
-                break;
+            
             case "edit":
                 int id = Integer.parseInt(req.getParameter("id"));
                 req.setAttribute("user", db.get(id));
@@ -62,27 +60,27 @@ public class TechnicianController extends HttpServlet {
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String id = req.getParameter("id");
-        User u = new User();
-        u.setUsername(req.getParameter("username"));
-        u.setFullName(req.getParameter("fullName"));
-        u.setEmail(req.getParameter("email"));
-        u.setPhone(req.getParameter("phone"));
-        u.setAddress(req.getParameter("address"));
-        Role r = new Role();
-        r.setId(Integer.parseInt(req.getParameter("roleId")));
-        u.setRole(r);
-        u.setIsActive(req.getParameter("is_active") != null);
-
-        if (id == null || id.isEmpty()) {
-            u.setPassword("123456"); // TODO: hash password
-            db.insert(u);
-        } else {
-            u.setId(Integer.parseInt(id));
-            db.update(u);
-        }
-        resp.sendRedirect("technician");
-    }
+//    @Override
+//    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        String id = req.getParameter("id");
+//        User u = new User();
+//        u.setUsername(req.getParameter("username"));
+//        u.setFullName(req.getParameter("fullName"));
+//        u.setEmail(req.getParameter("email"));
+//        u.setPhone(req.getParameter("phone"));
+//        u.setAddress(req.getParameter("address"));
+//        Role r = new Role();
+//        r.setId(Integer.parseInt(req.getParameter("roleId")));
+//        u.setRole(r);
+//        u.setIsActive(req.getParameter("is_active") != null);
+//
+//        if (id == null || id.isEmpty()) {
+//            u.setPassword("123456"); // TODO: hash password
+//            db.insert(u);
+//        } else {
+//            u.setId(Integer.parseInt(id));
+//            db.update(u);
+//        }
+//        resp.sendRedirect("technician");
+//    }
 }

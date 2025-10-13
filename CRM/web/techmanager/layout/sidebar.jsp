@@ -12,7 +12,7 @@
 
         <ul class="sidebar-menu">
             <li>
-                <a href="${pageContext.request.contextPath}/techmanager/dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a>
+                <a href="${pageContext.request.contextPath}/techmanager/dashboard"><i class="fa fa-dashboard"></i> Dashboard</a>
             </li>
 
             <li>
@@ -20,7 +20,11 @@
             </li>
 
             <li>
-                <a href="${pageContext.request.contextPath}/techmanager/request?action=list"><i class="fa fa-plus"></i>Task Manager</a>
+                <a href="${pageContext.request.contextPath}/techmanager/request?action=list"><i class="fa fa-plus"></i>Request Manager</a>
+            </li>
+            
+            <li>
+                <a href="${pageContext.request.contextPath}/techmanager/task?action=list"><i class="fa fa-plus"></i>Task Manager</a>
             </li>
 
         </ul>

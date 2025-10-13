@@ -149,7 +149,7 @@ public class UserDBContext extends DBContext {
     }
 
     public User get(int id) {
-        String sql = "SELECT u.*, r.id AS role_id, r.name AS role_name FROM [User] u INNER JOIN Role r ON u.role_id=r.id WHERE u.id=?";
+        String sql = "SELECT u.*, r.id AS role_id, r.name AS role_name FROM User u INNER JOIN Role r ON u.role_id=r.id WHERE u.id=?";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, id);
             ResultSet rs = stm.executeQuery();

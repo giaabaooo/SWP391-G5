@@ -1,8 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@ include file="/techmanager/layout/header.jsp" %>
-<%@ include file="/techmanager/layout/sidebar.jsp" %>
+<%@ include file="/technician/layout/header.jsp" %>
+<%@ include file="/technician/layout/sidebar.jsp" %>
 <html>
     <head>
         <style>
@@ -583,8 +583,8 @@
                     <!-- Page Header -->
                     <div class="row">
                         <div class="col-md-12">
-                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">View List Request</h1>
-                            <p style="color: #718096; margin-bottom: 2rem;">View and manage all request </p>
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">View List Task</h1>
+                            <p style="color: #718096; margin-bottom: 2rem;">View and manage all task </p>
 
                             <c:if test="${not empty error}">
                                 <div class="alert alert-danger" style="margin: 10px;">
@@ -595,19 +595,21 @@
                         </div>
                     </div>
 
-                    <!-- Request Table -->
+                    <!-- Task Table -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="content-card">
                                 <div class="card-header">
-                                    <h3><i class="fa fa-list"></i> Request List</h3>
-                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask" class="btn btn-primary">
-                                        <i class="fa fa-plus"></i> Assign Task
+                                    <h3><i class="fa fa-list"></i> Task List</h3>
+
+                                    <a href="${pageContext.request.contextPath}/technician/task?action=createBill" class="btn btn-primary">
+                                        <i class="fa fa-plus"></i> Create Bill
                                     </a>
+
                                 </div>
 
                                 <!-- Filter Bar -->
-                                <form method="get" action="${pageContext.request.contextPath}/techmanager/request" >
+                                <form method="get" action="${pageContext.request.contextPath}/technician/task" >
                                     <div class="filter-bar">
                                         <input type="hidden" name="action" value="list"/>
                                         <input type="text" name="keyword" class="search-input" placeholder="Search ..." 
@@ -616,17 +618,10 @@
                                         <input type="date" name="fromDate" class="search-input" value="${param.fromDate}" style="min-width:160px;">
                                         <input type="date" name="toDate" class="search-input" value="${param.toDate}" style="min-width:160px;">
 
-
-                                        <select name="status" class="search-input" style="min-width: 150px;">
-                                            <option value="">--Is Active--</option>
-                                            <option value="active" ${param.status=="active"?"selected":""}>Active</option>
-                                            <option value="inactive" ${param.status=="inactive"?"selected":""}>Inactive</option>
-                                        </select>
-
                                         <button class="btn btn-primary" type="submit" >
                                             <i class="fa fa-filter"></i> Filter
                                         </button>
-                                        <a href="${pageContext.request.contextPath}/techmanager/request?action=list" class="btn btn-primary" style="background: #6c757d; border-color: #6c757d;"><i class="fa fa-times"></i>Clear</a>
+                                        <a href="${pageContext.request.contextPath}/technician/task?action=list" class="btn btn-primary" style="background: #6c757d; border-color: #6c757d;"><i class="fa fa-times"></i>Clear</a>
 
                                     </div>
                                 </form>
@@ -641,46 +636,44 @@
                                                     <th>Request Type</th>
                                                     <th>Title</th>
                                                     <th>Description</th>
-                                                    <th>Request Date</th>
+                                                    <th>Leader</th>
+                                                    <th>Assign Date</th>
                                                     <th>Status</th>
-                                                    <th>Is Active</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <c:forEach var="u" items="${requests}" varStatus="st">
+                                                <c:forEach var="u" items="${task}" varStatus="st">
+
                                                     <tr>
                                                         <td>${(page-1)*pageSize + st.index + 1}</td>
-                                                        <td>${u.customer.fullName}</td>
-                                                        <td>${u.device.productName}</td>
-                                                        <td>${u.request_type}</td>
-                                                        <td>${u.title}</td>
-                                                        <td>${u.description}</td>
-                                                        <td>${u.request_date}</td>
-                                                        <td>${u.status}</td>
+                                                        <td>${u.customerRequest.customer.fullName}</td>
+                                                        <td>${u.customerRequest.device.productName}</td>
+                                                        <td>${u.customerRequest.request_type}</td>
+                                                        <td>${u.customerRequest.title}</td>
+                                                        <td>${u.customerRequest.description}</td>
                                                         <td>
-                                                            <span class="label ${u.isActive?'label-success':'label-danger'}">
-                                                                ${u.isActive?'Active':'Inactive'}
-                                                            </span>
+                                                            <c:forEach var="t" items="${u.technician}">
+                                                                ${t.fullName}<br/>
+                                                            </c:forEach>
                                                         </td>
+                                                        <td>${u.assigned_date}</td>
+                                                        <td>${u.customerRequest.status}</td>
+
                                                         <td>
-                                                            <a href="${pageContext.request.contextPath}/techmanager/request?action=detail&id=${u.id}" class="btn btn-action btn-view">
+                                                            <a href="${pageContext.request.contextPath}/technician/task?action=detail&id=${u.customerRequest.id}" class="btn btn-action btn-view">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
-                                                            <c:if test="${u.status ne 'REJECTED'}">
-                                                                <a href="${pageContext.request.contextPath}/techmanager/request?action=reject&id=${u.id}" class="btn btn-action btn-delete">
-                                                                    <i class="fa fa-trash"></i> Reject
+                                                            <c:if test="${u.is_main == 1 && user.id == u.technician_id}">
+                                                                <a href="${pageContext.request.contextPath}/technician/task?action=edit&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
+                                                                    Create bill <i class="fa fa-angle-right"></i> 
                                                                 </a>
-                                                                <c:if test="${u.status == 'PENDING'}">
-                                                                    <a href="${pageContext.request.contextPath}/cskh/user?action=delete&id=${u.id}" class="btn btn-action btn-edit">
-                                                                        <i class="fa fa-angle-right"></i> Assign
-                                                                    </a>
-                                                                </c:if>
                                                             </c:if>
                                                         </td>
                                                     </tr>
+
                                                 </c:forEach>
-                                                <c:if test="${empty requests}">
+                                                <c:if test="${empty task}">
                                                     <tr><td colspan="8" class="text-center">No data found</td></tr>
                                                 </c:if>
                                             </tbody>

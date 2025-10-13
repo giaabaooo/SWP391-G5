@@ -5,12 +5,16 @@
 package dal;
 
 import data.CustomerRequest;
+import data.CustomerRequestAssignment;
+import data.CustomerRequestMeta;
 import data.User;
 import data.Device;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 /**
  *
@@ -18,7 +22,7 @@ import java.util.List;
  */
 public class CustomerRequestDAO extends DBContext {
 
-    public ArrayList<CustomerRequest> list(int page, int pageSize, String keyword, String status, String fromDate, String toDate) {
+    public ArrayList<CustomerRequest> getListRequest(int page, int pageSize, String keyword, String status, String fromDate, String toDate) {
         ArrayList<CustomerRequest> listRequest = new ArrayList<>();
 
         String sql = "SELECT cr.*,u.full_name,p.name FROM customerrequest cr\n"
@@ -198,13 +202,293 @@ public class CustomerRequestDAO extends DBContext {
                 req.setRequest_date(rs.getTimestamp("request_date"));
                 req.setStatus(rs.getString("status"));
                 list.add(req);
+                }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+public boolean updateRequest(String status, int isActive, int requestId) {
+        String sql = "UPDATE customerrequest SET \n"
+                + "status = ? ,\n"
+                + "is_active = ?\n"
+                + "WHERE id = ? ";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, status);
+            statement.setInt(2, isActive);
+            statement.setInt(3, requestId);
+
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating : " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean insertRejectReason(int requestId, String rejectReason) {
+        String sql = "INSERT INTO customerrequestmeta (request_id, reject_reason) VALUES (?, ?)";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, requestId);
+            statement.setString(2, rejectReason);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error inserting reject reason: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public ArrayList<CustomerRequestAssignment> getListTask(int page, int pageSize, String keyword, String fromDate, String toDate, String is_main) {
+        ArrayList<CustomerRequestAssignment> listTask = new ArrayList<>();
+
+        String sql = "SELECT ca.* FROM customerrequest_assignment ca\n"
+                + "JOIN customerrequest cr on cr.id = ca.request_id \n"
+                + "JOIN user tech on tech.id = ca.technician_id\n";
+
+        ArrayList<Object> params = new ArrayList<>();
+
+        if (is_main != null && !is_main.trim().isEmpty()) {
+            sql += " where ca.is_main = ?";
+            params.add("%" + is_main + "%");
+        } else {
+            sql += "where ca.is_main = 1";
+        }
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql += " AND (u.full_name LIKE ? OR p.name LIKE ?)";
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
+        }
+
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql += " AND ca.assigned_date >= ?";
+            params.add(fromDate);
+        }
+
+        if (toDate != null && !toDate.isEmpty()) {
+            sql += " AND ca.assigned_date <= ?";
+            params.add(toDate);
+        }
+
+        sql += " LIMIT ? OFFSET ?";
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                stm.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = stm.executeQuery();
+
+            UserDBContext db = new UserDBContext();
+
+            while (rs.next()) {
+
+                User tech = db.get(rs.getInt("technician_id"));
+
+                ArrayList<User> listTech = new ArrayList<>();
+                listTech.add(tech);
+
+                CustomerRequest cusRe = getRequestById(rs.getInt("request_id"));
+
+                CustomerRequestAssignment ca = new CustomerRequestAssignment();
+                ca.setId(rs.getInt("id"));
+                ca.setRequest_id(rs.getInt("request_id"));
+                ca.setTechnician_id(rs.getInt("technician_id"));
+                ca.setIs_main(rs.getInt("is_main"));
+                ca.setAssigned_date(rs.getDate("assigned_date"));
+
+                ca.setTechnician(listTech);
+                ca.setCustomerRequest(cusRe);
+
+                listTask.add(ca);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return listTask;
+    }
+
+    public CustomerRequestAssignment getTaskById(int id) {
+        CustomerRequestAssignment ca = null;
+
+        String sql = "SELECT ca.*, tech.id AS tech_id "
+                + "FROM customerrequest_assignment ca "
+                + "JOIN user tech ON tech.id = ca.technician_id "
+                + "WHERE ca.request_id = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, id);
+            ResultSet rs = stm.executeQuery();
+
+            UserDBContext db = new UserDBContext();
+            ArrayList<User> listTech = new ArrayList<>();
+            CustomerRequest cusRe;
+
+            while (rs.next()) {
+                if (ca == null) {
+                    ca = new CustomerRequestAssignment();
+                    ca.setId(rs.getInt("id"));
+                    ca.setRequest_id(rs.getInt("request_id"));
+                    ca.setIs_main(rs.getInt("is_main"));
+                    ca.setAssigned_date(rs.getDate("assigned_date"));
+
+                    cusRe = getRequestById(rs.getInt("request_id"));
+                    ca.setCustomerRequest(cusRe);
+                }
+
+                User tech = db.get(rs.getInt("tech_id"));
+                listTech.add(tech);
+            }
+
+            if (ca != null) {
+                ca.setTechnician(listTech);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return list;
+        return ca;
     }
 
+    public void insert(CustomerRequestAssignment ca) {
+        String sql = "INSERT INTO customerrequest_assignment (request_id, technician_id, is_main, assigned_date) "
+                + "VALUES (?, ?, ?, ?)";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, ca.getRequest_id());
+            stm.setInt(2, ca.getTechnician_id());
+            stm.setInt(3, ca.getIs_main());
+
+            java.util.Date utilDate = ca.getAssigned_date();
+            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            stm.setDate(4, sqlDate);
+
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateAssignedDate(int requestId, Date assignedDate) {
+        String sql = "UPDATE customerrequest_assignment SET assigned_date = ? WHERE request_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setDate(1, new java.sql.Date(assignedDate.getTime()));
+            stm.setInt(2, requestId);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateLeader(int requestId, int leaderId) {
+        try {
+            // Bỏ leader cũ
+            String sql1 = "UPDATE customerrequest_assignment SET is_main = 0 WHERE request_id = ?";
+            try (PreparedStatement stm = connection.prepareStatement(sql1)) {
+                stm.setInt(1, requestId);
+                stm.executeUpdate();
+            }
+
+            // Gán leader mới
+            String sql2 = "UPDATE customerrequest_assignment SET is_main = 1 WHERE request_id = ? AND technician_id = ?";
+            try (PreparedStatement stm = connection.prepareStatement(sql2)) {
+                stm.setInt(1, requestId);
+                stm.setInt(2, leaderId);
+                stm.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateTechnician(int requestId, int technicianId, Date assignedDate, int isMain) {
+        String sql = "UPDATE customerrequest_assignment SET assigned_date = ?, is_main = ? "
+                + "WHERE request_id = ? AND technician_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setDate(1, new java.sql.Date(assignedDate.getTime()));
+            stm.setInt(2, isMain);
+            stm.setInt(3, requestId);
+            stm.setInt(4, technicianId);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean existsAssignment(int requestId, int technicianId) {
+        String sql = "SELECT COUNT(*) FROM customerrequest_assignment WHERE request_id = ? AND technician_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, requestId);
+            stm.setInt(2, technicianId);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void insertCusRequestMeta(CustomerRequestMeta ca) {
+        String sql = "INSERT INTO `crm_device_management`.`customerrequestmeta` (`request_id`, `total_cost`, `paid_amount`, `payment_status`, `payment_due_date`) "
+                + "VALUES (?, ?, ?, ?, ?);";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, ca.getRequest_id());
+            stm.setDouble(2, ca.getTotal_cost());
+            stm.setDouble(3, ca.getPaid_amount());
+            stm.setString(4, ca.getPayment_status());
+
+            java.util.Date utilDate = ca.getPayment_due_date();
+            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            stm.setDate(5, sqlDate);
+
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public CustomerRequestMeta getCusRequestMetaById(int requestId) {
+        String sql = "SELECT * FROM `crm_device_management`.`customerrequestmeta` WHERE `request_id` = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, requestId);
+
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    CustomerRequestMeta ca = new CustomerRequestMeta();
+                    ca.setRequest_id(rs.getInt("request_id"));
+                    ca.setTotal_cost(rs.getDouble("total_cost"));
+                    ca.setPaid_amount(rs.getDouble("paid_amount"));
+                    ca.setPayment_status(rs.getString("payment_status"));
+
+                    java.sql.Date sqlDate = rs.getDate("payment_due_date");
+                    if (sqlDate != null) {
+                        ca.setPayment_due_date(new java.util.Date(sqlDate.getTime()));
+                    }
+
+                    return ca;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void deleteByRequestId(int requestId) {
+        String sql = "DELETE FROM customerrequest_assignment WHERE request_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, requestId);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
