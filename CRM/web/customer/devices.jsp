@@ -6,23 +6,23 @@
 <!DOCTYPE html>
 <html>
     <head>
-    <meta charset="UTF-8">
-    <title>Customer | View List Customer</title>
-    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-    <meta name="description" content="Warehouse Management System">
-    <meta name="keywords" content="Warehouse, Inventory, Management">
-    <!-- bootstrap 3.0.2 -->
-    <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-    <link href="${pageContext.request.contextPath}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
-    <link href="${pageContext.request.contextPath}/css/morris/morris.css" rel="stylesheet" type="text/css" />
-    <link href="${pageContext.request.contextPath}/css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
-    <link href="${pageContext.request.contextPath}/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
-    <link href="${pageContext.request.contextPath}/css/iCheck/all.css" rel="stylesheet" type="text/css" />
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href="${pageContext.request.contextPath}/css/admin/style.css" rel="stylesheet" type="text/css" />
-    <link href="${pageContext.request.contextPath}/css/warehouse/productList.css" rel="stylesheet" type="text/css" />
-</head>
+        <meta charset="UTF-8">
+        <title>Customer | View List Customer</title>
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+        <meta name="description" content="Warehouse Management System">
+        <meta name="keywords" content="Warehouse, Inventory, Management">
+        <!-- bootstrap 3.0.2 -->
+        <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/morris/morris.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/iCheck/all.css" rel="stylesheet" type="text/css" />
+        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+        <link href="${pageContext.request.contextPath}/css/admin/style.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/warehouse/productList.css" rel="stylesheet" type="text/css" />
+    </head>
     <body class="skin-black">
 
         <!-- HEADER -->
@@ -71,7 +71,7 @@
                     </div>
 
                     <ul class="sidebar-menu">
-                        <li class="active"><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                        <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
                         <li class="treeview">
@@ -79,8 +79,8 @@
                                 <i class="fa fa-tags"></i> <span>Request</span>
                             </a>
                             <ul class="collapse" id="categoryMenu">
-                                <li><a href="createRequest.jsp"><i class="fa fa-plus"></i> Create Request</a></li>
-                                <li><a href="listRequest.jsp"><i class="fa fa-eye"></i> View List Request</a></li>
+                                <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
+                                <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
                                 <li><a href="statusRequest.jsp"><i class="fa fa-edit"></i> Track Status Request</a></li>
 
                             </ul>
@@ -143,6 +143,9 @@
                                 <div class="content-card">
                                     <div class="card-header">
                                         <h3><i class="fa fa-list"></i> Device List</h3>
+                                        <a href="../customer/createRequest" class="btn btn-primary">
+                                            <i class="fa fa-plus"></i> Add New Request
+                                        </a>
 
                                     </div>
 
@@ -215,7 +218,7 @@
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
                                                             <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
-                                                                <i class="fa fa-edit"></i> Wa
+                                                                <i class="fa fa-edit"></i> Warranty
                                                             </a>
                                                             <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                                 <i class="fa fa-edit"></i> Repair
@@ -288,17 +291,17 @@
 
         <!-- SCRIPTS -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/daterangepicker.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/chart.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/icheck.min.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/fullcalendar.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
-<!--<script src="${pageContext.request.contextPath}/js/warehouse/productList.js" type="text/javascript"></script>-->
-<script>
-   $(function () {
+        <script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/daterangepicker.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/chart.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/icheck.min.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/fullcalendar.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
+        <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
+        <!--<script src="${pageContext.request.contextPath}/js/warehouse/productList.js" type="text/javascript"></script>-->
+        <script>
+                                                    $(function () {
                                                         // Pagination variables
                                                         let currentPage = 1;
                                                         let pageSize = 10;
@@ -616,7 +619,7 @@
                                                         });
                                                     });
 
- </script>   
+        </script>   
     </body>
 </html>
 

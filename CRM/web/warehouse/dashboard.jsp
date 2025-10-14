@@ -69,7 +69,7 @@
             </div>
 
             <ul class="sidebar-menu">
-                <li class="active"><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
                 
                 <!-- Product -->
                 <li class="treeview">

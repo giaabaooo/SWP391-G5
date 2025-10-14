@@ -7,7 +7,7 @@
 <html>
     <head>
     <meta charset="UTF-8">
-    <title>Customer | Device Details</title>
+    <title>Customer |  Details</title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta name="description" content="Warehouse Management System">
     <meta name="keywords" content="Warehouse, Inventory, Management">
@@ -64,8 +64,8 @@
                         </div>
                     </div>
 
-                    <ul class="sidebar-menu">
-                        <li class="active"><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                   <ul class="sidebar-menu">
+                        <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
                         <li class="treeview">
@@ -73,8 +73,8 @@
                                 <i class="fa fa-tags"></i> <span>Request</span>
                             </a>
                             <ul class="collapse" id="categoryMenu">
-                                <li><a href="createRequest.jsp"><i class="fa fa-plus"></i> Create Request</a></li>
-                                <li><a href="listRequest.jsp"><i class="fa fa-eye"></i> View List Request</a></li>
+                                <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
+                                <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
                                 <li><a href="statusRequest.jsp"><i class="fa fa-edit"></i> Track Status Request</a></li>
 
                             </ul>
