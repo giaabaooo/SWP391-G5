@@ -615,9 +615,17 @@
                                         <input type="text" name="keyword" class="search-input" placeholder="Search ..." 
                                                value="${param.keyword}">
 
+                                        <select name="requestType" class="search-input" style="min-width: 150px;">
+                                            <option value="">--Request Type--</option>
+                                            <option value="repair" ${param.requestType=="repair"?"selected":""}>Repair</option>
+                                            <option value="maintenance" ${param.requestType=="maintenance"?"selected":""}>Maintenance</option>
+                                        </select>
+                                        
                                         <input type="date" name="fromDate" class="search-input" value="${param.fromDate}" style="min-width:160px;">
                                         <input type="date" name="toDate" class="search-input" value="${param.toDate}" style="min-width:160px;">
 
+                                        
+                                        
                                         <button class="btn btn-primary" type="submit" >
                                             <i class="fa fa-filter"></i> Filter
                                         </button>

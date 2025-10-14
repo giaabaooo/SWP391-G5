@@ -45,7 +45,11 @@ public class RequestController extends HttpServlet {
                 break;
             case "assignTask":
                 
-                req.setAttribute("requestList", db.getListRequest(1, Integer.MAX_VALUE, "", "active", "", ""));
+                if(req.getParameter("id")!=null){
+                    req.setAttribute("requestSelected", Integer.valueOf(req.getParameter("id")));
+                }
+                
+                req.setAttribute("requestList", db.getListRequest(1, Integer.MAX_VALUE, "", "", "", "","","active"));
                 req.setAttribute("technicianList", userDb.list(1, Integer.MAX_VALUE, "", "TECHNICIAN", "active"));
                 req.getRequestDispatcher("/techmanager/assign_task.jsp").forward(req, resp);
                 break;
@@ -55,7 +59,9 @@ public class RequestController extends HttpServlet {
                 int size = 10;
 
                 String keyword = req.getParameter("keyword");
+                String requestType = req.getParameter("requestType");
                 String status = req.getParameter("status");
+                String isActive = req.getParameter("isActive");
                 String fromDate = req.getParameter("fromDate");
                 String toDate = req.getParameter("toDate");
 
@@ -90,7 +96,7 @@ public class RequestController extends HttpServlet {
                     return;
                 }
 
-                req.setAttribute("requests", db.getListRequest(page, size, keyword, status, fromDate, toDate));
+                req.setAttribute("requests", db.getListRequest(page, size, keyword, status, fromDate, toDate, requestType, isActive));
                 //req.setAttribute("total", total);
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);

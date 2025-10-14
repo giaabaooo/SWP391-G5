@@ -270,8 +270,8 @@
                     <!-- Page Header -->
                     <div class="row">
                         <div class="col-md-12">
-                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Request Details</h1>
-                            <p style="color: #718096; margin-bottom: 2rem;">View detailed information about this request</p>
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Assign Task</h1>
+                            <p style="color: #718096; margin-bottom: 2rem;">Assign request for Technician</p>
                         </div>
                     </div>
                     <!-- Add Task Assignment Card -->
@@ -295,8 +295,9 @@
                                                     <option value="">-- Select Task --</option>
                                                     <c:forEach var="task" items="${requestList}">
                                                         <c:if test="${task.status == 'PENDING'}">
-                                                            <option value="${task.id}">
-                                                                ${task.request_type} ${task.device.productName} for ${task.customer.fullName}
+                                                            <option value="${task.id}"
+                                                                <c:if test="${task.id == requestSelected}">selected</c:if>>
+                                                                Request #${task.id}: ${task.request_type} "${task.device.productName}" for ${task.customer.fullName}
                                                             </option>
                                                         </c:if>
                                                     </c:forEach>
@@ -324,7 +325,7 @@
                                                             <input type="radio" name="leaderId" class="leader-radio" value="" /> Leader
                                                         </label>
 
-                                                        <button type="button" class="btn btn-success btn-sm addTechBtn">
+                                                        <button type="button" class="btn btn-primary btn-sm addTechBtn">
                                                             <i class="fa fa-plus"></i>
                                                         </button>
                                                         <button type="button" class="btn btn-danger btn-sm removeTechBtn">
