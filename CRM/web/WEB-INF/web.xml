@@ -30,6 +30,22 @@
         <servlet-class>Controller.warestaff.EditProductController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>CategoryListController</servlet-name>
+        <servlet-class>Controller.warestaff.CategoryListController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddCategoryController</servlet-name>
+        <servlet-class>Controller.warestaff.AddCategoryController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EditCategoryController</servlet-name>
+        <servlet-class>Controller.warestaff.EditCategoryController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteCategoryController</servlet-name>
+        <servlet-class>Controller.warestaff.DeleteCategoryController</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>CreateRequestController</servlet-name>
         <servlet-class>Controller.customer.CreateRequestController</servlet-class>
     </servlet>
@@ -117,5 +133,21 @@
     <servlet-mapping>
         <servlet-name>EditProductController</servlet-name>
         <url-pattern>/warestaff/editProduct</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CategoryListController</servlet-name>
+        <url-pattern>/warestaff/categoryList</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddCategoryController</servlet-name>
+        <url-pattern>/warestaff/addCategory</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditCategoryController</servlet-name>
+        <url-pattern>/warestaff/editCategory</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteCategoryController</servlet-name>
+        <url-pattern>/warestaff/deleteCategory</url-pattern>
     </servlet-mapping>
 </web-app>

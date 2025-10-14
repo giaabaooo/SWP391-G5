@@ -91,10 +91,8 @@
                         <i class="fa fa-tags"></i> <span>Categories</span>
                     </a>
                     <ul class="collapse" id="categoryMenu">
-                        <li><a href="viewCategories.jsp"><i class="fa fa-eye"></i> View Categories</a></li>
-                        <li><a href="addCategory.jsp"><i class="fa fa-plus"></i> Add Category</a></li>
-                        <li><a href="updateCategory.jsp"><i class="fa fa-edit"></i> Update Category</a></li>
-                        <li><a href="deleteCategory.jsp"><i class="fa fa-trash"></i> Delete Category</a></li>
+                        <li><a href="../warestaff/categoryList"><i class="fa fa-eye"></i> View Categories</a></li>
+                        <li><a href="../warestaff/addCategory"><i class="fa fa-plus"></i> Add Category</a></li>
                     </ul>
                 </li>
 
