@@ -511,4 +511,21 @@ public class CustomerRequestDAO extends DBContext {
             e.printStackTrace();
         }
     }
+    
+     public boolean createRequest(CustomerRequest req) {
+        String sql = "INSERT INTO CustomerRequest (customer_id, device_id, title, description, request_type, status, request_date) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, NOW())";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, req.getCustomer_id());
+            ps.setInt(2, req.getDevice_id());
+            ps.setString(3, req.getTitle());
+            ps.setString(4, req.getDescription());
+            ps.setString(5, req.getRequest_type());
+            ps.setString(6, req.getStatus());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

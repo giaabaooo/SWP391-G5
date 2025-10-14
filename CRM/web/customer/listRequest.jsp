@@ -73,7 +73,7 @@
                     </div>
 
                     <ul class="sidebar-menu">
-                        <li class="active"><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                        <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
                         <li class="treeview">
@@ -81,8 +81,8 @@
                                 <i class="fa fa-tags"></i> <span>Request</span>
                             </a>
                             <ul class="collapse" id="categoryMenu">
-                                <li><a href="createRequest.jsp"><i class="fa fa-plus"></i> Create Request</a></li>
-                                <li><a href="listRequest.jsp"><i class="fa fa-eye"></i> View List Request</a></li>
+                                <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
+                                <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
                                 <li><a href="statusRequest.jsp"><i class="fa fa-edit"></i> Track Status Request</a></li>
 
                             </ul>
@@ -145,6 +145,9 @@
                                 <div class="content-card">
                                     <div class="card-header">
                                         <h3><i class="fa fa-list"></i> Request List</h3>
+                                         <a href="../customer/createRequest" class="btn btn-primary">
+                                            <i class="fa fa-plus"></i> Add New Request
+                                        </a>
 
                                     </div>
 

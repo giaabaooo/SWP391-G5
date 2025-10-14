@@ -46,16 +46,16 @@
         <servlet-class>Controller.warestaff.DeleteCategoryController</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>CreateRequestController</servlet-name>
-        <servlet-class>Controller.customer.CreateRequestController</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>ContractController</servlet-name>
         <servlet-class>Controller.customer.ContractController</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ListRequestController</servlet-name>
         <servlet-class>Controller.customer.ListRequestController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CreateRequestController</servlet-name>
+        <servlet-class>Controller.customer.CreateRequestController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
@@ -100,16 +100,16 @@
         <url-pattern>/customer/detailDevice</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>CreateRequestController</servlet-name>
-        <url-pattern>/customer/createRequest</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>ContractController</servlet-name>
         <url-pattern>/customer/contract</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ListRequestController</servlet-name>
         <url-pattern>/customer/listRequest</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CreateRequestController</servlet-name>
+        <url-pattern>/customer/createRequest</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>redirect.jsp</welcome-file>
