@@ -613,14 +613,27 @@
                                         <input type="text" name="keyword" class="search-input" placeholder="Search ..." 
                                                value="${param.keyword}">
 
-                                        <input type="date" name="fromDate" class="search-input" value="${param.fromDate}" style="min-width:160px;">
-                                        <input type="date" name="toDate" class="search-input" value="${param.toDate}" style="min-width:160px;">
-
+                                        <select name="requestType" class="search-input" style="min-width: 150px;">
+                                            <option value="">--Request Type--</option>
+                                            <option value="repair" ${param.requestType=="repair"?"selected":""}>Repair</option>
+                                            <option value="maintenance" ${param.requestType=="maintenance"?"selected":""}>Maintenance</option>
+                                        </select>
+                                        
+                                        <input type="date" name="fromDate" class="search-input" value="${param.fromDate}" style="min-width:160px;" placeholder="From Date" >
+                                        <input type="date" name="toDate" class="search-input" value="${param.toDate}" style="min-width:160px;" placeholder="To Date" >
 
                                         <select name="status" class="search-input" style="min-width: 150px;">
+                                            <option value="">--Status--</option>
+                                            <option value="rejected" ${param.status=="rejected"?"selected":""}>Rejected</option>
+                                            <option value="processing" ${param.status=="processing"?"selected":""}>Processing</option>
+                                            <option value="pending" ${param.status=="pending"?"selected":""}>Pending</option>
+                                            <option value="done" ${param.status=="done"?"selected":""}>Done</option>
+                                        </select>
+                                        
+                                        <select name="isActive" class="search-input" style="min-width: 150px;">
                                             <option value="">--Is Active--</option>
-                                            <option value="active" ${param.status=="active"?"selected":""}>Active</option>
-                                            <option value="inactive" ${param.status=="inactive"?"selected":""}>Inactive</option>
+                                            <option value="active" ${param.isActive=="active"?"selected":""}>Active</option>
+                                            <option value="inactive" ${param.isActive=="inactive"?"selected":""}>Inactive</option>
                                         </select>
 
                                         <button class="btn btn-primary" type="submit" >
@@ -672,7 +685,7 @@
                                                                     <i class="fa fa-trash"></i> Reject
                                                                 </a>
                                                                 <c:if test="${u.status == 'PENDING'}">
-                                                                    <a href="${pageContext.request.contextPath}/cskh/user?action=delete&id=${u.id}" class="btn btn-action btn-edit">
+                                                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask&id=${u.id}" class="btn btn-action btn-edit">
                                                                         <i class="fa fa-angle-right"></i> Assign
                                                                     </a>
                                                                 </c:if>

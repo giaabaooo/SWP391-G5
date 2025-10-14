@@ -22,7 +22,7 @@ import java.util.Date;
  */
 public class CustomerRequestDAO extends DBContext {
 
-    public ArrayList<CustomerRequest> getListRequest(int page, int pageSize, String keyword, String status, String fromDate, String toDate) {
+    public ArrayList<CustomerRequest> getListRequest(int page, int pageSize, String keyword, String status, String fromDate, String toDate, String requestType, String isActive) {
         ArrayList<CustomerRequest> listRequest = new ArrayList<>();
 
         String sql = "SELECT cr.*,u.full_name,p.name FROM customerrequest cr\n"
@@ -31,6 +31,21 @@ public class CustomerRequestDAO extends DBContext {
                 + "JOIN ContractItem ci ON d.contract_item_id = ci.id\n"
                 + "JOIN Product p ON ci.product_id = p.id";
         ArrayList<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql += " AND (u.full_name LIKE ? OR p.name LIKE ?)";
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
+        }
+        if (requestType != null && !requestType.trim().isEmpty()) {
+            sql += " AND (cr.request_type LIKE ? )";
+            params.add("%" + requestType + "%");
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql += " AND (cr.status LIKE ? )";
+            params.add("%" + status + "%");
+        }
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql += " AND (u.full_name LIKE ? OR p.name LIKE ?)";
@@ -48,9 +63,9 @@ public class CustomerRequestDAO extends DBContext {
             params.add(toDate);
         }
 
-        if (status != null && !status.trim().isEmpty()) {
+        if (isActive != null && !isActive.trim().isEmpty()) {
             sql += " AND cr.is_active = ?";
-            params.add(status.equals("active") ? 1 : 0);
+            params.add(isActive.equals("active") ? 1 : 0);
         }
 
         sql += " LIMIT ? OFFSET ?";
@@ -202,7 +217,7 @@ public class CustomerRequestDAO extends DBContext {
                 req.setRequest_date(rs.getTimestamp("request_date"));
                 req.setStatus(rs.getString("status"));
                 list.add(req);
-                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -210,7 +225,7 @@ public class CustomerRequestDAO extends DBContext {
         return list;
     }
 
-public boolean updateRequest(String status, int isActive, int requestId) {
+    public boolean updateRequest(String status, int isActive, int requestId) {
         String sql = "UPDATE customerrequest SET \n"
                 + "status = ? ,\n"
                 + "is_active = ?\n"
@@ -244,7 +259,7 @@ public boolean updateRequest(String status, int isActive, int requestId) {
         }
     }
 
-    public ArrayList<CustomerRequestAssignment> getListTask(int page, int pageSize, String keyword, String fromDate, String toDate, String is_main) {
+    public ArrayList<CustomerRequestAssignment> getListTask(int page, int pageSize, String keyword, String fromDate, String toDate, String is_main, String requestType) {
         ArrayList<CustomerRequestAssignment> listTask = new ArrayList<>();
 
         String sql = "SELECT ca.* FROM customerrequest_assignment ca\n"
@@ -264,6 +279,11 @@ public boolean updateRequest(String status, int isActive, int requestId) {
             sql += " AND (u.full_name LIKE ? OR p.name LIKE ?)";
             params.add("%" + keyword + "%");
             params.add("%" + keyword + "%");
+        }
+
+        if (requestType != null && !requestType.trim().isEmpty()) {
+            sql += " AND (cr.request_type LIKE ? )";
+            params.add("%" + requestType + "%");
         }
 
         if (fromDate != null && !fromDate.isEmpty()) {

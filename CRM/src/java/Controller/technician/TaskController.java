@@ -43,7 +43,7 @@ public class TaskController extends HttpServlet {
                 ArrayList<CustomerRequestAssignment> task1 = new ArrayList<>();
                 ArrayList<CustomerRequest> requestList = new ArrayList<CustomerRequest>();
 
-                for (var i : db.getListTask(1, Integer.MAX_VALUE, "", "", "", "")) {
+                for (var i : db.getListTask(1, Integer.MAX_VALUE, "", "", "", "","")) {
                     CustomerRequestAssignment tech = db.getTaskById(i.getRequest_id());
                     for (var j : tech.getTechnician()) {
                         if (j.getId() == account.getId()) {
@@ -71,6 +71,7 @@ public class TaskController extends HttpServlet {
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
                 int size = 10;
 
+                String requestType = req.getParameter("requestType");
                 String keyword = req.getParameter("keyword");
                 String fromDate = req.getParameter("fromDate");
                 String toDate = req.getParameter("toDate");
@@ -107,7 +108,7 @@ public class TaskController extends HttpServlet {
                 }
 
                 
-                var a = db.getListTask(page, size, keyword, fromDate, toDate, "");
+                var a = db.getListTask(page, size, keyword, fromDate, toDate, "", requestType);
                 ArrayList<CustomerRequestAssignment> task = new ArrayList<>();
 
                 for (var i : a) {

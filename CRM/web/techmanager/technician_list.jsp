@@ -630,9 +630,9 @@
                             <div class="content-card">
                                 <div class="card-header">
                                     <h3><i class="fa fa-list"></i> Technician List</h3>
-<!--                                    <a href="../warestaff/addNewProduct" class="btn btn-primary">
-                                        <i class="fa fa-plus"></i> Add New Technician
-                                    </a>-->
+                                    <!--                                    <a href="../warestaff/addNewProduct" class="btn btn-primary">
+                                                                            <i class="fa fa-plus"></i> Add New Technician
+                                                                        </a>-->
                                 </div>
 
                                 <!-- Filter Bar -->
@@ -667,7 +667,7 @@
                                                     <th>Phone</th>
                                                     <!--                        <th>Role</th>-->
                                                     <th>Status</th>
-                                                    <th style="width:150px;">Actions</th>
+                                                    <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -685,14 +685,19 @@
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            <a href="${pageContext.request.contextPath}/cskh/user?action=edit&id=${u.id}" class="btn btn-xs btn-warning">
+                                                            <a href="${pageContext.request.contextPath}/techmanager/technician?action=detail&id=${u.id}" class="btn btn-action btn-view">
+                                                                <i class="fa fa-eye"></i> Detail
+                                                            </a>
+
+                                                            <a href="${pageContext.request.contextPath}/techmanager/technician?action=edit&id=${u.id}" class="btn btn-action btn-edit">
                                                                 <i class="fa fa-pencil"></i> Edit
                                                             </a>
-                                                            <a href="${pageContext.request.contextPath}/cskh/user?action=delete&id=${u.id}" 
-                                                               class="btn btn-xs btn-danger"
-                                                               onclick="return confirm('Delete this user?');">
-                                                                <i class="fa fa-trash"></i> Delete
+                                                                
+                                                            <a href="${pageContext.request.contextPath}/techmanager/technician?action=delete&id=${u.id}" class="btn btn-action btn-delete">
+                                                                <i class="fa fa-trash"></i>Change Status
                                                             </a>
+
+
                                                         </td>
                                                     </tr>
                                                 </c:forEach>
@@ -707,7 +712,7 @@
                                     <!-- Pagination Controls -->
                                     <div class="pagination-container">
                                         <div class="pagination-info">
-                                            
+
                                         </div>
 
                                         <div class="page-size-selector">
@@ -763,316 +768,316 @@
     <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
 
     <script>
-                                            $(function () {
-                                                // Pagination variables
-                                                let currentPage = 1;
-                                                let pageSize = 10;
-                                                let allRows = [];
-                                                let filteredRows = [];
+                                                $(function () {
+                                                    // Pagination variables
+                                                    let currentPage = 1;
+                                                    let pageSize = 10;
+                                                    let allRows = [];
+                                                    let filteredRows = [];
 
-                                                // Helper function to get current URL parameters
-                                                function getUrlParams() {
-                                                    var params = new URLSearchParams(window.location.search);
-                                                    var urlParams = {};
+                                                    // Helper function to get current URL parameters
+                                                    function getUrlParams() {
+                                                        var params = new URLSearchParams(window.location.search);
+                                                        var urlParams = {};
 
-                                                    if (params.get('search')) {
-                                                        urlParams.search = params.get('search');
+                                                        if (params.get('search')) {
+                                                            urlParams.search = params.get('search');
+                                                        }
+                                                        if (params.get('categoryId')) {
+                                                            urlParams.categoryId = params.get('categoryId');
+                                                        }
+                                                        if (params.get('brandId')) {
+                                                            urlParams.brandId = params.get('brandId');
+                                                        }
+                                                        if (params.get('pageSize')) {
+                                                            urlParams.pageSize = params.get('pageSize');
+                                                        }
+
+                                                        return urlParams;
                                                     }
-                                                    if (params.get('categoryId')) {
-                                                        urlParams.categoryId = params.get('categoryId');
-                                                    }
-                                                    if (params.get('brandId')) {
-                                                        urlParams.brandId = params.get('brandId');
-                                                    }
-                                                    if (params.get('pageSize')) {
-                                                        urlParams.pageSize = params.get('pageSize');
+
+                                                    // Helper function to build URL with parameters
+                                                    function buildUrlWithParams(params) {
+                                                        var url = window.location.pathname + '?';
+                                                        var paramArray = [];
+
+                                                        for (var key in params) {
+                                                            if (params[key] && params[key] !== '') {
+                                                                paramArray.push(key + '=' + encodeURIComponent(params[key]));
+                                                            }
+                                                        }
+
+                                                        return url + paramArray.join('&');
                                                     }
 
-                                                    return urlParams;
-                                                }
+                                                    // Initialize pagination (server-side)
+                                                    function initPagination() {
+                                                        renderPagination();
+                                                        updatePaginationInfo();
+                                                    }
 
-                                                // Helper function to build URL with parameters
-                                                function buildUrlWithParams(params) {
-                                                    var url = window.location.pathname + '?';
-                                                    var paramArray = [];
+                                                    // Update pagination info text (from server data)
+                                                    function updatePaginationInfo() {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                        var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
+                                                        var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>;
 
-                                                    for (var key in params) {
-                                                        if (params[key] && params[key] !== '') {
-                                                            paramArray.push(key + '=' + encodeURIComponent(params[key]));
+                                                        var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
+                                                        var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalProducts);
+
+                                                        var infoElement = document.getElementById('paginationInfo');
+                                                        if (infoElement) {
+                                                            if (totalProducts === 0) {
+                                                                infoElement.textContent = 'No products to display';
+                                                            } else {
+                                                                infoElement.textContent =
+                                                                        'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' products';
+                                                            }
                                                         }
                                                     }
 
-                                                    return url + paramArray.join('&');
-                                                }
+                                                    // Render pagination buttons
+                                                    function renderPagination() {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+                                                        var pageNumbersDiv = document.getElementById('pageNumbers');
 
-                                                // Initialize pagination (server-side)
-                                                function initPagination() {
-                                                    renderPagination();
-                                                    updatePaginationInfo();
-                                                }
+                                                        if (!pageNumbersDiv)
+                                                            return;
 
-                                                // Update pagination info text (from server data)
-                                                function updatePaginationInfo() {
+                                                        pageNumbersDiv.innerHTML = '';
+
+                                                        // Determine which pages to show
+                                                        var startPage = Math.max(1, currentPageFromUrl - 2);
+                                                        var endPage = Math.min(totalPages, currentPageFromUrl + 2);
+
+                                                        // Adjust if near the beginning
+                                                        if (currentPageFromUrl <= 3) {
+                                                            endPage = Math.min(5, totalPages);
+                                                        }
+
+                                                        // Adjust if near the end
+                                                        if (currentPageFromUrl > totalPages - 3) {
+                                                            startPage = Math.max(1, totalPages - 4);
+                                                        }
+
+                                                        // Create page buttons
+                                                        for (var i = startPage; i <= endPage; i++) {
+                                                            var btn = document.createElement('button');
+                                                            btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
+                                                            btn.textContent = i;
+                                                            btn.onclick = (function (pageNum) {
+                                                                return function () {
+                                                                    goToPage(pageNum);
+                                                                };
+                                                            })(i);
+                                                            pageNumbersDiv.appendChild(btn);
+                                                        }
+
+                                                        updatePaginationButtons();
+                                                    }
+
+                                                    // Update pagination button states
+                                                    function updatePaginationButtons() {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+
+                                                        var firstBtn = document.getElementById('firstPageBtn');
+                                                        var prevBtn = document.getElementById('prevPageBtn');
+                                                        var nextBtn = document.getElementById('nextPageBtn');
+                                                        var lastBtn = document.getElementById('lastPageBtn');
+
+                                                        if (firstBtn)
+                                                            firstBtn.disabled = currentPageFromUrl === 1;
+                                                        if (prevBtn)
+                                                            prevBtn.disabled = currentPageFromUrl === 1;
+                                                        if (nextBtn)
+                                                            nextBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                                                        if (lastBtn)
+                                                            lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                                                    }
+
+                                                    // Pagination navigation functions (with URL parameters preserved)
+                                                    window.goToPage = function (page) {
+                                                        var params = getUrlParams();
+                                                        params.page = page;
+                                                        window.location.href = buildUrlWithParams(params);
+                                                    };
+
+                                                    window.goToFirstPage = function () {
+                                                        goToPage(1);
+                                                    };
+
+                                                    window.goToPrevPage = function () {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPage = parseInt(urlParams.get('page')) || 1;
+                                                        if (currentPage > 1) {
+                                                            goToPage(currentPage - 1);
+                                                        }
+                                                    };
+
+                                                    window.goToNextPage = function () {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPage = parseInt(urlParams.get('page')) || 1;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+                                                        if (currentPage < totalPages) {
+                                                            goToPage(currentPage + 1);
+                                                        }
+                                                    };
+
+                                                    window.goToLastPage = function () {
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+                                                        goToPage(totalPages);
+                                                    };
+
+                                                    window.changePageSize = function () {
+                                                        var newPageSize = document.getElementById('pageSize').value;
+                                                        var params = getUrlParams();
+                                                        params.pageSize = newPageSize;
+                                                        params.page = 1; // Reset to first page when changing page size
+                                                        window.location.href = buildUrlWithParams(params);
+                                                    };
+
+                                                    // Note: Search is now handled server-side via applyFilters() function
+
+                                                    // Delete product button click handler
+                                                    var currentDeleteProductId = null;
+
+                                                    $('.btn-delete').on('click', function () {
+                                                        var productId = $(this).data('product-id');
+                                                        var productName = $(this).closest('tr').find('td:eq(1) strong').text();
+
+                                                        // Store product info
+                                                        currentDeleteProductId = productId;
+
+                                                        // Update modal content
+                                                        $('#modalProductName').text(productName);
+
+                                                        // Show modal
+                                                        $('#deleteModal').addClass('active');
+                                                    });
+
+                                                    // Close modal function
+                                                    window.closeDeleteModal = function () {
+                                                        $('#deleteModal').removeClass('active');
+                                                        currentDeleteProductId = null;
+                                                    };
+
+                                                    // Close modal when clicking outside
+                                                    $('#deleteModal').on('click', function (e) {
+                                                        if ($(e.target).is('#deleteModal')) {
+                                                            closeDeleteModal();
+                                                        }
+                                                    });
+
+                                                    // Close modal on ESC key
+                                                    $(document).on('keydown', function (e) {
+                                                        if (e.key === 'Escape' && $('#deleteModal').hasClass('active')) {
+                                                            closeDeleteModal();
+                                                        }
+                                                    });
+
+                                                    // Confirm delete button
+                                                    $('#confirmDeleteBtn').on('click', function () {
+                                                        if (currentDeleteProductId) {
+                                                            // Create and submit form
+                                                            var form = $('<form>', {
+                                                                'method': 'POST',
+                                                                'action': '../warestaff/deleteProduct'
+                                                            });
+
+                                                            var input = $('<input>', {
+                                                                'type': 'hidden',
+                                                                'name': 'id',
+                                                                'value': currentDeleteProductId
+                                                            });
+
+                                                            form.append(input);
+                                                            $('body').append(form);
+                                                            form.submit();
+                                                        }
+                                                    });
+
+                                                    // Handle collapsible menu
+                                                    $('.treeview > a').click(function (e) {
+                                                        e.preventDefault();
+                                                        var target = $(this).attr('href');
+                                                        $(target).collapse('toggle');
+                                                    });
+
+                                                    // Auto-expand Products menu since we're on view list product page
+                                                    $('#inventoryMenu').addClass('in');
+
+                                                    // Set page size from URL parameter
                                                     var urlParams = new URLSearchParams(window.location.search);
-                                                    var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                    var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
-                                                    var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>;
-
-                                                    var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
-                                                    var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalProducts);
-
-                                                    var infoElement = document.getElementById('paginationInfo');
-                                                    if (infoElement) {
-                                                        if (totalProducts === 0) {
-                                                            infoElement.textContent = 'No products to display';
-                                                        } else {
-                                                            infoElement.textContent =
-                                                                    'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' products';
+                                                    var pageSizeFromUrl = urlParams.get('pageSize');
+                                                    if (pageSizeFromUrl) {
+                                                        var pageSizeSelect = document.getElementById('pageSize');
+                                                        if (pageSizeSelect) {
+                                                            pageSizeSelect.value = pageSizeFromUrl;
                                                         }
                                                     }
-                                                }
 
-                                                // Render pagination buttons
-                                                function renderPagination() {
-                                                    var urlParams = new URLSearchParams(window.location.search);
-                                                    var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                    var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
-                                                    var pageNumbersDiv = document.getElementById('pageNumbers');
+                                                    // Initialize pagination on page load
+                                                    initPagination();
 
-                                                    if (!pageNumbersDiv)
-                                                        return;
-
-                                                    pageNumbersDiv.innerHTML = '';
-
-                                                    // Determine which pages to show
-                                                    var startPage = Math.max(1, currentPageFromUrl - 2);
-                                                    var endPage = Math.min(totalPages, currentPageFromUrl + 2);
-
-                                                    // Adjust if near the beginning
-                                                    if (currentPageFromUrl <= 3) {
-                                                        endPage = Math.min(5, totalPages);
-                                                    }
-
-                                                    // Adjust if near the end
-                                                    if (currentPageFromUrl > totalPages - 3) {
-                                                        startPage = Math.max(1, totalPages - 4);
-                                                    }
-
-                                                    // Create page buttons
-                                                    for (var i = startPage; i <= endPage; i++) {
-                                                        var btn = document.createElement('button');
-                                                        btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
-                                                        btn.textContent = i;
-                                                        btn.onclick = (function (pageNum) {
-                                                            return function () {
-                                                                goToPage(pageNum);
-                                                            };
-                                                        })(i);
-                                                        pageNumbersDiv.appendChild(btn);
-                                                    }
-
-                                                    updatePaginationButtons();
-                                                }
-
-                                                // Update pagination button states
-                                                function updatePaginationButtons() {
-                                                    var urlParams = new URLSearchParams(window.location.search);
-                                                    var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                    var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
-
-                                                    var firstBtn = document.getElementById('firstPageBtn');
-                                                    var prevBtn = document.getElementById('prevPageBtn');
-                                                    var nextBtn = document.getElementById('nextPageBtn');
-                                                    var lastBtn = document.getElementById('lastPageBtn');
-
-                                                    if (firstBtn)
-                                                        firstBtn.disabled = currentPageFromUrl === 1;
-                                                    if (prevBtn)
-                                                        prevBtn.disabled = currentPageFromUrl === 1;
-                                                    if (nextBtn)
-                                                        nextBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
-                                                    if (lastBtn)
-                                                        lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
-                                                }
-
-                                                // Pagination navigation functions (with URL parameters preserved)
-                                                window.goToPage = function (page) {
-                                                    var params = getUrlParams();
-                                                    params.page = page;
-                                                    window.location.href = buildUrlWithParams(params);
-                                                };
-
-                                                window.goToFirstPage = function () {
-                                                    goToPage(1);
-                                                };
-
-                                                window.goToPrevPage = function () {
-                                                    var urlParams = new URLSearchParams(window.location.search);
-                                                    var currentPage = parseInt(urlParams.get('page')) || 1;
-                                                    if (currentPage > 1) {
-                                                        goToPage(currentPage - 1);
-                                                    }
-                                                };
-
-                                                window.goToNextPage = function () {
-                                                    var urlParams = new URLSearchParams(window.location.search);
-                                                    var currentPage = parseInt(urlParams.get('page')) || 1;
-                                                    var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
-                                                    if (currentPage < totalPages) {
-                                                        goToPage(currentPage + 1);
-                                                    }
-                                                };
-
-                                                window.goToLastPage = function () {
-                                                    var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
-                                                    goToPage(totalPages);
-                                                };
-
-                                                window.changePageSize = function () {
-                                                    var newPageSize = document.getElementById('pageSize').value;
-                                                    var params = getUrlParams();
-                                                    params.pageSize = newPageSize;
-                                                    params.page = 1; // Reset to first page when changing page size
-                                                    window.location.href = buildUrlWithParams(params);
-                                                };
-
-                                                // Note: Search is now handled server-side via applyFilters() function
-
-                                                // Delete product button click handler
-                                                var currentDeleteProductId = null;
-
-                                                $('.btn-delete').on('click', function () {
-                                                    var productId = $(this).data('product-id');
-                                                    var productName = $(this).closest('tr').find('td:eq(1) strong').text();
-
-                                                    // Store product info
-                                                    currentDeleteProductId = productId;
-
-                                                    // Update modal content
-                                                    $('#modalProductName').text(productName);
-
-                                                    // Show modal
-                                                    $('#deleteModal').addClass('active');
-                                                });
-
-                                                // Close modal function
-                                                window.closeDeleteModal = function () {
-                                                    $('#deleteModal').removeClass('active');
-                                                    currentDeleteProductId = null;
-                                                };
-
-                                                // Close modal when clicking outside
-                                                $('#deleteModal').on('click', function (e) {
-                                                    if ($(e.target).is('#deleteModal')) {
-                                                        closeDeleteModal();
-                                                    }
-                                                });
-
-                                                // Close modal on ESC key
-                                                $(document).on('keydown', function (e) {
-                                                    if (e.key === 'Escape' && $('#deleteModal').hasClass('active')) {
-                                                        closeDeleteModal();
-                                                    }
-                                                });
-
-                                                // Confirm delete button
-                                                $('#confirmDeleteBtn').on('click', function () {
-                                                    if (currentDeleteProductId) {
-                                                        // Create and submit form
-                                                        var form = $('<form>', {
-                                                            'method': 'POST',
-                                                            'action': '../warestaff/deleteProduct'
+                                                    // Auto-hide success and error messages after 3 seconds
+                                                    setTimeout(function () {
+                                                        $('.alert-success').fadeOut(500, function () {
+                                                            $(this).remove();
                                                         });
-
-                                                        var input = $('<input>', {
-                                                            'type': 'hidden',
-                                                            'name': 'id',
-                                                            'value': currentDeleteProductId
+                                                        $('.alert-danger').fadeOut(500, function () {
+                                                            $(this).remove();
                                                         });
+                                                    }, 3000);
 
-                                                        form.append(input);
-                                                        $('body').append(form);
-                                                        form.submit();
-                                                    }
-                                                });
+                                                    // Apply filters function
+                                                    window.applyFilters = function () {
+                                                        var searchQuery = document.getElementById('searchInput').value;
+                                                        var categoryId = document.getElementById('categoryFilter').value;
+                                                        var brandId = document.getElementById('brandFilter').value;
 
-                                                // Handle collapsible menu
-                                                $('.treeview > a').click(function (e) {
-                                                    e.preventDefault();
-                                                    var target = $(this).attr('href');
-                                                    $(target).collapse('toggle');
-                                                });
+                                                        // Build URL with parameters
+                                                        var url = window.location.pathname + '?';
+                                                        var params = [];
 
-                                                // Auto-expand Products menu since we're on view list product page
-                                                $('#inventoryMenu').addClass('in');
+                                                        if (searchQuery && searchQuery.trim() !== '') {
+                                                            params.push('search=' + encodeURIComponent(searchQuery));
+                                                        }
+                                                        if (categoryId && categoryId !== '') {
+                                                            params.push('categoryId=' + categoryId);
+                                                        }
+                                                        if (brandId && brandId !== '') {
+                                                            params.push('brandId=' + brandId);
+                                                        }
 
-                                                // Set page size from URL parameter
-                                                var urlParams = new URLSearchParams(window.location.search);
-                                                var pageSizeFromUrl = urlParams.get('pageSize');
-                                                if (pageSizeFromUrl) {
-                                                    var pageSizeSelect = document.getElementById('pageSize');
-                                                    if (pageSizeSelect) {
-                                                        pageSizeSelect.value = pageSizeFromUrl;
-                                                    }
-                                                }
+                                                        url += params.join('&');
 
-                                                // Initialize pagination on page load
-                                                initPagination();
+                                                        // Redirect to filtered URL
+                                                        window.location.href = url;
+                                                    };
 
-                                                // Auto-hide success and error messages after 3 seconds
-                                                setTimeout(function () {
-                                                    $('.alert-success').fadeOut(500, function () {
-                                                        $(this).remove();
+                                                    // Clear filters function
+                                                    window.clearFilters = function () {
+                                                        // Redirect to page without parameters
+                                                        window.location.href = window.location.pathname;
+                                                    };
+
+                                                    // Handle Enter key in search input
+                                                    $('#searchInput').on('keypress', function (e) {
+                                                        if (e.which === 13) { // Enter key
+                                                            applyFilters();
+                                                        }
                                                     });
-                                                    $('.alert-danger').fadeOut(500, function () {
-                                                        $(this).remove();
-                                                    });
-                                                }, 3000);
 
-                                                // Apply filters function
-                                                window.applyFilters = function () {
-                                                    var searchQuery = document.getElementById('searchInput').value;
-                                                    var categoryId = document.getElementById('categoryFilter').value;
-                                                    var brandId = document.getElementById('brandFilter').value;
-
-                                                    // Build URL with parameters
-                                                    var url = window.location.pathname + '?';
-                                                    var params = [];
-
-                                                    if (searchQuery && searchQuery.trim() !== '') {
-                                                        params.push('search=' + encodeURIComponent(searchQuery));
-                                                    }
-                                                    if (categoryId && categoryId !== '') {
-                                                        params.push('categoryId=' + categoryId);
-                                                    }
-                                                    if (brandId && brandId !== '') {
-                                                        params.push('brandId=' + brandId);
-                                                    }
-
-                                                    url += params.join('&');
-
-                                                    // Redirect to filtered URL
-                                                    window.location.href = url;
-                                                };
-
-                                                // Clear filters function
-                                                window.clearFilters = function () {
-                                                    // Redirect to page without parameters
-                                                    window.location.href = window.location.pathname;
-                                                };
-
-                                                // Handle Enter key in search input
-                                                $('#searchInput').on('keypress', function (e) {
-                                                    if (e.which === 13) { // Enter key
+                                                    // Handle change event for dropdowns
+                                                    $('#categoryFilter, #brandFilter').on('change', function () {
                                                         applyFilters();
-                                                    }
+                                                    });
                                                 });
-
-                                                // Handle change event for dropdowns
-                                                $('#categoryFilter, #brandFilter').on('change', function () {
-                                                    applyFilters();
-                                                });
-                                            });
     </script>
 
 </html>
