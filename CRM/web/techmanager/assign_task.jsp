@@ -295,8 +295,9 @@
                                                     <option value="">-- Select Task --</option>
                                                     <c:forEach var="task" items="${requestList}">
                                                         <c:if test="${task.status == 'PENDING'}">
-                                                            <option value="${task.id}">
-                                                                ${task.request_type} ${task.device.productName} for ${task.customer.fullName}
+                                                            <option value="${task.id}"
+                                                                <c:if test="${task.id == requestSelected}">selected</c:if>>
+                                                                Request #${task.id}: ${task.request_type} "${task.device.productName}" for ${task.customer.fullName}
                                                             </option>
                                                         </c:if>
                                                     </c:forEach>
@@ -324,7 +325,7 @@
                                                             <input type="radio" name="leaderId" class="leader-radio" value="" /> Leader
                                                         </label>
 
-                                                        <button type="button" class="btn btn-success btn-sm addTechBtn">
+                                                        <button type="button" class="btn btn-primary btn-sm addTechBtn">
                                                             <i class="fa fa-plus"></i>
                                                         </button>
                                                         <button type="button" class="btn btn-danger btn-sm removeTechBtn">
