@@ -176,7 +176,7 @@
                     <div class="content-card">
                         <div class="card-header">
                             <h3><i class="fa fa-list"></i> Category List</h3>
-                            <a href="addCategory.jsp" class="btn btn-primary">
+                            <a href="../warestaff/addCategory" class="btn btn-primary">
                                 <i class="fa fa-plus"></i> Add New Category
                             </a>
                         </div>
@@ -241,7 +241,7 @@
                                                 <a href="../warestaff/viewCategoryDetail?id=<%= category.getId() %>" class="btn btn-action btn-view" style="text-decoration: none; background-color: #17a2b8; border-color: #17a2b8; color: white;">
                                                     <i class="fa fa-eye"></i> View Details
                                                 </a>
-                                                <a href="../warehouse/editCategory?id=<%= category.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                <a href="../warestaff/editCategory?id=<%= category.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                     <i class="fa fa-edit"></i> Edit
                                                 </a>
                                                 <button class="btn btn-action btn-delete" data-category-id="<%= category.getId() %>" data-category-name="<%= category.getName() %>">
@@ -296,7 +296,7 @@
                                 <i class="fa fa-inbox"></i>
                                 <h4>No Categories Found</h4>
                                 <p>There are no categories in the system yet.</p>
-                                <a href="addCategory.jsp" class="btn btn-primary" style="margin-top: 1rem;">
+                                <a href="../warestaff/addCategory" class="btn btn-primary" style="margin-top: 1rem;">
                                     <i class="fa fa-plus"></i> Add Your First Category
                                 </a>
                             </div>
