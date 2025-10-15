@@ -244,7 +244,7 @@ public class CategoryDAO extends DBContext {
         if (isActive != null) {
             sql.append(" AND is_active = ?");
         }
-        sql.append(" ORDER BY id DESC LIMIT ? OFFSET ?");
+        sql.append(" LIMIT ? OFFSET ?");
         try {
             PreparedStatement statement = connection.prepareStatement(sql.toString());
             int idx = 1;

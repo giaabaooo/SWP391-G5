@@ -240,6 +240,275 @@ public class ProductDAO extends DBContext {
     }
     
     /**
+     * Get products by category ID (including inactive products)
+     * @param categoryId Category ID
+     * @return List of products in the category
+     */
+    public List<Product> getProductsByCategoryId(int categoryId) {
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active FROM Product WHERE category_id = ? ORDER BY name";
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, categoryId);
+            ResultSet rs = statement.executeQuery();
+            
+            while (rs.next()) {
+                Product product = new Product(
+                    rs.getInt("id"),
+                    rs.getInt("category_id"),
+                    rs.getObject("brand_id", Integer.class),
+                    rs.getString("image_url"),
+                    rs.getString("name"),
+                    rs.getString("description"),
+                    rs.getBigDecimal("purchase_price"),
+                    rs.getBigDecimal("selling_price"),
+                    rs.getBoolean("is_active")
+                );
+                products.add(product);
+            }
+            
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting products by category ID: " + e.getMessage());
+        }
+        
+        return products;
+    }
+    
+    /**
+     * Get total count of products by category ID
+     * @param categoryId Category ID
+     * @return Total number of products in the category
+     */
+    public int getTotalProductsByCategoryId(int categoryId) {
+        String sql = "SELECT COUNT(*) as total FROM Product WHERE category_id = ?";
+        int total = 0;
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, categoryId);
+            ResultSet rs = statement.executeQuery();
+            
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+            
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting total products by category ID: " + e.getMessage());
+        }
+        
+        return total;
+    }
+    
+    /**
+     * Get count of active products by category ID
+     * @param categoryId Category ID
+     * @return Number of active products in the category
+     */
+    public int getActiveProductsByCategoryId(int categoryId) {
+        String sql = "SELECT COUNT(*) as total FROM Product WHERE category_id = ? AND is_active = 1";
+        int total = 0;
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, categoryId);
+            ResultSet rs = statement.executeQuery();
+            
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+            
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting active products by category ID: " + e.getMessage());
+        }
+        
+        return total;
+    }
+    
+    /**
+     * Get inventory statistics for products in a category
+     * @param categoryId Category ID
+     * @return Array with [totalStock, lowStockCount] where lowStockCount is products with stock < 5
+     */
+    public int[] getInventoryStatsByCategoryId(int categoryId) {
+        String sql = "SELECT " +
+                    "COALESCE(SUM(i.quantity), 0) as total_stock, " +
+                    "COUNT(CASE WHEN i.quantity < 5 THEN 1 END) as low_stock_count " +
+                    "FROM Product p " +
+                    "LEFT JOIN Inventory i ON p.id = i.product_id AND i.is_active = 1 " +
+                    "WHERE p.category_id = ? AND p.is_active = 1";
+        
+        int[] stats = {0, 0};
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, categoryId);
+            ResultSet rs = statement.executeQuery();
+            
+            if (rs.next()) {
+                stats[0] = rs.getInt("total_stock");
+                stats[1] = rs.getInt("low_stock_count");
+            }
+            
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting inventory stats by category ID: " + e.getMessage());
+        }
+        
+        return stats;
+    }
+    
+    /**
+     * Get contract statistics for products in a category
+     * @param categoryId Category ID
+     * @return Array with [totalContracts, totalRevenue]
+     */
+    public Object[] getContractStatsByCategoryId(int categoryId) {
+        String sql = "SELECT " +
+                    "COUNT(DISTINCT c.id) as total_contracts, " +
+                    "COALESCE(SUM(ci.quantity * ci.unit_price), 0) as total_revenue " +
+                    "FROM Product p " +
+                    "JOIN ContractItem ci ON p.id = ci.product_id " +
+                    "JOIN Contract c ON ci.contract_id = c.id " +
+                    "WHERE p.category_id = ? AND p.is_active = 1";
+        
+        Object[] stats = {0, 0.0};
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, categoryId);
+            ResultSet rs = statement.executeQuery();
+            
+            if (rs.next()) {
+                stats[0] = rs.getInt("total_contracts");
+                stats[1] = rs.getBigDecimal("total_revenue");
+            }
+            
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting contract stats by category ID: " + e.getMessage());
+        }
+        
+        return stats;
+    }
+    
+    /**
+     * Get device statistics for products in a category
+     * @param categoryId Category ID
+     * @return Array with [totalDevices, inWarrantyCount, outOfWarrantyCount]
+     */
+    public int[] getDeviceStatsByCategoryId(int categoryId) {
+        String sql = "SELECT " +
+                    "COUNT(d.id) as total_devices, " +
+                    "COUNT(CASE WHEN d.status = 'InWarranty' THEN 1 END) as in_warranty, " +
+                    "COUNT(CASE WHEN d.status = 'OutOfWarranty' THEN 1 END) as out_of_warranty " +
+                    "FROM Product p " +
+                    "JOIN ContractItem ci ON p.id = ci.product_id " +
+                    "JOIN Device d ON ci.id = d.contract_item_id " +
+                    "WHERE p.category_id = ? AND p.is_active = 1";
+        
+        int[] stats = {0, 0, 0};
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, categoryId);
+            ResultSet rs = statement.executeQuery();
+            
+            if (rs.next()) {
+                stats[0] = rs.getInt("total_devices");
+                stats[1] = rs.getInt("in_warranty");
+                stats[2] = rs.getInt("out_of_warranty");
+            }
+            
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting device stats by category ID: " + e.getMessage());
+        }
+        
+        return stats;
+    }
+    
+    /**
+     * Get transaction statistics for products in a category
+     * @param categoryId Category ID
+     * @return Array with [totalImports, totalExports, lastTransactionDate]
+     */
+    public Object[] getTransactionStatsByCategoryId(int categoryId) {
+        String sql = "SELECT " +
+                    "COUNT(CASE WHEN t.type = 'IMPORT' THEN 1 END) as total_imports, " +
+                    "COUNT(CASE WHEN t.type = 'EXPORT' THEN 1 END) as total_exports, " +
+                    "MAX(t.transaction_date) as last_transaction " +
+                    "FROM Product p " +
+                    "JOIN Transaction t ON p.id = t.product_id " +
+                    "WHERE p.category_id = ? AND p.is_active = 1 AND t.is_active = 1";
+        
+        Object[] stats = {0, 0, null};
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, categoryId);
+            ResultSet rs = statement.executeQuery();
+            
+            if (rs.next()) {
+                stats[0] = rs.getInt("total_imports");
+                stats[1] = rs.getInt("total_exports");
+                stats[2] = rs.getTimestamp("last_transaction");
+            }
+            
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting transaction stats by category ID: " + e.getMessage());
+        }
+        
+        return stats;
+    }
+    
+    /**
+     * Get brand breakdown for products in a category
+     * @param categoryId Category ID
+     * @return List of Object arrays with [brandName, productCount]
+     */
+    public List<Object[]> getBrandBreakdownByCategoryId(int categoryId) {
+        List<Object[]> brandBreakdown = new ArrayList<>();
+        String sql = "SELECT b.name as brand_name, COUNT(p.id) as product_count " +
+                    "FROM Product p " +
+                    "LEFT JOIN Brand b ON p.brand_id = b.id " +
+                    "WHERE p.category_id = ? AND p.is_active = 1 " +
+                    "GROUP BY b.id, b.name " +
+                    "ORDER BY product_count DESC, brand_name";
+        
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, categoryId);
+            ResultSet rs = statement.executeQuery();
+            
+            while (rs.next()) {
+                String brandName = rs.getString("brand_name");
+                if (brandName == null) brandName = "No Brand";
+                int productCount = rs.getInt("product_count");
+                brandBreakdown.add(new Object[]{brandName, productCount});
+            }
+            
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting brand breakdown by category ID: " + e.getMessage());
+        }
+        
+        return brandBreakdown;
+    }
+    
+    /**
      * Get total count of all products
      * @return Total number of products
      */
@@ -275,7 +544,6 @@ public class ProductDAO extends DBContext {
         int offset = (page - 1) * pageSize;
         String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active " +
                      "FROM Product " +
-                     "ORDER BY id DESC " +
                      "LIMIT ? OFFSET ?";
         
         try {
@@ -363,7 +631,7 @@ public class ProductDAO extends DBContext {
             String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active " +
                         "FROM Product " +
                         "WHERE MATCH(name, description) AGAINST(? IN BOOLEAN MODE) " +
-                        "ORDER BY id DESC LIMIT ? OFFSET ?";
+                        "LIMIT ? OFFSET ?";
             
             PreparedStatement statement = connection.prepareStatement(sql);
             
@@ -496,7 +764,7 @@ public class ProductDAO extends DBContext {
             sql.append(" AND brand_id = ?");
         }
         
-        sql.append(" ORDER BY id DESC LIMIT ? OFFSET ?");
+        sql.append(" LIMIT ? OFFSET ?");
         
         try {
             PreparedStatement statement = connection.prepareStatement(sql.toString());

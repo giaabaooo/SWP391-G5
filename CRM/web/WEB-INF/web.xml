@@ -46,6 +46,10 @@
         <servlet-class>Controller.warestaff.DeleteCategoryController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ViewCategoryDetailController</servlet-name>
+        <servlet-class>Controller.warestaff.ViewCategoryDetailController</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>ContractController</servlet-name>
         <servlet-class>Controller.customer.ContractController</servlet-class>
     </servlet>
@@ -149,5 +153,9 @@
     <servlet-mapping>
         <servlet-name>DeleteCategoryController</servlet-name>
         <url-pattern>/warestaff/deleteCategory</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewCategoryDetailController</servlet-name>
+        <url-pattern>/warestaff/viewCategoryDetail</url-pattern>
     </servlet-mapping>
 </web-app>

@@ -18,6 +18,7 @@
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link href="../css/admin/style.css" rel="stylesheet" type="text/css" />
     <link href="../css/warehouse/dashboard.css" rel="stylesheet" type="text/css" />
+    <link href="../css/warehouse/responsive.css" rel="stylesheet" type="text/css" />
 </head>
 <body class="skin-black">
 
@@ -88,8 +89,8 @@
                         <i class="fa fa-tags"></i> <span>Categories</span>
                     </a>
                     <ul class="collapse" id="categoryMenu">
-                        <li><a href="categoryList.jsp"><i class="fa fa-eye"></i> View Categories</a></li>
-                        <li><a href="addCategory.jsp"><i class="fa fa-plus"></i> Add Category</a></li>
+                        <li><a href="../warestaff/categoryList"><i class="fa fa-eye"></i> View Categories</a></li>
+                        <li><a href="../warestaff/addCategory"><i class="fa fa-plus"></i> Add Category</a></li>
                     </ul>
                 </li>
                 

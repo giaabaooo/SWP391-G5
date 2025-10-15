@@ -20,8 +20,14 @@
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link href="${pageContext.request.contextPath}/css/admin/style.css" rel="stylesheet" type="text/css" />
     <link href="${pageContext.request.contextPath}/css/warehouse/productList.css" rel="stylesheet" type="text/css" />
+    <link href="${pageContext.request.contextPath}/css/warehouse/responsive.css" rel="stylesheet" type="text/css" />
 </head>
 <body class="skin-black">
+
+<!-- Mobile Menu Toggle -->
+<button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+    <i class="fa fa-bars"></i>
+</button>
 
 <!-- HEADER -->
 <header class="header">
@@ -89,8 +95,8 @@
                         <i class="fa fa-tags"></i> <span>Categories</span>
                     </a>
                     <ul class="collapse" id="categoryMenu">
-                        <li><a href="categoryList.jsp"><i class="fa fa-eye"></i> View Categories</a></li>
-                        <li><a href="addCategory.jsp"><i class="fa fa-plus"></i> Add Category</a></li>
+                        <li><a href="../warestaff/categoryList"><i class="fa fa-eye"></i> View Categories</a></li>
+                        <li><a href="../warestaff/addCategory"><i class="fa fa-plus"></i> Add Category</a></li>
                     </ul>
                 </li>
                 
@@ -232,7 +238,10 @@
                                                 <% } %>
                                             </td>
                                             <td>
-                                                <a href="../warestaff/editCategory?id=<%= category.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                <a href="../warestaff/viewCategoryDetail?id=<%= category.getId() %>" class="btn btn-action btn-view" style="text-decoration: none; background-color: #17a2b8; border-color: #17a2b8; color: white;">
+                                                    <i class="fa fa-eye"></i> View Details
+                                                </a>
+                                                <a href="../warehouse/editCategory?id=<%= category.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                     <i class="fa fa-edit"></i> Edit
                                                 </a>
                                                 <button class="btn btn-action btn-delete" data-category-id="<%= category.getId() %>" data-category-name="<%= category.getName() %>">
@@ -340,6 +349,7 @@
 <script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/warehouse/categoryList.js" type="text/javascript"></script>
+<script src="${pageContext.request.contextPath}/js/warehouse/warehouse-responsive.js" type="text/javascript"></script>
 
 </body>
 </html>

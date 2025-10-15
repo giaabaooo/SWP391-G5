@@ -19,8 +19,14 @@
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link href="${pageContext.request.contextPath}/css/admin/style.css" rel="stylesheet" type="text/css" />
     <link href="${pageContext.request.contextPath}/css/warehouse/editProduct.css" rel="stylesheet" type="text/css" />
+    <link href="${pageContext.request.contextPath}/css/warehouse/responsive.css" rel="stylesheet" type="text/css" />
 </head>
 <body class="skin-black">
+
+<!-- Mobile Menu Toggle -->
+<button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+    <i class="fa fa-bars"></i>
+</button>
 
 <!-- HEADER -->
 <header class="header">
@@ -316,6 +322,8 @@
 <script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/warehouse/editProduct.js" type="text/javascript"></script>
+<script src="${pageContext.request.contextPath}/js/warehouse/warehouse-responsive.js" type="text/javascript"></script>
+
 </body>
 </html>
 
