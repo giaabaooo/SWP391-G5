@@ -22,75 +22,91 @@
 <section class="content">
 
     <!-- Filter form -->
-    <form method="get" action="${pageContext.request.contextPath}/cskh/contract" class="row mb-3">
-        <div class="col-md-4">
-            <input type="text" name="keyword" value="${param.keyword}" placeholder="Search contract code / description" class="form-control"/>
+    <div class="box box-primary">
+        <div class="box-body">
+            <form method="get" action="${pageContext.request.contextPath}/cskh/contract" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="keyword" value="${param.keyword}" placeholder="Search by Contract code or Customer name" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="fromDate" value="${param.fromDate}" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="toDate" value="${param.toDate}" class="form-control" />
+                </div>
+                <div class="col-md-2 text-end">
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Filter</button>
+                    <a href="${pageContext.request.contextPath}/cskh/contract" class="btn btn-default"><i class="fa fa-undo"></i> Clear</a>
+                </div>
+            </form>
         </div>
-        <div class="col-md-3">
-            <input type="date" name="fromDate" value="${param.fromDate}" class="form-control" placeholder="From date" />
-        </div>
-        <div class="col-md-3">
-            <input type="date" name="toDate" value="${param.toDate}" class="form-control" placeholder="To date" />
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <a href="${pageContext.request.contextPath}/cskh/contract" class="btn btn-secondary">Clear</a>
-        </div>
-    </form>
+    </div>
 
     <!-- Contract table -->
     <div class="box">
+        <div class="box-header with-border d-flex justify-content-between align-items-center">
+            <a href="${pageContext.request.contextPath}/cskh/contract/add" class="btn btn-success">
+                <i class="fa fa-plus"></i> Add New Contract
+            </a>
+        </div>
         <div class="box-body table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead>
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="bg-primary">
                     <tr>
-                        <th>No.</th>
-                        <th>Contract Code</th>
-                        <th>Customer ID</th>
-                        <th>Contract Date</th>
-                        <th>Total Amount</th>
+                        <th style="width:5%">#</th>
+                        <th style="width:15%">Contract Code</th>
+                        <th style="width:15%">Customer</th>
+                        <th style="width:15%">Contract Date</th>
+                        <th style="width:15%">Total Amount</th>
                         <th>Description</th>
-                        <th>Actions</th>
+                        <th style="width:15%">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <c:forEach var="c" items="${contracts}" varStatus="st">
-                        <tr>
-                            <td>${(page - 1) * pageSize + st.index + 1}</td>
-                            <td>${c.contractCode}</td>
-                            <td>${c.customerId}</td>
-                            <td><fmt:formatDate value="${c.contractDate}" pattern="yyyy-MM-dd"/></td>
-                            <td><fmt:formatNumber value="${c.totalAmount}" type="number" minFractionDigits="0"/></td>
-                            <td>${c.description}</td>
-                            <td>
-                                <a href="${pageContext.request.contextPath}/cskh/contract/view?id=${c.id}" class="btn btn-info btn-sm">View</a>
-                                <a href="${pageContext.request.contextPath}/cskh/contract/edit?id=${c.id}" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="${pageContext.request.contextPath}/cskh/contract/delete?id=${c.id}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure to delete this contract?')">Delete</a>
-                            </td>
-                        </tr>
-                    </c:forEach>
-
-                    <c:if test="${empty contracts}">
-                        <tr>
-                            <td colspan="7" class="text-center">No contract found</td>
-                        </tr>
-                    </c:if>
+                    <c:choose>
+                        <c:when test="${not empty contracts}">
+                            <c:forEach var="c" items="${contracts}" varStatus="st">
+                                <tr>
+                                    <td>${(page - 1) * pageSize + st.index + 1}</td>
+                                    <td><strong>${c.contractCode}</strong></td>
+                                    <td>${c.customerName}</td>   
+                                    <td><fmt:formatDate value="${c.contractDate}" pattern="yyyy-MM-dd" /></td>
+                                    <td><fmt:formatNumber value="${c.totalAmount}" type="number" minFractionDigits="0" /></td>
+                                    <td>${c.description}</td>
+                                    <td>
+                                        <a href="${pageContext.request.contextPath}/cskh/contract/view?id=${c.id}" class="btn btn-info btn-sm">
+                                            <i class="fa fa-eye"></i> View
+                                        </a>
+                                        <a href="${pageContext.request.contextPath}/cskh/contract/edit?id=${c.id}" class="btn btn-warning btn-sm">
+                                            <i class="fa fa-edit"></i> Edit
+                                        </a>
+                                        <a href="${pageContext.request.contextPath}/cskh/contract/delete?id=${c.id}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure to delete this contract?')">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-3">No contracts found</td>
+                            </tr>
+                        </c:otherwise>
+                    </c:choose>
                 </tbody>
             </table>
         </div>
     </div>
 
     <!-- Pagination -->
-    <c:set var="totalPages" value="${total div pageSize}" />
-    <c:if test="${total mod pageSize > 0}">
-        <c:set var="totalPages" value="${totalPages + 1}" />
-    </c:if>
-
+    <c:set var="totalPages" value="${(total + pageSize - 1) / pageSize}" />
     <c:if test="${totalPages > 1}">
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
+        <nav aria-label="Page navigation" class="text-center mt-3">
+            <ul class="pagination justify-content-center">
                 <li class="${page==1?'disabled':''}">
-                    <a href="${pageContext.request.contextPath}/cskh/contract?page=${page-1}&keyword=${param.keyword}&fromDate=${param.fromDate}&toDate=${param.toDate}">&laquo;</a>
+                    <a href="${pageContext.request.contextPath}/cskh/contract?page=${page-1}&keyword=${param.keyword}&fromDate=${param.fromDate}&toDate=${param.toDate}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
                 </li>
                 <c:forEach begin="1" end="${totalPages}" var="i">
                     <li class="${i==page?'active':''}">
@@ -98,7 +114,9 @@
                     </li>
                 </c:forEach>
                 <li class="${page==totalPages?'disabled':''}">
-                    <a href="${pageContext.request.contextPath}/cskh/contract?page=${page+1}&keyword=${param.keyword}&fromDate=${param.fromDate}&toDate=${param.toDate}">&raquo;</a>
+                    <a href="${pageContext.request.contextPath}/cskh/contract?page=${page+1}&keyword=${param.keyword}&fromDate=${param.fromDate}&toDate=${param.toDate}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
                 </li>
             </ul>
         </nav>

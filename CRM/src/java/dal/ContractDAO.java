@@ -17,21 +17,23 @@ import java.sql.Date;
  */
 public class ContractDAO extends DBContext {
 
-    // ===== COUNT (phục vụ phân trang) =====
     public int countContracts(String keyword, String fromDate, String toDate) {
-        String sql = "SELECT COUNT(*) FROM Contract WHERE 1=1";
+        String sql = "SELECT COUNT(*) FROM Contract c "
+                   + "JOIN User u ON c.customer_id = u.id "
+                   + "WHERE 1=1";
         ArrayList<Object> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql += " AND contract_code LIKE ?";
+            sql += " AND (c.contract_code LIKE ? OR u.full_name LIKE ?)";
+            params.add("%" + keyword + "%");
             params.add("%" + keyword + "%");
         }
         if (fromDate != null && !fromDate.isEmpty()) {
-            sql += " AND contract_date >= ?";
+            sql += " AND c.contract_date >= ?";
             params.add(Date.valueOf(fromDate));
         }
         if (toDate != null && !toDate.isEmpty()) {
-            sql += " AND contract_date <= ?";
+            sql += " AND c.contract_date <= ?";
             params.add(Date.valueOf(toDate));
         }
 
@@ -49,51 +51,55 @@ public class ContractDAO extends DBContext {
         return 0;
     }
 
-    // ===== LIST (có phân trang + lọc) =====
     public List<Contract> listContracts(int page, int pageSize, String keyword, String fromDate, String toDate) {
-        List<Contract> list = new ArrayList<>();
-        String sql = "SELECT * FROM Contract WHERE 1=1";
-        ArrayList<Object> params = new ArrayList<>();
+    List<Contract> list = new ArrayList<>();
+    String sql = "SELECT c.*, u.full_name AS customer_name "
+               + "FROM Contract c "
+               + "LEFT JOIN User u ON c.customer_id = u.id "
+               + "WHERE 1=1 ";
+    ArrayList<Object> params = new ArrayList<>();
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql += " AND contract_code LIKE ?";
-            params.add("%" + keyword + "%");
-        }
-        if (fromDate != null && !fromDate.isEmpty()) {
-            sql += " AND contract_date >= ?";
-            params.add(Date.valueOf(fromDate));
-        }
-        if (toDate != null && !toDate.isEmpty()) {
-            sql += " AND contract_date <= ?";
-            params.add(Date.valueOf(toDate));
-        }
-
-        sql += " ORDER BY contract_date DESC LIMIT ? OFFSET ?";
-        params.add(pageSize);
-        params.add((page - 1) * pageSize);
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Contract c = new Contract();
-                c.setId(rs.getInt("id"));
-                c.setCustomerId(rs.getInt("customer_id"));
-                c.setContractCode(rs.getString("contract_code"));
-                c.setContractDate(rs.getDate("contract_date"));
-                c.setTotalAmount(rs.getDouble("total_amount"));
-                c.setDescription(rs.getString("description"));
-                list.add(c);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
+    if (keyword != null && !keyword.trim().isEmpty()) {
+        sql += " AND (c.contract_code LIKE ? OR u.full_name LIKE ?)";
+        params.add("%" + keyword.trim() + "%");
+        params.add("%" + keyword.trim() + "%");
+    }
+    if (fromDate != null && !fromDate.isEmpty()) {
+        sql += " AND c.contract_date >= ? ";
+        params.add(Date.valueOf(fromDate));
+    }
+    if (toDate != null && !toDate.isEmpty()) {
+        sql += " AND c.contract_date <= ? ";
+        params.add(Date.valueOf(toDate));
     }
 
-    // ===== GET BY ID =====
+    sql += " ORDER BY c.contract_date DESC LIMIT ? OFFSET ?";
+    params.add(pageSize);
+    params.add((page - 1) * pageSize);
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Contract c = new Contract();
+            c.setId(rs.getInt("id"));
+            c.setCustomerId(rs.getInt("customer_id"));
+            c.setCustomerName(rs.getString("customer_name")); // ✅ lấy tên từ User
+            c.setContractCode(rs.getString("contract_code"));
+            c.setContractDate(rs.getDate("contract_date"));
+            c.setTotalAmount(rs.getDouble("total_amount"));
+            c.setDescription(rs.getString("description"));
+            list.add(c);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
     public Contract getById(int id) {
         String sql = "SELECT * FROM Contract WHERE id=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -115,7 +121,6 @@ public class ContractDAO extends DBContext {
         return null;
     }
 
-    // ===== INSERT =====
     public void insert(Contract c) {
         String sql = "INSERT INTO Contract (customer_id, contract_code, contract_date, total_amount, description) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -130,7 +135,6 @@ public class ContractDAO extends DBContext {
         }
     }
 
-    // ===== UPDATE =====
     public void update(Contract c) {
         String sql = "UPDATE Contract SET customer_id=?, contract_code=?, contract_date=?, total_amount=?, description=? WHERE id=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -146,7 +150,6 @@ public class ContractDAO extends DBContext {
         }
     }
 
-    // ===== DELETE =====
     public void delete(int id) {
         try (PreparedStatement ps = connection.prepareStatement("DELETE FROM Contract WHERE id=?")) {
             ps.setInt(1, id);

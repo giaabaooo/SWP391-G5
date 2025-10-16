@@ -37,6 +37,12 @@
                         <i class="fa fa-file-text-o"></i> <span>Contract Manager</span>
                     </a>
                 </li>
+
+                <li>
+                    <a href="${pageContext.request.contextPath}/cskh/customer-request">
+                        <i class="fa fa-tasks"></i> <span>Customer Request Manager</span>
+                    </a>
+                </li>
             </ul>
         </section>
     </aside>
