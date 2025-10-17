@@ -82,7 +82,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                <li><a href="statusRequest.jsp"><i class="fa fa-edit"></i> Track Status Request</a></li>
+                                
 
                             </ul>
                         </li>

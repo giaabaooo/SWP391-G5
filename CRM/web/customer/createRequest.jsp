@@ -32,7 +32,7 @@
 
         <!-- HEADER -->
         <header class="header">
-             <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
+            <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
                 <!-- <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
                     <span class="sr-only">Toggle navigation</span>
@@ -86,7 +86,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                <li><a href="statusRequest.jsp"><i class="fa fa-edit"></i> Track Status Request</a></li>
+
 
                             </ul>
                         </li>
@@ -156,9 +156,11 @@
                                                         for (data.Device d : devices) {
                                                 %>
                                                 <option 
-                                                    value="<%= d.getId() %>"                                                       
+                                                    value="<%= d.getId() %>"   
+                                                    data-serial_number="<%= d.getSerialNumber() %>"                                                      
                                                     data-brand="<%= d.getBrandName() %>"
                                                     data-category="<%= d.getCategoryName() %>"
+                                                    data-status="<%= d.getStatus() %>" 
                                                     >
                                                     <%= d.getProductName() %>
                                                 </option>
@@ -168,6 +170,11 @@
                                                 %>
                                             </select>
                                         </div>
+                                         <div class="form-group mt-3">
+                                            <label>Serial Number</label>
+                                            <input type="text" id="productSerialNumber" class="form-control" readonly>
+                                        </div>  
+                                                                                    
                                         <div class="form-group mt-3">
                                             <label>Brand</label>
                                             <input type="text" id="productBrand" class="form-control" readonly>
@@ -177,12 +184,17 @@
                                             <label>Category</label>
                                             <input type="text" id="productCategory" class="form-control" readonly>
                                         </div>
+                                            
+                                            <div class="form-group mt-3">
+                                            <label>Status</label>
+                                            <input type="text" id="productStatus" class="form-control" readonly>
+                                        </div>
                                         <div class="form-group">
                                             <label>Issue Description</label>
                                             <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..."></textarea>
                                         </div>
 
-                                        
+
                                         <div class="form-group">
                                             <label >Request Type<span style="color:red">*</span></label>
                                             <select name="request_type" class="form-control" required>
@@ -191,7 +203,7 @@
                                                 <option value="Warranty">Warranty</option>
                                             </select>
                                         </div>
-                                        
+
                                         <!-- Success Message -->
                                         <% if (request.getAttribute("success") != null) { %>
                                         <div class="success-message" style="margin-top: 2rem; background-color: #d1fae5 !important; border: 1px solid #86efac !important; color: #059669 !important; padding: 1rem !important; border-radius: 8px !important; text-align: center !important;">
@@ -217,6 +229,7 @@
                     </div>
 
                 </section>
+                <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>
             </aside>
         </div>
 
@@ -240,6 +253,8 @@
 
                                                     document.getElementById("productBrand").value = selectedOption.getAttribute("data-brand") || "";
                                                     document.getElementById("productCategory").value = selectedOption.getAttribute("data-category") || "";
+                                                    document.getElementById("productSerialNumber").value = selectedOption.getAttribute("data-serial_number") || "";
+                                                    document.getElementById("productStatus").value = selectedOption.getAttribute("data-status") || "";
 
                                                 }
         </script>
