@@ -13,6 +13,7 @@ public class Contract {
     private int id;
     private int customerId;
     private String contractCode;
+    private String customerName;
     private java.sql.Date contractDate;
     private double totalAmount;
     private String description;
@@ -92,4 +93,13 @@ public class Contract {
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+    
 }

@@ -12,6 +12,7 @@ import java.util.Date;
  * @author Admin
  */
 public class CustomerRequest {
+
     private int id;
     private int customer_id;
     private int device_id;
@@ -21,14 +22,14 @@ public class CustomerRequest {
     private Date request_date;
     private String status;
     private boolean isActive;
-    private User customer ;
-    private Device device ;
+    private User customer;
+    private Device device;
     private String productName;
 
     public CustomerRequest() {
     }
 
-    public CustomerRequest(int id, int customer_id, int device_id, String request_type, String title, String description, Date request_date, String status, boolean isActive, User customer, Device device,String productName) {
+    public CustomerRequest(int id, int customer_id, int device_id, String request_type, String title, String description, Date request_date, String status, boolean isActive, User customer, Device device, String productName) {
         this.id = id;
         this.customer_id = customer_id;
         this.device_id = device_id;
@@ -58,10 +59,6 @@ public class CustomerRequest {
     public void setDevice(Device device) {
         this.device = device;
     }
-
-    
-
-    
 
     public int getId() {
         return id;
@@ -142,8 +139,5 @@ public class CustomerRequest {
     public void setProductName(String productName) {
         this.productName = productName;
     }
-    
-    
-    
-    
+
 }

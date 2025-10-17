@@ -528,4 +528,75 @@ public class CustomerRequestDAO extends DBContext {
         }
         return false;
     }
+     
+public List<CustomerRequest> getCustomerRequestsByCSKH(int offset, int pageSize) {
+    List<CustomerRequest> list = new ArrayList<>();
+    String sql = """
+        SELECT cr.id, cr.customer_id, cr.device_id, cr.request_type, cr.title, cr.description,
+               cr.request_date, cr.status,
+               u.full_name AS customer_name, p.name AS product_name
+        FROM CustomerRequest cr
+        JOIN User u ON cr.customer_id = u.id
+        JOIN Device d ON cr.device_id = d.id
+        JOIN ContractItem ci ON d.contract_item_id = ci.id
+        JOIN Product p ON ci.product_id = p.id
+        ORDER BY cr.request_date DESC
+        LIMIT ? OFFSET ?
+    """;
+
+    try (PreparedStatement st = connection.prepareStatement(sql)) {
+        st.setInt(1, pageSize);
+        st.setInt(2, offset);
+        ResultSet rs = st.executeQuery();
+
+        while (rs.next()) {
+            CustomerRequest c = new CustomerRequest();
+            c.setId(rs.getInt("id"));
+            c.setCustomer_id(rs.getInt("customer_id"));
+            c.setDevice_id(rs.getInt("device_id"));
+            c.setRequest_type(rs.getString("request_type"));
+            c.setTitle(rs.getString("title"));
+            c.setDescription(rs.getString("description"));
+            c.setRequest_date(rs.getTimestamp("request_date"));
+            c.setStatus(rs.getString("status"));
+
+            User u = new User();
+            u.setId(rs.getInt("customer_id"));
+            u.setFullName(rs.getString("customer_name"));
+            c.setCustomer(u);
+
+            Device d = new Device();
+            d.setId(rs.getInt("device_id"));
+            d.setProductName(rs.getString("product_name"));
+            c.setDevice(d);
+
+            list.add(c);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
+public int countCustomerRequests() {
+    String sql = "SELECT COUNT(*) FROM CustomerRequest";
+    try (PreparedStatement stm = connection.prepareStatement(sql)) {
+        ResultSet rs = stm.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+
+    public void transferToTechManager(int requestId) {
+        String sql = "UPDATE CustomerRequest SET status = 'TRANSFERRED' WHERE id = ? AND status = 'PENDING'";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, requestId);
+            stm.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

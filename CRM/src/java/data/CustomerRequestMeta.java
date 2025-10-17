@@ -11,6 +11,7 @@ import java.util.Date;
  * @author Admin
  */
 public class CustomerRequestMeta {
+
     private int id;
     private int request_id;
     private String priority;
@@ -137,6 +138,5 @@ public class CustomerRequestMeta {
     public void setRating(int rating) {
         this.rating = rating;
     }
-    
-    
+
 }
