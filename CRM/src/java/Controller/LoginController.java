@@ -45,8 +45,8 @@ public class LoginController extends HttpServlet {
                 case "CUSTOMER":
                     resp.sendRedirect("customer/dashboard.jsp");
                     break;
-                case "CUSTOMER_STAFF":
-                    resp.sendRedirect("staff/dashboard.jsp");
+                case "CUSTOMERSERVICE":
+                    resp.sendRedirect("cskh/customer?action=list");
                     break;
                 case "TECH_MANAGER":
                     resp.sendRedirect("techmanager/dashboard");

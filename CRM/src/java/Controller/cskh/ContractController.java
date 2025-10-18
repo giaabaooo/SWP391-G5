@@ -44,6 +44,10 @@ public class ContractController extends HttpServlet {
         String toDate = req.getParameter("toDate");
 
         int total = dao.countContracts(keyword, fromDate, toDate);
+        int totalPages = (int) Math.ceil((double) total / pageSize);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
         List<Contract> contracts = dao.listContracts(page, pageSize, keyword, fromDate, toDate);
 
         req.setAttribute("contracts", contracts);
@@ -53,7 +57,8 @@ public class ContractController extends HttpServlet {
         req.setAttribute("keyword", keyword);
         req.setAttribute("fromDate", fromDate);
         req.setAttribute("toDate", toDate);
+        req.setAttribute("totalPages", totalPages);
 
-        req.getRequestDispatcher("/WEB-INF/jsp/cskh/contract_list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/cskh/contract_list.jsp").forward(req, resp);
     }
 }

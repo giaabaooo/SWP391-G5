@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package Controller.cskh;
 
 import dal.CustomerRequestDAO;
@@ -23,36 +22,42 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet("/cskh/customer-request")
 public class CustomerRequestController extends HttpServlet {
 
-    private static final int PAGE_SIZE = 10;
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         CustomerRequestDAO dao = new CustomerRequestDAO();
 
+        int page = 1;
+        int pageSize = 10;
         String pageParam = request.getParameter("page");
-        int page = (pageParam != null && pageParam.matches("\\d+")) ? Integer.parseInt(pageParam) : 1;
-        int offset = (page - 1) * PAGE_SIZE;
+        if (pageParam != null) {
+            try {
+                page = Math.max(1, Integer.parseInt(pageParam));
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+        String type = request.getParameter("type");
+        String status = request.getParameter("status");
 
-        List<CustomerRequest> list = dao.getCustomerRequestsByCSKH(offset, PAGE_SIZE);
-        int total = dao.countCustomerRequests();
-        int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
-
-        HttpSession session = request.getSession();
-        String message = (String) session.getAttribute("message");
-        String error = (String) session.getAttribute("error");
-        session.removeAttribute("message");
-        session.removeAttribute("error");
+        int offset = (page - 1) * pageSize;
+        List<CustomerRequest> list = dao.getCustomerRequestsByCSKH(offset, pageSize, type, status);
+        int total = dao.countCustomerRequests(type, status);
+        int totalPages = (int) Math.ceil((double) total / pageSize);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
 
         request.setAttribute("requests", list);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("total", total);
-        request.setAttribute("message", message);
-        request.setAttribute("error", error);
+        request.setAttribute("type", type);
+        request.setAttribute("status", status);
+        request.setAttribute("pageSize", pageSize);
 
-        request.getRequestDispatcher("/WEB-INF/jsp/cskh/customer_request_list.jsp").forward(request, response);
+        request.getRequestDispatcher("/cskh/customer_request_list.jsp").forward(request, response);
     }
 
     @Override
