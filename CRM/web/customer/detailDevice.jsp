@@ -106,7 +106,7 @@
                         
                     %>
 
-                    <!-- Page Header -->
+                    
                     <div class="row">
                         <div class="col-md-12">
                             <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Device Details</h1>
@@ -246,7 +246,7 @@
             </aside>
         </div>
 
-        <!-- SCRIPTS -->
+        
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>

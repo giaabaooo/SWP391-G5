@@ -55,17 +55,17 @@ public class ListRequestController extends HttpServlet {
 
         int offset = (page - 1) * LIMIT;
 
-        // Gọi DAO
+        
         List<CustomerRequest> list = CustomerRequestDAO.getRequestsByUserId(user.getId(), keyword, type, status, offset, LIMIT);
 
-        // Gửi dữ liệu sang JSP
+       
         request.setAttribute("list", list);
         request.setAttribute("currentPage", page);
         request.setAttribute("keyword", keyword);
         request.setAttribute("type", type);
         request.setAttribute("status", status);
 
-        // Forward đến JSP hiển thị danh sách
+        
         request.getRequestDispatcher("/customer/listRequest.jsp").forward(request, response);
     } 
 

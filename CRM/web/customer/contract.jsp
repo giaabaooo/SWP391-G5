@@ -29,13 +29,7 @@
         <!-- HEADER -->
         <header class="header">
             <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
-            <nav class="navbar navbar-static-top" role="navigation">
-                <!-- <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </a> -->
+            <nav class="navbar navbar-static-top" role="navigation">             
                 <div class="navbar-right">
                     <ul class="nav navbar-nav">
                         <li class="dropdown user user-menu">
@@ -82,8 +76,6 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                
-
                             </ul>
                         </li>
                         <li>
@@ -94,10 +86,6 @@
                         <li>
                         <li><a href="${pageContext.request.contextPath}/customer/contract"><i class="fa fa-file-text"></i> Contract</a></li>
                         </li>
-
-
-
-
                         <li>
                             <a href="feedback.jsp"><i class="fa fa-edit"></i>  <span>Feedback</span></a>
                         </li>
@@ -113,9 +101,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Contract</h1>
-
-
-                                <%-- Display error message if any --%>
+                               <%-- Display error message if any --%>
                                 <% if (request.getAttribute("error") != null) { %>
                                 <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                                     <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
@@ -144,7 +130,6 @@
                                 <div class="content-card">
                                     <div class="card-header">
                                         <h3><i class="fa fa-list"></i> Contract List</h3>
-
                                     </div>
 
                                     <!-- Filter Bar -->

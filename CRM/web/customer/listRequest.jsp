@@ -31,12 +31,7 @@
         <header class="header">
             <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
-                <!-- <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </a> -->
+              
                 <div class="navbar-right">
                     <ul class="nav navbar-nav">
                         <li class="dropdown user user-menu">
@@ -222,7 +217,7 @@
                                                             <a href="requestDetail?id=<%= req.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
-                                                            <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                            <a href="updateRequest?id=<%= req.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                                 <i class="fa fa-edit"></i> Update
                                                             </a>
                                                             <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
