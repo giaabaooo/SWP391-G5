@@ -75,7 +75,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                <li><a href="statusRequest.jsp"><i class="fa fa-edit"></i> Track Status Request</a></li>
+                                
 
                             </ul>
                         </li>
@@ -106,7 +106,7 @@
                         
                     %>
 
-                    <!-- Page Header -->
+                    
                     <div class="row">
                         <div class="col-md-12">
                             <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Device Details</h1>
@@ -246,7 +246,7 @@
             </aside>
         </div>
 
-        <!-- SCRIPTS -->
+        
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>

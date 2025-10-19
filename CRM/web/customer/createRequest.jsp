@@ -32,14 +32,9 @@
 
         <!-- HEADER -->
         <header class="header">
-             <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
+            <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
-                <!-- <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </a> -->
+               
                 <div class="navbar-right">
                     <ul class="nav navbar-nav">
                         <li class="dropdown user user-menu">
@@ -86,7 +81,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                <li><a href="statusRequest.jsp"><i class="fa fa-edit"></i> Track Status Request</a></li>
+
 
                             </ul>
                         </li>
@@ -118,7 +113,7 @@
                             <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Create New Request</h1>
                             <p style="color: #718096; margin-bottom: 2rem;">Create a new request to Warranty and Repair</p>
 
-                            <%-- Display error message if any --%>
+                          
                             <% if (request.getAttribute("error") != null) { %>
                             <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                                 <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
@@ -127,7 +122,7 @@
                         </div>
                     </div>
 
-                    <!-- Add Product Form -->
+                    
                     <div class="row">
                         <div class="col-md-12">
                             <div class="content-card">
@@ -136,15 +131,15 @@
                                 </div>
                                 <div class="card-body">
                                     <form method="post" action="${pageContext.request.contextPath}/customer/createRequest" novalidate>
-                                        <!-- Row 1: Product Name and Purchase Price -->
+                                       
 
-                                        <!-- Title -->
+                                        
                                         <div class="form-group">
                                             <label>Title<span style="color:red">*</span></label>
                                             <input type="text" name="title" class="form-control" placeholder="Enter issue title" required>
                                         </div>
 
-                                        <!-- Description -->
+                                        
 
                                         <div class="form-group">
                                             <label >Select Product<span style="color:red">*</span></label>
@@ -156,9 +151,11 @@
                                                         for (data.Device d : devices) {
                                                 %>
                                                 <option 
-                                                    value="<%= d.getId() %>"                                                       
+                                                    value="<%= d.getId() %>"   
+                                                    data-serial_number="<%= d.getSerialNumber() %>"                                                      
                                                     data-brand="<%= d.getBrandName() %>"
                                                     data-category="<%= d.getCategoryName() %>"
+                                                    data-status="<%= d.getStatus() %>" 
                                                     >
                                                     <%= d.getProductName() %>
                                                 </option>
@@ -168,6 +165,11 @@
                                                 %>
                                             </select>
                                         </div>
+                                         <div class="form-group mt-3">
+                                            <label>Serial Number</label>
+                                            <input type="text" id="productSerialNumber" class="form-control" readonly>
+                                        </div>  
+                                                                                    
                                         <div class="form-group mt-3">
                                             <label>Brand</label>
                                             <input type="text" id="productBrand" class="form-control" readonly>
@@ -177,12 +179,17 @@
                                             <label>Category</label>
                                             <input type="text" id="productCategory" class="form-control" readonly>
                                         </div>
+                                            
+                                            <div class="form-group mt-3">
+                                            <label>Status</label>
+                                            <input type="text" id="productStatus" class="form-control" readonly>
+                                        </div>
                                         <div class="form-group">
                                             <label>Issue Description</label>
                                             <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..."></textarea>
                                         </div>
 
-                                        
+
                                         <div class="form-group">
                                             <label >Request Type<span style="color:red">*</span></label>
                                             <select name="request_type" class="form-control" required>
@@ -191,15 +198,15 @@
                                                 <option value="Warranty">Warranty</option>
                                             </select>
                                         </div>
+
                                         
-                                        <!-- Success Message -->
                                         <% if (request.getAttribute("success") != null) { %>
                                         <div class="success-message" style="margin-top: 2rem; background-color: #d1fae5 !important; border: 1px solid #86efac !important; color: #059669 !important; padding: 1rem !important; border-radius: 8px !important; text-align: center !important;">
                                             <i class="fa fa-check-circle" style="color: #10b981 !important; margin-right: 0.5rem !important; font-size: 1.1rem !important;"></i> <%= request.getAttribute("success") %>
                                         </div>
                                         <% } %>
 
-                                        <!-- Form Actions -->
+                                        
                                         <div class="form-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; margin-bottom: 0;">
                                             <div class="form-col-full text-center">
                                                 <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
@@ -217,6 +224,7 @@
                     </div>
 
                 </section>
+                <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>
             </aside>
         </div>
 
@@ -240,6 +248,8 @@
 
                                                     document.getElementById("productBrand").value = selectedOption.getAttribute("data-brand") || "";
                                                     document.getElementById("productCategory").value = selectedOption.getAttribute("data-category") || "";
+                                                    document.getElementById("productSerialNumber").value = selectedOption.getAttribute("data-serial_number") || "";
+                                                    document.getElementById("productStatus").value = selectedOption.getAttribute("data-status") || "";
 
                                                 }
         </script>

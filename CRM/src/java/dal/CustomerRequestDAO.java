@@ -599,4 +599,43 @@ public int countCustomerRequests() {
             e.printStackTrace();
         }
     }
+    
+    public CustomerRequest getCusRequestById(int requestId) {
+        String sql = "SELECT * FROM CustomerRequest WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    CustomerRequest req = new CustomerRequest();
+                    req.setId(rs.getInt("id"));
+                    req.setCustomer_id(rs.getInt("customer_id"));
+                    req.setDevice_id(rs.getInt("device_id"));
+                    req.setRequest_type(rs.getString("request_type"));
+                    req.setTitle(rs.getString("title"));
+                    req.setDescription(rs.getString("description"));
+                    req.setRequest_date(rs.getTimestamp("request_date"));
+                    req.setStatus(rs.getString("status"));
+                    return req;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public boolean updateRequest(CustomerRequest request) {
+        String sql = "UPDATE CustomerRequest SET title = ?, device_id = ?, description = ?, request_type = ? "
+                   + "WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, request.getTitle());
+            ps.setInt(2, request.getDevice_id());
+            ps.setString(3, request.getDescription());
+            ps.setString(4, request.getRequest_type());
+            ps.setInt(5, request.getId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

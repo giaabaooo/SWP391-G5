@@ -246,7 +246,8 @@ public class DeviceDAO extends DBContext {
 
     public List<Device> getDevicesByUserId(int userId) {
         List<Device> list = new ArrayList<>();
-        String sql = "SELECT d.id AS device_id,\n"
+        String sql = "SELECT d.id AS device_id,d.serial_number,\n" +
+"                   d.status,\n"
                 + "    p.name AS product_name,\n"
                 + "    b.name AS brand_name,\n"
                 + "    c.name AS category_name "
@@ -264,6 +265,8 @@ public class DeviceDAO extends DBContext {
             while (rs.next()) {
                 Device d = new Device();
                 d.setId(rs.getInt("device_id"));
+                d.setSerialNumber(rs.getString("serial_number"));             
+                d.setStatus(rs.getString("status"));
                 d.setProductName(rs.getString("product_name"));
                 d.setBrandName(rs.getString("brand_name"));
                 d.setCategoryName(rs.getString("category_name"));

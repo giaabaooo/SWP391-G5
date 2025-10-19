@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package Controller.customer;
 
 import dal.CustomerRequestDAO;
@@ -24,40 +23,32 @@ import java.util.List;
  * @author admin
  */
 public class CreateRequestController extends HttpServlet {
-   
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        // Lấy user hiện tại từ session
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login.jsp");
             return;
         }
-
-        // Lấy danh sách thiết bị của customer
         DeviceDAO deviceDAO = new DeviceDAO();
-       List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
+        List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
 
         request.setAttribute("devices", devices);
         request.getRequestDispatcher("/customer/createRequest.jsp").forward(request, response);
-    
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         request.setCharacterEncoding("UTF-8");
-
         try {
             User user = (User) request.getSession().getAttribute("user");
             if (user == null) {
                 response.sendRedirect(request.getContextPath() + "/login.jsp");
                 return;
             }
-
             int customerId = user.getId();
             int deviceId = Integer.parseInt(request.getParameter("product_id"));
             String title = request.getParameter("title");
@@ -81,7 +72,6 @@ public class CreateRequestController extends HttpServlet {
                 request.setAttribute("error", "Failed to create request. Please try again.");
             }
 
-            // Load lại danh sách device để hiển thị trên form
             DeviceDAO deviceDAO = new DeviceDAO();
             List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
             request.setAttribute("devices", devices);
