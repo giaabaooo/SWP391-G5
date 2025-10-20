@@ -9,6 +9,7 @@ package data;
  * @author admin
  */
 public class ContractItem {
+
     private int id;
     private int contractId;
     private int productId;
@@ -17,30 +18,96 @@ public class ContractItem {
     private int warrantyMonths;
     private int maintenanceMonths;
     private int maintenanceFrequencyMonths;
+    private String productName;
+    private String brandName;
+    private String categoryName;
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
 
     // Getter & Setter
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public int getContractId() { return contractId; }
-    public void setContractId(int contractId) { this.contractId = contractId; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getProductId() { return productId; }
-    public void setProductId(int productId) { this.productId = productId; }
+    public int getContractId() {
+        return contractId;
+    }
 
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public void setContractId(int contractId) {
+        this.contractId = contractId;
+    }
 
-    public double getUnitPrice() { return unitPrice; }
-    public void setUnitPrice(double unitPrice) { this.unitPrice = unitPrice; }
+    public int getProductId() {
+        return productId;
+    }
 
-    public int getWarrantyMonths() { return warrantyMonths; }
-    public void setWarrantyMonths(int warrantyMonths) { this.warrantyMonths = warrantyMonths; }
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
 
-    public int getMaintenanceMonths() { return maintenanceMonths; }
-    public void setMaintenanceMonths(int maintenanceMonths) { this.maintenanceMonths = maintenanceMonths; }
+    public int getQuantity() {
+        return quantity;
+    }
 
-    public int getMaintenanceFrequencyMonths() { return maintenanceFrequencyMonths; }
-    public void setMaintenanceFrequencyMonths(int maintenanceFrequencyMonths) { this.maintenanceFrequencyMonths = maintenanceFrequencyMonths; }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(double unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public int getWarrantyMonths() {
+        return warrantyMonths;
+    }
+
+    public void setWarrantyMonths(int warrantyMonths) {
+        this.warrantyMonths = warrantyMonths;
+    }
+
+    public int getMaintenanceMonths() {
+        return maintenanceMonths;
+    }
+
+    public void setMaintenanceMonths(int maintenanceMonths) {
+        this.maintenanceMonths = maintenanceMonths;
+    }
+
+    public int getMaintenanceFrequencyMonths() {
+        return maintenanceFrequencyMonths;
+    }
+
+    public void setMaintenanceFrequencyMonths(int maintenanceFrequencyMonths) {
+        this.maintenanceFrequencyMonths = maintenanceFrequencyMonths;
+    }
 }
-

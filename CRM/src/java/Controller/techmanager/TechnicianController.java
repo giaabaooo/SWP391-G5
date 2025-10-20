@@ -27,14 +27,10 @@ public class TechnicianController extends HttpServlet {
 
         switch (action) {
             
+            case "detail":
             case "edit":
-                int id = Integer.parseInt(req.getParameter("id"));
-                req.setAttribute("user", db.get(id));
-                req.getRequestDispatcher("/WEB-INF/jsp/cskh/user_form.jsp").forward(req, resp);
-                break;
             case "delete":
-                db.delete(Integer.parseInt(req.getParameter("id")));
-                resp.sendRedirect("user");
+                req.getRequestDispatcher("/techmanager/layout/updatingScreen.jsp").forward(req, resp);
                 break;
             case "list":
             default:

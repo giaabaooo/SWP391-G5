@@ -511,10 +511,10 @@ public class CustomerRequestDAO extends DBContext {
             e.printStackTrace();
         }
     }
-    
-     public boolean createRequest(CustomerRequest req) {
-        String sql = "INSERT INTO CustomerRequest (customer_id, device_id, title, description, request_type, status, request_date) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, NOW())";
+
+    public boolean createRequest(CustomerRequest req) {
+        String sql = "INSERT INTO CustomerRequest (customer_id, device_id, title, description, request_type, status, request_date) "
+                + "VALUES (?, ?, ?, ?, ?, ?, NOW())";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, req.getCustomer_id());
             ps.setInt(2, req.getDevice_id());
@@ -528,10 +528,10 @@ public class CustomerRequestDAO extends DBContext {
         }
         return false;
     }
-     
-public List<CustomerRequest> getCustomerRequestsByCSKH(int offset, int pageSize) {
-    List<CustomerRequest> list = new ArrayList<>();
-    String sql = """
+
+    public List<CustomerRequest> getCustomerRequestsByCSKH(int offset, int pageSize, String type, String status) {
+        List<CustomerRequest> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
         SELECT cr.id, cr.customer_id, cr.device_id, cr.request_type, cr.title, cr.description,
                cr.request_date, cr.status,
                u.full_name AS customer_name, p.name AS product_name
@@ -540,55 +540,86 @@ public List<CustomerRequest> getCustomerRequestsByCSKH(int offset, int pageSize)
         JOIN Device d ON cr.device_id = d.id
         JOIN ContractItem ci ON d.contract_item_id = ci.id
         JOIN Product p ON ci.product_id = p.id
-        ORDER BY cr.request_date DESC
-        LIMIT ? OFFSET ?
-    """;
+        WHERE 1=1
+    """);
 
-    try (PreparedStatement st = connection.prepareStatement(sql)) {
-        st.setInt(1, pageSize);
-        st.setInt(2, offset);
-        ResultSet rs = st.executeQuery();
-
-        while (rs.next()) {
-            CustomerRequest c = new CustomerRequest();
-            c.setId(rs.getInt("id"));
-            c.setCustomer_id(rs.getInt("customer_id"));
-            c.setDevice_id(rs.getInt("device_id"));
-            c.setRequest_type(rs.getString("request_type"));
-            c.setTitle(rs.getString("title"));
-            c.setDescription(rs.getString("description"));
-            c.setRequest_date(rs.getTimestamp("request_date"));
-            c.setStatus(rs.getString("status"));
-
-            User u = new User();
-            u.setId(rs.getInt("customer_id"));
-            u.setFullName(rs.getString("customer_name"));
-            c.setCustomer(u);
-
-            Device d = new Device();
-            d.setId(rs.getInt("device_id"));
-            d.setProductName(rs.getString("product_name"));
-            c.setDevice(d);
-
-            list.add(c);
+        if (type != null && !type.isEmpty()) {
+            sql.append(" AND cr.request_type = ?");
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        if (status != null && !status.isEmpty()) {
+            sql.append(" AND cr.status = ?");
+        }
+
+        sql.append(" ORDER BY cr.request_date DESC LIMIT ? OFFSET ?");
+
+        try (PreparedStatement st = connection.prepareStatement(sql.toString())) {
+            int idx = 1;
+            if (type != null && !type.isEmpty()) {
+                st.setString(idx++, type);
+            }
+            if (status != null && !status.isEmpty()) {
+                st.setString(idx++, status);
+            }
+            st.setInt(idx++, pageSize);
+            st.setInt(idx, offset);
+
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                CustomerRequest c = new CustomerRequest();
+                c.setId(rs.getInt("id"));
+                c.setCustomer_id(rs.getInt("customer_id"));
+                c.setDevice_id(rs.getInt("device_id"));
+                c.setRequest_type(rs.getString("request_type"));
+                c.setTitle(rs.getString("title"));
+                c.setDescription(rs.getString("description"));
+                c.setRequest_date(rs.getTimestamp("request_date"));
+                c.setStatus(rs.getString("status"));
+
+                User u = new User();
+                u.setId(rs.getInt("customer_id"));
+                u.setFullName(rs.getString("customer_name"));
+                c.setCustomer(u);
+
+                Device d = new Device();
+                d.setId(rs.getInt("device_id"));
+                d.setProductName(rs.getString("product_name"));
+                c.setDevice(d);
+
+                list.add(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
-    return list;
-}
+    public int countCustomerRequests(String type, String status) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM CustomerRequest WHERE 1=1");
+        if (type != null && !type.isEmpty()) {
+            sql.append(" AND request_type = ?");
+        }
+        if (status != null && !status.isEmpty()) {
+            sql.append(" AND status = ?");
+        }
 
-public int countCustomerRequests() {
-    String sql = "SELECT COUNT(*) FROM CustomerRequest";
-    try (PreparedStatement stm = connection.prepareStatement(sql)) {
-        ResultSet rs = stm.executeQuery();
-        if (rs.next()) return rs.getInt(1);
-    } catch (SQLException e) {
-        e.printStackTrace();
+        try (PreparedStatement st = connection.prepareStatement(sql.toString())) {
+            int idx = 1;
+            if (type != null && !type.isEmpty()) {
+                st.setString(idx++, type);
+            }
+            if (status != null && !status.isEmpty()) {
+                st.setString(idx++, status);
+            }
+
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
-    return 0;
-}
 
     public void transferToTechManager(int requestId) {
         String sql = "UPDATE CustomerRequest SET status = 'TRANSFERRED' WHERE id = ? AND status = 'PENDING'";

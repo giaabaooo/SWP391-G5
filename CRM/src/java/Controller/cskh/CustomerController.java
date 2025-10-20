@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package Controller.cskh;
 
 import dal.UserDBContext;
@@ -15,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/cskh/customer")
 public class CustomerController extends HttpServlet {
+
     private UserDBContext db = new UserDBContext();
 
     @Override
@@ -26,25 +26,29 @@ public class CustomerController extends HttpServlet {
         if (pageParam != null) {
             try {
                 page = Integer.parseInt(pageParam);
-                if (page < 1) page = 1;
+                if (page < 1) {
+                    page = 1;
+                }
             } catch (NumberFormatException e) {
                 page = 1;
             }
         }
 
-
         String keyword = req.getParameter("keyword");
-        String status = req.getParameter("status"); // "active", "inactive", hoặc null
-
+        String status = req.getParameter("status");
 
         int total = db.countCustomers(keyword, status);
+        int totalPages = (int) Math.ceil((double) total / pageSize);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
 
-        // Lấy danh sách Customer theo trang
         req.setAttribute("customers", db.listCustomers(page, pageSize, keyword, status));
         req.setAttribute("total", total);
         req.setAttribute("page", page);
         req.setAttribute("pageSize", pageSize);
+        req.setAttribute("totalPages", totalPages);
 
-        req.getRequestDispatcher("/WEB-INF/jsp/cskh/customer_list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/cskh/customer_list.jsp").forward(req, resp);
     }
 }
