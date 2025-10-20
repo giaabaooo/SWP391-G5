@@ -34,7 +34,7 @@
         <header class="header">
             <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
-               
+
                 <div class="navbar-right">
                     <ul class="nav navbar-nav">
                         <li class="dropdown user user-menu">
@@ -113,7 +113,7 @@
                             <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Create New Request</h1>
                             <p style="color: #718096; margin-bottom: 2rem;">Create a new request to Warranty and Repair</p>
 
-                          
+
                             <% if (request.getAttribute("error") != null) { %>
                             <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                                 <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
@@ -122,7 +122,7 @@
                         </div>
                     </div>
 
-                    
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="content-card">
@@ -130,21 +130,22 @@
                                     <h3><i class="fa fa-plus"></i> Request</h3>
                                 </div>
                                 <div class="card-body">
-                                    <form method="post" action="${pageContext.request.contextPath}/customer/createRequest" novalidate>
-                                       
+                                    <form method="post" action="${pageContext.request.contextPath}/customer/createRequest" novalidate onsubmit="return validateForm();">
 
-                                        
-                                        <div class="form-group">
+
+
+                                        <div class="form-group" id="titleGroup">
                                             <label>Title<span style="color:red">*</span></label>
-                                            <input type="text" name="title" class="form-control" placeholder="Enter issue title" required>
+                                            <input type="text" id="title" name="title" class="form-control" placeholder="Enter issue title" required>
+                                            <div class="validation-error" >Title blank</div>
                                         </div>
 
-                                        
 
-                                        <div class="form-group">
-                                            <label >Select Product<span style="color:red">*</span></label>
+
+                                        <div class="form-group" id="deviceGroup">
+                                            <label >Select Device<span style="color:red">*</span></label>
                                             <select name="product_id" id="productSelect" class="form-control" onchange="fillProductInfo()" required>
-                                                <option value="">-- Choose Product --</option>
+                                                <option value="">-- Choose Device --</option>
                                                 <% 
                                                     List<data.Device> devices = (List<data.Device>) request.getAttribute("devices");
                                                     if (devices != null) {
@@ -159,17 +160,19 @@
                                                     >
                                                     <%= d.getProductName() %>
                                                 </option>
+
                                                 <% 
                                                         }
                                                     }
                                                 %>
-                                            </select>
+                                            </select>  
+                                            <div class="validation-error" >Device is required</div>
                                         </div>
-                                         <div class="form-group mt-3">
+                                        <div class="form-group mt-3">
                                             <label>Serial Number</label>
                                             <input type="text" id="productSerialNumber" class="form-control" readonly>
                                         </div>  
-                                                                                    
+
                                         <div class="form-group mt-3">
                                             <label>Brand</label>
                                             <input type="text" id="productBrand" class="form-control" readonly>
@@ -179,8 +182,8 @@
                                             <label>Category</label>
                                             <input type="text" id="productCategory" class="form-control" readonly>
                                         </div>
-                                            
-                                            <div class="form-group mt-3">
+
+                                        <div class="form-group mt-3">
                                             <label>Status</label>
                                             <input type="text" id="productStatus" class="form-control" readonly>
                                         </div>
@@ -190,23 +193,25 @@
                                         </div>
 
 
-                                        <div class="form-group">
+                                        <div class="form-group" id="typeGroup">
                                             <label >Request Type<span style="color:red">*</span></label>
-                                            <select name="request_type" class="form-control" required>
+                                            <select id="requestTypeSelect" name="request_type" class="form-control" required>
                                                 <option value="">-- Choose Type --</option>
                                                 <option value="Repair">Repair</option>
                                                 <option value="Warranty">Warranty</option>
+                                                <option value="Maintenance">Maintenance</option>
                                             </select>
+                                            <div class="validation-error" >Request Type is required</div>
                                         </div>
 
-                                        
+
                                         <% if (request.getAttribute("success") != null) { %>
                                         <div class="success-message" style="margin-top: 2rem; background-color: #d1fae5 !important; border: 1px solid #86efac !important; color: #059669 !important; padding: 1rem !important; border-radius: 8px !important; text-align: center !important;">
                                             <i class="fa fa-check-circle" style="color: #10b981 !important; margin-right: 0.5rem !important; font-size: 1.1rem !important;"></i> <%= request.getAttribute("success") %>
                                         </div>
                                         <% } %>
 
-                                        
+
                                         <div class="form-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; margin-bottom: 0;">
                                             <div class="form-col-full text-center">
                                                 <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
@@ -240,7 +245,7 @@
         <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/warehouse/addProduct.js" type="text/javascript"></script>
         <script>
-                                                // JS để auto-fill thông tin khi chọn sản phẩm
+                                               
                                                 function fillProductInfo() {
                                                     const productSelect = document.getElementById("productSelect");
                                                     const selectedOption = productSelect.options[productSelect.selectedIndex];
@@ -251,6 +256,47 @@
                                                     document.getElementById("productSerialNumber").value = selectedOption.getAttribute("data-serial_number") || "";
                                                     document.getElementById("productStatus").value = selectedOption.getAttribute("data-status") || "";
 
+
+
+                                                }
+                                                
+                                                function validateForm() {
+                                                    // Lấy giá trị từ các trường
+                                                    var title = document.getElementById('title').value.trim();
+                                                    var device = document.getElementById('productSelect').value;
+                                                    var requestType = document.getElementById('requestTypeSelect').value;
+
+                                                    
+                                                    var titleGroup = document.getElementById('titleGroup');
+                                                    var deviceGroup = document.getElementById('deviceGroup'); 
+                                                    var typeGroup = document.getElementById('typeGroup');     
+
+                                                    
+                                                    titleGroup.classList.remove('has-error');
+                                                    deviceGroup.classList.remove('has-error');
+                                                    typeGroup.classList.remove('has-error');
+
+                                                    var isValid = true;
+
+                                                    
+                                                    if (title === "") {
+                                                        titleGroup.classList.add('has-error'); 
+                                                        isValid = false;
+                                                    }
+
+                                                    
+                                                    if (device === "") {
+                                                        deviceGroup.classList.add('has-error'); 
+                                                        isValid = false;
+                                                    }
+
+                                                    
+                                                    if (requestType === "") {
+                                                        typeGroup.classList.add('has-error'); 
+                                                        isValid = false;
+                                                    }
+
+                                                    return isValid;
                                                 }
         </script>
     </body>

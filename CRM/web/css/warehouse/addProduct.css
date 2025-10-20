@@ -336,6 +336,13 @@ select.scrollable-dropdown.expanded::-webkit-scrollbar-thumb:hover {
     font-style: italic !important;
     display: none !important;
 }
+.form-group.has-error .form-control {
+        border-color: #dc3545; /* -> Đổi màu viền của input/select bên trong */
+    }
+
+    .form-group.has-error .validation-error {
+        display: block; /* -> Hiển thị thẻ .validation-error bên trong */
+    }
 
 .validation-error.show {
     display: block !important;
