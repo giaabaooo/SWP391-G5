@@ -52,7 +52,7 @@ public class ContractDAO extends DBContext {
         return 0;
     }
 
-    public List<Contract> listContracts(int page, int pageSize, String keyword, String fromDate, String toDate) {
+    public List<Contract> listContracts(int page, int pageSize, String keyword, String fromDate, String toDate, String sort) {
         List<Contract> list = new ArrayList<>();
         String sql = "SELECT c.*, u.full_name AS customer_name "
                 + "FROM Contract c "
@@ -74,7 +74,37 @@ public class ContractDAO extends DBContext {
             params.add(Date.valueOf(toDate));
         }
 
-        sql += " ORDER BY c.contract_date DESC LIMIT ? OFFSET ?";
+        String orderBy = "c.contract_date DESC";
+        if (sort != null) {
+            switch (sort) {
+                case "contractCode_asc":
+                    orderBy = "c.contract_code ASC";
+                    break;
+                case "contractCode_desc":
+                    orderBy = "c.contract_code DESC";
+                    break;
+                case "customer_asc":
+                    orderBy = "u.full_name ASC";
+                    break;
+                case "customer_desc":
+                    orderBy = "u.full_name DESC";
+                    break;
+                case "contractDate_asc":
+                    orderBy = "c.contract_date ASC";
+                    break;
+                case "contractDate_desc":
+                    orderBy = "c.contract_date DESC";
+                    break;
+                case "totalAmount_asc":
+                    orderBy = "c.total_amount ASC";
+                    break;
+                case "totalAmount_desc":
+                    orderBy = "c.total_amount DESC";
+                    break;
+            }
+        }
+
+        sql += " ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
         params.add(pageSize);
         params.add((page - 1) * pageSize);
 
@@ -123,68 +153,68 @@ public class ContractDAO extends DBContext {
     }
 
     public int insertContractWithItems(Contract contract, List<ContractItem> items) {
-    String insertContractSql = """
+        String insertContractSql = """
         INSERT INTO Contract (customer_id, contract_code, contract_date, total_amount, description)
         VALUES (?, ?, ?, ?, ?)
     """;
 
-    String insertItemSql = """
+        String insertItemSql = """
         INSERT INTO ContractItem (contract_id, product_id, quantity, unit_price, warranty_months, maintenance_months, maintenance_frequency_months)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """;
 
-    int generatedContractId = -1;
+        int generatedContractId = -1;
 
-    try {
-        connection.setAutoCommit(false);
+        try {
+            connection.setAutoCommit(false);
 
-        try (PreparedStatement ps = connection.prepareStatement(insertContractSql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, contract.getCustomerId());
-            ps.setString(2, contract.getContractCode());
-            ps.setDate(3, contract.getContractDate());
-            ps.setDouble(4, contract.getTotalAmount());
-            ps.setString(5, contract.getDescription());
-            ps.executeUpdate();
+            try (PreparedStatement ps = connection.prepareStatement(insertContractSql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, contract.getCustomerId());
+                ps.setString(2, contract.getContractCode());
+                ps.setDate(3, contract.getContractDate());
+                ps.setDouble(4, contract.getTotalAmount());
+                ps.setString(5, contract.getDescription());
+                ps.executeUpdate();
 
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    generatedContractId = rs.getInt(1);
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedContractId = rs.getInt(1);
+                    }
                 }
             }
-        }
 
-        try (PreparedStatement psItem = connection.prepareStatement(insertItemSql)) {
-            for (ContractItem item : items) {
-                psItem.setInt(1, generatedContractId);
-                psItem.setInt(2, item.getProductId());
-                psItem.setInt(3, item.getQuantity());
-                psItem.setDouble(4, item.getUnitPrice());
-                psItem.setInt(5, item.getWarrantyMonths());
-                psItem.setInt(6, item.getMaintenanceMonths());
-                psItem.setInt(7, item.getMaintenanceFrequencyMonths());
-                psItem.addBatch();
+            try (PreparedStatement psItem = connection.prepareStatement(insertItemSql)) {
+                for (ContractItem item : items) {
+                    psItem.setInt(1, generatedContractId);
+                    psItem.setInt(2, item.getProductId());
+                    psItem.setInt(3, item.getQuantity());
+                    psItem.setDouble(4, item.getUnitPrice());
+                    psItem.setInt(5, item.getWarrantyMonths());
+                    psItem.setInt(6, item.getMaintenanceMonths());
+                    psItem.setInt(7, item.getMaintenanceFrequencyMonths());
+                    psItem.addBatch();
+                }
+                psItem.executeBatch();
             }
-            psItem.executeBatch();
-        }
 
-        connection.commit();
-    } catch (SQLException e) {
-        e.printStackTrace();
-        try {
-            connection.rollback();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    } finally {
-        try {
-            connection.setAutoCommit(true);
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
-    }
 
-    return generatedContractId;
-}
+        return generatedContractId;
+    }
 
     public void update(Contract c) {
         String sql = "UPDATE Contract SET customer_id=?, contract_code=?, contract_date=?, total_amount=?, description=? WHERE id=?";

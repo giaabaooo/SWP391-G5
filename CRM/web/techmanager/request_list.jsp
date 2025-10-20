@@ -615,21 +615,34 @@
 
                                         <select name="requestType" class="search-input" style="min-width: 150px;">
                                             <option value="">--Request Type--</option>
-                                            <option value="repair" ${param.requestType=="repair"?"selected":""}>Repair</option>
-                                            <option value="maintenance" ${param.requestType=="maintenance"?"selected":""}>Maintenance</option>
+                                            <option value="repair" ${param.requestType=="REPAIR"?"selected":""}>Repair</option>
+                                            <option value="maintenance" ${param.requestType=="MAINTENANCE"?"selected":""}>Maintenance</option>
+                                            <option value="Warranty" ${param.requestType=="WARRANTY"?"selected":""}>Warranty</option>
                                         </select>
-                                        
+
                                         <input type="date" name="fromDate" class="search-input" value="${param.fromDate}" style="min-width:160px;" placeholder="From Date" >
                                         <input type="date" name="toDate" class="search-input" value="${param.toDate}" style="min-width:160px;" placeholder="To Date" >
 
+                                        <!--                                        <select name="status" class="search-input" style="min-width: 150px;">
+                                                                                    <option value="">--Status--</option>
+                                                                                    <option value="rejected" ${param.status=="rejected"?"selected":""}>Rejected</option>
+                                                                                    <option value="processing" ${param.status=="processing"?"selected":""}>Processing</option>
+                                                                                    <option value="pending" ${param.status=="pending"?"selected":""}>Pending</option>
+                                                                                    <option value="done" ${param.status=="done"?"selected":""}>Done</option>
+                                                                                </select>-->
                                         <select name="status" class="search-input" style="min-width: 150px;">
                                             <option value="">--Status--</option>
-                                            <option value="rejected" ${param.status=="rejected"?"selected":""}>Rejected</option>
-                                            <option value="processing" ${param.status=="processing"?"selected":""}>Processing</option>
-                                            <option value="pending" ${param.status=="pending"?"selected":""}>Pending</option>
-                                            <option value="done" ${param.status=="done"?"selected":""}>Done</option>
+                                            <option value="PENDING" ${param.status=="PENDING"?"selected":""}>Pending</option>
+                                            <option value="TRANSFERRED" ${param.status=="TRANSFERRED"?"selected":""}>Transferred</option>
+                                            <option value="ASSIGNED" ${param.status=="ASSIGNED"?"selected":""}>Assigned</option>
+                                            <option value="IN_PROGRESS" ${param.status=="IN_PROGRESS"?"selected":""}>In Progress</option>
+                                            <option value="COMPLETED" ${param.status=="COMPLETED"?"selected":""}>Completed</option>
+                                            <option value="AWAITING_PAYMENT" ${param.status=="AWAITING_PAYMENT"?"selected":""}>Awaiting Payment</option>
+                                            <option value="PAID" ${param.status=="PAID"?"selected":""}>Paid</option>
+                                            <option value="CLOSED" ${param.status=="CLOSED"?"selected":""}>Closed</option>
+                                            <option value="CANCELLED" ${param.status=="CANCELLED"?"selected":""}>Cancelled</option>
                                         </select>
-                                        
+
                                         <select name="isActive" class="search-input" style="min-width: 150px;">
                                             <option value="">--Is Active--</option>
                                             <option value="active" ${param.isActive=="active"?"selected":""}>Active</option>
@@ -813,7 +826,7 @@
                                                         var urlParams = new URLSearchParams(window.location.search);
                                                         var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
                                                         var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
-                                                        var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>;
+                                                        var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0%>;
 
                                                         var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
                                                         var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalProducts);
@@ -833,7 +846,7 @@
                                                     function renderPagination() {
                                                         var urlParams = new URLSearchParams(window.location.search);
                                                         var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
                                                         var pageNumbersDiv = document.getElementById('pageNumbers');
 
                                                         if (!pageNumbersDiv)
@@ -875,7 +888,7 @@
                                                     function updatePaginationButtons() {
                                                         var urlParams = new URLSearchParams(window.location.search);
                                                         var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
 
                                                         var firstBtn = document.getElementById('firstPageBtn');
                                                         var prevBtn = document.getElementById('prevPageBtn');
@@ -914,14 +927,14 @@
                                                     window.goToNextPage = function () {
                                                         var urlParams = new URLSearchParams(window.location.search);
                                                         var currentPage = parseInt(urlParams.get('page')) || 1;
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
                                                         if (currentPage < totalPages) {
                                                             goToPage(currentPage + 1);
                                                         }
                                                     };
 
                                                     window.goToLastPage = function () {
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
                                                         goToPage(totalPages);
                                                     };
 

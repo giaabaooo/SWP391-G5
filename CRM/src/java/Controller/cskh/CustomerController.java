@@ -33,7 +33,7 @@ public class CustomerController extends HttpServlet {
                 page = 1;
             }
         }
-
+        String sort = req.getParameter("sort");
         String keyword = req.getParameter("keyword");
         String status = req.getParameter("status");
 
@@ -43,12 +43,28 @@ public class CustomerController extends HttpServlet {
             totalPages = 1;
         }
 
-        req.setAttribute("customers", db.listCustomers(page, pageSize, keyword, status));
+        req.setAttribute("customers", db.listCustomers(page, pageSize, keyword, status, sort));
         req.setAttribute("total", total);
         req.setAttribute("page", page);
         req.setAttribute("pageSize", pageSize);
         req.setAttribute("totalPages", totalPages);
+        req.setAttribute("sort", sort);
 
         req.getRequestDispatcher("/cskh/customer_list.jsp").forward(req, resp);
     }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String idParam = req.getParameter("id");
+        if (idParam != null) {
+            try {
+                int id = Integer.parseInt(idParam);
+                db.toggleCustomerStatus(id);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        resp.sendRedirect(req.getContextPath() + "/cskh/customer");
+    }
+
 }

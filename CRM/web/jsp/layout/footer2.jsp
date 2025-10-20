@@ -7,7 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 </section>
-        <div class="footer-main">Copyright &copy; Warehouse Management System, 2024</div>
+        <div class="footer-main">Copyright &copy; CRM Management System, 2024</div>
     </aside>
 </div>
 
@@ -21,8 +21,6 @@
 <script src="../js/fullcalendar.js" type="text/javascript"></script>
 <script src="../js/app.js" type="text/javascript"></script>
 <script src="../js/dashboard.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/warehouse/productList.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/warehouse/warehouse-responsive.js" type="text/javascript"></script>
 
 <script>
     $(function() {
