@@ -889,4 +889,61 @@ public class ProductDAO extends DBContext {
             return false;
         }
     }
+    
+    public List<Product> searchProducts(String keyword, Integer brandId, Integer categoryId) {
+        List<Product> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM Product WHERE 1=1 ");
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND name LIKE ? ");
+        }
+        if (brandId != null) {
+            sql.append("AND brand_id = ? ");
+        }
+        if (categoryId != null) {
+            sql.append("AND category_id = ? ");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(index++, "%" + keyword + "%");
+            }
+            if (brandId != null) {
+                ps.setInt(index++, brandId);
+            }
+            if (categoryId != null) {
+                ps.setInt(index++, categoryId);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Product p = new Product();
+                p.setId(rs.getInt("id"));
+                p.setName(rs.getString("name"));
+                p.setBrandId(rs.getInt("brand_id"));
+                p.setCategoryId(rs.getInt("category_id"));
+                p.setSellingPrice(rs.getBigDecimal("unit_price"));
+                p.setDescription(rs.getString("description"));
+                list.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public double getUnitPriceById(int productId) {
+        String sql = "SELECT unit_price FROM Product WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("unit_price");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

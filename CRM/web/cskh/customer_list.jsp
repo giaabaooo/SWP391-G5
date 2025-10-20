@@ -80,7 +80,7 @@
     </div>
 
     <c:if test="${totalPages > 1}">
-        <div class="pagination-controls">
+        <div class="pagination-controls" style="display: flex; justify-content: end; align-items: center; gap: 6px; margin-top: 20px;">
 
             <button class="pagination-btn" ${page == 1 ? 'disabled' : ''}
                     onclick="window.location = '${pageContext.request.contextPath}/cskh/customer?page=${page - 1}&keyword=${param.keyword}&status=${param.status}'">

@@ -20,6 +20,41 @@
 </section>
 
 <section class="content">
+    <c:if test="${param.message == 'deleted'}">
+        <div class="alert alert-success" style="
+             margin-bottom: 20px;
+             color: #155724;
+             background-color: #d4edda;
+             border: 1px solid #c3e6cb;
+             padding: 10px;
+             border-radius: 6px;">
+            Contract deleted successfully!
+        </div>
+    </c:if>
+
+    <c:if test="${param.error == 'delete_failed'}">
+        <div class="alert alert-danger" style="
+             margin-bottom: 20px;
+             color: #721c24;
+             background-color: #f8d7da;
+             border: 1px solid #f5c6cb;
+             padding: 10px;
+             border-radius: 6px;">
+            Failed to delete the contract. Please try again.
+        </div>
+    </c:if>
+
+    <c:if test="${param.error == 'missing_id'}">
+        <div class="alert alert-warning" style="
+             margin-bottom: 20px;
+             color: #856404;
+             background-color: #fff3cd;
+             border: 1px solid #ffeeba;
+             padding: 10px;
+             border-radius: 6px;">
+            Missing contract ID to delete!
+        </div>
+    </c:if>
 
     <!-- Filter form -->
     <div class="box box-primary">
@@ -45,7 +80,7 @@
     <!-- Contract table -->
     <div class="box">
         <div class="box-header with-border d-flex justify-content-between align-items-center">
-            <a href="${pageContext.request.contextPath}/cskh/contract/add" class="btn btn-success">
+            <a href="${pageContext.request.contextPath}/cskh/createContract" class="btn btn-success">
                 <i class="fa fa-plus"></i> Add New Contract
             </a>
         </div>
@@ -74,15 +109,13 @@
                                     <td><fmt:formatNumber value="${c.totalAmount}" type="number" minFractionDigits="0" /></td>
                                     <td>${c.description}</td>
                                     <td>
-                                        <a href="${pageContext.request.contextPath}/cskh/contract/view?id=${c.id}" class="btn btn-info btn-sm">
+                                        <a href="${pageContext.request.contextPath}/cskh/contract_detail?id=${c.id}" class="btn btn-info btn-sm">
                                             <i class="fa fa-eye"></i> View
                                         </a>
-                                        <a href="${pageContext.request.contextPath}/cskh/contract/edit?id=${c.id}" class="btn btn-warning btn-sm">
-                                            <i class="fa fa-edit"></i> Edit
-                                        </a>
-                                        <a href="${pageContext.request.contextPath}/cskh/contract/delete?id=${c.id}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure to delete this contract?')">
+                                        <button class="btn btn-danger btn-xs"
+                                                onclick="openDeleteModal('${c.id}', '${c.contractCode}')">
                                             <i class="fa fa-trash"></i> Delete
-                                        </a>
+                                        </button>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -101,7 +134,7 @@
     <!-- Pagination -->
 
     <c:if test="${totalPages > 1}">
-        <div class="pagination-controls" style="display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 20px;">
+        <div class="pagination-controls" style="display: flex; justify-content: end; align-items: center; gap: 6px; margin-top: 20px;">
             <button class="pagination-btn" ${page == 1 ? 'disabled' : ''}
                     onclick="window.location = '${pageContext.request.contextPath}/cskh/contract?page=${page - 1}&keyword=${param.keyword}&fromDate=${param.fromDate}&toDate=${param.toDate}'">
                 <i class="fa fa-angle-left"></i>
@@ -147,8 +180,94 @@
             </button>
         </div>
     </c:if>
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay" style="display: none;">
+        <div class="delete-modal">
+            <div class="modal-header-custom">
+                <div class="modal-icon">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3>Delete Contract</h3>
+            </div>
+            <div class="modal-body-custom">
+                <p class="warning-text">Are you sure you want to delete this contract?</p>
+                <div class="product-name-display" id="modalContractName">Contract Code</div>
+                <p class="warning-text">This will permanently remove the contract from the system.</p>
+                <span class="warning-badge">
+                    <i class="fa fa-exclamation-triangle"></i> This action cannot be undone!
+                </span>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
+                    <i class="fa fa-times"></i> Cancel
+                </button>
+                <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn">
+                    <i class="fa fa-trash"></i> Delete Contract
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentDeleteContractId = null;
 
+        function openDeleteModal(contractId, contractCode) {
+            currentDeleteContractId = contractId;
+            document.getElementById('modalContractName').innerText = contractCode;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
 
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            currentDeleteContractId = null;
+        }
+
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target === modal) {
+                closeDeleteModal();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', function () {
+                    if (currentDeleteContractId) {
+                        const contextPath = '<%= request.getContextPath()%>';
+
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = contextPath + '/cskh/deleteContract';
+
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'id';
+                        input.value = currentDeleteContractId;
+
+                        form.appendChild(input);
+                        document.body.appendChild(form);
+
+                        form.submit();
+                    }
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts.length > 0) {
+                setTimeout(() => {
+                    alerts.forEach(a => a.style.display = 'none');
+                }, 3000);
+            }
+        });
+    </script>
 </section>
 
 <%@ include file="/jsp/layout/footer2.jsp" %>
