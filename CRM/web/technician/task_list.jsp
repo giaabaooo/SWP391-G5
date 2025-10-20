@@ -673,7 +673,7 @@
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
                                                             <c:if test="${u.is_main == 1 && user.id == u.technician_id}">
-                                                                <a href="${pageContext.request.contextPath}/technician/task?action=edit&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
+                                                                <a href="${pageContext.request.contextPath}/technician/task?action=createBill&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
                                                                     Create bill <i class="fa fa-angle-right"></i> 
                                                                 </a>
                                                             </c:if>
