@@ -9,6 +9,7 @@
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/warehouse/dashboard.jsp</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/customer/createRequest.jsp</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/warestaff/DeleteCategoryController.java</file>
+            <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/dal/BrandDAO.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/warehouse/addProduct.jsp</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/customer/DeleteRequest.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/customer/ContractController.java</file>
@@ -17,22 +18,29 @@
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/warestaff/ViewProductDetailController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/warehouse/productList.jsp</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/customer/listRequest.jsp</file>
+            <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/warestaff/CategoryListController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/customer/devices.jsp</file>
+            <file>file:/D:/GitHub/SWP391-G5/CRM/web/warehouse/addCategory.jsp</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/dal/CategoryDAO.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/customer/contract.jsp</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/dal/UserDBContext.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/ForgotPassword.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/warestaff/ViewListProductController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/warehouse/productDetail.jsp</file>
+            <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/api/ProductSearchController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/customer/updateRequest.jsp</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/data/CustomerRequest.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/customer/DevicesController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/customer/CreateRequestController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/warestaff/EditProductController.java</file>
+            <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/warestaff/AddCategoryController.java</file>
+            <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/cskh/ContractController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/customer/DetailDeviceController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/customer/UpdateRequest.java</file>
+            <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/cskh/ContractCreateController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/customer/ListRequestController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/dal/DBContext.java</file>
+            <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/utils/Validation.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/LoginController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/Controller/warestaff/AddNewProductController.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/WEB-INF/web.xml</file>
@@ -41,6 +49,7 @@
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/dal/ProductDAO.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/data/Role.java</file>
             <file>file:/D:/GitHub/SWP391-G5/CRM/web/customer/detailDevice.jsp</file>
+            <file>file:/D:/GitHub/SWP391-G5/CRM/src/java/data/Brand.java</file>
         </group>
     </open-files>
 </project-private>

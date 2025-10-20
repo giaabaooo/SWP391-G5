@@ -608,9 +608,9 @@
                                                         });
 
                                                         // Handle change event for dropdowns
-                                                        $('#categoryFilter, #brandFilter, #statusFilter').on('change', function () {
-                                                            applyFilters();
-                                                        });
+//                                                        $('#categoryFilter, #brandFilter, #statusFilter').on('change', function () {
+//                                                            applyFilters();
+//                                                        });
                                                     });
 
         </script>   

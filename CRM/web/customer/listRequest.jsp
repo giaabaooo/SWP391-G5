@@ -563,7 +563,7 @@
                                                             var type = document.getElementById('typeFilter').value;
                                                             var status = document.getElementById('statusFilter').value;
 
-                                                            var url = window.location.pathname + '?';
+                                                            
                                                             var params = [];
 
                                                             if (searchQuery && searchQuery.trim() !== '') {
@@ -576,10 +576,15 @@
                                                                 params.push('status=' + encodeURIComponent(status));
                                                             }
 
-                                                            url += params.join('&');
+                                                            let url = window.location.pathname;
+                                                            if (params.length > 0) {
+                                                                url += '?' + params.join('&');
+                                                            }
+                                                            console.log("Redirect to:", url);
 
-                                                            // Redirect to filtered URL
                                                             window.location.href = url;
+
+                                                            
                                                         };
 
                                                         // Clear filters function
@@ -595,7 +600,7 @@
                                                             }
                                                         });
 
-                                                        // Handle change event for dropdowns
+//                                                         Handle change event for dropdowns
 //                                                        $('#typeFilter, #statusFilter').on('change', function () {
 //                                                            applyFilters();
 //                                                        });
