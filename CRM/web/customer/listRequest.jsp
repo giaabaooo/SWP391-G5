@@ -31,7 +31,7 @@
         <header class="header">
             <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
-              
+
                 <div class="navbar-right">
                     <ul class="nav navbar-nav">
                         <li class="dropdown user user-menu">
@@ -67,7 +67,7 @@
                         </div>
                     </div>
 
-                   <ul class="sidebar-menu">
+                    <ul class="sidebar-menu">
                         <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
@@ -78,7 +78,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -140,7 +140,7 @@
                                 <div class="content-card">
                                     <div class="card-header">
                                         <h3><i class="fa fa-list"></i> Request List</h3>
-                                         <a href="../customer/createRequest" class="btn btn-primary">
+                                        <a href="../customer/createRequest" class="btn btn-primary">
                                             <i class="fa fa-plus"></i> Add New Request
                                         </a>
 
@@ -151,28 +151,18 @@
                                         <input type="text" id="searchInput" class="search-input" placeholder="Search by device name..." 
                                                value="<%= request.getAttribute("search") != null ? request.getAttribute("search") : "" %>">
 
-                                        <select id="categoryFilter" class="search-input" style="min-width: 150px;">
-
-                                            <option value="ALL" ${param.category == 'ALL' ? 'selected' : ''}>All Category</option>
-                                            <c:forEach var="c" items="${categories}">
-                                                <option value="${c}" ${param.category == c ? 'selected' : ''}>${c}</option>
+                                        <select id="typeFilter" name="type" class="search-input" style="min-width: 150px;">
+                                            <option value="ALL" ${empty param.type || param.type == 'ALL' ? 'selected' : ''}>All Types</option>
+                                            <c:forEach var="t" items="${types}">
+                                                <option value="${t}" ${param.type == t ? 'selected' : ''}>${t}</option>
                                             </c:forEach>
-
                                         </select>
 
-                                        <select id="brandFilter" class="search-input" style="min-width: 150px;">
-                                            <option value="ALL" ${param.brand == 'ALL' ? 'selected' : ''}>All Brand</option>
-                                            <c:forEach var="b" items="${brands}">
-                                                <option value="${b}" ${param.brand == b ? 'selected' : ''}>${b}</option>
+                                        <select id="statusFilter" name="status" class="search-input" style="min-width: 150px;">
+                                            <option value="ALL" ${empty param.status || param.status == 'ALL' ? 'selected' : ''}>All Statuses</option>
+                                            <c:forEach var="s" items="${statuses}">
+                                                <option value="${s}" ${param.status == s ? 'selected' : ''}>${s}</option>
                                             </c:forEach>
-
-                                        </select>
-                                        <select id="statusFilter" class="search-input" style="min-width: 150px;">
-                                            <option value="ALL" ${param.status == 'ALL' ? 'selected' : ''}>All </option>
-                                            <c:forEach var="d" items="${statuses}">
-                                                <option value="${d}" ${param.status == d ? 'selected' : ''}>${d}</option>
-                                            </c:forEach>
-
                                         </select>
 
                                         <button class="btn btn-primary" onclick="applyFilters()">
@@ -315,12 +305,9 @@
 
                                                             if (params.get('search')) {
                                                                 urlParams.search = params.get('search');
-                                                            }
-                                                            if (params.get('category')) {
-                                                                urlParams.categories = params.get('category');
-                                                            }
-                                                            if (params.get('brand')) {
-                                                                urlParams.brand = params.get('brand');
+                                                            }                                                         
+                                                            if (params.get('type')) {
+                                                                urlParams.type = params.get('type');
                                                             }
                                                             if (params.get('status')) {
                                                                 urlParams.status = params.get('status');
@@ -573,31 +560,31 @@
                                                         // Apply filters function
                                                         window.applyFilters = function () {
                                                             var searchQuery = document.getElementById('searchInput').value;
-                                                            var category = document.getElementById('categoryFilter').value;
-                                                            var brand = document.getElementById('brandFilter').value;
+                                                            var type = document.getElementById('typeFilter').value;
                                                             var status = document.getElementById('statusFilter').value;
 
-                                                            // Build URL with parameters
-                                                            var url = window.location.pathname + '?';
+                                                            
                                                             var params = [];
 
                                                             if (searchQuery && searchQuery.trim() !== '') {
                                                                 params.push('search=' + encodeURIComponent(searchQuery));
                                                             }
-                                                            if (category && category !== 'ALL') {
-                                                                params.push('category=' + category);
+                                                            if (type && type !== 'ALL') {
+                                                                params.push('type=' + encodeURIComponent(type));
                                                             }
-                                                            if (brand && brand !== 'ALL') {
-                                                                params.push('brand=' + brand);
-                                                            }
-                                                            if (status && status !== '' && status !== 'ALL') {
+                                                            if (status && status !== 'ALL') {
                                                                 params.push('status=' + encodeURIComponent(status));
                                                             }
 
-                                                            url += params.join('&');
+                                                            let url = window.location.pathname;
+                                                            if (params.length > 0) {
+                                                                url += '?' + params.join('&');
+                                                            }
+                                                            console.log("Redirect to:", url);
 
-                                                            // Redirect to filtered URL
                                                             window.location.href = url;
+
+                                                            
                                                         };
 
                                                         // Clear filters function
@@ -613,10 +600,10 @@
                                                             }
                                                         });
 
-                                                        // Handle change event for dropdowns
-                                                        $('#categoryFilter, #brandFilter, #statusFilter').on('change', function () {
-                                                            applyFilters();
-                                                        });
+//                                                         Handle change event for dropdowns
+//                                                        $('#typeFilter, #statusFilter').on('change', function () {
+//                                                            applyFilters();
+//                                                        });
                                                     });
         </script>
     </body>

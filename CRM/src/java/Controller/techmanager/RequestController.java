@@ -56,7 +56,7 @@ public class RequestController extends HttpServlet {
             case "list":
             default:
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
-                int size = 10;
+                int size = req.getParameter("pageSize") == null ? 10 : Integer.parseInt(req.getParameter("pageSize"));
 
                 String keyword = req.getParameter("keyword");
                 String requestType = req.getParameter("requestType");
@@ -96,10 +96,14 @@ public class RequestController extends HttpServlet {
                     return;
                 }
 
+                var re = db.getListRequest(1, Integer.MAX_VALUE, "", "", "", "", "", "");
+                int totalPages = (int) Math.ceil((double) re.size() / size);
+                
                 req.setAttribute("requests", db.getListRequest(page, size, keyword, status, fromDate, toDate, requestType, isActive));
-                //req.setAttribute("total", total);
+                req.setAttribute("totalProducts", re.size());
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
+                req.setAttribute("totalPages", totalPages);
 
                 req.getRequestDispatcher("/techmanager/request_list.jsp").forward(req, resp);
 

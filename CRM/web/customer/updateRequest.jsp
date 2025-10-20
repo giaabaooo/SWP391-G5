@@ -64,32 +64,49 @@
     </header>
 
     <div class="wrapper row-offcanvas row-offcanvas-left">
-        <aside class="left-side sidebar-offcanvas">
-            <section class="sidebar">
-                <div class="user-panel">
-                    <div class="pull-left info">
-                        <p>${sessionScope.user.fullName}</p>
-                        <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+         <aside class="left-side sidebar-offcanvas">
+                <section class="sidebar">
+                    <div class="user-panel">
+
+                        <div class="pull-left info">
+                            <p>${sessionScope.user.fullName}</p>
+                            <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                        </div>
                     </div>
-                </div>
-                <ul class="sidebar-menu">
-                    <li><a href="${pageContext.request.contextPath}/customer/dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-                    <li class="treeview active">
-                        <a href="#">
-                            <i class="fa fa-tags"></i> <span>Request</span>
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </a>
-                        <ul class="treeview-menu">
-                            <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
-                            <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="${pageContext.request.contextPath}/customer/devices"><i class="fa fa-cube"></i> My Devices</a></li>
-                    <li><a href="${pageContext.request.contextPath}/customer/contract"><i class="fa fa-file-text"></i> Contract</a></li>
-                    <li><a href="feedback.jsp"><i class="fa fa-edit"></i> <span>Feedback</span></a></li>
-                </ul>
-            </section>
-        </aside>
+
+                    <ul class="sidebar-menu">
+                        <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+
+
+                        <li class="treeview">
+                            <a href="#categoryMenu" data-toggle="collapse" aria-expanded="false">
+                                <i class="fa fa-tags"></i> <span>Request</span>
+                            </a>
+                            <ul class="collapse" id="categoryMenu">
+                                <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
+                                <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
+
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="${pageContext.request.contextPath}/customer/devices"><i class="fa fa-cube"></i>My Devices </a>
+                        </li>
+
+
+                        <li>
+                        <li><a href="${pageContext.request.contextPath}/customer/contract"><i class="fa fa-file-text"></i> Contract</a></li>
+                        </li>
+
+
+
+
+                        <li>
+                            <a href="feedback.jsp"><i class="fa fa-edit"></i>  <span>Feedback</span></a>
+                        </li>
+                    </ul>
+                </section>
+            </aside>
 
         <aside class="right-side">
             <section class="content">
@@ -113,16 +130,17 @@
                                 <h3><i class="fa fa-pencil"></i> Edit Request</h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" action="${pageContext.request.contextPath}/customer/updateRequest" novalidate>
+                                <form method="post" action="${pageContext.request.contextPath}/customer/updateRequest" novalidate onsubmit="return validateForm();">
                                     <input type="hidden" name="id" value="<%= requestData.getId() %>">
 
-                                    <div class="form-group">
+                                    <div class="form-group" id="titleGroup">
                                         <label>Title<span style="color:red">*</span></label>
-                                        <input type="text" name="title" class="form-control" placeholder="Enter issue title" 
+                                        <input type="text" id="title" name="title" class="form-control" placeholder="Enter issue title" 
                                                value="<%= requestData.getTitle() != null ? requestData.getTitle() : "" %>" required>
+                                        <div class="validation-error">Title is required.</div>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group" id="deviceGroup">
                                         <label>Select Device<span style="color:red">*</span></label>
                                         <select name="device_id" id="deviceSelect" class="form-control" onchange="fillDeviceInfo()" required>
                                             <option value="">-- Choose Device --</option>
@@ -136,10 +154,11 @@
                                                 data-category="<%= d.getCategoryName() %>"
                                                 data-status="<%= d.getStatus() %>"
                                                 <%= selected %>>
-                                                <%= d.getProductName() %> (S/N: <%= d.getSerialNumber() %>)
+                                                <%= d.getProductName() %> 
                                             </option>
                                             <% }} %>
                                         </select>
+                                        <div class="validation-error">Please select a device.</div>
                                     </div>
 
                                    
@@ -153,14 +172,15 @@
                                         <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..."><%= requestData.getDescription() != null ? requestData.getDescription() : "" %></textarea>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group" id="typeGroup">
                                         <label>Request Type<span style="color:red">*</span></label>
-                                        <select name="request_type" class="form-control" required>
+                                        <select name="request_type" id="requestTypeSelect" class="form-control" required>
                                             <option value="">-- Choose Type --</option>
                                             <option value="WARRANTY" <%= "WARRANTY".equals(requestData.getRequest_type()) ? "selected" : "" %>>Warranty</option>
-                                            
+                                            <option value="MAINTENANCE" <%= "MAINTENANCE".equals(requestData.getRequest_type()) ? "selected" : "" %>>Maintenance</option>
                                             <option value="REPAIR" <%= "REPAIR".equals(requestData.getRequest_type()) ? "selected" : "" %>>Repair</option>
                                         </select>
+                                        <div class="validation-error">Please select a request type.</div>
                                     </div>
                                         
                                         <!-- Success Message -->
@@ -216,6 +236,38 @@
         document.addEventListener("DOMContentLoaded", function() {
             fillDeviceInfo();
         });
+        
+        function validateForm() {
+            var title = document.getElementById('title').value.trim();
+            var device = document.getElementById('deviceSelect').value;
+            var requestType = document.getElementById('requestTypeSelect').value;
+            
+            var titleGroup = document.getElementById('titleGroup');
+            var deviceGroup = document.getElementById('deviceGroup');
+            var typeGroup = document.getElementById('typeGroup');
+            
+            // Reset
+            titleGroup.classList.remove('has-error');
+            deviceGroup.classList.remove('has-error');
+            typeGroup.classList.remove('has-error');
+            
+            var isValid = true;
+            
+            if (title === "") {
+                titleGroup.classList.add('has-error');
+                isValid = false;
+            }
+            if (device === "") {
+                deviceGroup.classList.add('has-error');
+                isValid = false;
+            }
+            if (requestType === "") {
+                typeGroup.classList.add('has-error');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
     </script>
 </body>
 </html>

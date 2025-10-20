@@ -43,7 +43,7 @@ public class TaskController extends HttpServlet {
 
                 int leaderId = 0;
                 var a = db.getTaskById(id2);
-                var b = db.getListTask(1, Integer.MAX_VALUE, "", "", "","","");
+                var b = db.getListTask(1, Integer.MAX_VALUE, "", "", "", "", "");
                 for (var i : b) {
                     if (i.getId() == a.getId()) {
                         leaderId = i.getTechnician_id();
@@ -57,7 +57,7 @@ public class TaskController extends HttpServlet {
             case "list":
             default:
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
-                int size = 10;
+                int size = req.getParameter("pageSize") == null ? 10 : Integer.parseInt(req.getParameter("pageSize"));
 
                 String keyword = req.getParameter("keyword");
                 String requestType = req.getParameter("requestType");
@@ -94,13 +94,15 @@ public class TaskController extends HttpServlet {
 
                     return;
                 }
-                
-                
-                
-                req.setAttribute("task", db.getListTask(page, size, keyword, fromDate, toDate,"", requestType));
-                //req.setAttribute("total", total);
+
+                var re = db.getListTask(1, Integer.MAX_VALUE, "", "", "", "", "");
+                int totalPages = (int) Math.ceil((double) re.size() / size);
+
+                req.setAttribute("task", db.getListTask(page, size, keyword, fromDate, toDate, "", requestType));
+                req.setAttribute("totalProducts", re.size());
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
+                req.setAttribute("totalPages", totalPages);
 
                 req.getRequestDispatcher("/techmanager/task_list.jsp").forward(req, resp);
 
@@ -160,7 +162,6 @@ public class TaskController extends HttpServlet {
 
                 java.sql.Date sqlDate = java.sql.Date.valueOf(assignedDate);
 
-                
                 // 1️⃣ Cập nhật ngày giao cho tất cả technician
                 db.updateAssignedDate(requestId, sqlDate);
 

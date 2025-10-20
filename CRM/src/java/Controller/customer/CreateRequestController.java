@@ -54,6 +54,7 @@ public class CreateRequestController extends HttpServlet {
             String title = request.getParameter("title");
             String description = request.getParameter("description");
             String requestType = request.getParameter("request_type");
+            
 
             CustomerRequest req = new CustomerRequest();
             req.setCustomer_id(customerId);
@@ -61,16 +62,14 @@ public class CreateRequestController extends HttpServlet {
             req.setTitle(title);
             req.setDescription(description);
             req.setRequest_type(requestType);
-            req.setStatus("Pending"); // mặc định
+            req.setStatus("Pending");
 
             CustomerRequestDAO dao = new CustomerRequestDAO();
             boolean success = dao.createRequest(req);
 
             if (success) {
                 request.setAttribute("success", "Request created successfully!");
-            } else {
-                request.setAttribute("error", "Failed to create request. Please try again.");
-            }
+            } 
 
             DeviceDAO deviceDAO = new DeviceDAO();
             List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
@@ -80,7 +79,7 @@ public class CreateRequestController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "An error occurred: " + e.getMessage());
+            
             request.getRequestDispatcher("/customer/createRequest.jsp").forward(request, response);
         }
     }
