@@ -62,8 +62,16 @@
         <servlet-class>Controller.customer.CreateRequestController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>DeleteRequest</servlet-name>
+        <servlet-class>Controller.customer.DeleteRequest</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>CustomerRequestController</servlet-name>
         <servlet-class>Controller.cskh.CustomerRequestController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateRequest</servlet-name>
+        <servlet-class>Controller.customer.UpdateRequest</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
@@ -120,8 +128,16 @@
         <url-pattern>/customer/createRequest</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>DeleteRequest</servlet-name>
+        <url-pattern>/customer/deleteRequest</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>CustomerRequestController</servlet-name>
         <url-pattern>/CustomerRequestController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateRequest</servlet-name>
+        <url-pattern>/customer/updateRequest</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>redirect.jsp</welcome-file>

@@ -45,17 +45,17 @@ public class DevicesController extends HttpServlet {
         }
         int offset = (page - 1) * LIMIT;
 
-        // Lấy danh sách devices theo filter và pagination
+        
         List<Device> devices = deviceDAO.getDevicesByUserId(user.getId(), searchQuery, brand, category, status, offset, LIMIT);
         int totalDevices = deviceDAO.countDevicesByUser(user.getId(), searchQuery, brand, category, status);
         int totalPages = (int) Math.ceil((double) totalDevices / LIMIT);
 
-        // Lấy danh sách dropdown filter
+        
         List<String> brands = deviceDAO.getBrandsByUserId(user.getId());
         List<String> categories = deviceDAO.getCategoriesByUserId(user.getId());
         List<String> statuses = deviceDAO.getStatusesByUserId(user.getId());
 
-        // Đưa dữ liệu xuống JSP
+        
         request.setAttribute("devices", devices);
         request.setAttribute("brands", brands);
         request.setAttribute("categories", categories);
