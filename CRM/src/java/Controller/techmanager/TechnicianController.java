@@ -18,15 +18,18 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @WebServlet("/techmanager/technician")
 public class TechnicianController extends HttpServlet {
+
     UserDBContext db = new UserDBContext();
-    
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
-        if (action == null) action = "list";
+        if (action == null) {
+            action = "list";
+        }
 
         switch (action) {
-            
+
             case "detail":
             case "edit":
             case "delete":
@@ -35,7 +38,7 @@ public class TechnicianController extends HttpServlet {
             case "list":
             default:
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
-                int size = 10;
+                int size = req.getParameter("pageSize") == null ? 10 : Integer.parseInt(req.getParameter("pageSize"));
                 String keyword = req.getParameter("keyword");
 //                String role = req.getParameter("role");
                 String role = "TECHNICIAN";
@@ -43,10 +46,14 @@ public class TechnicianController extends HttpServlet {
 
                 int total = db.countUser(keyword, role, status);
 
+                int totalPages = (int) Math.ceil((double) total / size);
+
                 req.setAttribute("users", db.list(page, size, keyword, role, status));
-                req.setAttribute("total", total);
+                req.setAttribute("totalProducts", total);
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
+                req.setAttribute("totalPages", totalPages);
+
                 req.setAttribute("roles", db.getAllRoles());
 
                 req.getRequestDispatcher("/techmanager/technician_list.jsp").forward(req, resp);
@@ -55,7 +62,7 @@ public class TechnicianController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        
+
         resp.sendRedirect("technician");
     }
 }

@@ -69,7 +69,7 @@ public class TaskController extends HttpServlet {
             case "list":
             default:
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
-                int size = 10;
+                int size = req.getParameter("pageSize") == null ? 10 : Integer.parseInt(req.getParameter("pageSize"));
 
                 String requestType = req.getParameter("requestType");
                 String keyword = req.getParameter("keyword");
