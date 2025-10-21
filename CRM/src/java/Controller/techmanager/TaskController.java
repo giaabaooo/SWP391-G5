@@ -143,7 +143,7 @@ public class TaskController extends HttpServlet {
                         db.insert(ca);
                     }
                 }
-                db.updateRequest("PROCESSING", 1, requestId);
+                db.updateRequest("ASSIGNED", 1, requestId);
 
                 resp.sendRedirect("task?msg=added");
 
