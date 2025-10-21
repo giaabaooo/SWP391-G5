@@ -120,9 +120,13 @@ public class RequestController extends HttpServlet {
             req.setAttribute("error", "Reject reason is required!");
             req.getRequestDispatcher("/techmanager/requestdetail.jsp").forward(req, resp);
             return;
+        }else if(reason.length()>=300){
+            req.setAttribute("error", "Reject reason is too long!");
+            req.getRequestDispatcher("/techmanager/requestdetail.jsp").forward(req, resp);
+            return;
         }
 
-        db.updateRequest("REJECTED",0,Integer.parseInt(id));
+        db.updateRequest("CANCELLED",0,Integer.parseInt(id));
         db.insertRejectReason(Integer.parseInt(id), reason);
 
         resp.sendRedirect("request");

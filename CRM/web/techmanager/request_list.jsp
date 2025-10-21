@@ -675,36 +675,39 @@
                                             </thead>
                                             <tbody>
                                                 <c:forEach var="u" items="${requests}" varStatus="st">
-                                                    <tr>
-                                                        <td>${(page-1)*pageSize + st.index + 1}</td>
-                                                        <td>${u.customer.fullName}</td>
-                                                        <td>${u.device.productName}</td>
-                                                        <td>${u.request_type}</td>
-                                                        <td>${u.title}</td>
-                                                        <td>${u.description}</td>
-                                                        <td>${u.request_date}</td>
-                                                        <td>${u.status}</td>
-                                                        <td>
-                                                            <span class="label ${u.isActive?'label-success':'label-danger'}">
-                                                                ${u.isActive?'Active':'Inactive'}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <a href="${pageContext.request.contextPath}/techmanager/request?action=detail&id=${u.id}" class="btn btn-action btn-view">
-                                                                <i class="fa fa-eye"></i> Detail
-                                                            </a>
-                                                            <c:if test="${u.status ne 'REJECTED'}">
-                                                                <a href="${pageContext.request.contextPath}/techmanager/request?action=reject&id=${u.id}" class="btn btn-action btn-delete">
-                                                                    <i class="fa fa-trash"></i> Reject
+                                                    <c:if test="${u.status != 'PENDING'}">
+                                                        <tr>
+                                                            <td>${(page-1)*pageSize + st.index + 1}</td>
+                                                            <td>${u.customer.fullName}</td>
+                                                            <td>${u.device.productName}</td>
+                                                            <td>${u.request_type}</td>
+                                                            <td>${u.title}</td>
+                                                            <td>${u.description}</td>
+                                                            <td>${u.request_date}</td>
+                                                            <td>${u.status}</td>
+                                                            <td>
+                                                                <span class="label ${u.isActive?'label-success':'label-danger'}">
+                                                                    ${u.isActive?'Active':'Inactive'}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <a href="${pageContext.request.contextPath}/techmanager/request?action=detail&id=${u.id}" class="btn btn-action btn-view">
+                                                                    <i class="fa fa-eye"></i> Detail
                                                                 </a>
-                                                                <c:if test="${u.status == 'PENDING'}">
-                                                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask&id=${u.id}" class="btn btn-action btn-edit">
-                                                                        <i class="fa fa-angle-right"></i> Assign
+                                                                <c:if test="${u.status ne 'CLOSED'}">
+                                                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=reject&id=${u.id}" class="btn btn-action btn-delete">
+                                                                        <i class="fa fa-trash"></i> Reject
                                                                     </a>
+                                                                    <c:if test="${u.status == 'IN_PROGRESS'}">
+                                                                        <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask&id=${u.id}" class="btn btn-action btn-edit">
+                                                                            <i class="fa fa-angle-right"></i> Assign
+                                                                        </a>
+                                                                    </c:if>
                                                                 </c:if>
-                                                            </c:if>
-                                                        </td>
-                                                    </tr>
+                                                            </td>
+                                                        </tr>
+                                                    </c:if>
+
                                                 </c:forEach>
                                                 <c:if test="${empty requests}">
                                                     <tr><td colspan="8" class="text-center">No data found</td></tr>
