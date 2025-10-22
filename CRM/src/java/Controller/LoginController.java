@@ -61,7 +61,7 @@ public class LoginController extends HttpServlet {
                     resp.sendRedirect("index.jsp"); // fallback
             }
         } else {
-            req.setAttribute("error", "Sai username hoặc mật khẩu!");
+            req.setAttribute("error", "Wrong username or password!");
             req.getRequestDispatcher("login.jsp").forward(req, resp);
         }
     }

@@ -50,12 +50,18 @@
                 <div class="container-fluid">
                     <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
                         <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
+                            <div class="text-center mb-4">                                  
+                                    <img src="img/logo-Crm.png" alt="Company Logo" style="max-width: 250px; margin-bottom: 1rem;"/>
+                                    <h2>Customer and Device Management</h2>                                   
+                                </div>
+                            
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                
 
+                                <div class="d-flex align-items-center justify-content-between mb-3">
                                     <h3>Sign In</h3>
                                 </div>
-                                <!-- Show error message -->
+
                                 <c:if test="${not empty error}">
                                     <div class="alert alert-danger" role="alert">
                                         ${error}
@@ -68,6 +74,9 @@
                                 <div class="form-floating mb-4">
                                     <input type="password" class="form-control" id="password" name="password" placeholder="Password">
                                     <label for="password">Password</label>
+                                    <span toggle="#password" class="fa fa-fw fa-eye field-icon toggle-password" 
+                                          style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d;">
+                                    </span>
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between mb-4">
 
@@ -95,6 +104,20 @@
 
             <!-- Template Javascript -->
             <script src="js/main.js"></script>
+            <script>
+                $(document).ready(function () {                  
+                    $(".toggle-password").click(function () {                       
+                        $(this).toggleClass("fa-eye fa-eye-slash");
+                        var inputId = $(this).attr("toggle");
+                        var input = $(inputId);
+                        if (input.attr("type") === "password") {
+                            input.attr("type", "text");
+                        } else {
+                            input.attr("type", "password");
+                        }
+                    });
+                });
+            </script>
         </form>
     </body>
 
