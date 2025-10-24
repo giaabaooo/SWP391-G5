@@ -26,7 +26,7 @@
 
     </head>
     <body class="skin-black">
-
+        <input type="hidden" id="baseUrl" value="${pageContext.request.contextPath}/customer/listRequest">
         <!-- HEADER -->
         <header class="header">
             <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
@@ -204,7 +204,7 @@
                                                         <td><%= req.getRequest_date() %></td>
                                                         <td><%= req.getStatus() %></td>
                                                         <td>
-                                                            <a href="requestDetail?id=<%= req.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
+                                                            <a href="detailRequest?id=<%= req.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
                                                             <a href="updateRequest?id=<%= req.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
@@ -305,7 +305,7 @@
 
                                                             if (params.get('search')) {
                                                                 urlParams.search = params.get('search');
-                                                            }                                                         
+                                                            }
                                                             if (params.get('type')) {
                                                                 urlParams.type = params.get('type');
                                                             }
@@ -563,7 +563,7 @@
                                                             var type = document.getElementById('typeFilter').value;
                                                             var status = document.getElementById('statusFilter').value;
 
-                                                            
+
                                                             var params = [];
 
                                                             if (searchQuery && searchQuery.trim() !== '') {
@@ -584,13 +584,13 @@
 
                                                             window.location.href = url;
 
-                                                            
+
                                                         };
 
                                                         // Clear filters function
                                                         window.clearFilters = function () {
-                                                            // Redirect to page without parameters
-                                                            window.location.href = window.location.pathname;
+                                                            var baseUrl = document.getElementById('baseUrl').value; // Lấy URL gốc từ input ẩn
+                                                            window.location.href = baseUrl;
                                                         };
 
                                                         // Handle Enter key in search input

@@ -79,7 +79,7 @@ public class UpdateRequest extends HttpServlet {
         if (success) {
             response.sendRedirect(request.getContextPath() + "/customer/listRequest?success=Request updated successfully");
         } else {
-            request.setAttribute("error", "Failed to create request. Please try again.");
+            request.setAttribute("error", "Failed to update request. Please try again.");
         }          
     }
 }

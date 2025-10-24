@@ -669,4 +669,59 @@ public class CustomerRequestDAO extends DBContext {
         }
         return false;
     }
+    
+    public CustomerRequest getRequestDetailsById(int requestId) {
+    CustomerRequest req = null;
+    String sql = """
+        SELECT 
+            cr.id AS request_id, cr.customer_id, cr.request_type, cr.title, cr.description, 
+            cr.request_date, cr.status AS request_status,
+            d.id AS device_id, d.serial_number, d.warranty_expiration, d.status AS device_status,
+            p.name AS product_name, 
+            b.name AS brand_name, 
+            cat.name AS category_name
+            -- , u.full_name AS customer_name -- Có thể bỏ nếu không cần tên khách hàng ở đây
+        FROM CustomerRequest cr
+        JOIN Device d ON cr.device_id = d.id
+        JOIN ContractItem ci ON d.contract_item_id = ci.id
+        JOIN Product p ON ci.product_id = p.id
+        LEFT JOIN Brand b ON p.brand_id = b.id
+        LEFT JOIN Category cat ON p.category_id = cat.id
+        -- JOIN User u ON cr.customer_id = u.id -- Có thể bỏ nếu không cần tên khách hàng
+        WHERE cr.id = ?
+    """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, requestId);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            req = new CustomerRequest();
+            // ... (gán các trường của CustomerRequest: id, title, type, status, date...)
+            req.setId(rs.getInt("request_id"));
+            req.setCustomer_id(rs.getInt("customer_id"));
+            req.setRequest_type(rs.getString("request_type"));
+            req.setTitle(rs.getString("title"));
+            req.setDescription(rs.getString("description"));
+            req.setRequest_date(rs.getTimestamp("request_date"));
+            req.setStatus(rs.getString("request_status"));
+
+            // Tạo đối tượng Device và gán thông tin
+            Device device = new Device();
+            device.setId(rs.getInt("device_id"));
+            device.setSerialNumber(rs.getString("serial_number"));
+            device.setWarrantyExpiration(rs.getDate("warranty_expiration"));
+            device.setStatus(rs.getString("device_status"));
+            device.setProductName(rs.getString("product_name")); 
+            device.setBrandName(rs.getString("brand_name"));
+            device.setCategoryName(rs.getString("category_name"));
+            
+            // Gán đối tượng Device vào CustomerRequest
+            req.setDevice(device); 
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return req;
+}
 }
