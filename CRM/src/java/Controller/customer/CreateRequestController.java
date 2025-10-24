@@ -67,9 +67,13 @@ public class CreateRequestController extends HttpServlet {
             CustomerRequestDAO dao = new CustomerRequestDAO();
             boolean success = dao.createRequest(req);
 
+            
+            
             if (success) {
-                request.setAttribute("success", "Request created successfully!");
-            } 
+            response.sendRedirect(request.getContextPath() + "/customer/listRequest?success=Request created successfully!");
+        } else {
+            request.setAttribute("error", "Failed to create request. Please try again.");
+        }  
 
             DeviceDAO deviceDAO = new DeviceDAO();
             List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
@@ -80,7 +84,7 @@ public class CreateRequestController extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             
-            request.getRequestDispatcher("/customer/createRequest.jsp").forward(request, response);
+           
         }
     }
 

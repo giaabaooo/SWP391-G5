@@ -57,7 +57,8 @@ public class ListRequestController extends HttpServlet {
 
         List<CustomerRequest> list = CustomerRequestDAO.getRequestsByUserId(user.getId(), keyword, type, status, offset, LIMIT);
         List<String> requestTypes = List.of("WARRANTY", "REPAIR", "MAINTENANCE");
-        List<String> statuses = List.of("PENDING", "SCHEDULED", "COMPLETED", "OVERDUE");
+        List<String> statuses = List.of("PENDING", "TRANSFERRED", "ASSIGNED",
+                "IN_PROGRESS","COMPLETED", "AWAITING_PAYMENT", "PAID", "CLOSED","CANCELLED" );
 
         request.setAttribute("types", requestTypes);
         request.setAttribute("statuses", statuses);
