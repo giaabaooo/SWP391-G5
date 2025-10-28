@@ -601,7 +601,7 @@
                             <div class="content-card">
                                 <div class="card-header">
                                     <h3><i class="fa fa-list"></i> Task List</h3>
-                                    
+
                                 </div>
 
                                 <!-- Filter Bar -->
@@ -617,11 +617,11 @@
                                             <option value="maintenance" ${param.requestType=="maintenance"?"selected":""}>Maintenance</option>
                                             <option value="warranty" ${param.requestType=="warranty"?"selected":""}>Warranty</option>
                                         </select>
-                                        
+
                                         <input type="date" name="fromDate" class="search-input" value="${param.fromDate}" style="min-width:160px;">
                                         <input type="date" name="toDate" class="search-input" value="${param.toDate}" style="min-width:160px;">
-                                        
-                                        
+
+
 
                                         <button class="btn btn-primary" type="submit" >
                                             <i class="fa fa-filter"></i> Filter
@@ -643,7 +643,7 @@
                                                     <th>Description</th>
                                                     <th>Leader</th>
                                                     <th>Assign Date</th>
-                                                    
+
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -662,15 +662,18 @@
                                                             </c:forEach>
                                                         </td>
                                                         <td>${u.assigned_date}</td>
-                                                        
+
 
                                                         <td>
                                                             <a href="${pageContext.request.contextPath}/techmanager/task?action=detail&id=${u.customerRequest.id}" class="btn btn-action btn-view">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
-                                                            <a href="${pageContext.request.contextPath}/techmanager/task?action=edit&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
-                                                                <i class="fa fa-pencil"></i> Edit
-                                                            </a>
+                                                            <c:if test="${u.customerRequest.status == 'ASSIGNED'}">
+                                                                <a href="${pageContext.request.contextPath}/techmanager/task?action=edit&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
+                                                                    <i class="fa fa-pencil"></i> Edit
+                                                                </a>
+                                                            </c:if>
+
 
                                                         </td>
                                                     </tr>

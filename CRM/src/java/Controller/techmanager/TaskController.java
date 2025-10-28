@@ -39,6 +39,13 @@ public class TaskController extends HttpServlet {
                 req.getRequestDispatcher("/techmanager/task_detail.jsp").forward(req, resp);
                 break;
             case "edit":
+                String error = req.getParameter("error");
+                String techName = req.getParameter("techName");
+                
+                if ("tooMuchTask".equals(error)) {
+                    req.setAttribute("error", techName + " has had a lot of task on that day");
+                }
+                
                 int id2 = Integer.parseInt(req.getParameter("id"));
 
                 int leaderId = 0;
@@ -54,6 +61,8 @@ public class TaskController extends HttpServlet {
                 req.setAttribute("leaderId", leaderId);
                 req.setAttribute("technicianList", userDb.list(1, Integer.MAX_VALUE, "", "TECHNICIAN", "active"));
                 req.getRequestDispatcher("/techmanager/edit_task.jsp").forward(req, resp);
+
+                break;
             case "list":
             default:
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
@@ -125,8 +134,6 @@ public class TaskController extends HttpServlet {
                 String leaderId = req.getParameter("leaderId");
                 String assignedDate = req.getParameter("assignedDate");
 
-                
-                
                 if (technicianIds != null) {
                     for (String techIdStr : technicianIds) {
                         if (techIdStr == null || techIdStr.isEmpty()) {
@@ -137,12 +144,11 @@ public class TaskController extends HttpServlet {
                         int taskCount = db.getNumberTaskByIdAnDate(techId, assignedDate);
 
                         if (taskCount >= 4) {
-                            resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=assignTask&id=" + requestId +"&techName=" + userDb.get(techId).getFullName() + "&error=tooMuchTask");
-                            return; 
+                            resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=assignTask&id=" + requestId + "&techName=" + userDb.get(techId).getFullName() + "&error=tooMuchTask");
+                            return;
                         }
                     }
-                    
-                    
+
                     for (String techIdStr : technicianIds) {
                         if (techIdStr == null || techIdStr.isEmpty()) {
                             continue;
@@ -160,7 +166,7 @@ public class TaskController extends HttpServlet {
                         db.insert(ca);
                     }
                 }
-                
+
                 db.updateRequest("ASSIGNED", 1, requestId);
 
                 resp.sendRedirect("task?msg=added");
@@ -173,39 +179,56 @@ public class TaskController extends HttpServlet {
             break;
             case "update":
                 try {
+
                 int requestId = Integer.parseInt(req.getParameter("taskId"));
                 String[] technicianIds = req.getParameterValues("technicianIds");
                 String leaderId = req.getParameter("leaderId");
-                String assignedDate = req.getParameter("assignedDate");
+                String assignedDateStr = req.getParameter("assignedDate");
+                
+                java.sql.Date assignedDate = java.sql.Date.valueOf(assignedDateStr);
 
-                java.sql.Date sqlDate = java.sql.Date.valueOf(assignedDate);
-
-                // 1️⃣ Cập nhật ngày giao cho tất cả technician
-                db.updateAssignedDate(requestId, sqlDate);
-
-                // 2️⃣ Cập nhật leader
-                if (leaderId != null && !leaderId.isEmpty()) {
-                    db.updateLeader(requestId, Integer.parseInt(leaderId));
+                if (technicianIds == null || technicianIds.length == 0 || (technicianIds.length == 1 && (technicianIds[0] == null || technicianIds[0].isEmpty()))) {
+                    resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=editTask&requestId=" + requestId + "&error=noTechnician");
+                    return;
                 }
 
-                // 3️⃣ (Tuỳ chọn) Nếu form cho phép thêm technician mới
-                if (technicianIds != null) {
-                    for (String techIdStr : technicianIds) {
-                        int techId = Integer.parseInt(techIdStr);
-                        // kiểm tra nếu technician chưa tồn tại thì insert mới
-                        if (!db.existsAssignment(requestId, techId)) {
-                            CustomerRequestAssignment ca = new CustomerRequestAssignment();
-                            ca.setRequest_id(requestId);
-                            ca.setTechnician_id(techId);
-                            ca.setAssigned_date(sqlDate);
-                            ca.setIs_main(leaderId.equals(techIdStr) ? 1 : 0);
-                            db.insert(ca);
-                        }
+                for (String techIdStr : technicianIds) {
+                    if (techIdStr == null || techIdStr.isEmpty()) {
+                        continue;
+                    }
+                    int techId = Integer.parseInt(techIdStr);
+
+                    int taskCount = db.getNumberTaskByIdAnDate(techId, assignedDateStr);
+
+                    if (taskCount >= 4) {
+                        resp.sendRedirect(req.getContextPath() + "/techmanager/task?action=edit&id=" + requestId + "&techName=" + userDb.get(techId).getFullName() + "&error=tooMuchTask");
+                        return;
                     }
                 }
 
+                db.deleteByRequestId(requestId);
+
+                for (String techIdStr : technicianIds) {
+                    if (techIdStr == null || techIdStr.isEmpty()) {
+                        continue;
+                    }
+                    int techId = Integer.parseInt(techIdStr);
+
+                    boolean isLeader = (leaderId != null && leaderId.equals(techIdStr));
+
+                    CustomerRequestAssignment ca = new CustomerRequestAssignment();
+                    ca.setRequest_id(requestId);
+                    ca.setTechnician_id(techId);
+                    ca.setIs_main(isLeader ? 1 : 0);
+                    ca.setAssigned_date(assignedDate);
+
+                    db.insert(ca);
+                }
+
                 db.updateRequest("PROCESSING", 1, requestId);
+
                 resp.sendRedirect("task?msg=updated");
+
             } catch (Exception ex) {
                 ex.printStackTrace();
                 req.setAttribute("error", "Có lỗi xảy ra khi cập nhật task assignment!");

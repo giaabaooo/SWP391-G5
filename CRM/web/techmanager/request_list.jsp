@@ -632,7 +632,7 @@
                                                                                 </select>-->
                                         <select name="status" class="search-input" style="min-width: 150px;">
                                             <option value="">--Status--</option>
-                                            <option value="PENDING" ${param.status=="PENDING"?"selected":""}>Pending</option>
+                                            
                                             <option value="TRANSFERRED" ${param.status=="TRANSFERRED"?"selected":""}>Transferred</option>
                                             <option value="ASSIGNED" ${param.status=="ASSIGNED"?"selected":""}>Assigned</option>
                                             <option value="IN_PROGRESS" ${param.status=="IN_PROGRESS"?"selected":""}>In Progress</option>
@@ -643,11 +643,7 @@
                                             <option value="CANCELLED" ${param.status=="CANCELLED"?"selected":""}>Cancelled</option>
                                         </select>
 
-                                        <select name="isActive" class="search-input" style="min-width: 150px;">
-                                            <option value="">--Is Active--</option>
-                                            <option value="active" ${param.isActive=="active"?"selected":""}>Active</option>
-                                            <option value="inactive" ${param.isActive=="inactive"?"selected":""}>Inactive</option>
-                                        </select>
+                                        
 
                                         <button class="btn btn-primary" type="submit" >
                                             <i class="fa fa-filter"></i> Filter
@@ -669,7 +665,7 @@
                                                     <th>Description</th>
                                                     <th>Request Date</th>
                                                     <th>Status</th>
-                                                    <th>Is Active</th>
+                                                    
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -685,11 +681,7 @@
                                                             <td>${u.description}</td>
                                                             <td>${u.request_date}</td>
                                                             <td>${u.status}</td>
-                                                            <td>
-                                                                <span class="label ${u.isActive?'label-success':'label-danger'}">
-                                                                    ${u.isActive?'Active':'Inactive'}
-                                                                </span>
-                                                            </td>
+                                                            
                                                             <td>
                                                                 <a href="${pageContext.request.contextPath}/techmanager/request?action=detail&id=${u.id}" class="btn btn-action btn-view">
                                                                     <i class="fa fa-eye"></i> Detail
