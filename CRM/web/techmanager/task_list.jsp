@@ -615,6 +615,7 @@
                                             <option value="">--Request Type--</option>
                                             <option value="repair" ${param.requestType=="repair"?"selected":""}>Repair</option>
                                             <option value="maintenance" ${param.requestType=="maintenance"?"selected":""}>Maintenance</option>
+                                            <option value="warranty" ${param.requestType=="warranty"?"selected":""}>Warranty</option>
                                         </select>
                                         
                                         <input type="date" name="fromDate" class="search-input" value="${param.fromDate}" style="min-width:160px;">
@@ -642,7 +643,7 @@
                                                     <th>Description</th>
                                                     <th>Leader</th>
                                                     <th>Assign Date</th>
-                                                    <th>Status</th>
+                                                    
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -661,7 +662,7 @@
                                                             </c:forEach>
                                                         </td>
                                                         <td>${u.assigned_date}</td>
-                                                        <td>${u.customerRequest.status}</td>
+                                                        
 
                                                         <td>
                                                             <a href="${pageContext.request.contextPath}/techmanager/task?action=detail&id=${u.customerRequest.id}" class="btn btn-action btn-view">

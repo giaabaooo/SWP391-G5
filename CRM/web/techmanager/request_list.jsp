@@ -694,15 +694,11 @@
                                                                 <a href="${pageContext.request.contextPath}/techmanager/request?action=detail&id=${u.id}" class="btn btn-action btn-view">
                                                                     <i class="fa fa-eye"></i> Detail
                                                                 </a>
-                                                                <c:if test="${u.status ne 'CLOSED'}">
-                                                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=reject&id=${u.id}" class="btn btn-action btn-delete">
-                                                                        <i class="fa fa-trash"></i> Reject
+
+                                                                <c:if test="${u.status == 'TRANSFERRED'}">
+                                                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask&id=${u.id}" class="btn btn-action btn-edit">
+                                                                        <i class="fa fa-angle-right"></i> Assign
                                                                     </a>
-                                                                    <c:if test="${u.status == 'IN_PROGRESS'}">
-                                                                        <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask&id=${u.id}" class="btn btn-action btn-edit">
-                                                                            <i class="fa fa-angle-right"></i> Assign
-                                                                        </a>
-                                                                    </c:if>
                                                                 </c:if>
                                                             </td>
                                                         </tr>

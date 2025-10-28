@@ -125,7 +125,24 @@ public class TaskController extends HttpServlet {
                 String leaderId = req.getParameter("leaderId");
                 String assignedDate = req.getParameter("assignedDate");
 
+                
+                
                 if (technicianIds != null) {
+                    for (String techIdStr : technicianIds) {
+                        if (techIdStr == null || techIdStr.isEmpty()) {
+                            continue;
+                        }
+
+                        int techId = Integer.parseInt(techIdStr);
+                        int taskCount = db.getNumberTaskByIdAnDate(techId, assignedDate);
+
+                        if (taskCount >= 4) {
+                            resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=assignTask&id=" + requestId +"&techName=" + userDb.get(techId).getFullName() + "&error=tooMuchTask");
+                            return; 
+                        }
+                    }
+                    
+                    
                     for (String techIdStr : technicianIds) {
                         if (techIdStr == null || techIdStr.isEmpty()) {
                             continue;
@@ -143,6 +160,7 @@ public class TaskController extends HttpServlet {
                         db.insert(ca);
                     }
                 }
+                
                 db.updateRequest("ASSIGNED", 1, requestId);
 
                 resp.sendRedirect("task?msg=added");
