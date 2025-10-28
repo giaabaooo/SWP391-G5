@@ -35,6 +35,12 @@ public class TechnicianController extends HttpServlet {
                 req.setAttribute("list", db.get(id));
                 req.getRequestDispatcher("/techmanager/technician_detail.jsp").forward(req, resp);
                 break;
+            case "delete":
+                int id2 = Integer.parseInt(req.getParameter("id"));
+                db.toggleCustomerStatus(id2);
+                
+                resp.sendRedirect("technician");
+                break;
                 
             case "list":
             default:
