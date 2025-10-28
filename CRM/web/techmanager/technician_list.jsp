@@ -689,13 +689,13 @@
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
 
-                                                            <a href="${pageContext.request.contextPath}/techmanager/technician?action=edit&id=${u.id}" class="btn btn-action btn-edit">
+<!--                                                            <a href="${pageContext.request.contextPath}/techmanager/technician?action=edit&id=${u.id}" class="btn btn-action btn-edit">
                                                                 <i class="fa fa-pencil"></i> Edit
                                                             </a>
                                                                 
                                                             <a href="${pageContext.request.contextPath}/techmanager/technician?action=delete&id=${u.id}" class="btn btn-action btn-delete">
                                                                 <i class="fa fa-trash"></i>Change Status
-                                                            </a>
+                                                            </a>-->
 
 
                                                         </td>

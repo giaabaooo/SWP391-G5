@@ -145,7 +145,7 @@
                         <div class="col-md-6">
                             <div class="content-card">
                                 <div class="card-header">
-                                    <h3><i class="fa fa-clock-o"></i> Pending Requests</h3>
+                                    <h3><i class="fa fa-clock-o"></i> Transferred Requests</h3>
                                 </div>
                                 <div class="card-body">
                                     <c:forEach var="u" items="${pendingList}">

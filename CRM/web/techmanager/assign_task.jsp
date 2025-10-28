@@ -272,7 +272,13 @@
                         <div class="col-md-12">
                             <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Assign Task</h1>
                             <p style="color: #718096; margin-bottom: 2rem;">Assign request for Technician</p>
+                            <c:if test="${not empty error}" >
+                                <div class="alert alert-danger" style="margin: 10px;">
+                                    ${error}
+                                </div>
+                            </c:if>
                         </div>
+
                     </div>
                     <!-- Add Task Assignment Card -->
                     <div class="row">
@@ -294,9 +300,9 @@
                                                 <select name="taskId" class="form-control" required>
                                                     <option value="">-- Select Task --</option>
                                                     <c:forEach var="task" items="${requestList}">
-                                                        <c:if test="${task.status == 'PENDING'}">
+                                                        <c:if test="${task.status == 'TRANSFERRED'}">
                                                             <option value="${task.id}"
-                                                                <c:if test="${task.id == requestSelected}">selected</c:if>>
+                                                                    <c:if test="${task.id == requestSelected}">selected</c:if>>
                                                                 Request #${task.id}: ${task.request_type} "${task.device.productName}" for ${task.customer.fullName}
                                                             </option>
                                                         </c:if>
@@ -322,7 +328,7 @@
 
                                                         <label style="margin:0 8px; white-space:nowrap;">
                                                             <!-- Radio có value bằng technicianId -->
-                                                            <input type="radio" name="leaderId" class="leader-radio" value="" /> Leader
+                                                            <input type="radio" name="leaderId" class="leader-radio" value="" required/> Leader
                                                         </label>
 
                                                         <button type="button" class="btn btn-primary btn-sm addTechBtn">

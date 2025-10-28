@@ -630,7 +630,7 @@ public class CustomerRequestDAO extends DBContext {
             e.printStackTrace();
         }
     }
-    
+
     public CustomerRequest getCusRequestById(int requestId) {
         String sql = "SELECT * FROM CustomerRequest WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -654,9 +654,10 @@ public class CustomerRequestDAO extends DBContext {
         }
         return null;
     }
+
     public boolean updateRequest(CustomerRequest request) {
         String sql = "UPDATE CustomerRequest SET title = ?, device_id = ?, description = ?, request_type = ? "
-                   + "WHERE id = ?";
+                + "WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, request.getTitle());
             ps.setInt(2, request.getDevice_id());
@@ -669,10 +670,10 @@ public class CustomerRequestDAO extends DBContext {
         }
         return false;
     }
-    
+
     public CustomerRequest getRequestDetailsById(int requestId) {
-    CustomerRequest req = null;
-    String sql = """
+        CustomerRequest req = null;
+        String sql = """
         SELECT 
             cr.id AS request_id, cr.customer_id, cr.request_type, cr.title, cr.description, 
             cr.request_date, cr.status AS request_status,
@@ -691,37 +692,60 @@ public class CustomerRequestDAO extends DBContext {
         WHERE cr.id = ?
     """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, requestId);
-        ResultSet rs = ps.executeQuery();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+            ResultSet rs = ps.executeQuery();
 
-        if (rs.next()) {
-            req = new CustomerRequest();
-            // ... (gán các trường của CustomerRequest: id, title, type, status, date...)
-            req.setId(rs.getInt("request_id"));
-            req.setCustomer_id(rs.getInt("customer_id"));
-            req.setRequest_type(rs.getString("request_type"));
-            req.setTitle(rs.getString("title"));
-            req.setDescription(rs.getString("description"));
-            req.setRequest_date(rs.getTimestamp("request_date"));
-            req.setStatus(rs.getString("request_status"));
+            if (rs.next()) {
+                req = new CustomerRequest();
+                // ... (gán các trường của CustomerRequest: id, title, type, status, date...)
+                req.setId(rs.getInt("request_id"));
+                req.setCustomer_id(rs.getInt("customer_id"));
+                req.setRequest_type(rs.getString("request_type"));
+                req.setTitle(rs.getString("title"));
+                req.setDescription(rs.getString("description"));
+                req.setRequest_date(rs.getTimestamp("request_date"));
+                req.setStatus(rs.getString("request_status"));
 
-            // Tạo đối tượng Device và gán thông tin
-            Device device = new Device();
-            device.setId(rs.getInt("device_id"));
-            device.setSerialNumber(rs.getString("serial_number"));
-            device.setWarrantyExpiration(rs.getDate("warranty_expiration"));
-            device.setStatus(rs.getString("device_status"));
-            device.setProductName(rs.getString("product_name")); 
-            device.setBrandName(rs.getString("brand_name"));
-            device.setCategoryName(rs.getString("category_name"));
-            
-            // Gán đối tượng Device vào CustomerRequest
-            req.setDevice(device); 
+                // Tạo đối tượng Device và gán thông tin
+                Device device = new Device();
+                device.setId(rs.getInt("device_id"));
+                device.setSerialNumber(rs.getString("serial_number"));
+                device.setWarrantyExpiration(rs.getDate("warranty_expiration"));
+                device.setStatus(rs.getString("device_status"));
+                device.setProductName(rs.getString("product_name"));
+                device.setBrandName(rs.getString("brand_name"));
+                device.setCategoryName(rs.getString("category_name"));
+
+                // Gán đối tượng Device vào CustomerRequest
+                req.setDevice(device);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return req;
     }
-    return req;
-}
+
+    public int getNumberTaskByIdAnDate(int id, String date) {
+        String sql = "SELECT COUNT(*) FROM crm_device_management.customerrequest_assignment "
+                + "WHERE technician_id = ? AND assigned_date = ?";
+
+        int count = 0; 
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, id);
+            stm.setString(2, date);
+
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    count = rs.getInt(1); 
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
 }

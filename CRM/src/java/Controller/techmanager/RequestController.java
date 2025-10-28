@@ -44,6 +44,12 @@ public class RequestController extends HttpServlet {
                 req.getRequestDispatcher("/techmanager/reject_request.jsp").forward(req, resp);
                 break;
             case "assignTask":
+                String error = req.getParameter("error");
+                String techName = req.getParameter("techName");
+                
+                if ("tooMuchTask".equals(error)) {
+                    req.setAttribute("error", techName + " has had a lot of task on that day");
+                }
                 
                 if(req.getParameter("id")!=null){
                     req.setAttribute("requestSelected", Integer.valueOf(req.getParameter("id")));

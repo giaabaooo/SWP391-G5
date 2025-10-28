@@ -31,10 +31,11 @@ public class TechnicianController extends HttpServlet {
         switch (action) {
 
             case "detail":
-            case "edit":
-            case "delete":
-                req.getRequestDispatcher("/techmanager/layout/updatingScreen.jsp").forward(req, resp);
+                int id = Integer.parseInt(req.getParameter("id"));
+                req.setAttribute("list", db.get(id));
+                req.getRequestDispatcher("/techmanager/technician_detail.jsp").forward(req, resp);
                 break;
+                
             case "list":
             default:
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));

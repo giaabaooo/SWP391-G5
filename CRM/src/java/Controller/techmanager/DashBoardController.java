@@ -36,7 +36,7 @@ public class DashBoardController extends HttpServlet {
         ArrayList<CustomerRequest> pendingList = new ArrayList<CustomerRequest>();
                 
         for (var b : db.getListRequest(1, Integer.MAX_VALUE, "", "", "", "","","")) {
-            if (b.getStatus().contains("PENDING")) {
+            if (b.getStatus().contains("TRANSFERRED")) {
                 pendingList.add(b);
                 pending++;
             } else {
