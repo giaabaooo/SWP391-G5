@@ -44,6 +44,12 @@ public class RequestController extends HttpServlet {
                 req.getRequestDispatcher("/techmanager/reject_request.jsp").forward(req, resp);
                 break;
             case "assignTask":
+                String error = req.getParameter("error");
+                String techName = req.getParameter("techName");
+                
+                if ("tooMuchTask".equals(error)) {
+                    req.setAttribute("error", techName + " has had a lot of task on that day");
+                }
                 
                 if(req.getParameter("id")!=null){
                     req.setAttribute("requestSelected", Integer.valueOf(req.getParameter("id")));
@@ -56,7 +62,7 @@ public class RequestController extends HttpServlet {
             case "list":
             default:
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
-                int size = 10;
+                int size = req.getParameter("pageSize") == null ? 10 : Integer.parseInt(req.getParameter("pageSize"));
 
                 String keyword = req.getParameter("keyword");
                 String requestType = req.getParameter("requestType");
@@ -96,10 +102,14 @@ public class RequestController extends HttpServlet {
                     return;
                 }
 
+                var re = db.getListRequest(1, Integer.MAX_VALUE, "", "", "", "", "", "");
+                int totalPages = (int) Math.ceil((double) re.size() / size);
+                
                 req.setAttribute("requests", db.getListRequest(page, size, keyword, status, fromDate, toDate, requestType, isActive));
-                //req.setAttribute("total", total);
+                req.setAttribute("totalProducts", re.size());
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
+                req.setAttribute("totalPages", totalPages);
 
                 req.getRequestDispatcher("/techmanager/request_list.jsp").forward(req, resp);
 
@@ -116,9 +126,13 @@ public class RequestController extends HttpServlet {
             req.setAttribute("error", "Reject reason is required!");
             req.getRequestDispatcher("/techmanager/requestdetail.jsp").forward(req, resp);
             return;
+        }else if(reason.length()>=300){
+            req.setAttribute("error", "Reject reason is too long!");
+            req.getRequestDispatcher("/techmanager/requestdetail.jsp").forward(req, resp);
+            return;
         }
 
-        db.updateRequest("REJECTED",0,Integer.parseInt(id));
+        db.updateRequest("CANCELLED",0,Integer.parseInt(id));
         db.insertRejectReason(Integer.parseInt(id), reason);
 
         resp.sendRedirect("request");

@@ -1,8 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@ include file="/technician/layout/header.jsp" %>
-<%@ include file="/technician/layout/sidebar.jsp" %>
+<%@ include file="/techmanager/layout/header.jsp" %>
+<%@ include file="/techmanager/layout/sidebar.jsp" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -270,113 +270,86 @@
                     <!-- Page Header -->
                     <div class="row">
                         <div class="col-md-12">
-                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Request Details</h1>
-                            <p style="color: #718096; margin-bottom: 2rem;">View detailed information about this request</p>
-                            <c:if test="${not empty error}">
-                                <div class="alert alert-danger" style="margin: 10px;">
-                                    ${error}
-                                </div>
-                            </c:if>
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Technician Details</h1>
+                            <p style="color: #718096; margin-bottom: 2rem;">View detailed information about technician</p>
                         </div>
                     </div>
 
-
+                    <!-- Product Detail Card -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card product-detail-card">
+
                                 <div class="card-body">
 
                                     <h4 style="color: #2d3748; font-weight: 600; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0;">
-                                        <i class="fa fa-file-invoice-dollar" style="color: #667eea;"></i> Create Bill
+                                        <i class="fa fa-info-circle" style="color: #667eea;"></i> Technician details
                                     </h4>
 
-                                    <form method="post" action="${pageContext.request.contextPath}/technician/task?action=add">
-
-                                        <!-- Task -->
-                                        <div class="info-row" style="margin-bottom: 1rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-tasks"></i> Task
-                                            </div>
-                                            <div class="info-value">
-                                                <select name="taskId" class="form-control" required>
-                                                    <option value="">-- Select Task --</option>
-                                                    <c:forEach var="task" items="${requestList}">
-                                                        <c:if test="${task.status == 'IN_PROGRESS'}">
-                                                            
-                                                            <option value="${task.id}"
-                                                                    <c:if test="${task.id == taskSelected}">selected</c:if>>
-                                                                ${task.request_type} - ${task.device.productName} (${task.customer.fullName})
-                                                            </option>
-                                                            
-                                                        
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </select>
-                                            </div>
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-hashtag"></i>ID
                                         </div>
-
-                                        <!-- Total Cost -->
-                                        <div class="info-row" style="margin-bottom: 1.5rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-money-bill"></i> Total Cost
-                                            </div>
-                                            <div class="info-value">
-                                                <input type="number" name="totalCost" class="form-control" placeholder="Enter total cost" required min="0">
-                                            </div>
+                                        <div class="info-row">
+                                            <strong>${list.id}</strong>
                                         </div>
+                                    </div>
 
-                                        <!-- Payment Status -->
-                                        <div class="info-row" style="margin-bottom: 1.5rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-credit-card"></i> Payment Status
-                                            </div>
-                                            <div class="info-value">
-                                                <select name="paymentStatus" class="form-control" required>
-                                                    <option value="">-- Select Status --</option>
-                                                    <option value="UNPAID">UNPAID</option>
-                                                    <option value="PARTIALLY_PAID">PARTIALLY PAID</option>
-                                                    <option value="PAID">PAID</option>
-                                                </select>
-                                            </div>
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-hashtag"></i>Username
                                         </div>
-
-                                        <!-- Paid Amount -->
-                                        <div class="info-row" style="margin-bottom: 1.5rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-coins"></i> Paid Amount
-                                            </div>
-                                            <div class="info-value">
-                                                <input type="number" name="paidAmount" class="form-control" placeholder="Enter paid amount" required min="0">
-                                            </div>
+                                        <div class="info-row">
+                                            ${list.username}
                                         </div>
+                                    </div>
 
-                                        <!-- Assign Date -->
-                                        <div class="info-row" style="margin-bottom: 1.5rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-calendar"></i> Assign Date
-                                            </div>
-                                            <div class="info-value">
-                                                <input type="date" name="assignDate" class="form-control" required>
-                                            </div>
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-tag"></i> Full Name
                                         </div>
-
-                                        <!-- Buttons -->
-                                        <div class="mt-3 text-center">
-                                            <a href="${pageContext.request.contextPath}/technician/task" class="btn btn-default" style="min-width: 150px;">
-                                                <i class="fa fa-arrow-left"></i> Back to List
-                                            </a>
-                                            <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
-                                                <i class="fa fa-save"></i> Save
-                                            </button>
+                                        <div class="info-row">
+                                            ${list.fullName}
                                         </div>
+                                    </div>
 
-                                    </form>
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-tag"></i> Email
+                                        </div>
+                                        <div class="info-row">
+                                            ${list.email}
+                                        </div>
+                                    </div>
 
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-tag"></i> Phone
+                                        </div>
+                                        <div class="info-row">
+                                            ${list.phone}
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-align-left"></i> Address
+                                        </div>
+                                        <div class="info-row">
+                                            ${list.address}
+                                        </div>
+                                    </div>
+
+                                    
+
+                                    <div class="mt-3 text-center">
+                                        <a href="technician" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back to Task list</a>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
-
 
 
 
@@ -399,69 +372,24 @@
 
         <script>
             $(function () {
+                // Handle collapsible menu
                 $('.treeview > a').click(function (e) {
                     e.preventDefault();
                     var target = $(this).attr('href');
                     $(target).collapse('toggle');
                 });
 
+                // Auto-expand Products menu
                 $('#inventoryMenu').addClass('in');
             });
 
-            document.addEventListener("DOMContentLoaded", function () {
-                const paymentSelect = document.querySelector('select[name="paymentStatus"]');
-                const paidInput = document.querySelector('input[name="paidAmount"]');
-
-                // Mặc định: chỉ đọc, không nhập
-                paidInput.readOnly = true;
-
-                paymentSelect.addEventListener("change", function () {
-                    const value = this.value;
-
-                    if (value === "PAID" || value === "PARTIALLY_PAID") {
-                        paidInput.readOnly = false;  // cho phép nhập
-                        paidInput.required = true;   // bắt buộc nhập
-                    } else {
-                        paidInput.readOnly = true;   // khóa ô nhưng vẫn gửi value
-                        paidInput.value = "";        // xóa dữ liệu cũ
-                        paidInput.required = false;
-                    }
-                });
-            });
-
-
-            document.addEventListener("DOMContentLoaded", function () {
-                const container = document.getElementById("technicianContainer");
-
-                // Gán value radio theo technician được chọn
-                container.addEventListener("change", function (e) {
-                    if (e.target.classList.contains("technician-select")) {
-                        const select = e.target;
-                        const row = select.closest(".tech-row");
-                        const radio = row.querySelector(".leader-radio");
-                        radio.value = select.value; // Cập nhật value của radio
-                    }
-                });
-
-                // Thêm dòng mới
-                container.addEventListener("click", function (e) {
-                    if (e.target.closest(".addTechBtn")) {
-                        const row = e.target.closest(".tech-row");
-                        const clone = row.cloneNode(true);
-                        clone.querySelector(".technician-select").value = "";
-                        clone.querySelector(".leader-radio").checked = false;
-                        clone.querySelector(".leader-radio").value = "";
-                        container.appendChild(clone);
-                    }
-
-                    // Xóa dòng
-                    if (e.target.closest(".removeTechBtn")) {
-                        const rows = container.querySelectorAll(".tech-row");
-                        if (rows.length > 1)
-                            e.target.closest(".tech-row").remove();
-                    }
-                });
-            });
+            // Delete product function
+            function deleteProduct(id) {
+                if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                    // TODO: Implement delete functionality
+                    alert('Delete product ID: ' + id);
+                }
+            }
         </script>
     </body>
 </html>

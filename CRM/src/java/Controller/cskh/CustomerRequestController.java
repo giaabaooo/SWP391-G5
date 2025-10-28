@@ -33,7 +33,10 @@ public class CustomerRequestController extends HttpServlet {
         String pageParam = request.getParameter("page");
         if (pageParam != null) {
             try {
-                page = Math.max(1, Integer.parseInt(pageParam));
+                page = Integer.parseInt(pageParam);
+                if (page < 1) {
+                    page = 1;
+                }
             } catch (NumberFormatException e) {
                 page = 1;
             }
@@ -41,21 +44,22 @@ public class CustomerRequestController extends HttpServlet {
         String type = request.getParameter("type");
         String status = request.getParameter("status");
 
-        int offset = (page - 1) * pageSize;
-        List<CustomerRequest> list = dao.getCustomerRequestsByCSKH(offset, pageSize, type, status);
         int total = dao.countCustomerRequests(type, status);
         int totalPages = (int) Math.ceil((double) total / pageSize);
         if (totalPages == 0) {
             totalPages = 1;
         }
 
+        int offset = (page - 1) * pageSize;
+        List<CustomerRequest> list = dao.getCustomerRequestsByCSKH(offset, pageSize, type, status);
+
         request.setAttribute("requests", list);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
         request.setAttribute("total", total);
+        request.setAttribute("page", page);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("type", type);
         request.setAttribute("status", status);
-        request.setAttribute("pageSize", pageSize);
 
         request.getRequestDispatcher("/cskh/customer_request_list.jsp").forward(request, response);
     }

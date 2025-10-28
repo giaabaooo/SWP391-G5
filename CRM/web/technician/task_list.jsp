@@ -591,6 +591,11 @@
                                     ${error}
                                 </div>
                             </c:if>
+                            <c:if test="${not empty success}">
+                                <div class="alert alert-success" style="margin: 10px;">
+                                    ${success}
+                                </div>
+                            </c:if>
 
                         </div>
                     </div>
@@ -620,12 +625,12 @@
                                             <option value="repair" ${param.requestType=="repair"?"selected":""}>Repair</option>
                                             <option value="maintenance" ${param.requestType=="maintenance"?"selected":""}>Maintenance</option>
                                         </select>
-                                        
+
                                         <input type="date" name="fromDate" class="search-input" value="${param.fromDate}" style="min-width:160px;">
                                         <input type="date" name="toDate" class="search-input" value="${param.toDate}" style="min-width:160px;">
 
-                                        
-                                        
+
+
                                         <button class="btn btn-primary" type="submit" >
                                             <i class="fa fa-filter"></i> Filter
                                         </button>
@@ -672,10 +677,24 @@
                                                             <a href="${pageContext.request.contextPath}/technician/task?action=detail&id=${u.customerRequest.id}" class="btn btn-action btn-view">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
-                                                            <c:if test="${u.is_main == 1 && user.id == u.technician_id}">
-                                                                <a href="${pageContext.request.contextPath}/technician/task?action=createBill&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
-                                                                    Create bill <i class="fa fa-angle-right"></i> 
-                                                                </a>
+                                                            <c:if test="${u.is_main eq 1 && user.id eq u.technician_id}">
+                                                                <c:if test="${u.customerRequest.status eq 'ASSIGNED'}">
+                                                                    <a href="${pageContext.request.contextPath}/technician/task?action=inProgress&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
+                                                                            In Progress <i class="fa fa-angle-right"></i> 
+                                                                        </a>
+                                                                </c:if>
+                                                                <c:if test="${u.customerRequest.status eq 'IN_PROGRESS'}">
+                                                                    <c:if test="${u.customerRequest.request_type ne 'WARRANTY'}">
+                                                                        <a href="${pageContext.request.contextPath}/technician/task?action=createBill&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
+                                                                            Create bill <i class="fa fa-angle-right"></i> 
+                                                                        </a>
+                                                                    </c:if>
+                                                                    <c:if test="${u.customerRequest.request_type eq 'WARRANTY'}">
+                                                                        <a href="${pageContext.request.contextPath}/technician/task?action=complete&id=${u.customerRequest.id}" class="btn btn-action btn-edit">
+                                                                            Done <i class="fa fa-angle-right"></i> 
+                                                                        </a>
+                                                                    </c:if>
+                                                                </c:if>
                                                             </c:if>
                                                         </td>
                                                     </tr>

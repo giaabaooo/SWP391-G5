@@ -216,88 +216,112 @@ public class UserDBContext extends DBContext {
             e.printStackTrace();
         }
     }
-    
-    public ArrayList<User> listCustomers(int page, int pageSize, String keyword, String status) {
-    ArrayList<User> users = new ArrayList<>();
-    String sql = "SELECT u.*, r.id AS role_id, r.name AS role_name, r.description AS role_desc "
-               + "FROM User u INNER JOIN Role r ON u.role_id = r.id "
-               + "WHERE r.name = 'Customer'";   // cố định chỉ lấy Customer
-    ArrayList<Object> params = new ArrayList<>();
 
-    if (keyword != null && !keyword.trim().isEmpty()) {
-        sql += " AND (u.username LIKE ? OR u.email LIKE ?)";
-        params.add("%" + keyword + "%");
-        params.add("%" + keyword + "%");
-    }
-    if (status != null && !status.trim().isEmpty()) {
-        sql += " AND u.is_active = ?";
-        params.add(status.equals("active") ? 1 : 0);
-    }
+    public ArrayList<User> listCustomers(int page, int pageSize, String keyword, String status, String sort) {
+        ArrayList<User> users = new ArrayList<>();
+        String sql = "SELECT u.*, r.id AS role_id, r.name AS role_name, r.description AS role_desc "
+                + "FROM User u INNER JOIN Role r ON u.role_id = r.id "
+                + "WHERE r.name = 'Customer'";   // cố định chỉ lấy Customer
+        ArrayList<Object> params = new ArrayList<>();
 
-    sql += " LIMIT ? OFFSET ?";
-    params.add(pageSize);
-    params.add((page - 1) * pageSize);
-
-    try (PreparedStatement stm = connection.prepareStatement(sql)) {
-        for (int i = 0; i < params.size(); i++) {
-            stm.setObject(i + 1, params.get(i));
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql += " AND (u.username LIKE ? OR u.email LIKE ?)";
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
         }
-        ResultSet rs = stm.executeQuery();
-        while (rs.next()) {
-            Role r = new Role();
-            r.setId(rs.getInt("role_id"));
-            r.setName(rs.getString("role_name"));
-            r.setDescription(rs.getString("role_desc"));
-
-            User u = new User();
-            u.setId(rs.getInt("id"));
-            u.setUsername(rs.getString("username"));
-            u.setFullName(rs.getString("full_name"));
-            u.setEmail(rs.getString("email"));
-            u.setPhone(rs.getString("phone"));
-            u.setIsActive(rs.getBoolean("is_active"));
-            u.setRole(r);
-
-            users.add(u);
+        if (status != null && !status.trim().isEmpty()) {
+            sql += " AND u.is_active = ?";
+            params.add(status.equals("active") ? 1 : 0);
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        String orderBy = "u.username ASC";
+        if (sort != null) {
+            switch (sort) {
+                case "username_asc":
+                    orderBy = "u.username ASC";
+                    break;
+                case "username_desc":
+                    orderBy = "u.username DESC";
+                    break;
+                case "fullname_asc":
+                    orderBy = "u.full_name ASC";
+                    break;
+                case "fullname_desc":
+                    orderBy = "u.full_name DESC";
+                    break;
+            }
+        }
+        sql += " ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                stm.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                Role r = new Role();
+                r.setId(rs.getInt("role_id"));
+                r.setName(rs.getString("role_name"));
+                r.setDescription(rs.getString("role_desc"));
+
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setFullName(rs.getString("full_name"));
+                u.setEmail(rs.getString("email"));
+                u.setPhone(rs.getString("phone"));
+                u.setIsActive(rs.getBoolean("is_active"));
+                u.setRole(r);
+
+                users.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
     }
-    return users;
-}
 
+    public int countCustomers(String keyword, String status) {
+        String sql = "SELECT COUNT(*) "
+                + "FROM User u "
+                + "JOIN Role r ON u.role_id = r.id "
+                + "WHERE r.name = 'Customer' ";
 
-public int countCustomers(String keyword, String status) {
-    String sql = "SELECT COUNT(*) "
-               + "FROM User u "
-               + "JOIN Role r ON u.role_id = r.id "
-               + "WHERE r.name = 'Customer' ";
-
-    if (keyword != null && !keyword.isEmpty()) {
-        sql += " AND (u.username LIKE ? OR u.email LIKE ?)";
-    }
-    if (status != null && !status.isEmpty()) {
-    sql += " AND u.is_active = ?";
-}
-
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        int idx = 1;
         if (keyword != null && !keyword.isEmpty()) {
-            ps.setString(idx++, "%" + keyword + "%");
-            ps.setString(idx++, "%" + keyword + "%");
+            sql += " AND (u.username LIKE ? OR u.email LIKE ?)";
         }
         if (status != null && !status.isEmpty()) {
-    ps.setInt(idx++, status.equals("active") ? 1 : 0);
-}
-
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1);
+            sql += " AND u.is_active = ?";
         }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int idx = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(idx++, "%" + keyword + "%");
+                ps.setString(idx++, "%" + keyword + "%");
+            }
+            if (status != null && !status.isEmpty()) {
+                ps.setInt(idx++, status.equals("active") ? 1 : 0);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+public void toggleCustomerStatus(int id) {
+    String sql = "UPDATE User SET is_active = NOT is_active WHERE id=?";
+    try (PreparedStatement stm = connection.prepareStatement(sql)) {
+        stm.setInt(1, id);
+        stm.executeUpdate();
     } catch (SQLException e) {
         e.printStackTrace();
     }
-    return 0;
 }
-
 }
