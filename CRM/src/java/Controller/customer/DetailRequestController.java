@@ -29,31 +29,20 @@ public class DetailRequestController extends HttpServlet {
             throws ServletException, IOException {
          HttpSession session = request.getSession(false);
          User user = (User) session.getAttribute("user");
-//         String idParam  = request.getParameter("id");
-         String requestIdParam = request.getParameter("id");
+
+         
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect("../login");
             return;
         }     
-        try {
-            // 2. Lấy ID từ URL và kiểm tra
-            int requestId = Integer.parseInt(requestIdParam);
-//            int deviceId = Integer.parseInt(idParam .trim());
-            // 3. Gọi DAO để lấy dữ liệu chi tiết
-            
+        try {            
+            int requestId = Integer.parseInt(request.getParameter("id"));
+                       
             CustomerRequestDAO dao = new CustomerRequestDAO();
-//            Device device = deviceDAO.getDeviceById(deviceId);
             CustomerRequest requestDetails = dao.getRequestDetailsById(requestId);
 
-            // 4. Kiểm tra quyền sở hữu và dữ liệu tồn tại
-            
-
-            // 5. Gửi dữ liệu sang JSP
-//            request.setAttribute("device", device);
             request.setAttribute("requestDetails", requestDetails);
-            request.getRequestDispatcher("/customer/detailRequest.jsp").forward(request, response);
-
-        
+            request.getRequestDispatcher("/customer/detailRequest.jsp").forward(request, response);        
         } catch (NumberFormatException e) {
             e.printStackTrace();                  
         } 

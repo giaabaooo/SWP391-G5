@@ -680,14 +680,12 @@ public class CustomerRequestDAO extends DBContext {
             p.name AS product_name, 
             b.name AS brand_name, 
             cat.name AS category_name
-            -- , u.full_name AS customer_name -- Có thể bỏ nếu không cần tên khách hàng ở đây
         FROM CustomerRequest cr
         JOIN Device d ON cr.device_id = d.id
         JOIN ContractItem ci ON d.contract_item_id = ci.id
         JOIN Product p ON ci.product_id = p.id
         LEFT JOIN Brand b ON p.brand_id = b.id
-        LEFT JOIN Category cat ON p.category_id = cat.id
-        -- JOIN User u ON cr.customer_id = u.id -- Có thể bỏ nếu không cần tên khách hàng
+        LEFT JOIN Category cat ON p.category_id = cat.id       
         WHERE cr.id = ?
     """;
 
@@ -697,7 +695,7 @@ public class CustomerRequestDAO extends DBContext {
 
         if (rs.next()) {
             req = new CustomerRequest();
-            // ... (gán các trường của CustomerRequest: id, title, type, status, date...)
+            
             req.setId(rs.getInt("request_id"));
             req.setCustomer_id(rs.getInt("customer_id"));
             req.setRequest_type(rs.getString("request_type"));
@@ -705,8 +703,7 @@ public class CustomerRequestDAO extends DBContext {
             req.setDescription(rs.getString("description"));
             req.setRequest_date(rs.getTimestamp("request_date"));
             req.setStatus(rs.getString("request_status"));
-
-            // Tạo đối tượng Device và gán thông tin
+          
             Device device = new Device();
             device.setId(rs.getInt("device_id"));
             device.setSerialNumber(rs.getString("serial_number"));
@@ -716,12 +713,28 @@ public class CustomerRequestDAO extends DBContext {
             device.setBrandName(rs.getString("brand_name"));
             device.setCategoryName(rs.getString("category_name"));
             
-            // Gán đối tượng Device vào CustomerRequest
             req.setDevice(device); 
         }
     } catch (SQLException e) {
         e.printStackTrace();
     }
     return req;
+}
+    public boolean deactivateRequest(int requestId, int customerId) {
+    String sql = "UPDATE CustomerRequest SET is_active = 0 WHERE id = ? AND customer_id = ?";
+    
+    try  {
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setInt(1, requestId);
+        statement.setInt(2, customerId); 
+        
+        int rowsAffected = statement.executeUpdate();
+        statement.close(); 
+        
+        return rowsAffected > 0;
+    } catch (SQLException e) {
+        System.err.println("Error deactivating product: " + e.getMessage());
+        return false;
+    }
 }
 }
