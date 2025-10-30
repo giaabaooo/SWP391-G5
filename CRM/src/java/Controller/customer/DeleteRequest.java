@@ -5,6 +5,8 @@
 
 package Controller.customer;
 
+import dal.CustomerRequestDAO;
+import data.User;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -18,64 +20,58 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public class DeleteRequest extends HttpServlet {
    
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+   @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet DeleteRequest</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet DeleteRequest at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            return;
         }
-    } 
+        try {
+            // Get product ID from parameter
+            String requestIdParam = request.getParameter("id");
+            
+            if (requestIdParam == null || requestIdParam.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/customer/listRequest?error=Request ID is required");
+                return;
+            }
+            
+            int requestId;
+            try {
+                requestId = Integer.parseInt(requestIdParam);
+            } catch (NumberFormatException e) {
+                response.sendRedirect(request.getContextPath() + "/customer/listRequest?error=Invalid request ID");
+                return;
+            }
+            
+            // Deactivate product (soft delete) instead of hard delete to preserve referential integrity
+           CustomerRequestDAO dao = new CustomerRequestDAO();
+            boolean isDeleted = dao.deactivateRequest(requestId, user.getId());
+            
+            if (isDeleted) {
+                response.sendRedirect(request.getContextPath() + "/customer/listRequest?success=Request deleted successfully");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/customer/listRequest?error=Failed to delete request");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error deleting product: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/customer/listRequest?error=An error occurred while deleting the product");
+        }
+    }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
-    } 
-
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
+        // Redirect GET requests to POST
+        doPost(request, response);
     }
 
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
+        return "Delete Request Controller";
+    }
 
 }

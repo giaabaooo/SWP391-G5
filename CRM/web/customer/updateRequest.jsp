@@ -64,7 +64,7 @@
     </header>
 
     <div class="wrapper row-offcanvas row-offcanvas-left">
-         <aside class="left-side sidebar-offcanvas">
+          <aside class="left-side sidebar-offcanvas">
                 <section class="sidebar">
                     <div class="user-panel">
 
@@ -74,7 +74,7 @@
                         </div>
                     </div>
 
-                    <ul class="sidebar-menu">
+                   <ul class="sidebar-menu">
                         <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
@@ -85,7 +85,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-
+                                
 
                             </ul>
                         </li>
@@ -101,8 +101,17 @@
 
 
 
-                        <li>
-                            <a href="feedback.jsp"><i class="fa fa-edit"></i>  <span>Feedback</span></a>
+                       
+                        <li class="treeview">
+                            <a href="#feedbackMenu" data-toggle="collapse" aria-expanded="false">
+                                <i class="fa fa-tags"></i> <span>Feedback</span>
+                            </a>
+                            <ul class="collapse" id="feedbackMenu">
+                                <li><a href="${pageContext.request.contextPath}/customer/createFeedback"><i class="fa fa-plus"></i> Create Feedback</a></li>
+                                <li><a href="${pageContext.request.contextPath}/customer/listFeedback"><i class="fa fa-eye"></i> View List Feedback</a></li>
+                                
+
+                            </ul>
                         </li>
                     </ul>
                 </section>

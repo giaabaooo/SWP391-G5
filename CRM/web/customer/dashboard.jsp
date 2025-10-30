@@ -93,8 +93,17 @@
 
 
 
-                        <li>
-                            <a href="feedback.jsp"><i class="fa fa-edit"></i>  <span>Feedback</span></a>
+                       
+                        <li class="treeview">
+                            <a href="#feedbackMenu" data-toggle="collapse" aria-expanded="false">
+                                <i class="fa fa-tags"></i> <span>Feedback</span>
+                            </a>
+                            <ul class="collapse" id="feedbackMenu">
+                                <li><a href="${pageContext.request.contextPath}/customer/createFeedback"><i class="fa fa-plus"></i> Create Feedback</a></li>
+                                <li><a href="${pageContext.request.contextPath}/customer/listFeedback"><i class="fa fa-eye"></i> View List Feedback</a></li>
+                                
+
+                            </ul>
                         </li>
                     </ul>
                 </section>

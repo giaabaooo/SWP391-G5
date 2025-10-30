@@ -1,18 +1,15 @@
 <%-- 
-    Document   : createRequest
-    Created on : Oct 14, 2025, 2:13:40 PM
+    Document   : createFeedback
+    Created on : Oct 30, 2025, 6:23:14 PM
     Author     : admin
 --%>
 
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="data.Product" %>
-<%@ page import="java.util.List" %>
-<%@ page import="data.Device" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Customer | Create Request</title>
+        <title>Customer | Create Feedback</title>
         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
         <meta name="description" content="Warehouse Management System">
         <meta name="keywords" content="Warehouse, Inventory, Management">
@@ -119,8 +116,8 @@
                     <!-- Page Header -->
                     <div class="row">
                         <div class="col-md-12">
-                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Create New Request</h1>
-                            <p style="color: #718096; margin-bottom: 2rem;">Create a new request to Warranty and Repair</p>
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Create New Feedback</h1>
+                            <p style="color: #718096; margin-bottom: 2rem;">Create a new feedback </p>
 
 
                             <% if (request.getAttribute("error") != null) { %>
@@ -136,7 +133,7 @@
                         <div class="col-md-12">
                             <div class="content-card">
                                 <div class="card-header">
-                                    <h3><i class="fa fa-plus"></i> Request</h3>
+                                    <h3><i class="fa fa-plus"></i> Feedback</h3>
                                 </div>
                                 <div class="card-body">
                                     <form method="post" action="${pageContext.request.contextPath}/customer/createRequest" novalidate onsubmit="return validateForm();">
@@ -310,6 +307,3 @@
         </script>
     </body>
 </html>
-
-
-
