@@ -716,7 +716,8 @@ public class CustomerRequestDAO extends DBContext {
             
             req.setDevice(device); 
         }
-        return req;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
     return req;
 }
