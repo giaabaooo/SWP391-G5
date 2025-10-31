@@ -760,5 +760,79 @@ public class CustomerRequestDAO extends DBContext {
 
         return count;
     }
+    public List<CustomerRequest> getCompletableRequests(int userId) {
+    List<CustomerRequest> list = new ArrayList<>();
+    String sql = """
+        SELECT 
+                    cr.id AS request_id, cr.title, cr.description, cr.request_type, cr.status,
+                    d.id AS device_id, 
+                    p.name AS product_name
+                FROM CustomerRequest cr
+                JOIN Device d ON cr.device_id = d.id
+                JOIN ContractItem ci ON d.contract_item_id = ci.id
+                JOIN Product p ON ci.product_id = p.id
+                
+                WHERE cr.customer_id = ?
+                AND cr.status IN ('COMPLETED', 'AWAITING_PAYMENT', 'PAID', 'CLOSED')
+                AND cr.is_active = 1
+                
+                -- SỬA LẠI LOGIC:
+                -- Và KHÔNG TỒN TẠI (NOT EXISTS) một bản ghi meta nào liên quan
+                -- mà đã có comment (không null VÀ không rỗng)
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM CustomerRequestMeta m
+                    WHERE m.request_id = cr.id
+                      AND m.customer_comment IS NOT NULL
+                      AND TRIM(m.customer_comment) <> ''
+                )
+                
+                ORDER BY cr.request_date DESC
+    """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            CustomerRequest req = new CustomerRequest();
+            req.setId(rs.getInt("request_id"));
+            req.setTitle(rs.getString("title"));
+            req.setDescription(rs.getString("description"));
+            req.setRequest_type(rs.getString("request_type"));
+            req.setStatus(rs.getString("status"));
+
+            Device device = new Device();
+            device.setId(rs.getInt("device_id"));
+            device.setProductName(rs.getString("product_name"));
+            req.setDevice(device);
+            
+            list.add(req);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+    
+    public boolean saveFeedback(int requestId, String comment, int rating) {
+    String sql = """
+        INSERT INTO CustomerRequestMeta (request_id, customer_comment, rating)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+        customer_comment = ?, rating = ?
+    """;
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, requestId);
+        ps.setString(2, comment);
+        ps.setInt(3, rating);
+        ps.setString(4, comment); // Cho phần UPDATE
+        ps.setInt(5, rating);     // Cho phần UPDATE
+        
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
 
 }

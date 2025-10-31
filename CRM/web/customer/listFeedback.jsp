@@ -151,9 +151,9 @@
                                 <div class="content-card">
                                     <div class="card-header">
                                         <h3><i class="fa fa-list"></i> Feedback List</h3>
-                                        <!--                                        <a href="../customer/listFeedback" class="btn btn-primary">
-                                                                                    <i class="fa fa-plus"></i> Add New Request
-                                                                                </a>-->
+                                        <a href="../customer/createFeedback" class="btn btn-primary">
+                                            <i class="fa fa-plus"></i> Add New Feedback
+                                        </a>
 
                                     </div>
 
