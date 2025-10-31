@@ -1,25 +1,10 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@ include file="/techmanager/layout/header.jsp" %>
-<%@ include file="/techmanager/layout/sidebar.jsp" %>
+<%@ include file="/admin/layout/header.jsp" %>
+<%@ include file="/admin/layout/sidebar.jsp" %>
 <html>
     <head>
-        <meta charset="UTF-8">
-        <title>Warehouse Staff | View List Product</title>
-        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-        <meta name="description" content="Warehouse Management System">
-        <meta name="keywords" content="Warehouse, Inventory, Management">
-        <!-- bootstrap 3.0.2 -->
-        <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-        <link href="${pageContext.request.contextPath}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
-        <link href="${pageContext.request.contextPath}/css/morris/morris.css" rel="stylesheet" type="text/css" />
-        <link href="${pageContext.request.contextPath}/css/jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
-        <link href="${pageContext.request.contextPath}/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
-        <link href="${pageContext.request.contextPath}/css/iCheck/all.css" rel="stylesheet" type="text/css" />
-        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-        <link href="${pageContext.request.contextPath}/css/admin/style.css" rel="stylesheet" type="text/css" />
         <style>
             /* Professional Dashboard Styles */
             html, body {
@@ -598,60 +583,57 @@
                     <!-- Page Header -->
                     <div class="row">
                         <div class="col-md-12">
-                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">View List Technician</h1>
-                            <p style="color: #718096; margin-bottom: 2rem;">View and manage all technician </p>
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">View List User</h1>
+                            <p style="color: #718096; margin-bottom: 2rem;">View and manage all user </p>
 
-                            <%-- Display error message if any --%>
-                            <% if (request.getAttribute("error") != null) { %>
-                            <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                                <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
-                            </div>
-                            <% } %>
+                            <c:if test="${not empty error}">
+                                <div class="alert alert-danger" style="margin: 10px;">
+                                    ${error}
+                                </div>
+                            </c:if>
+                            <c:if test="${not empty success}">
+                                <div class="alert alert-success" style="margin: 10px;">
+                                    ${success}
+                                </div>
+                            </c:if>
 
-                            <%-- Display success message if any --%>
-                            <% if (request.getParameter("success") != null) { %>
-                            <div class="alert alert-success" style="background-color: #d1fae5; border: 1px solid #86efac; color: #059669; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                                <i class="fa fa-check-circle"></i> <%= request.getParameter("success") %>
-                            </div>
-                            <% } %>
-
-                            <%-- Display error message from URL parameter --%>
-                            <% if (request.getParameter("error") != null) { %>
-                            <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                                <i class="fa fa-exclamation-circle"></i> <%= request.getParameter("error") %>
-                            </div>
-                            <% } %>
                         </div>
                     </div>
 
-                    <!-- Inventory Table -->
+                    <!-- Task Table -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="content-card">
                                 <div class="card-header">
-                                    <h3><i class="fa fa-list"></i> Technician List</h3>
-                                    <!--                                    <a href="../warestaff/addNewProduct" class="btn btn-primary">
-                                                                            <i class="fa fa-plus"></i> Add New Technician
-                                                                        </a>-->
+                                    <h3><i class="fa fa-list"></i> User List</h3>
+
+                                    <a href="${pageContext.request.contextPath}/admin/user?action=add" class="btn btn-primary">
+                                        <i class="fa fa-plus"></i> Add new user
+                                    </a>
+
                                 </div>
 
                                 <!-- Filter Bar -->
-                                <form method="get" action="${pageContext.request.contextPath}/techmanager/technician" >
+                                <form method="get" action="${pageContext.request.contextPath}/admin/user" >
                                     <div class="filter-bar">
                                         <input type="hidden" name="action" value="list"/>
-                                        <input type="text" name="keyword" class="search-input" placeholder="Search..." 
+                                        <input type="text" name="keyword" class="search-input" placeholder="Search ..." 
                                                value="${param.keyword}">
 
-<!--                                        <select name="status" class="search-input" style="min-width: 150px;">
-                                            <option value="">--Status--</option>
-                                            <option value="active" ${param.status=="active"?"selected":""}>Active</option>
-                                            <option value="inactive" ${param.status=="inactive"?"selected":""}>Inactive</option>
-                                        </select>-->
+                                        <select name="role" class="search-input" style="min-width: 150px;">
+                                            <option value="">--Role--</option>
+                                            <option value="CUSTOMER_STAFF" ${param.role=="CUSTOMER_STAFF"?"selected":""}>CUSTOMER_STAFF</option>
+                                            <option value="TECH_MANAGER" ${param.role=="TECH_MANAGER"?"selected":""}>TECH_MANAGER</option>
+                                            <option value="TECHNICIAN" ${param.role=="TECHNICIAN"?"selected":""}>TECHNICIAN</option>
+                                            <option value="WAREHOUSE" ${param.role=="WAREHOUSE"?"selected":""}>WAREHOUSE</option>
+                                            <option value="CUSTOMER" ${param.role=="CUSTOMER"?"selected":""}>CUSTOMER</option>
+                                        </select>
+
 
                                         <button class="btn btn-primary" type="submit" >
                                             <i class="fa fa-filter"></i> Filter
                                         </button>
-                                        <a href="${pageContext.request.contextPath}/techmanager/technician?action=list" class="btn btn-primary" style="background: #6c757d; border-color: #6c757d;"><i class="fa fa-times"></i>Clear</a>
+                                        <a href="${pageContext.request.contextPath}/admin/user?action=list" class="btn btn-primary" style="background: #6c757d; border-color: #6c757d;"><i class="fa fa-times"></i>Clear</a>
 
                                     </div>
                                 </form>
@@ -662,44 +644,37 @@
                                                 <tr>
                                                     <th>No.</th>
                                                     <th>Username</th>
+                                                    <th>Role</th>
                                                     <th>Full Name</th>
                                                     <th>Email</th>
                                                     <th>Phone</th>
-                                                    <!--                        <th>Role</th>-->
-                                                    <!--<th>Status</th>-->
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <c:forEach var="u" items="${users}" varStatus="st">
+
                                                     <tr>
                                                         <td>${(page-1)*pageSize + st.index + 1}</td>
                                                         <td>${u.username}</td>
+                                                        <td>${u.role.name}</td>
                                                         <td>${u.fullName}</td>
                                                         <td>${u.email}</td>
                                                         <td>${u.phone}</td>
-                            <!--                            <td>${u.role.name}</td>-->
-<!--                                                        <td>
-                                                            <span class="label ${u.isActive?'label-success':'label-danger'}">
-                                                                ${u.isActive?'Active':'Inactive'}
-                                                            </span>
-                                                        </td>-->
+
                                                         <td>
-                                                            <a href="${pageContext.request.contextPath}/techmanager/technician?action=detail&id=${u.id}" class="btn btn-action btn-view">
-                                                                <i class="fa fa-eye"></i> Detail
+
+                                                            <a href="${pageContext.request.contextPath}/admin/user?action=edit&id=${u.id}" class="btn btn-action btn-edit">
+                                                                Edit <i class="fa fa-edit"></i>
                                                             </a>
 
-<!--                                                            <a href="${pageContext.request.contextPath}/techmanager/technician?action=edit&id=${u.id}" class="btn btn-action btn-edit">
-                                                                <i class="fa fa-pencil"></i> Edit
+                                                            <a href="${pageContext.request.contextPath}/admin/user?action=delete&id=${u.id}" class="btn btn-action btn-danger btn-delete">
+                                                                Delete <i class="fa fa-trash"></i>
                                                             </a>
--->                                                                
-                                                            <a href="${pageContext.request.contextPath}/techmanager/technician?action=delete&id=${u.id}" class="btn btn-action btn-delete">
-                                                                <i class="fa "></i>Delete
-                                                            </a>
-
 
                                                         </td>
                                                     </tr>
+
                                                 </c:forEach>
                                                 <c:if test="${empty users}">
                                                     <tr><td colspan="8" class="text-center">No data found</td></tr>

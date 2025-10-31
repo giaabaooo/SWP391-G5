@@ -237,7 +237,7 @@ public class TaskController extends HttpServlet {
         }
 
         db.insertCusRequestMeta(bill);
-        db.deleteByRequestId(taskId);
+        //db.deleteByRequestId(taskId);
 
         resp.sendRedirect("task");
     }

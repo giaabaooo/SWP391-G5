@@ -16,7 +16,7 @@
             </li>
             
             <li>
-                <a href="${pageContext.request.contextPath}/admin/revenueReport.jsp"><i class="fa fa-plus"></i> Revenue Report </a>
+                <a href="${pageContext.request.contextPath}/admin/user?action=list"><i class="fa fa-plus"></i> User Manager </a>
             </li>
 
         </ul>
