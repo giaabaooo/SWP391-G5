@@ -4,6 +4,7 @@
     Author     : admin
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -24,6 +25,25 @@
         <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
         <link href="${pageContext.request.contextPath}/css/admin/style.css" rel="stylesheet" type="text/css" />
         <link href="${pageContext.request.contextPath}/css/warehouse/addProduct.css" rel="stylesheet" type="text/css" />
+        <style>
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; /* Hiển thị từ phải sang trái */ }
+        .star-rating input[type="radio"] { display: none; } /* Ẩn radio button */
+        .star-rating label {
+            font-size: 2rem; /* Kích thước sao */
+            color: #ddd; /* Màu sao mặc định */
+            cursor: pointer;
+            padding: 0 0.2em;
+            transition: color 0.2s;
+        }
+        /* Khi hover, tất cả sao bên trái (hiển thị là bên phải) sẽ sáng lên */
+        .star-rating:hover label { color: #f5b301; }
+        .star-rating input[type="radio"]:hover ~ label { color: #f5b301; }
+        /* Khi một sao được chọn, các sao bên trái nó sẽ sáng */
+        .star-rating input[type="radio"]:checked ~ label { color: #f5b301; }
+        .validation-error { display: none; color: #dc3545; font-size: 0.875em; margin-top: 5px; }
+        .has-error .form-control { border-color: #dc3545; }
+        .has-error .validation-error { display: block; }
+    </style>
     </head>
     <body class="skin-black">
 
@@ -57,7 +77,7 @@
         <div class="wrapper row-offcanvas row-offcanvas-left">
 
             <!-- SIDEBAR -->
-             <aside class="left-side sidebar-offcanvas">
+            <aside class="left-side sidebar-offcanvas">
                 <section class="sidebar">
                     <div class="user-panel">
 
@@ -67,7 +87,7 @@
                         </div>
                     </div>
 
-                   <ul class="sidebar-menu">
+                    <ul class="sidebar-menu">
                         <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
@@ -78,7 +98,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -94,7 +114,7 @@
 
 
 
-                       
+
                         <li class="treeview">
                             <a href="#feedbackMenu" data-toggle="collapse" aria-expanded="false">
                                 <i class="fa fa-tags"></i> <span>Feedback</span>
@@ -102,7 +122,7 @@
                             <ul class="collapse" id="feedbackMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createFeedback"><i class="fa fa-plus"></i> Create Feedback</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listFeedback"><i class="fa fa-eye"></i> View List Feedback</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -136,79 +156,77 @@
                                     <h3><i class="fa fa-plus"></i> Feedback</h3>
                                 </div>
                                 <div class="card-body">
-                                    <form method="post" action="${pageContext.request.contextPath}/customer/createRequest" novalidate onsubmit="return validateForm();">
+                                    <form method="post" action="${pageContext.request.contextPath}/customer/createFeedback" novalidate onsubmit="return validateFeedback();">
 
 
 
-                                        <div class="form-group" id="titleGroup">
-                                            <label>Title<span style="color:red">*</span></label>
-                                            <input type="text" id="title" name="title" class="form-control" placeholder="Enter issue title" required>
-                                            <div class="validation-error" >Title blank</div>
+                                        <div class="form-group" id="requestGroup">
+                                            <label>Select Request<span style="color:red">*</span></label>
+                                            <select name="requestId" id="requestSelect" class="form-control" onchange="fillProductInfo()" required>
+                                                <option value="">-- Choose a request to review --</option>
+                                                <c:forEach var="req" items="${requestList}">
+                                                    <%-- Lưu trữ dữ liệu auto-fill vào data-* attributes --%>
+                                                    <option value="${req.id}" 
+                                                            data-device-name="${req.device.productName}"
+                                                            data-type="${req.request_type}"
+                                                            data-description="<c:out value='${req.description}'/>"
+                                                            data-status="${req.status}">
+                                                        ${req.title} 
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                            <div class="validation-error" >Request is required</div>
                                         </div>
 
 
 
-                                        <div class="form-group" id="deviceGroup">
-                                            <label >Select Device<span style="color:red">*</span></label>
-                                            <select name="product_id" id="productSelect" class="form-control" onchange="fillProductInfo()" required>
-                                                <option value="">-- Choose Device --</option>
-                                                <% 
-                                                    List<data.Device> devices = (List<data.Device>) request.getAttribute("devices");
-                                                    if (devices != null) {
-                                                        for (data.Device d : devices) {
-                                                %>
-                                                <option 
-                                                    value="<%= d.getId() %>"   
-                                                    data-serial_number="<%= d.getSerialNumber() %>"                                                      
-                                                    data-brand="<%= d.getBrandName() %>"
-                                                    data-category="<%= d.getCategoryName() %>"
-                                                    data-status="<%= d.getStatus() %>" 
-                                                    >
-                                                    <%= d.getProductName() %>
-                                                </option>
 
-                                                <% 
-                                                        }
-                                                    }
-                                                %>
-                                            </select>  
-                                            <div class="validation-error" >Device is required</div>
-                                        </div>
                                         <div class="form-group mt-3">
-                                            <label>Serial Number</label>
-                                            <input type="text" id="productSerialNumber" class="form-control" readonly>
+                                            <div class="form-group"><label>Device</label>
+                                                <input type="text" id="autoDeviceName" class="form-control" readonly></div>
                                         </div>  
 
+
+
+
                                         <div class="form-group mt-3">
-                                            <label>Brand</label>
-                                            <input type="text" id="productBrand" class="form-control" readonly>
+                                            <div class="form-group"><label>Request Type</label>
+                                                <input type="text" id="autoRequestType" class="form-control" readonly></div>
                                         </div>
 
                                         <div class="form-group mt-2">
-                                            <label>Category</label>
-                                            <input type="text" id="productCategory" class="form-control" readonly>
+                                            <div class="form-group"><label>Status</label>
+                                                <input type="text" id="autoStatus" class="form-control" readonly></div>
                                         </div>
 
                                         <div class="form-group mt-3">
-                                            <label>Status</label>
-                                            <input type="text" id="productStatus" class="form-control" readonly>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Issue Description</label>
-                                            <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..."></textarea>
+                                            <div class="form-group"><label>Issue Description</label>
+                                                <textarea id="autoDescription" class="form-control" rows="2" readonly></textarea></div>
+
                                         </div>
 
 
-                                        <div class="form-group" id="typeGroup">
-                                            <label >Request Type<span style="color:red">*</span></label>
-                                            <select id="requestTypeSelect" name="request_type" class="form-control" required>
-                                                <option value="">-- Choose Type --</option>
-                                                <option value="Repair">Repair</option>
-                                                <option value="Warranty">Warranty</option>
-                                                <option value="Maintenance">Maintenance</option>
-                                            </select>
-                                            <div class="validation-error" >Request Type is required</div>
+
+                                        <div class="form-group" id="ratingGroup">
+                                            <label>Your Rating<span style="color:red">*</span></label>
+                                            <div class="star-rating">
+                                                <%-- Radio buttons được đảo ngược (5 đến 1) vì CSS dùng flex-direction: row-reverse --%>
+                                                <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 stars">&#9733;</label>
+                                                <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 stars">&#9733;</label>
+                                                <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 stars">&#9733;</label>
+                                                <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 stars">&#9733;</label>
+                                                <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star">&#9733;</label>
+                                            </div>
+                                            <div class="validation-error">Please select a rating.</div>
                                         </div>
+
+                                        <div class="form-group" id="commentGroup">
+                                            <label>Your Feedback<span style="color:red">*</span></label>
+                                            <textarea id="comment" name="comment" class="form-control" rows="4" placeholder="Tell us about your experience..." required></textarea>
+                                            <div class="validation-error">Please provide your feedback.</div>
+                                        </div>
+
+
 
 
                                         <% if (request.getAttribute("success") != null) { %>
@@ -223,8 +241,8 @@
                                                 <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                                     <i class="fa fa-save"></i> Save 
                                                 </button>
-                                                <a href="${pageContext.request.contextPath}/customer/dashboard.jsp" class="btn btn-default" style="min-width: 150px;">
-                                                    <i class="fa fa-arrow-left"></i> Back to Dashboard
+                                                <a href="${pageContext.request.contextPath}/customer/listFeedback" class="btn btn-default" style="min-width: 150px;">
+                                                    <i class="fa fa-arrow-left"></i> Back to List Feedback
                                                 </a>
                                             </div>
                                         </div>
@@ -251,54 +269,47 @@
         <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/warehouse/addProduct.js" type="text/javascript"></script>
         <script>
-                                               
+
                                                 function fillProductInfo() {
-                                                    const productSelect = document.getElementById("productSelect");
+                                                    const productSelect = document.getElementById("requestSelect");
                                                     const selectedOption = productSelect.options[productSelect.selectedIndex];
 
 
-                                                    document.getElementById("productBrand").value = selectedOption.getAttribute("data-brand") || "";
-                                                    document.getElementById("productCategory").value = selectedOption.getAttribute("data-category") || "";
-                                                    document.getElementById("productSerialNumber").value = selectedOption.getAttribute("data-serial_number") || "";
-                                                    document.getElementById("productStatus").value = selectedOption.getAttribute("data-status") || "";
+                                                    document.getElementById("autoDeviceName").value = selectedOption.getAttribute("data-device-name") || "";
+                                                    document.getElementById("autoRequestType").value = selectedOption.getAttribute("data-type") || "";
+                                                    document.getElementById("autoStatus").value = selectedOption.getAttribute("data-status") || "";
+                                                    document.getElementById("autoDescription").value = selectedOption.getAttribute("data-description") || "";
 
 
 
                                                 }
-                                                
-                                                function validateForm() {
-                                                    // Lấy giá trị từ các trường
-                                                    var title = document.getElementById('title').value.trim();
-                                                    var device = document.getElementById('productSelect').value;
-                                                    var requestType = document.getElementById('requestTypeSelect').value;
 
-                                                    
-                                                    var titleGroup = document.getElementById('titleGroup');
-                                                    var deviceGroup = document.getElementById('deviceGroup'); 
-                                                    var typeGroup = document.getElementById('typeGroup');     
+                                                function validateFeedback() {
+                                                    var requestId = document.getElementById("requestSelect").value;
+                                                    var comment = document.getElementById("comment").value.trim();                                 
+                                                    var ratingSelected = document.querySelector('input[name="rating"]:checked');
 
-                                                    
-                                                    titleGroup.classList.remove('has-error');
-                                                    deviceGroup.classList.remove('has-error');
-                                                    typeGroup.classList.remove('has-error');
+                                                    var requestGroup = document.getElementById("requestGroup");
+                                                    var commentGroup = document.getElementById("commentGroup");
+                                                    var ratingGroup = document.getElementById("ratingGroup");
+
+                                                    // Reset lỗi
+                                                    requestGroup.classList.remove("has-error");
+                                                    commentGroup.classList.remove("has-error");
+                                                    ratingGroup.classList.remove("has-error");
 
                                                     var isValid = true;
 
-                                                    
-                                                    if (title === "") {
-                                                        titleGroup.classList.add('has-error'); 
+                                                    if (requestId === "") {
+                                                        requestGroup.classList.add("has-error");
                                                         isValid = false;
                                                     }
-
-                                                    
-                                                    if (device === "") {
-                                                        deviceGroup.classList.add('has-error'); 
+                                                    if (comment === "") {
+                                                        commentGroup.classList.add("has-error");
                                                         isValid = false;
                                                     }
-
-                                                    
-                                                    if (requestType === "") {
-                                                        typeGroup.classList.add('has-error'); 
+                                                    if (ratingSelected === null) { // Nếu không có rating nào được chọn
+                                                        ratingGroup.classList.add("has-error");
                                                         isValid = false;
                                                     }
 
