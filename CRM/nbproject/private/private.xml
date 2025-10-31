@@ -3,46 +3,29 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/warehouse/addProduct.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/technician/layout/sidebar.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/admin/revenueReport.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/request_detail.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/task_list.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/data/CustomerRequestMeta.java</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/data/CustomerRequest.java</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/admin/add_user.jsp</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/NewPassword.java</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/customer/UpdateRequest.java</file>
             <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/admin/layout/sidebar.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/task_detail.jsp</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/technician_list.jsp</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/dal/CustomerRequestDAO.java</file>
             <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/techmanager/TechnicianController.java</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/customer/dashboard.jsp</file>
             <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/customer/listRequest.jsp</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/edit_task.jsp</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/dal/DBContext.java</file>
             <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/techmanager/TaskController.java</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/layout/updatingScreen.jsp</file>
             <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/reject_request.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/technician/task_detail.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/assign_task.jsp</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/ForgotPassword.java</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/admin/layout/header.jsp</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/admin/layout/footer.jsp</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/Admin/AdminController.java</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/customer/ListRequestController.java</file>
             <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/techmanager/RequestController.java</file>
             <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/dal/UserDBContext.java</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/technician/dashboard.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/technician/TaskController.java</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/dashboard.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/cskh/CustomerRequestController.java</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/technician/layout/footer.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/technician_list.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/login.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/techmanager/DashBoardController.java</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/edit_task.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/technician/task_list.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/dal/DBContext.java</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/technician/layout/header.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/layout/header.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/technician_detail.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/index.html</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/technician/create_bill.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/customer/ListRequestController.java</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/request_list.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/techmanager/layout/sidebar.jsp</file>
-            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/admin/dashboard.jsp</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/admin/edit_user.jsp</file>
             <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/LoginController.java</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/src/java/Controller/technician/TaskController.java</file>
+            <file>file:/D:/FPT_DUC/SWP391/SWP391-G5/CRM/web/admin/user_list.jsp</file>
         </group>
     </open-files>
 </project-private>

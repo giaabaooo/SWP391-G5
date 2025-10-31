@@ -55,7 +55,7 @@ public class TechnicianController extends HttpServlet {
 
                 int totalPages = (int) Math.ceil((double) total / size);
 
-                req.setAttribute("users", db.list(page, size, keyword, role, status));
+                req.setAttribute("users", db.list(page, size, keyword, role, "active"));
                 req.setAttribute("totalProducts", total);
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
