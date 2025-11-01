@@ -4,7 +4,7 @@
 </div>
 
 <!-- SCRIPTS -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>-->
 <script src="../js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
 <script src="../js/bootstrap.min.js" type="text/javascript"></script>
 <script src="../js/daterangepicker.js" type="text/javascript"></script>

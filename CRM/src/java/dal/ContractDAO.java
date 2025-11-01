@@ -215,22 +215,21 @@ public class ContractDAO extends DBContext {
 
         return generatedContractId;
     }
-    
-    public boolean checkContractCodeExists(String contractCode) {
+
+    public boolean isContractCodeExists(String contractCode) {
         String sql = "SELECT COUNT(*) FROM Contract WHERE contract_code = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, contractCode);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, contractCode);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
-    
+
     public void update(Contract c) {
         String sql = "UPDATE Contract SET customer_id=?, contract_code=?, contract_date=?, total_amount=?, description=? WHERE id=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

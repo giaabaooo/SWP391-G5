@@ -7,6 +7,7 @@
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta name="description" content="Warehouse Management System">
     <meta name="keywords" content="Warehouse, Inventory, Management">
+    
     <!-- bootstrap 3.0.2 -->
 <link href="../css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
@@ -19,6 +20,11 @@
 <link href="../css/admin/style.css" rel="stylesheet" type="text/css" />
 <link href="${pageContext.request.contextPath}/css/warehouse/productList.css" rel="stylesheet" type="text/css" />
 <link href="${pageContext.request.contextPath}/css/warehouse/responsive.css" rel="stylesheet" type="text/css" />
+<!-- Select2 CSS & JS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <style>
         /* Professional Dashboard Styles */
         html, body {

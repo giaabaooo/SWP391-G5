@@ -360,6 +360,11 @@
         </div>
     </c:if>
 
+    <c:if test="${param.message == 'created'}">
+        <div class="alert alert-success">
+            <i class="fa fa-check-circle"></i> Contract created successfully!
+        </div>
+    </c:if>
     <!-- Filter form -->
     <div class="box box-primary">
         <div class="box-body">

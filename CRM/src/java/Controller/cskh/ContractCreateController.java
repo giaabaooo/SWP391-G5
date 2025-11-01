@@ -60,6 +60,20 @@ public class ContractCreateController extends HttpServlet {
                 throw new IllegalArgumentException("Contract code or date missing!");
             }
 
+            ContractDAO dao = new ContractDAO();
+
+            if (dao.isContractCodeExists(contractCode)) {
+                request.setAttribute("error", "Contract code already exists! Please choose another one.");
+
+                UserDBContext userDAO = new UserDBContext();
+                ProductDAO productDAO = new ProductDAO();
+                request.setAttribute("customers", userDAO.getAllActiveCustomers());
+                request.setAttribute("products", productDAO.getAllActiveProducts());
+
+                request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
+                return;
+            }
+
             Date contractDate = Date.valueOf(contractDateStr);
 
             Contract contract = new Contract();
@@ -76,48 +90,75 @@ public class ContractCreateController extends HttpServlet {
             String[] maintenanceFreq = request.getParameterValues("maintenanceFrequencyMonths");
 
             List<ContractItem> items = new ArrayList<>();
-
             double calculatedTotalAmount = 0.0;
 
-            if (productIds != null) {
-                for (int i = 0; i < productIds.length; i++) {
-                    if (productIds[i] == null || productIds[i].isEmpty()) {
-                        continue;
-                    }
+            if (productIds == null || productIds.length == 0) {
+                request.setAttribute("error", "Please add at least one contract item!");
+                reloadFormData(request);
+                request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
+                return;
+            }
 
-                    int qty = Integer.parseInt(quantities[i]);
-                    double price = Double.parseDouble(prices[i]);
-
-                    ContractItem item = new ContractItem();
-                    item.setProductId(Integer.parseInt(productIds[i]));
-                    item.setQuantity(qty);
-                    item.setUnitPrice(price);
-                    item.setWarrantyMonths(Integer.parseInt(warrantyMonths[i]));
-                    item.setMaintenanceMonths(Integer.parseInt(maintenanceMonths[i]));
-                    item.setMaintenanceFrequencyMonths(Integer.parseInt(maintenanceFreq[i]));
-
-                    items.add(item);
-
-                    calculatedTotalAmount += (qty * price);
+            for (int i = 0; i < productIds.length; i++) {
+                if (productIds[i] == null || productIds[i].isEmpty()) {
+                    continue;
                 }
+
+                int qty = Integer.parseInt(quantities[i]);
+                double price = Double.parseDouble(prices[i]);
+
+                if (qty <= 0) {
+                    continue;
+                }
+
+                ContractItem item = new ContractItem();
+                item.setProductId(Integer.parseInt(productIds[i]));
+                item.setQuantity(qty);
+                item.setUnitPrice(price);
+                item.setWarrantyMonths(Integer.parseInt(warrantyMonths[i]));
+                item.setMaintenanceMonths(Integer.parseInt(maintenanceMonths[i]));
+                item.setMaintenanceFrequencyMonths(Integer.parseInt(maintenanceFreq[i]));
+
+                items.add(item);
+                calculatedTotalAmount += qty * price;
+            }
+
+            if (items.isEmpty()) {
+                request.setAttribute("error", "Contract must contain at least one valid product!");
+                reloadFormData(request);
+                request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
+                return;
             }
 
             contract.setTotalAmount(calculatedTotalAmount);
 
-            ContractDAO dao = new ContractDAO();
             int newContractId = dao.insertContractWithItems(contract, items);
 
             if (newContractId > 0) {
                 response.sendRedirect(request.getContextPath() + "/cskh/contract?message=created");
             } else {
                 request.setAttribute("error", "Failed to create contract! Please try again.");
-                doGet(request, response);
+                reloadFormData(request);
+                request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "An error occurred while creating the contract!");
-            doGet(request, response);
+            reloadFormData(request);
+            request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
         }
     }
+
+    private void reloadFormData(HttpServletRequest request) {
+        try {
+            UserDBContext userDAO = new UserDBContext();
+            ProductDAO productDAO = new ProductDAO();
+            request.setAttribute("customers", userDAO.getAllActiveCustomers());
+            request.setAttribute("products", productDAO.getAllActiveProducts());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
 }

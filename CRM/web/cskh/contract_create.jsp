@@ -57,7 +57,8 @@
                         <input type="number" name="quantity" required class="form-control qty" style="width: 80px; display: inline-block;" value="1">
 
                         <label>Price:</label>
-                        <input type="number" step="0.01" name="unitPrice" required class="form-control price" style="width: 120px; display: inline-block;">
+                        <input type="number" step="0.01" name="unitPrice" required class="form-control price" style="width: 120px; display: inline-block;" readonly>
+
 
                         <label>Warranty (months):</label>
                         <input type="number" name="warrantyMonths" value="12" class="form-control" style="width: 90px; display: inline-block;">
@@ -83,16 +84,31 @@
     </section>
 </div>
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
     document.getElementById("addItemBtn").addEventListener("click", function () {
         const container = document.getElementById("itemContainer");
-        const newItem = container.firstElementChild.cloneNode(true);
 
-        newItem.querySelector(".product-select").selectedIndex = 0;
-        newItem.querySelector(".qty").value = "1";
-        newItem.querySelector(".price").value = "";
+        const originalItem = container.firstElementChild.cloneNode(true);
 
-        container.appendChild(newItem);
+        $(originalItem).find('.select2').remove();
+
+        const productSelect = originalItem.querySelector(".product-select");
+        productSelect.selectedIndex = 0;
+
+        originalItem.querySelector(".qty").value = "1";
+        originalItem.querySelector(".price").value = "";
+
+        container.appendChild(originalItem);
+
+        $(productSelect).select2({
+            placeholder: "-- Select a Product --",
+            allowClear: true,
+            width: '200px'
+        });
 
         attachAllListeners();
     });
@@ -125,7 +141,23 @@
         document.querySelectorAll(".qty, .price").forEach(input => {
             input.oninput = updateTotal;
         });
+
+        document.querySelectorAll(".qty").forEach(qtyInput => {
+            qtyInput.addEventListener("input", function () {
+                if (this.value < 1) {
+                    this.value = 1;
+                }
+                updateTotal();
+            });
+            qtyInput.addEventListener("change", function () {
+                if (this.value < 1) {
+                    this.value = 1;
+                }
+                updateTotal();
+            });
+        });
     }
+
 
     function attachProductPriceChange() {
         document.querySelectorAll(".product-select").forEach(select => {
@@ -136,9 +168,7 @@
                 const row = this.closest(".item-row");
                 const priceInput = row.querySelector(".price");
 
-
                 priceInput.value = parseFloat(price).toFixed(2);
-
                 updateTotal();
             };
         });
@@ -152,6 +182,50 @@
 
     attachAllListeners();
     updateTotal();
+
+    $(document).ready(function () {
+        $('#customerSelect').select2({
+            placeholder: "-- Select a Customer --",
+            allowClear: true,
+            width: '100%'
+        });
+
+        $('.product-select').select2({
+            placeholder: "-- Select a Product --",
+            allowClear: true,
+            width: '200px'
+        });
+
+        const dateInput = document.querySelector('input[name="contractDate"]');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('max', today);
+
+        $('form').on('submit', function (e) {
+            let isValid = true;
+            let errorMsg = "";
+
+            const selectedDate = new Date(dateInput.value);
+            const now = new Date();
+            if (selectedDate > now) {
+                isValid = false;
+                errorMsg += "- Contract date cannot be in the future.\n";
+            }
+
+            document.querySelectorAll('.qty').forEach(qtyInput => {
+                const qty = parseFloat(qtyInput.value);
+                if (isNaN(qty) || qty < 1) {
+                    isValid = false;
+                    errorMsg += "- Quantity must be at least 1.\n";
+                }
+            });
+
+            if (!isValid) {
+                alert("Please fix the following errors:\n\n" + errorMsg);
+                e.preventDefault();
+            }
+        });
+    });
 </script>
+
 
 <%@ include file="/jsp/layout/footer2.jsp" %>
