@@ -21,6 +21,15 @@ public class ContractItem {
     private String productName;
     private String brandName;
     private String categoryName;
+    private boolean isActive;
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
 
     public String getProductName() {
         return productName;

@@ -14,7 +14,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,14 +123,11 @@ public class ContractCreateController extends HttpServlet {
 
             contract.setTotalAmount(calculatedTotalAmount);
 
-            // Tạo contract và item
             int newContractId = contractDAO.insertContractWithItems(contract, items);
 
             if (newContractId > 0) {
-                // Sau khi tạo contract và contract item => insert Device
                 int serialIndex = 0;
                 for (ContractItem item : items) {
-                    // Lấy ID ContractItem đã insert trong DB
                     int contractItemId = contractDAO.getLastContractItemId(newContractId, item.getProductId());
 
                     for (int j = 0; j < item.getQuantity(); j++) {

@@ -83,6 +83,7 @@ CREATE TABLE Contract (
     contract_date DATE NOT NULL,
     total_amount DECIMAL(15,2),
     description TEXT,
+    is_active TINYINT(1) DEFAULT 1,
     FOREIGN KEY (customer_id) REFERENCES User(id) ON DELETE RESTRICT
 );
 
@@ -95,6 +96,7 @@ CREATE TABLE ContractItem (
     warranty_months INT DEFAULT 12,
     maintenance_months INT DEFAULT 36,
     maintenance_frequency_months INT DEFAULT 6,
+    is_active TINYINT(1) DEFAULT 1,
     FOREIGN KEY (contract_id) REFERENCES Contract(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE RESTRICT
 );
@@ -104,6 +106,7 @@ CREATE TABLE Device (
     contract_item_id INT NOT NULL,
     serial_number VARCHAR(100) UNIQUE,
     warranty_expiration DATE,
+    is_active TINYINT(1) DEFAULT 1,
     status ENUM('InWarranty', 'OutOfWarranty', 'UnderRepair', 'Broken') DEFAULT 'InWarranty',
     FOREIGN KEY (contract_item_id) REFERENCES ContractItem(id) ON DELETE CASCADE
 );

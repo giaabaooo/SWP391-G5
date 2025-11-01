@@ -20,10 +20,19 @@ public class Contract {
     private String productName;
     private String brandName;
     private String categoryName;
+    private boolean isActive;
 
     // Getter & Setter
     public int getId() {
         return id;
+    }
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
     public void setId(int id) {

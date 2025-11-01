@@ -94,14 +94,14 @@
         const container = document.getElementById("itemContainer");
 
         const originalItem = container.firstElementChild.cloneNode(true);
-        
+
         originalItem.querySelector(".serial-container").innerHTML = "";
 
         $(originalItem).find('.select2').remove();
 
         const productSelect = originalItem.querySelector(".product-select");
         productSelect.selectedIndex = 0;
-originalItem.querySelector(".qty").value = "1";
+        originalItem.querySelector(".qty").value = "1";
         originalItem.querySelector(".price").value = "";
         originalItem.querySelector(".qty").dataset.initialized = false;
         container.appendChild(originalItem);
@@ -228,19 +228,17 @@ originalItem.querySelector(".qty").value = "1";
             }
         });
     });
-    
-    // HÀM M?I: T? ??ng t?o ô nh?p serial d?a trên s? l??ng
+
     function attachSerialGenerator() {
         document.querySelectorAll(".qty").forEach(qtyInput => {
-            
-            // Dùng 'oninput' ?? ph?n h?i ngay l?p t?c
-            qtyInput.oninput = function() {
+
+            qtyInput.oninput = function () {
                 const qty = parseInt(this.value) || 0;
                 const row = this.closest(".item-row");
                 const serialContainer = row.querySelector(".serial-container");
-                
-                serialContainer.innerHTML = ""; // Xóa các ô input c?
-                
+
+                serialContainer.innerHTML = "";
+
                 if (qty > 0) {
                     const label = document.createElement('label');
                     label.innerText = "Serial Numbers:";
@@ -251,20 +249,18 @@ originalItem.querySelector(".qty").value = "1";
                 for (let i = 0; i < qty; i++) {
                     const input = document.createElement("input");
                     input.type = "text";
-                    // Tên 'serialNumber' (s? ít) kh?p v?i controller
-                    input.name = "serialNumber"; 
+                    input.name = "serialNumber";
                     input.className = "form-control serial-input";
                     input.placeholder = "Serial for Device #" + (i + 1);
                     input.style = "margin-top: 5px; width: 280px;";
-                    input.required = true; // B?t bu?c nh?p serial
+                    input.required = true;
                     serialContainer.appendChild(input);
                 }
             };
-            
-            // Kích ho?t hàm này 1 l?n khi t?i trang cho hàng ??u tiên
+
             if (!qtyInput.dataset.initialized) {
-                 qtyInput.dispatchEvent(new Event('input'));
-                 qtyInput.dataset.initialized = true;
+                qtyInput.dispatchEvent(new Event('input'));
+                qtyInput.dataset.initialized = true;
             }
         });
     }

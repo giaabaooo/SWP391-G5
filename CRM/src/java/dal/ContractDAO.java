@@ -9,7 +9,6 @@ import data.ContractItem;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
 import java.sql.Date;
 
 /**
@@ -21,7 +20,7 @@ public class ContractDAO extends DBContext {
     public int countContracts(String keyword, String fromDate, String toDate) {
         String sql = "SELECT COUNT(*) FROM Contract c "
                 + "JOIN User u ON c.customer_id = u.id "
-                + "WHERE 1=1";
+                + "WHERE 1=1 AND c.is_active = true";
         ArrayList<Object> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -57,7 +56,7 @@ public class ContractDAO extends DBContext {
         String sql = "SELECT c.*, u.full_name AS customer_name "
                 + "FROM Contract c "
                 + "LEFT JOIN User u ON c.customer_id = u.id "
-                + "WHERE 1=1 ";
+                + "WHERE 1=1 AND c.is_active = true ";
         ArrayList<Object> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -132,7 +131,7 @@ public class ContractDAO extends DBContext {
     }
 
     public Contract getById(int id) {
-        String sql = "SELECT * FROM Contract WHERE id=?";
+        String sql = "SELECT * FROM Contract WHERE id=? AND is_active = true";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -217,18 +216,18 @@ public class ContractDAO extends DBContext {
     }
 
     public int getLastContractItemId(int contractId, int productId) throws SQLException {
-    String sql = "SELECT id FROM ContractItem WHERE contract_id = ? AND product_id = ? ORDER BY id DESC LIMIT 1";
-    try (PreparedStatement stm = connection.prepareStatement(sql)) {
-        stm.setInt(1, contractId);
-        stm.setInt(2, productId);
-        try (ResultSet rs = stm.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("id");
+        String sql = "SELECT id FROM ContractItem WHERE contract_id = ? AND product_id = ? ORDER BY id DESC LIMIT 1";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, contractId);
+            stm.setInt(2, productId);
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
             }
         }
+        return -1;
     }
-    return -1;
-}
 
     public boolean isContractCodeExists(String contractCode) {
         String sql = "SELECT COUNT(*) FROM Contract WHERE contract_code = ?";
@@ -277,6 +276,8 @@ public class ContractDAO extends DBContext {
             JOIN Category cg ON p.category_id = cg.id
         WHERE 
             ct.customer_id = ?
+            AND ct.is_active = true
+            AND ci.is_active = true                                
         
         """);
         if (keyword != null && !keyword.isEmpty()) {
@@ -312,7 +313,6 @@ public class ContractDAO extends DBContext {
                 ct.setId(rs.getInt("contract_id"));
                 ct.setContractCode(rs.getString("contract_code"));
                 ct.setContractDate(rs.getDate("contract_date"));
-                // Thêm thông tin phụ từ join
                 ct.setProductName(rs.getString("product_name"));
                 ct.setBrandName(rs.getString("brand_name"));
                 ct.setCategoryName(rs.getString("category_name"));
@@ -329,7 +329,7 @@ public class ContractDAO extends DBContext {
             SELECT c.*, u.full_name AS customer_name
             FROM Contract c
             JOIN User u ON c.customer_id = u.id
-            WHERE c.id = ?
+            WHERE c.id = ? AND c.is_active = true
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -359,7 +359,7 @@ public class ContractDAO extends DBContext {
             JOIN Product p ON ci.product_id = p.id
             JOIN Brand b ON p.brand_id = b.id
             JOIN Category c ON p.category_id = c.id
-            WHERE ci.contract_id = ?
+            WHERE ci.contract_id = ? AND ci.is_active = true
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, contractId);
@@ -386,19 +386,26 @@ public class ContractDAO extends DBContext {
     }
 
     public void deleteContractWithItems(int contractId) {
-        String deleteItemsSql = "DELETE FROM ContractItem WHERE contract_id = ?";
-        String deleteContractSql = "DELETE FROM Contract WHERE id = ?";
+        String updateDevicesSql = "UPDATE Device SET is_active = false "
+                + "WHERE contract_item_id IN (SELECT id FROM ContractItem WHERE contract_id = ?)";
+
+        String updateItemsSql = "UPDATE ContractItem SET is_active = false WHERE contract_id = ?";
+
+        String updateContractSql = "UPDATE Contract SET is_active = false WHERE id = ?";
 
         try {
             connection.setAutoCommit(false);
 
-            try (PreparedStatement ps1 = connection.prepareStatement(deleteItemsSql); PreparedStatement ps2 = connection.prepareStatement(deleteContractSql)) {
+            try (PreparedStatement psDevices = connection.prepareStatement(updateDevicesSql); PreparedStatement psItems = connection.prepareStatement(updateItemsSql); PreparedStatement psContract = connection.prepareStatement(updateContractSql)) {
 
-                ps1.setInt(1, contractId);
-                ps1.executeUpdate();
+                psDevices.setInt(1, contractId);
+                psDevices.executeUpdate();
 
-                ps2.setInt(1, contractId);
-                ps2.executeUpdate();
+                psItems.setInt(1, contractId);
+                psItems.executeUpdate();
+
+                psContract.setInt(1, contractId);
+                psContract.executeUpdate();
 
                 connection.commit();
             }
