@@ -1,14 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controller.cskh;
 
 import dal.ContractDAO;
+import dal.DeviceDAO;
 import dal.ProductDAO;
 import dal.UserDBContext;
 import data.Contract;
 import data.ContractItem;
+import data.Device;
 import data.Product;
 import data.User;
 import jakarta.servlet.*;
@@ -16,6 +14,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,16 +60,12 @@ public class ContractCreateController extends HttpServlet {
                 throw new IllegalArgumentException("Contract code or date missing!");
             }
 
-            ContractDAO dao = new ContractDAO();
+            ContractDAO contractDAO = new ContractDAO();
+            DeviceDAO deviceDAO = new DeviceDAO();
 
-            if (dao.isContractCodeExists(contractCode)) {
+            if (contractDAO.isContractCodeExists(contractCode)) {
                 request.setAttribute("error", "Contract code already exists! Please choose another one.");
-
-                UserDBContext userDAO = new UserDBContext();
-                ProductDAO productDAO = new ProductDAO();
-                request.setAttribute("customers", userDAO.getAllActiveCustomers());
-                request.setAttribute("products", productDAO.getAllActiveProducts());
-
+                reloadFormData(request);
                 request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
                 return;
             }
@@ -88,6 +84,7 @@ public class ContractCreateController extends HttpServlet {
             String[] warrantyMonths = request.getParameterValues("warrantyMonths");
             String[] maintenanceMonths = request.getParameterValues("maintenanceMonths");
             String[] maintenanceFreq = request.getParameterValues("maintenanceFrequencyMonths");
+            String[] serialNumbers = request.getParameterValues("serialNumber"); // thêm dòng này
 
             List<ContractItem> items = new ArrayList<>();
             double calculatedTotalAmount = 0.0;
@@ -100,16 +97,11 @@ public class ContractCreateController extends HttpServlet {
             }
 
             for (int i = 0; i < productIds.length; i++) {
-                if (productIds[i] == null || productIds[i].isEmpty()) {
-                    continue;
-                }
+                if (productIds[i] == null || productIds[i].isEmpty()) continue;
 
                 int qty = Integer.parseInt(quantities[i]);
                 double price = Double.parseDouble(prices[i]);
-
-                if (qty <= 0) {
-                    continue;
-                }
+                if (qty <= 0) continue;
 
                 ContractItem item = new ContractItem();
                 item.setProductId(Integer.parseInt(productIds[i]));
@@ -132,9 +124,33 @@ public class ContractCreateController extends HttpServlet {
 
             contract.setTotalAmount(calculatedTotalAmount);
 
-            int newContractId = dao.insertContractWithItems(contract, items);
+            // Tạo contract và item
+            int newContractId = contractDAO.insertContractWithItems(contract, items);
 
             if (newContractId > 0) {
+                // Sau khi tạo contract và contract item => insert Device
+                int serialIndex = 0;
+                for (ContractItem item : items) {
+                    // Lấy ID ContractItem đã insert trong DB
+                    int contractItemId = contractDAO.getLastContractItemId(newContractId, item.getProductId());
+
+                    for (int j = 0; j < item.getQuantity(); j++) {
+                        String serial = (serialNumbers != null && serialIndex < serialNumbers.length)
+                                ? serialNumbers[serialIndex].trim()
+                                : "AUTO-" + System.currentTimeMillis() + "-" + j;
+
+                        Device device = new Device();
+                        device.setContractItemId(contractItemId);
+                        device.setSerialNumber(serial);
+                        device.setWarrantyExpiration(Date.valueOf(
+                                LocalDate.now().plusMonths(item.getWarrantyMonths())));
+                        device.setStatus("InWarranty");
+
+                        deviceDAO.insert(device);
+                        serialIndex++;
+                    }
+                }
+
                 response.sendRedirect(request.getContextPath() + "/cskh/contract?message=created");
             } else {
                 request.setAttribute("error", "Failed to create contract! Please try again.");
@@ -160,5 +176,4 @@ public class ContractCreateController extends HttpServlet {
             ex.printStackTrace();
         }
     }
-
 }

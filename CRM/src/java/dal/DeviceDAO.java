@@ -2,6 +2,7 @@ package dal;
 
 import data.Device;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 public class DeviceDAO extends DBContext {
@@ -278,5 +279,17 @@ public class DeviceDAO extends DBContext {
         }
         return list;
     }
+    
+public void insert(Device device) throws SQLException {
+    String sql = "INSERT INTO Device (contract_item_id, serial_number, warranty_expiration, status) VALUES (?, ?, ?, ?)";
+    try (PreparedStatement stm = connection.prepareStatement(sql)) {
+        stm.setInt(1, device.getContractItemId());
+        stm.setString(2, device.getSerialNumber());
+        stm.setDate(3, (Date) device.getWarrantyExpiration());
+        stm.setString(4, device.getStatus());
+        stm.executeUpdate();
+    }
+}
+
 
 }

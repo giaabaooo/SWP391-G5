@@ -59,6 +59,7 @@
                         <label>Price:</label>
                         <input type="number" step="0.01" name="unitPrice" required class="form-control price" style="width: 120px; display: inline-block;" readonly>
 
+                        <div class="serial-container" style="margin-top: 10px; padding-left: 15px; width: 100%;"></div>
 
                         <label>Warranty (months):</label>
                         <input type="number" name="warrantyMonths" value="12" class="form-control" style="width: 90px; display: inline-block;">
@@ -93,15 +94,16 @@
         const container = document.getElementById("itemContainer");
 
         const originalItem = container.firstElementChild.cloneNode(true);
+        
+        originalItem.querySelector(".serial-container").innerHTML = "";
 
         $(originalItem).find('.select2').remove();
 
         const productSelect = originalItem.querySelector(".product-select");
         productSelect.selectedIndex = 0;
-
-        originalItem.querySelector(".qty").value = "1";
+originalItem.querySelector(".qty").value = "1";
         originalItem.querySelector(".price").value = "";
-
+        originalItem.querySelector(".qty").dataset.initialized = false;
         container.appendChild(originalItem);
 
         $(productSelect).select2({
@@ -178,6 +180,7 @@
         attachRemoveHandlers();
         attachAutoSum();
         attachProductPriceChange();
+        attachSerialGenerator();
     }
 
     attachAllListeners();
@@ -225,6 +228,46 @@
             }
         });
     });
+    
+    // HÀM M?I: T? ??ng t?o ô nh?p serial d?a trên s? l??ng
+    function attachSerialGenerator() {
+        document.querySelectorAll(".qty").forEach(qtyInput => {
+            
+            // Dùng 'oninput' ?? ph?n h?i ngay l?p t?c
+            qtyInput.oninput = function() {
+                const qty = parseInt(this.value) || 0;
+                const row = this.closest(".item-row");
+                const serialContainer = row.querySelector(".serial-container");
+                
+                serialContainer.innerHTML = ""; // Xóa các ô input c?
+                
+                if (qty > 0) {
+                    const label = document.createElement('label');
+                    label.innerText = "Serial Numbers:";
+                    label.style = "display: block; margin-top: 5px;";
+                    serialContainer.appendChild(label);
+                }
+
+                for (let i = 0; i < qty; i++) {
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    // Tên 'serialNumber' (s? ít) kh?p v?i controller
+                    input.name = "serialNumber"; 
+                    input.className = "form-control serial-input";
+                    input.placeholder = "Serial for Device #" + (i + 1);
+                    input.style = "margin-top: 5px; width: 280px;";
+                    input.required = true; // B?t bu?c nh?p serial
+                    serialContainer.appendChild(input);
+                }
+            };
+            
+            // Kích ho?t hàm này 1 l?n khi t?i trang cho hàng ??u tiên
+            if (!qtyInput.dataset.initialized) {
+                 qtyInput.dispatchEvent(new Event('input'));
+                 qtyInput.dataset.initialized = true;
+            }
+        });
+    }
 </script>
 
 

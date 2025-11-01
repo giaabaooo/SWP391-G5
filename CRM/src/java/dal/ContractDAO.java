@@ -216,6 +216,20 @@ public class ContractDAO extends DBContext {
         return generatedContractId;
     }
 
+    public int getLastContractItemId(int contractId, int productId) throws SQLException {
+    String sql = "SELECT id FROM ContractItem WHERE contract_id = ? AND product_id = ? ORDER BY id DESC LIMIT 1";
+    try (PreparedStatement stm = connection.prepareStatement(sql)) {
+        stm.setInt(1, contractId);
+        stm.setInt(2, productId);
+        try (ResultSet rs = stm.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        }
+    }
+    return -1;
+}
+
     public boolean isContractCodeExists(String contractCode) {
         String sql = "SELECT COUNT(*) FROM Contract WHERE contract_code = ?";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
