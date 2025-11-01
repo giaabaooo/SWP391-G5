@@ -215,8 +215,8 @@ public class ContractDAO extends DBContext {
         return generatedContractId;
     }
 
-    public int getLastContractItemId(int contractId, int productId) throws SQLException {
-        String sql = "SELECT id FROM ContractItem WHERE contract_id = ? AND product_id = ? ORDER BY id DESC LIMIT 1";
+    public int getLastActiveContractItemId(int contractId, int productId) throws SQLException {
+        String sql = "SELECT id FROM ContractItem WHERE contract_id = ? AND product_id = ? AND is_active = true ORDER BY id DESC LIMIT 1";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, contractId);
             stm.setInt(2, productId);
@@ -417,6 +417,76 @@ public class ContractDAO extends DBContext {
                 ex.printStackTrace();
             }
             e.printStackTrace();
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean updateContractAndRecreateItems(Contract contract, List<ContractItem> items) {
+        String updateContractSql = "UPDATE Contract SET customer_id=?, contract_code=?, contract_date=?, total_amount=?, description=? WHERE id=?";
+
+        String deactivateDevicesSql = "UPDATE Device SET is_active = false "
+                + "WHERE contract_item_id IN (SELECT id FROM ContractItem WHERE contract_id = ? AND is_active = true)";
+
+        String deactivateItemsSql = "UPDATE ContractItem SET is_active = false WHERE contract_id = ? AND is_active = true";
+
+        String insertItemSql = """
+        INSERT INTO ContractItem (contract_id, product_id, quantity, unit_price, warranty_months, maintenance_months, maintenance_frequency_months)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try {
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement ps = connection.prepareStatement(deactivateDevicesSql)) {
+                ps.setInt(1, contract.getId());
+                ps.executeUpdate();
+            }
+
+            try (PreparedStatement ps = connection.prepareStatement(deactivateItemsSql)) {
+                ps.setInt(1, contract.getId());
+                ps.executeUpdate();
+            }
+
+            try (PreparedStatement ps = connection.prepareStatement(updateContractSql)) {
+                ps.setInt(1, contract.getCustomerId());
+                ps.setString(2, contract.getContractCode());
+                ps.setDate(3, contract.getContractDate());
+                ps.setDouble(4, contract.getTotalAmount());
+                ps.setString(5, contract.getDescription());
+                ps.setInt(6, contract.getId());
+                ps.executeUpdate();
+            }
+
+            try (PreparedStatement psItem = connection.prepareStatement(insertItemSql)) {
+                for (ContractItem item : items) {
+                    psItem.setInt(1, contract.getId());
+                    psItem.setInt(2, item.getProductId());
+                    psItem.setInt(3, item.getQuantity());
+                    psItem.setDouble(4, item.getUnitPrice());
+                    psItem.setInt(5, item.getWarrantyMonths());
+                    psItem.setInt(6, item.getMaintenanceMonths());
+                    psItem.setInt(7, item.getMaintenanceFrequencyMonths());
+                    psItem.addBatch();
+                }
+                psItem.executeBatch();
+            }
+
+            connection.commit();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            return false;
         } finally {
             try {
                 connection.setAutoCommit(true);

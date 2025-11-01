@@ -172,6 +172,12 @@
             <div class="box-header with-border">
                 <h3 class="box-title"><i class="fa fa-file-text-o" style="margin-right: 0.5rem;"></i> Contract Information</h3>
             </div>
+            <c:if test="${param.message == 'updated'}">
+                <div class="alert alert-success" 
+                     style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; opacity: 1; transition: opacity 0.5s ease;">
+                    <i class="fa fa-check-circle"></i> Contract updated successfully!
+                </div>
+            </c:if>
             <div class="box-body">
                 <p><strong><i class="fa fa-barcode"></i> Contract Code:</strong> ${contract.contractCode}</p>
                 <p><strong><i class="fa fa-user"></i> Customer:</strong> ${contract.customerName}</p>
@@ -235,6 +241,12 @@
         <div class="text-center" style="margin-top: 20px;">
             <a href="${pageContext.request.contextPath}/cskh/contract" class="btn btn-back">
                 <i class="fa fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to List
+            </a>
+
+            <a href="${pageContext.request.contextPath}/cskh/updateContract?id=${contract.id}" 
+               class="btn btn-warning" 
+               style="background-color: #f0ad4e; color: #fff; padding: 0.75rem 1.5rem; border-radius: 6px; font-size: 1rem; text-decoration: none;">
+                <i class="fa fa-pencil" style="margin-right: 0.5rem;"></i> Edit Contract
             </a>
         </div>
     </section>

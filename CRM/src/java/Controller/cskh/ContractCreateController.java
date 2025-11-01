@@ -128,7 +128,7 @@ public class ContractCreateController extends HttpServlet {
             if (newContractId > 0) {
                 int serialIndex = 0;
                 for (ContractItem item : items) {
-                    int contractItemId = contractDAO.getLastContractItemId(newContractId, item.getProductId());
+                    int contractItemId = contractDAO.getLastActiveContractItemId(newContractId, item.getProductId());
 
                     for (int j = 0; j < item.getQuantity(); j++) {
                         String serial = (serialNumbers != null && serialIndex < serialNumbers.length)
