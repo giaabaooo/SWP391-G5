@@ -1,11 +1,3 @@
-<%-- 
-    Document   : sidebar2
-    Created on : Oct 3, 2025, 7:14:46 AM
-    Author     : admin
---%>
-
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
 <div class="wrapper row-offcanvas row-offcanvas-left">
 
     <!-- SIDEBAR -->

@@ -246,7 +246,29 @@ public class UserDBContext extends DBContext {
             e.printStackTrace();
         }
     }
-
+    
+    public ArrayList<User> getAllActiveCustomers() {
+        ArrayList<User> users = new ArrayList<>();
+        String sql = "SELECT u.id, u.full_name, u.email "
+                + "FROM User u INNER JOIN Role r ON u.role_id = r.id "
+                + "WHERE r.name = 'Customer' AND u.is_active = 1 "
+                + "ORDER BY u.full_name ASC"; 
+        
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setFullName(rs.getString("full_name"));
+                u.setEmail(rs.getString("email"));
+                users.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+    
     public ArrayList<User> listCustomers(int page, int pageSize, String keyword, String status, String sort) {
         ArrayList<User> users = new ArrayList<>();
         String sql = "SELECT u.*, r.id AS role_id, r.name AS role_name, r.description AS role_desc "
