@@ -90,15 +90,13 @@ public class FeedbackDAO extends DBContext {
     String sql = """
         INSERT INTO CustomerRequestMeta (request_id, customer_comment, rating)
         VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE 
-        customer_comment = ?, rating = ?
+        
     """;
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
         ps.setInt(1, requestId);
         ps.setString(2, comment);
         ps.setInt(3, rating);
-        ps.setString(4, comment); // Cho phần UPDATE
-        ps.setInt(5, rating);     // Cho phần UPDATE
+        
         
         return ps.executeUpdate() > 0;
     } catch (SQLException e) {
@@ -106,4 +104,63 @@ public class FeedbackDAO extends DBContext {
         return false;
     }
 }
+    
+    public boolean updateFeedback(Feedback feedback) {
+    String sql = """
+        UPDATE CustomerRequestMeta 
+        SET customer_comment = ?, rating = ? 
+        WHERE request_id = ?
+    """;
+    
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        // Lấy giá trị từ đối tượng feedback
+        ps.setString(1, feedback.getComment());
+        ps.setInt(2, feedback.getRating());
+        ps.setInt(3, feedback.getRequestId());
+        
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+    
+    public Feedback getFeedbackByRequestId(int requestId, int customerId) {
+        Feedback fb = null;
+        String sql = """
+            SELECT 
+                r.id AS request_id, r.title, r.request_type, p.name AS product_name,
+                r.description, m.customer_comment, m.rating
+            FROM CustomerRequest r
+            JOIN CustomerRequestMeta m ON r.id = m.request_id
+            JOIN Device d ON r.device_id = d.id
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Product p ON ci.product_id = p.id
+            JOIN Contract c ON ci.contract_id = c.id
+            WHERE r.id = ? AND c.customer_id = ?
+              AND m.customer_comment IS NOT NULL
+        """; 
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+           ps.setInt(2, customerId);
+            
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                fb = new Feedback();
+                fb.setRequestId(rs.getInt("request_id"));
+                fb.setTitle(rs.getString("title"));
+                fb.setRequestType(rs.getString("request_type"));
+                fb.setProductName(rs.getString("product_name"));
+                fb.setDescription(rs.getString("description"));
+                fb.setComment(rs.getString("customer_comment"));
+                fb.setRating(rs.getInt("rating"));
+                fb.setRequestDate(rs.getTimestamp("feedback_date")); // Lấy ngày feedback
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fb;
+    }
 }

@@ -814,25 +814,6 @@ public class CustomerRequestDAO extends DBContext {
     return list;
 }
     
-    public boolean saveFeedback(int requestId, String comment, int rating) {
-    String sql = """
-        INSERT INTO CustomerRequestMeta (request_id, customer_comment, rating)
-        VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE 
-        customer_comment = ?, rating = ?
-    """;
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, requestId);
-        ps.setString(2, comment);
-        ps.setInt(3, rating);
-        ps.setString(4, comment); // Cho phần UPDATE
-        ps.setInt(5, rating);     // Cho phần UPDATE
-        
-        return ps.executeUpdate() > 0;
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
-    }
-}
+    
 
 }
