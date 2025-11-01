@@ -70,6 +70,18 @@
         <servlet-class>Controller.warestaff.ViewBrandDetailController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ViewTransactionHistoryController</servlet-name>
+        <servlet-class>Controller.warestaff.ViewTransactionHistoryController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddImportTransactionController</servlet-name>
+        <servlet-class>Controller.warestaff.AddImportTransactionController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddExportTransactionController</servlet-name>
+        <servlet-class>Controller.warestaff.AddExportTransactionController</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>ContractController</servlet-name>
         <servlet-class>Controller.customer.ContractController</servlet-class>
     </servlet>
@@ -229,5 +241,17 @@
     <servlet-mapping>
         <servlet-name>ViewBrandDetailController</servlet-name>
         <url-pattern>/warestaff/viewBrandDetail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewTransactionHistoryController</servlet-name>
+        <url-pattern>/warestaff/transactions</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddImportTransactionController</servlet-name>
+        <url-pattern>/warestaff/addImportTransaction</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddExportTransactionController</servlet-name>
+        <url-pattern>/warestaff/addExportTransaction</url-pattern>
     </servlet-mapping>
 </web-app>
