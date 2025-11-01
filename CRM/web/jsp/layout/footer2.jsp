@@ -1,11 +1,3 @@
-<%-- 
-    Document   : footer2
-    Created on : Oct 3, 2025, 7:15:49 AM
-    Author     : admin
---%>
-
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
 </section>
         <div class="footer-main">Copyright &copy; CRM Management System, 2024</div>
     </aside>
