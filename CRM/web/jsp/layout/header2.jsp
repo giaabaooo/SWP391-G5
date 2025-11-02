@@ -524,6 +524,35 @@
                 opacity: 0.5;
                 cursor: not-allowed;
             }
+
+            .form-label {
+                display: block;
+                font-size: 1rem;
+                font-weight: 600;
+                color: #4a5568;
+                margin-bottom: 0.5rem;
+            }
+            .form-control-modern {
+                display: block;
+                width: 100%;
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+                line-height: 1.5;
+                color: #2d3748;
+                background-color: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 0.375rem;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                transition: all 0.2s ease-in-out;
+            }
+
+            .form-control-modern:focus {
+                color: #2d3748;
+                background-color: #ffffff;
+                border-color: #6366f1;
+                outline: 0;
+                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            }
         </style>
 
     </head>
