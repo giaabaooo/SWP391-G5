@@ -41,25 +41,32 @@ public class CustomerRequestController extends HttpServlet {
                 page = 1;
             }
         }
+
         String type = request.getParameter("type");
         String status = request.getParameter("status");
+        String priority = request.getParameter("priority");
+        String paymentStatus = request.getParameter("paymentStatus");
 
-        int total = dao.countCustomerRequests(type, status);
+        // Truyền filter mới vào DAO
+        int total = dao.countCustomerRequests(type, status, priority, paymentStatus);
         int totalPages = (int) Math.ceil((double) total / pageSize);
         if (totalPages == 0) {
             totalPages = 1;
         }
 
         int offset = (page - 1) * pageSize;
-        List<CustomerRequest> list = dao.getCustomerRequestsByCSKH(offset, pageSize, type, status);
+        List<CustomerRequest> list = dao.getCustomerRequestsByCSKH(offset, pageSize, type, status, priority, paymentStatus);
 
         request.setAttribute("requests", list);
-        request.setAttribute("total", total);
+        request.setAttribute("totalItems", total);
         request.setAttribute("page", page);
         request.setAttribute("pageSize", pageSize);
         request.setAttribute("totalPages", totalPages);
+
         request.setAttribute("type", type);
         request.setAttribute("status", status);
+        request.setAttribute("priority", priority);
+        request.setAttribute("paymentStatus", paymentStatus);
 
         request.getRequestDispatcher("/cskh/customer_request_list.jsp").forward(request, response);
     }
