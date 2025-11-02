@@ -88,6 +88,10 @@
     <servlet>
         <servlet-name>UpdateFeedback</servlet-name>
         <servlet-class>Controller.customer.UpdateFeedback</servlet-class>
+      </servlet> 
+  <servlet>
+        <servlet-name>ContractUpdateController</servlet-name>
+        <servlet-class>Controller.cskh.ContractUpdateController</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>PaymentController</servlet-name>
@@ -174,6 +178,10 @@
     <servlet-mapping>
         <servlet-name>UpdateFeedback</servlet-name>
         <url-pattern>/customer/updateFeedback</url-pattern>
+      </servlet-mapping>
+  <servlet-mapping>
+        <servlet-name>ContractUpdateController</servlet-name>
+        <url-pattern>/ContractUpdateController</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PaymentController</servlet-name>

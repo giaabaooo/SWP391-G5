@@ -85,8 +85,9 @@ public class TaskController extends HttpServlet {
                 db.insertCusRequestMeta(bill);
                 db.deleteByRequestId(idComplete);
 
-                req.setAttribute("success", "This task has been completed");
-                req.getRequestDispatcher("/technician/task_list.jsp").forward(req, resp);
+                //req.setAttribute("success", "This task has been completed");
+                //req.getRequestDispatcher("/technician/task_list.jsp").forward(req, resp);
+                resp.sendRedirect(req.getContextPath() + "/technician/task?action=list&success=complete");
 
                 break;
             case "inProgress":
@@ -132,7 +133,10 @@ public class TaskController extends HttpServlet {
                 String success = req.getParameter("success");
                 if ("processing".equals(success)) {
                     req.setAttribute("success", "This task's status has been changed to processing.");
+                }else if("complete".equals(success)){
+                    req.setAttribute("success", "This task has been completed.");
                 }
+                
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
                 int size = req.getParameter("pageSize") == null ? 10 : Integer.parseInt(req.getParameter("pageSize"));
 
@@ -233,7 +237,7 @@ public class TaskController extends HttpServlet {
         }
 
         db.insertCusRequestMeta(bill);
-        db.deleteByRequestId(taskId);
+        //db.deleteByRequestId(taskId);
 
         resp.sendRedirect("task");
     }

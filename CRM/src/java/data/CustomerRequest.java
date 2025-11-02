@@ -26,7 +26,42 @@ public class CustomerRequest {
     private String productName;
     private CustomerRequestMeta requestMeta; // Để chứa toàn bộ object Meta khi JOIN
     private String paymentStatus;
+    private String priority;
+    private String reject_reason;
+    private String payment_status;
+    private java.util.Date payment_due_date;
 
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
+    public String getReject_reason() {
+        return reject_reason;
+    }
+
+    public void setReject_reason(String reject_reason) {
+        this.reject_reason = reject_reason;
+    }
+
+    public String getPayment_status() {
+        return payment_status;
+    }
+
+    public void setPayment_status(String payment_status) {
+        this.payment_status = payment_status;
+    }
+
+    public Date getPayment_due_date() {
+        return payment_due_date;
+    }
+
+    public void setPayment_due_date(Date payment_due_date) {
+        this.payment_due_date = payment_due_date;
+    }
     public CustomerRequest() {
     }
 

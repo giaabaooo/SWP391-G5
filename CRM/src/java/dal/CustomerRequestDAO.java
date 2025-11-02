@@ -47,12 +47,7 @@ public class CustomerRequestDAO extends DBContext {
             params.add("%" + status + "%");
         }
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql += " AND (u.full_name LIKE ? OR p.name LIKE ?)";
-            params.add("%" + keyword + "%");
-            params.add("%" + keyword + "%");
-        }
-
+        // Bị lặp logic keyword, đã xóa 1 khối
         if (fromDate != null && !fromDate.isEmpty()) {
             sql += " AND cr.request_date >= ?";
             params.add(fromDate);
@@ -156,6 +151,7 @@ public class CustomerRequestDAO extends DBContext {
 
         String sql = """
         SELECT 
+
             cr.id AS request_id, p.name AS product_name, cr.title,
                         cr.request_type, cr.request_date, cr.status,
                         meta.payment_status  
@@ -166,6 +162,7 @@ public class CustomerRequestDAO extends DBContext {
                     JOIN Contract ct ON ci.contract_id = ct.id
                     LEFT JOIN CustomerRequestMeta meta ON cr.id = meta.request_id 
                     WHERE ct.customer_id = ? AND cr.is_active = 1
+
     """;
 
         // dynamic filters
@@ -232,14 +229,12 @@ public class CustomerRequestDAO extends DBContext {
                 + "status = ? ,\n"
                 + "is_active = ?\n"
                 + "WHERE id = ? ";
-        try {
-            PreparedStatement statement = connection.prepareStatement(sql);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, status);
             statement.setInt(2, isActive);
             statement.setInt(3, requestId);
 
             int rowsAffected = statement.executeUpdate();
-            statement.close();
 
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -249,14 +244,21 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public boolean insertRejectReason(int requestId, String rejectReason) {
-        String sql = "INSERT INTO customerrequestmeta (request_id, reject_reason) VALUES (?, ?)";
-        try {
-            PreparedStatement statement = connection.prepareStatement(sql);
+        // SỬA TÊN BẢNG VÀ LOGIC
+        String sql = """
+            INSERT INTO customerrequestmeta (request_id, reject_reason) 
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE 
+            reject_reason = ?
+        """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, requestId);
             statement.setString(2, rejectReason);
+            statement.setString(3, rejectReason); // Cho phần UPDATE
+
             return statement.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error inserting reject reason: " + e.getMessage());
+            System.err.println("Error inserting/updating reject reason: " + e.getMessage());
             return false;
         }
     }
@@ -478,24 +480,33 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public CustomerRequestMeta getCusRequestMetaById(int requestId) {
-        String sql = "SELECT * FROM `crm_device_management`.`customerrequestmeta` WHERE `request_id` = ?";
+        String sql = "SELECT * FROM customerrequestmeta WHERE request_id = ?";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, requestId);
 
             try (ResultSet rs = stm.executeQuery()) {
                 if (rs.next()) {
-                    CustomerRequestMeta ca = new CustomerRequestMeta();
-                    ca.setRequest_id(rs.getInt("request_id"));
-                    ca.setTotal_cost(rs.getDouble("total_cost"));
-                    ca.setPaid_amount(rs.getDouble("paid_amount"));
-                    ca.setPayment_status(rs.getString("payment_status"));
+                    CustomerRequestMeta meta = new CustomerRequestMeta();
+
+                    meta.setId(rs.getInt("id"));
+                    meta.setRequest_id(rs.getInt("request_id"));
+                    meta.setPriority(rs.getString("priority"));
+                    meta.setReject_reason(rs.getString("reject_reason"));
+
+                    meta.setTotal_cost(rs.getDouble("total_cost"));
+                    meta.setPaid_amount(rs.getDouble("paid_amount"));
+                    meta.setPayment_status(rs.getString("payment_status"));
 
                     java.sql.Date sqlDate = rs.getDate("payment_due_date");
                     if (sqlDate != null) {
-                        ca.setPayment_due_date(new java.util.Date(sqlDate.getTime()));
+                        meta.setPayment_due_date(new java.util.Date(sqlDate.getTime()));
                     }
 
-                    return ca;
+                    meta.setCustomer_comment(rs.getString("customer_comment"));
+                    meta.setCustomer_service_response(rs.getString("customer_service_response"));
+                    meta.setRating(rs.getInt("rating"));
+
+                    return meta;
                 }
             }
         } catch (SQLException e) {
@@ -515,7 +526,7 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public boolean createRequest(CustomerRequest req) {
-        String sql = "INSERT INTO CustomerRequest (customer_id, device_id, title, description, request_type, status, request_date) "
+        String sql = "INSERT INTO customerrequest (customer_id, device_id, title, description, request_type, status, request_date) "
                 + "VALUES (?, ?, ?, ?, ?, ?, NOW())";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, req.getCustomer_id());
@@ -531,17 +542,19 @@ public class CustomerRequestDAO extends DBContext {
         return false;
     }
 
-    public List<CustomerRequest> getCustomerRequestsByCSKH(int offset, int pageSize, String type, String status) {
+    public List<CustomerRequest> getCustomerRequestsByCSKH(int offset, int pageSize, String type, String status, String priority, String paymentStatus) {
         List<CustomerRequest> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
         SELECT cr.id, cr.customer_id, cr.device_id, cr.request_type, cr.title, cr.description,
                cr.request_date, cr.status,
-               u.full_name AS customer_name, p.name AS product_name
-        FROM CustomerRequest cr
+               u.full_name AS customer_name, p.name AS product_name,
+               crm.priority, crm.reject_reason, crm.payment_status, crm.payment_due_date
+        FROM customerrequest cr
         JOIN User u ON cr.customer_id = u.id
         JOIN Device d ON cr.device_id = d.id
         JOIN ContractItem ci ON d.contract_item_id = ci.id
         JOIN Product p ON ci.product_id = p.id
+        LEFT JOIN CustomerRequestMeta crm ON cr.id = crm.request_id
         WHERE 1=1
     """);
 
@@ -550,6 +563,12 @@ public class CustomerRequestDAO extends DBContext {
         }
         if (status != null && !status.isEmpty()) {
             sql.append(" AND cr.status = ?");
+        }
+        if (priority != null && !priority.isEmpty()) {
+            sql.append(" AND crm.priority = ?");
+        }
+        if (paymentStatus != null && !paymentStatus.isEmpty()) {
+            sql.append(" AND crm.payment_status = ?");
         }
 
         sql.append(" ORDER BY cr.request_date DESC LIMIT ? OFFSET ?");
@@ -562,6 +581,13 @@ public class CustomerRequestDAO extends DBContext {
             if (status != null && !status.isEmpty()) {
                 st.setString(idx++, status);
             }
+            if (priority != null && !priority.isEmpty()) {
+                st.setString(idx++, priority);
+            }
+            if (paymentStatus != null && !paymentStatus.isEmpty()) {
+                st.setString(idx++, paymentStatus);
+            }
+            
             st.setInt(idx++, pageSize);
             st.setInt(idx, offset);
 
@@ -587,6 +613,11 @@ public class CustomerRequestDAO extends DBContext {
                 d.setProductName(rs.getString("product_name"));
                 c.setDevice(d);
 
+                c.setPriority(rs.getString("priority"));
+                c.setReject_reason(rs.getString("reject_reason"));
+                c.setPayment_status(rs.getString("payment_status"));
+                c.setPayment_due_date(rs.getTimestamp("payment_due_date"));
+
                 list.add(c);
             }
         } catch (Exception e) {
@@ -595,13 +626,25 @@ public class CustomerRequestDAO extends DBContext {
         return list;
     }
 
-    public int countCustomerRequests(String type, String status) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM CustomerRequest WHERE 1=1");
+    public int countCustomerRequests(String type, String status, String priority, String paymentStatus) {
+        StringBuilder sql = new StringBuilder("""
+            SELECT COUNT(cr.id) 
+            FROM customerrequest cr
+            LEFT JOIN CustomerRequestMeta crm ON cr.id = crm.request_id
+            WHERE 1=1
+        """);
+
         if (type != null && !type.isEmpty()) {
-            sql.append(" AND request_type = ?");
+            sql.append(" AND cr.request_type = ?");
         }
         if (status != null && !status.isEmpty()) {
-            sql.append(" AND status = ?");
+            sql.append(" AND cr.status = ?");
+        }
+        if (priority != null && !priority.isEmpty()) {
+            sql.append(" AND crm.priority = ?");
+        }
+        if (paymentStatus != null && !paymentStatus.isEmpty()) {
+            sql.append(" AND crm.payment_status = ?");
         }
 
         try (PreparedStatement st = connection.prepareStatement(sql.toString())) {
@@ -611,6 +654,12 @@ public class CustomerRequestDAO extends DBContext {
             }
             if (status != null && !status.isEmpty()) {
                 st.setString(idx++, status);
+            }
+            if (priority != null && !priority.isEmpty()) {
+                st.setString(idx++, priority);
+            }
+            if (paymentStatus != null && !paymentStatus.isEmpty()) {
+                st.setString(idx++, paymentStatus);
             }
 
             ResultSet rs = st.executeQuery();
@@ -624,7 +673,7 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public void transferToTechManager(int requestId) {
-        String sql = "UPDATE CustomerRequest SET status = 'TRANSFERRED' WHERE id = ? AND status = 'PENDING'";
+        String sql = "UPDATE customerrequest SET status = 'TRANSFERRED' WHERE id = ? AND status = 'PENDING'";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, requestId);
             stm.executeUpdate();
@@ -634,7 +683,7 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public CustomerRequest getCusRequestById(int requestId) {
-        String sql = "SELECT * FROM CustomerRequest WHERE id = ?";
+        String sql = "SELECT * FROM customerrequest WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, requestId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -658,7 +707,7 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public boolean updateRequest(CustomerRequest request) {
-        String sql = "UPDATE CustomerRequest SET title = ?, device_id = ?, description = ?, request_type = ? "
+        String sql = "UPDATE customerrequest SET title = ?, device_id = ?, description = ?, request_type = ? "
                 + "WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, request.getTitle());
@@ -683,7 +732,7 @@ public class CustomerRequestDAO extends DBContext {
             p.name AS product_name, 
             b.name AS brand_name, 
             cat.name AS category_name
-        FROM CustomerRequest cr
+        FROM customerrequest cr
         JOIN Device d ON cr.device_id = d.id
         JOIN ContractItem ci ON d.contract_item_id = ci.id
         JOIN Product p ON ci.product_id = p.id
@@ -696,56 +745,57 @@ public class CustomerRequestDAO extends DBContext {
             ps.setInt(1, requestId);
             ResultSet rs = ps.executeQuery();
 
-        if (rs.next()) {
-            req = new CustomerRequest();
-            
-            req.setId(rs.getInt("request_id"));
-            req.setCustomer_id(rs.getInt("customer_id"));
-            req.setRequest_type(rs.getString("request_type"));
-            req.setTitle(rs.getString("title"));
-            req.setDescription(rs.getString("description"));
-            req.setRequest_date(rs.getTimestamp("request_date"));
-            req.setStatus(rs.getString("request_status"));
-          
-            Device device = new Device();
-            device.setId(rs.getInt("device_id"));
-            device.setSerialNumber(rs.getString("serial_number"));
-            device.setWarrantyExpiration(rs.getDate("warranty_expiration"));
-            device.setStatus(rs.getString("device_status"));
-            device.setProductName(rs.getString("product_name")); 
-            device.setBrandName(rs.getString("brand_name"));
-            device.setCategoryName(rs.getString("category_name"));
-            
-            req.setDevice(device); 
+            if (rs.next()) {
+                req = new CustomerRequest();
+
+                req.setId(rs.getInt("request_id"));
+                req.setCustomer_id(rs.getInt("customer_id"));
+                req.setRequest_type(rs.getString("request_type"));
+                req.setTitle(rs.getString("title"));
+                req.setDescription(rs.getString("description"));
+                req.setRequest_date(rs.getTimestamp("request_date"));
+                req.setStatus(rs.getString("request_status"));
+
+                Device device = new Device();
+                device.setId(rs.getInt("device_id"));
+                device.setSerialNumber(rs.getString("serial_number"));
+                device.setWarrantyExpiration(rs.getDate("warranty_expiration"));
+                device.setStatus(rs.getString("device_status"));
+                device.setProductName(rs.getString("product_name"));
+                device.setBrandName(rs.getString("brand_name"));
+                device.setCategoryName(rs.getString("category_name"));
+
+                req.setDevice(device);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return req;
     }
-    return req;
-}
+
     public boolean deactivateRequest(int requestId, int customerId) {
-    String sql = "UPDATE CustomerRequest SET is_active = 0 WHERE id = ? AND customer_id = ?";
-    
-    try  {
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setInt(1, requestId);
-        statement.setInt(2, customerId); 
-        
-        int rowsAffected = statement.executeUpdate();
-        statement.close(); 
-        
-        return rowsAffected > 0;
-    } catch (SQLException e) {
-        System.err.println("Error deactivating product: " + e.getMessage());
-        return false;
+        String sql = "UPDATE customerrequest SET is_active = 0 WHERE id = ? AND customer_id = ?";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, requestId);
+            statement.setInt(2, customerId);
+
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deactivating product: " + e.getMessage());
+            return false;
+        }
     }
-}
 
     public int getNumberTaskByIdAnDate(int id, String date) {
-        String sql = "SELECT COUNT(*) FROM crm_device_management.customerrequest_assignment "
+        String sql = "SELECT COUNT(*) FROM customerrequest_assignment "
                 + "WHERE technician_id = ? AND assigned_date = ?";
 
-        int count = 0; 
+        int count = 0;
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, id);
@@ -753,7 +803,7 @@ public class CustomerRequestDAO extends DBContext {
 
             try (ResultSet rs = stm.executeQuery()) {
                 if (rs.next()) {
-                    count = rs.getInt(1); 
+                    count = rs.getInt(1);
                 }
             }
         } catch (Exception e) {
@@ -762,14 +812,15 @@ public class CustomerRequestDAO extends DBContext {
 
         return count;
     }
+
     public List<CustomerRequest> getCompletableRequests(int userId) {
-    List<CustomerRequest> list = new ArrayList<>();
-    String sql = """
+        List<CustomerRequest> list = new ArrayList<>();
+        String sql = """
         SELECT 
                     cr.id AS request_id, cr.title, cr.description, cr.request_type, cr.status,
                     d.id AS device_id, 
                     p.name AS product_name
-                FROM CustomerRequest cr
+                FROM customerrequest cr
                 JOIN Device d ON cr.device_id = d.id
                 JOIN ContractItem ci ON d.contract_item_id = ci.id
                 JOIN Product p ON ci.product_id = p.id
@@ -778,12 +829,9 @@ public class CustomerRequestDAO extends DBContext {
                 AND cr.status IN ('COMPLETED', 'AWAITING_PAYMENT', 'PAID', 'CLOSED')
                 AND cr.is_active = 1
                 
-                -- SỬA LẠI LOGIC:
-                -- Và KHÔNG TỒN TẠI (NOT EXISTS) một bản ghi meta nào liên quan
-                -- mà đã có comment (không null VÀ không rỗng)
                 AND NOT EXISTS (
                     SELECT 1
-                    FROM CustomerRequestMeta m
+                    FROM customerrequestmeta m
                     WHERE m.request_id = cr.id
                       AND m.customer_comment IS NOT NULL
                       AND TRIM(m.customer_comment) <> ''
@@ -792,30 +840,128 @@ public class CustomerRequestDAO extends DBContext {
                 ORDER BY cr.request_date DESC
     """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, userId);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            CustomerRequest req = new CustomerRequest();
-            req.setId(rs.getInt("request_id"));
-            req.setTitle(rs.getString("title"));
-            req.setDescription(rs.getString("description"));
-            req.setRequest_type(rs.getString("request_type"));
-            req.setStatus(rs.getString("status"));
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                CustomerRequest req = new CustomerRequest();
+                req.setId(rs.getInt("request_id"));
+                req.setTitle(rs.getString("title"));
+                req.setDescription(rs.getString("description"));
+                req.setRequest_type(rs.getString("request_type"));
+                req.setStatus(rs.getString("status"));
 
-            Device device = new Device();
-            device.setId(rs.getInt("device_id"));
-            device.setProductName(rs.getString("product_name"));
-            req.setDevice(device);
-            
-            list.add(req);
+                Device device = new Device();
+                device.setId(rs.getInt("device_id"));
+                device.setProductName(rs.getString("product_name"));
+                req.setDevice(device);
+
+                list.add(req);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return list;
     }
-    return list;
-}
+
     
     
 
+
+    public boolean saveFeedback(int requestId, String comment, int rating) {
+        String sql = """
+        INSERT INTO customerrequestmeta (request_id, customer_comment, rating)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+        customer_comment = ?, rating = ?
+    """; // <-- SỬA
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+            ps.setString(2, comment);
+            ps.setInt(3, rating);
+            ps.setString(4, comment); // Cho phần UPDATE
+            ps.setInt(5, rating);     // Cho phần UPDATE
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    public boolean updatePriority(int requestId, String priority) {
+        String sql = """
+            INSERT INTO customerrequestmeta (request_id, priority)
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE 
+            priority = ?
+        """; // <-- SỬA
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+            ps.setString(2, priority);
+            ps.setString(3, priority);
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean cancelRequest(int requestId, String reason) {
+        String sqlUpdateRequest = "UPDATE CustomerRequest SET status = 'CANCELLED' WHERE id = ?";
+
+        String sqlInsertMeta = """
+            INSERT INTO CustomerRequestMeta (request_id, reject_reason) 
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE 
+            reject_reason = ?
+        """;
+        try {
+            connection.setAutoCommit(false);
+
+            // 1. Cập nhật bảng CustomerRequest
+            try (PreparedStatement stmUpdate = connection.prepareStatement(sqlUpdateRequest)) {
+                stmUpdate.setInt(1, requestId);
+                int rowsAffected = stmUpdate.executeUpdate();
+                if (rowsAffected == 0) {
+                    connection.rollback();
+                    System.err.println("Cancel request failed: Request ID " + requestId + " not found.");
+                    return false;
+                }
+            }
+
+            try (PreparedStatement stmMeta = connection.prepareStatement(sqlInsertMeta)) {
+                stmMeta.setInt(1, requestId);
+                stmMeta.setString(2, reason);
+                stmMeta.setString(3, reason);
+                stmMeta.executeUpdate();
+            }
+
+            connection.commit();
+            return true;
+
+        } catch (SQLException e) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                    System.err.println("Transaction rolled back for cancelRequest (ID: " + requestId + ")");
+                }
+            } catch (SQLException ex) {
+                System.err.println("Error during transaction rollback: " + ex.getMessage());
+            }
+            System.err.println("Error cancelling request: " + e.getMessage());
+            return false;
+
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.setAutoCommit(true);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error restoring auto-commit: " + e.getMessage());
+            }
+        }
+    }
 }

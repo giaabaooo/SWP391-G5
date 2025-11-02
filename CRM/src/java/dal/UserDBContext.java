@@ -2,9 +2,17 @@ package dal;
 
 import data.User;
 import data.Role;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import java.security.SecureRandom;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Properties;
 
 public class UserDBContext extends DBContext {
 
@@ -16,6 +24,7 @@ public class UserDBContext extends DBContext {
 
         try (
                 PreparedStatement stmt = connection.prepareStatement(sql)) {
+            
             stmt.setString(1, username);
             stmt.setString(2, password);
 
@@ -174,8 +183,29 @@ public class UserDBContext extends DBContext {
         return null;
     }
 
+    public Role getRoleById(int id) {
+        String sql = "SELECT * FROM role where id = ? and is_active = 1";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, id);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                Role r = new Role();
+
+                r.setId(rs.getInt("id"));
+                r.setName(rs.getString("name"));
+                r.setDescription("description");
+                r.setIsActive(true);
+
+                return r;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void insert(User u) {
-        String sql = "INSERT INTO [User](username,password,full_name,email,phone,address,role_id,is_active) VALUES(?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO `crm_device_management`.`user` (username,password,full_name,email,phone,address,role_id,is_active) VALUES(?,?,?,?,?,?,?,?)";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, u.getUsername());
             stm.setString(2, u.getPassword());
@@ -192,7 +222,7 @@ public class UserDBContext extends DBContext {
     }
 
     public void update(User u) {
-        String sql = "UPDATE [User] SET username=?, full_name=?, email=?, phone=?, address=?, role_id=?, is_active=? WHERE id=?";
+        String sql = "UPDATE `crm_device_management`.`user` SET username=?, full_name=?, email=?, phone=?, address=?, role_id=?, is_active=? WHERE id=?";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, u.getUsername());
             stm.setString(2, u.getFullName());
@@ -216,7 +246,29 @@ public class UserDBContext extends DBContext {
             e.printStackTrace();
         }
     }
-
+    
+    public ArrayList<User> getAllActiveCustomers() {
+        ArrayList<User> users = new ArrayList<>();
+        String sql = "SELECT u.id, u.full_name, u.email "
+                + "FROM User u INNER JOIN Role r ON u.role_id = r.id "
+                + "WHERE r.name = 'Customer' AND u.is_active = 1 "
+                + "ORDER BY u.full_name ASC"; 
+        
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setFullName(rs.getString("full_name"));
+                u.setEmail(rs.getString("email"));
+                users.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+    
     public ArrayList<User> listCustomers(int page, int pageSize, String keyword, String status, String sort) {
         ArrayList<User> users = new ArrayList<>();
         String sql = "SELECT u.*, r.id AS role_id, r.name AS role_name, r.description AS role_desc "
@@ -315,13 +367,82 @@ public class UserDBContext extends DBContext {
         return 0;
     }
 
-public void toggleCustomerStatus(int id) {
-    String sql = "UPDATE User SET is_active = NOT is_active WHERE id=?";
-    try (PreparedStatement stm = connection.prepareStatement(sql)) {
-        stm.setInt(1, id);
-        stm.executeUpdate();
-    } catch (SQLException e) {
-        e.printStackTrace();
+    public void toggleCustomerStatus(int id) {
+        String sql = "UPDATE User SET is_active = NOT is_active WHERE id=?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, id);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
-}
+
+    public String generateRandomPassword(int length) {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&!";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(chars.length());
+            sb.append(chars.charAt(index));
+        }
+        return sb.toString();
+    }
+
+    public void sendEmailForNewUser(String toEmail, String username, String password) {
+        final String fromEmail = "ducnmhe172104@fpt.edu.vn";
+        final String appPassword = "zkqa szgs ucqr chws"; 
+
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "465");
+        props.put("mail.smtp.ssl.enable", "true");
+
+        Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, appPassword);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(fromEmail));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("CRM Account Created Successfully");
+
+            String body = "Xin chào " + username + ",\n\n"
+                    + "Tài khoản CRM của bạn đã được tạo thành công.\n"
+                    + "Dưới đây là thông tin đăng nhập :\n\n"
+                    + "Username: " + username + "\n"
+                    + "Password: " + password + "\n\n"
+                    + "Vui lòng đăng nhập và đổi mật khẩu ngay lần đầu tiên.\n\n"
+                    + "Trân trọng,\nCRM Admin Team";
+
+            message.setText(body);
+
+            Transport.send(message);
+            System.out.println("Email sent successfully to " + toEmail);
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String hashPassword(String password) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

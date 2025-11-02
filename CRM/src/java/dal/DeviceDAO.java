@@ -2,6 +2,7 @@ package dal;
 
 import data.Device;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 public class DeviceDAO extends DBContext {
@@ -246,8 +247,8 @@ public class DeviceDAO extends DBContext {
 
     public List<Device> getDevicesByUserId(int userId) {
         List<Device> list = new ArrayList<>();
-        String sql = "SELECT d.id AS device_id,d.serial_number,\n" +
-"                   d.status,\n"
+        String sql = "SELECT d.id AS device_id,d.serial_number,\n"
+                + "                   d.status,\n"
                 + "    p.name AS product_name,\n"
                 + "    b.name AS brand_name,\n"
                 + "    c.name AS category_name "
@@ -265,7 +266,7 @@ public class DeviceDAO extends DBContext {
             while (rs.next()) {
                 Device d = new Device();
                 d.setId(rs.getInt("device_id"));
-                d.setSerialNumber(rs.getString("serial_number"));             
+                d.setSerialNumber(rs.getString("serial_number"));
                 d.setStatus(rs.getString("status"));
                 d.setProductName(rs.getString("product_name"));
                 d.setBrandName(rs.getString("brand_name"));
@@ -279,4 +280,43 @@ public class DeviceDAO extends DBContext {
         return list;
     }
 
+    public void insert(Device device) throws SQLException {
+        String sql = "INSERT INTO Device (contract_item_id, serial_number, warranty_expiration, status) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, device.getContractItemId());
+            stm.setString(2, device.getSerialNumber());
+            stm.setDate(3, (Date) device.getWarrantyExpiration());
+            stm.setString(4, device.getStatus());
+            stm.executeUpdate();
+        }
+    }
+
+    public List<Device> getDevicesByContractId(int contractId) {
+        List<Device> devices = new ArrayList<>();
+
+        String sql = """
+            SELECT d.id, d.serial_number, d.contract_item_id
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            WHERE ci.contract_id = ? 
+              AND d.is_active = true 
+              AND ci.is_active = true
+            ORDER BY d.contract_item_id, d.id
+            """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, contractId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Device d = new Device();
+                d.setId(rs.getInt("id"));
+                d.setSerialNumber(rs.getString("serial_number"));
+                d.setContractItemId(rs.getInt("contract_item_id"));
+                devices.add(d);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return devices;
+    }
 }
