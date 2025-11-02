@@ -57,7 +57,7 @@
         <div class="wrapper row-offcanvas row-offcanvas-left">
 
             <!-- SIDEBAR -->
-             <aside class="left-side sidebar-offcanvas">
+            <aside class="left-side sidebar-offcanvas">
                 <section class="sidebar">
                     <div class="user-panel">
 
@@ -67,7 +67,7 @@
                         </div>
                     </div>
 
-                   <ul class="sidebar-menu">
+                    <ul class="sidebar-menu">
                         <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
@@ -78,7 +78,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -94,7 +94,7 @@
 
 
 
-                       
+
                         <li class="treeview">
                             <a href="#feedbackMenu" data-toggle="collapse" aria-expanded="false">
                                 <i class="fa fa-tags"></i> <span>Feedback</span>
@@ -102,7 +102,7 @@
                             <ul class="collapse" id="feedbackMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createFeedback"><i class="fa fa-plus"></i> Create Feedback</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listFeedback"><i class="fa fa-eye"></i> View List Feedback</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -220,8 +220,40 @@
                                                                 <i class="fa fa-edit"></i> Update
                                                             </a>
                                                             <button class="btn btn-action btn-danger btn-delete" data-request-id="<%= req.getId() %>" data-request-title="<c:out value='${req.title}' default='Request #${req.id}'/>">
-                                                    <i class="fa fa-trash"></i> Delete
-                                                </button>
+                                                                <i class="fa fa-trash"></i> Delete
+                                                            </button>
+                                                            <%-- ========================================================= --%>
+                                                            <%-- SỬA LẠI LOGIC NÚT "PAY" / "PAID" --%>
+                                                            <% 
+         // 1. Lấy trạng thái từ đối tượng 'req' (biến Java)
+         String reqStatus = req.getStatus();
+         String paymentStatus = req.getPaymentStatus(); // Dùng getter camelCase
+    
+         // 2. Kiểm tra logic
+         if ("AWAITING_PAYMENT".equals(reqStatus) && 
+             (paymentStatus != null && ("UNPAID".equals(paymentStatus) || "PARTIALLY_PAID".equals(paymentStatus)))) {
+                                                            %>
+                                                            <%-- Nếu đúng -> Hiển thị nút "Pay Now" --%>
+                                                            <a href="${pageContext.request.contextPath}/customer/payment?id=<%= req.getId() %>" 
+                                                               class="btn btn-action btn-success" 
+                                                               style="text-decoration: none; margin-left: 5px;">
+                                                                <i class="fa fa-credit-card"></i> Pay Now
+                                                            </a>
+                                                            <% 
+                                                                } else if ("PAID".equals(paymentStatus) || "PAID".equals(reqStatus)) {
+                                                            %>
+                                                            <%-- Nếu đã trả tiền -> Hiển thị nút "Paid" --%>
+                                                            <a href="${pageContext.request.contextPath}/customer/payment?id=<%= req.getId() %>" 
+                                                               class="btn btn-action btn-info" 
+                                                               style="text-decoration: none; margin-left: 5px;">
+                                                                <i class="fa fa-check-circle"></i> Paid
+                                                            </a>
+                                                            <% 
+                                                                } 
+                                                                // Nếu không rơi vào 2 trường hợp trên, không hiển thị gì cả
+                                                            %>
+                                                            <%-- ========================================================= --%>
+                                                            <%-- ========================================================= --%>
                                                         </td>
                                                     </tr>
                                                     <%
@@ -287,34 +319,34 @@
 
         <!-- Delete Confirmation Modal -->
         <div id="deleteRequestModal" class="modal-overlay">
-    <div class="delete-modal">
-        <div class="modal-header-custom">
-            <div class="modal-icon" style="background-color: #dc3545;">
-                <i class="fa fa-trash"></i>
+            <div class="delete-modal">
+                <div class="modal-header-custom">
+                    <div class="modal-icon" style="background-color: #dc3545;">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                    <h3>Cancel Request</h3> 
+                </div>
+                <div class="modal-body-custom">
+                    <p class="warning-text">Are you sure you want to cancel this request?</p>
+                    <div class="product-name-display" id="modalRequestTitle" 
+                         style="font-weight: bold; margin: 10px 0; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                        <%-- JavaScript sẽ điền Title vào đây --%>
+                    </div> 
+                    <p class="warning-text">This will mark the request as inactive.</p> 
+                    <span class="warning-badge" style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;">
+                        <i class="fa fa-exclamation-triangle"></i> This action sets the request status to inactive.
+                    </span>
+                </div>
+                <div class="modal-footer-custom">
+                    <button class="modal-btn modal-btn-cancel" onclick="closeDeleteRequestModal()"> 
+                        <i class="fa fa-times"></i> Close 
+                    </button>
+                    <button class="modal-btn modal-btn-delete" id="confirmDeleteRequestBtn" style="background-color: #dc3545;"> 
+                        <i class="fa fa-trash"></i> Confirm Cancel 
+                    </button>
+                </div>
             </div>
-            <h3>Cancel Request</h3> 
         </div>
-        <div class="modal-body-custom">
-            <p class="warning-text">Are you sure you want to cancel this request?</p>
-            <div class="product-name-display" id="modalRequestTitle" 
-                 style="font-weight: bold; margin: 10px 0; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
-                 <%-- JavaScript sẽ điền Title vào đây --%>
-            </div> 
-            <p class="warning-text">This will mark the request as inactive.</p> 
-            <span class="warning-badge" style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;">
-                <i class="fa fa-exclamation-triangle"></i> This action sets the request status to inactive.
-            </span>
-        </div>
-        <div class="modal-footer-custom">
-            <button class="modal-btn modal-btn-cancel" onclick="closeDeleteRequestModal()"> 
-                <i class="fa fa-times"></i> Close 
-            </button>
-            <button class="modal-btn modal-btn-delete" id="confirmDeleteRequestBtn" style="background-color: #dc3545;"> 
-                <i class="fa fa-trash"></i> Confirm Cancel 
-            </button>
-        </div>
-    </div>
-</div>
 
         <!-- SCRIPTS -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
