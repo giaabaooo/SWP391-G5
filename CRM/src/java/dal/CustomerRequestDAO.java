@@ -156,19 +156,16 @@ public class CustomerRequestDAO extends DBContext {
 
         String sql = """
         SELECT 
-            cr.id AS request_id,
-            p.name AS product_name,
-            cr.title,
-            cr.request_type,
-            cr.request_date,
-            cr.status
-        FROM CustomerRequest cr
-        JOIN Device d ON cr.device_id = d.id
-        JOIN ContractItem ci ON d.contract_item_id = ci.id
-        JOIN Product p ON ci.product_id = p.id
-        LEFT JOIN CustomerRequestMeta crm ON cr.id = crm.request_id
-        JOIN Contract ct ON ci.contract_id = ct.id
-        WHERE ct.customer_id = ?
+            cr.id AS request_id, p.name AS product_name, cr.title,
+                        cr.request_type, cr.request_date, cr.status,
+                        meta.payment_status  
+                    FROM CustomerRequest cr
+                    JOIN Device d ON cr.device_id = d.id
+                    JOIN ContractItem ci ON d.contract_item_id = ci.id
+                    JOIN Product p ON ci.product_id = p.id
+                    JOIN Contract ct ON ci.contract_id = ct.id
+                    LEFT JOIN CustomerRequestMeta meta ON cr.id = meta.request_id 
+                    WHERE ct.customer_id = ? AND cr.is_active = 1
     """;
 
         // dynamic filters
@@ -183,9 +180,13 @@ public class CustomerRequestDAO extends DBContext {
         }
 
         sql += """
-        GROUP BY cr.id
-        ORDER BY cr.request_date DESC
-        LIMIT ? OFFSET ?
+        ORDER BY
+                    CASE 
+                        WHEN cr.status = 'AWAITING_PAYMENT' AND meta.payment_status <> 'PAID' THEN 1
+                        ELSE 2 
+                    END ASC, 
+                    cr.request_date DESC
+                LIMIT ? OFFSET ?
     """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -216,6 +217,7 @@ public class CustomerRequestDAO extends DBContext {
                 req.setRequest_type(rs.getString("request_type"));
                 req.setRequest_date(rs.getTimestamp("request_date"));
                 req.setStatus(rs.getString("status"));
+                req.setPaymentStatus(rs.getString("payment_status"));
                 list.add(req);
             }
 

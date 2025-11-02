@@ -4,7 +4,6 @@
  */
 package data;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -25,6 +24,8 @@ public class CustomerRequest {
     private User customer;
     private Device device;
     private String productName;
+    private CustomerRequestMeta requestMeta; // Để chứa toàn bộ object Meta khi JOIN
+    private String paymentStatus;
 
     public CustomerRequest() {
     }
@@ -42,6 +43,12 @@ public class CustomerRequest {
         this.customer = customer;
         this.device = device;
         this.productName = productName;
+        
+    }
+
+    public CustomerRequest(CustomerRequestMeta requestMeta, String paymentStatus) {
+        this.requestMeta = requestMeta;
+        this.paymentStatus = paymentStatus;
     }
 
     public User getCustomer() {
@@ -139,5 +146,23 @@ public class CustomerRequest {
     public void setProductName(String productName) {
         this.productName = productName;
     }
+
+    public CustomerRequestMeta getRequestMeta() {
+        return requestMeta;
+    }
+
+    public void setRequestMeta(CustomerRequestMeta requestMeta) {
+        this.requestMeta = requestMeta;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+    
+   
 
 }
