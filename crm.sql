@@ -140,7 +140,7 @@ CREATE TABLE CustomerRequest (
 
 CREATE TABLE CustomerRequestMeta (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    request_id INT NOT NULL,
+    request_id INT NOT NULL UNIQUE,
     priority ENUM('LOW','MEDIUM','HIGH','URGENT') DEFAULT 'MEDIUM',
     reject_reason TEXT,
     total_cost DECIMAL(15,2) DEFAULT 0,
