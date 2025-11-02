@@ -119,7 +119,15 @@ public class CustomerRequestDetailController extends HttpServlet {
                     requestDAO.updateRequest("CLOSED", 1, requestId);
                     redirectUrl += "&message=closed";
                     break;
-
+                case "save_response":
+                    String cskhResponse = req.getParameter("cskhResponse");
+                    if (cskhResponse != null && !cskhResponse.trim().isEmpty()) {
+                        requestDAO.saveCsResponse(requestId, cskhResponse);
+                        redirectUrl += "&message=responseSaved";
+                    } else {
+                        redirectUrl += "&error=responseEmpty";
+                    }
+                    break;
                 default:
                     redirectUrl += "&error=unknownAction";
             }

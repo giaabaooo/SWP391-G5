@@ -14,7 +14,7 @@
 </section>
 
 <section class="content">
-    
+
     <div class="content-card">
         <div class="card-body">
             <form method="get" action="${pageContext.request.contextPath}/cskh/customer" class="row">
@@ -62,8 +62,23 @@
                                     <i class="fa fa-arrow-down ${sort=='fullname_desc'?'text-primary':''}" title="Sort Z-A"></i>
                                 </a>
                             </th>
-                            <th>Email</th>
-                            <th>Phone</th>
+                            <th>Email
+                                <a href="${pageContext.request.contextPath}/cskh/customer?page=1&sort=email_asc&keyword=${param.keyword}&status=${param.status}">
+                                    <i class="fa fa-arrow-up ${sort=='email_asc'?'text-primary':''}" title="Sort A-Z"></i>
+                                </a>
+                                <a href="${pageContext.request.contextPath}/cskh/customer?page=1&sort=email_desc&keyword=${param.keyword}&status=${param.status}">
+                                    <i class="fa fa-arrow-down ${sort=='email_desc'?'text-primary':''}" title="Sort Z-A"></i>
+                                </a>
+                            </th>
+
+                            <th>Phone
+                                <a href="${pageContext.request.contextPath}/cskh/customer?page=1&sort=phone_asc&keyword=${param.keyword}&status=${param.status}">
+                                    <i class="fa fa-arrow-up ${sort=='phone_asc'?'text-primary':''}" title="Sort A-Z"></i>
+                                </a>
+                                <a href="${pageContext.request.contextPath}/cskh/customer?page=1&sort=phone_desc&keyword=${param.keyword}&status=${param.status}">
+                                    <i class="fa fa-arrow-down ${sort=='phone_desc'?'text-primary':''}" title="Sort Z-A"></i>
+                                </a>
+                            </th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -82,7 +97,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="${pageContext.request.contextPath}/cskh/customer/view?id=${u.id}" class="btn btn-info btn-sm">
+                                    <a href="${pageContext.request.contextPath}/cskh/customer-detail?id=${u.id}" class="btn btn-info btn-sm">
                                         <i class="fa fa-eye"></i> View
                                     </a>
                                     <form action="${pageContext.request.contextPath}/cskh/customer" method="post" style="display:inline;">
@@ -109,8 +124,8 @@
         </div>
     </div>
 
-    <c:if test="${totalPages > 1}">
-        <div class="pagination-controls">
+    <c:if test="${totalPages > 0}">
+        <div class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <span style="font-size: 0.9rem; color: #718096; margin-right: 1rem; align-self: center;">
                 Showing ${(page-1)*pageSize + 1} to ${page*pageSize > totalItems ? totalItems : page*pageSize} of ${totalItems} customers
             </span>

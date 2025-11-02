@@ -88,14 +88,18 @@
     <servlet>
         <servlet-name>UpdateFeedback</servlet-name>
         <servlet-class>Controller.customer.UpdateFeedback</servlet-class>
-      </servlet> 
-  <servlet>
+    </servlet>
+    <servlet>
         <servlet-name>ContractUpdateController</servlet-name>
         <servlet-class>Controller.cskh.ContractUpdateController</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>PaymentController</servlet-name>
         <servlet-class>Controller.customer.PaymentController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CustomerDetailController</servlet-name>
+        <servlet-class>Controller.cskh.CustomerDetailController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
@@ -178,14 +182,18 @@
     <servlet-mapping>
         <servlet-name>UpdateFeedback</servlet-name>
         <url-pattern>/customer/updateFeedback</url-pattern>
-      </servlet-mapping>
-  <servlet-mapping>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>ContractUpdateController</servlet-name>
         <url-pattern>/ContractUpdateController</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PaymentController</servlet-name>
         <url-pattern>/customer/payment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CustomerDetailController</servlet-name>
+        <url-pattern>/CustomerDetailController</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>redirect.jsp</welcome-file>
