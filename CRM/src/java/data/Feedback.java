@@ -19,6 +19,21 @@ public class Feedback {
     private String comment;
     private int rating;
     private Date requestDate;
+    
+    public Feedback() {}
+
+    public Feedback(int requestId, String title, String requestType, String productName, String description, String comment, int rating, Date requestDate) {
+        this.requestId = requestId;
+        this.title = title;
+        this.requestType = requestType;
+        this.productName = productName;
+        this.description = description;
+        this.comment = comment;
+        this.rating = rating;
+        this.requestDate = requestDate;
+    }
+    
+    
 
     // Getters and setters
     public int getRequestId() { return requestId; }

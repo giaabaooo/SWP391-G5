@@ -202,6 +202,7 @@
                                                         <th>Rating</th>
                                                         <th>Feedback</th>
                                                         <th>Date</th>
+                                                        <th>Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -225,6 +226,13 @@
                                                         </td>
                                                         <td><%= f.getComment() %></td>
                                                         <td><%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(f.getRequestDate()) %></td>
+                                                        <td>
+                                                            
+                                                            <a href="${pageContext.request.contextPath}/customer/updateFeedback?id=<%= f.getRequestId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                                <i class="fa fa-edit"></i> Update
+                                                            </a>
+
+                                                        </td>
                                                     </tr>
                                                     <%
                                                             }
