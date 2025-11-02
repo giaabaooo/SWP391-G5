@@ -16,6 +16,15 @@ public class Device {
     private String imageUrl;
     private BigDecimal purchasePrice;
     private BigDecimal sellingPrice;
+    private boolean isActive;
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
 
     public Device() {}
 

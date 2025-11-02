@@ -1,149 +1,14 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <%@ include file="/jsp/layout/header2.jsp" %>
 <%@ include file="/jsp/layout/sidebar2.jsp" %>
 
-<style>
-    :root {
-        --primary-color: #4a90e2;
-        --success-color: #38a169;
-        --danger-color: #e53e3e;
-        --warning-color: #d69e2e;
-        --info-color: #3182ce;
-        --default-color: #6b7280;
-        --text-color: #2d3748;
-        --muted-color: #718096;
-        --background-color: #f7fafc;
-        --border-color: #e2e8f0;
-        --hover-color: #3b82f6;
-        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .content-wrapper {
-        background-color: var(--background-color);
-        padding: 24px;
-        min-height: 100vh;
-    }
-
-    .content-header h1 {
-        color: var(--text-color);
-        font-weight: 700;
-        font-size: 2.25rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .breadcrumb {
-        background-color: transparent;
-        padding: 0;
-        margin-bottom: 2rem;
-        font-size: 0.9rem;
-    }
-
-    .breadcrumb a {
-        color: var(--primary-color);
-        text-decoration: none;
-    }
-
-    .breadcrumb a:hover {
-        color: var(--hover-color);
-    }
-
-    .box {
-        border-radius: 10px;
-        box-shadow: var(--shadow);
-        margin-bottom: 2rem;
-        background-color: #ffffff;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .box-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .box-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--text-color);
-        margin: 0;
-    }
-
-    .box-body {
-        padding: 1.5rem;
-    }
-
-    .box-footer {
-        padding: 1.25rem;
-        border-top: 1px solid var(--border-color);
-        background-color: #f8fafc;
-        display: flex;
-        justify-content: flex-end;
-    }
-
-    .table {
-        background-color: #ffffff;
-        border-radius: 10px;
-        overflow: hidden;
-        width: 100%;
-    }
-
-    .table tr:nth-child(odd) {
-        background-color: #f8fafc;
-    }
-
-    .table tr:hover {
-        background-color: #e2e8f0;
-    }
-
-    .table th, .table td {
-        padding: 1rem;
-        font-size: 0.95rem;
-        vertical-align: middle;
-    }
-
-    .table th {
-        background-color: var(--primary-color);
-        color: #fff;
-        width: 30%;
-    }
-
-    .label {
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .label-success { background-color: var(--success-color); color: #fff; }
-    .label-danger { background-color: var(--danger-color); color: #fff; }
-    .label-warning { background-color: var(--warning-color); color: #fff; }
-    .label-info { background-color: var(--info-color); color: #fff; }
-    .label-default { background-color: var(--default-color); color: #fff; }
-
-    .btn-back {
-        background-color: var(--primary-color);
-        color: #fff;
-        padding: 0.75rem 1.5rem;
-        border-radius: 6px;
-        font-size: 1rem;
-        text-decoration: none;
-    }
-
-    .btn-back:hover {
-        background-color: #3b82f6;
-        color: #fff;
-    }
-
-</style>
-
 <div class="content-wrapper">
     <section class="content-header">
-        <h1>Request Detail</h1>
-        <ol class="breadcrumb">
+        <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Request Detail: <c:out value="#${requestDetail.id}"/></h1>
+        <ol class="breadcrumb" style="background: none; padding: 0; margin-bottom: 2rem;">
             <li><a href="${pageContext.request.contextPath}/cskh/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
             <li><a href="${pageContext.request.contextPath}/cskh/customer-request">Customer Requests</a></li>
             <li class="active">Detail</li>
@@ -151,109 +16,254 @@
     </section>
 
     <section class="content">
-        <div class="box box-primary">
-            <div class="box-header">
-                <h3 class="box-title"><i class="fa fa-info-circle"></i> Request Information</h3>
-            </div>
-            <div class="box-body">
-                <table class="table table-bordered">
-                    <tr>
-                        <th>Request ID</th>
-                        <td><c:out value="${requestDetail.id}" default="N/A"/></td>
-                    </tr>
-                    <tr>
-                        <th>Customer</th>
-                        <td>
-                            <c:choose>
-                                <c:when test="${not empty requestDetail.customer}">
-                                    <c:out value="${requestDetail.customer.fullName}" default="Unknown Customer"/>
-                                </c:when>
-                                <c:otherwise>
-                                    Unknown Customer
-                                </c:otherwise>
-                            </c:choose>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Device</th>
-                        <td>
-                            <c:choose>
-                                <c:when test="${not empty requestDetail.device}">
-                                    <c:out value="${requestDetail.device.productName}" default="Unknown Device"/>
-                                </c:when>
-                                <c:otherwise>
-                                    Unknown Device
-                                </c:otherwise>
-                            </c:choose>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Title</th>
-                        <td><c:out value="${requestDetail.title}" default="N/A"/></td>
-                    </tr>
-                    <tr>
-                        <th>Description</th>
-                        <td>
-                            <c:choose>
-                                <c:when test="${not empty requestDetail.description}">
-                                    <c:out value="${requestDetail.description}"/>
-                                </c:when>
-                                <c:otherwise>
-                                    <span style="color: var(--muted-color);">No description</span>
-                                </c:otherwise>
-                            </c:choose>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Request Type</th>
-                        <td><c:out value="${requestDetail.request_type}" default="N/A"/></td>
-                    </tr>
-                    <tr>
-                        <th>Status</th>
-                        <td>
-                            <c:choose>
-                                <c:when test="${not empty requestDetail.status}">
-                                    <span class="label
-                                        ${requestDetail.status eq 'PENDING' ? 'label-warning' :
-                                          requestDetail.status eq 'TRANSFERRED' ? 'label-info' :
-                                          requestDetail.status eq 'ASSIGNED' ? 'label-info' :
-                                          requestDetail.status eq 'IN_PROGRESS' ? 'label-info' :
-                                          requestDetail.status eq 'COMPLETED' ? 'label-success' :
-                                          requestDetail.status eq 'CANCELLED' ? 'label-danger' : 'label-default'}">
-                                        <i class="fa
-                                            ${requestDetail.status eq 'PENDING' ? 'fa-clock-o' :
-                                              requestDetail.status eq 'TRANSFERRED' ? 'fa-share' :
-                                              requestDetail.status eq 'ASSIGNED' ? 'fa-user-plus' :
-                                              requestDetail.status eq 'IN_PROGRESS' ? 'fa-cog' :
-                                              requestDetail.status eq 'COMPLETED' ? 'fa-check-circle' :
-                                              requestDetail.status eq 'CANCELLED' ? 'fa-times-circle' : 'fa-circle'}"></i>
-                                        <c:out value="${requestDetail.status}"/>
-                                    </span>
-                                </c:when>
-                                <c:otherwise>N/A</c:otherwise>
-                            </c:choose>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Request Date</th>
-                        <td>
-                            <c:choose>
-                                <c:when test="${not empty requestDetail.request_date}">
-                                    <fmt:formatDate value="${requestDetail.request_date}" pattern="yyyy-MM-dd HH:mm"/>
-                                </c:when>
-                                <c:otherwise>N/A</c:otherwise>
-                            </c:choose>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div class="box-footer">
-                <a href="${pageContext.request.contextPath}/cskh/customer-request" class="btn-back">
-                    <i class="fa fa-arrow-left"></i> Back to List
-                </a>
+
+        <c:if test="${param.message == 'transferred'}">
+            <div class="alert alert-success"><i class="fa fa-check-circle"></i> Request successfully transferred to Tech Manager.</div>
+        </c:if>
+        <c:if test="${param.message == 'cancelled'}">
+            <div class="alert alert-success"><i class="fa fa-check-circle"></i> Request has been cancelled.</div>
+        </c:if>
+        <c:if test="${param.message == 'closed'}">
+            <div class="alert alert-success"><i class="fa fa-check-circle"></i> Request has been closed.</div>
+        </c:if>
+        <c:if test="${param.error == 'actionFailed'}">
+            <div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Action failed. Please try again.</div>
+        </c:if>
+
+        <div class="row">
+            <div class="col-md-7">
+
+                <div class="content-card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa fa-info-circle"></i> Request Information</h3>
+                        
+                        <c:if test="${not empty requestDetail.status}">
+                            <span class="status-label ${requestDetail.status eq 'PENDING' ? 'status-warning' : requestDetail.status eq 'TRANSFERRED' ? 'status-info' : requestDetail.status eq 'ASSIGNED' ? 'status-info' : requestDetail.status eq 'IN_PROGRESS' ? 'status-info' : requestDetail.status eq 'COMPLETED' ? 'status-success' : requestDetail.status eq 'AWAITING_PAYMENT' ? 'status-warning' : requestDetail.status eq 'PAID' ? 'status-success' : requestDetail.status eq 'CLOSED' ? '' : requestDetail.status eq 'CANCELLED' ? 'status-critical' : ''}">
+                                <c:out value="${requestDetail.status}"/>
+                            </span>
+                        </c:if>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-hashtag" style="color: #6366f1; width: 20px;"></i> Request ID:</strong> <c:out value="#${requestDetail.id}"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-tag" style="color: #6366f1; width: 20px;"></i> Title:</strong> <c:out value="${requestDetail.title}"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-list" style="color: #6366f1; width: 20px;"></i> Request Type:</strong> <c:out value="${requestDetail.request_type}"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-calendar" style="color: #6366f1; width: 20px;"></i> Request Date:</strong> <fmt:formatDate value="${requestDetail.request_date}" pattern="yyyy-MM-dd HH:mm"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-file-text-o" style="color: #6366f1; width: 20px;"></i> Description:</strong>
+                            <c:if test="${empty requestDetail.description}"><span style="color: #a0aec0;">No description</span></c:if>
+                            <p style="white-space: pre-wrap; margin: 0; padding-left: 25px;"><c:out value="${requestDetail.description}"/></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header"><h3><i class="fa fa-user-circle"></i> Customer & Device</h3></div>
+                    <div class="card-body">
+                        <h4 style="font-weight: 600; color: #2d3748; border-bottom: 1px solid #eee; padding-bottom: 5px;">Customer Details</h4>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-user" style="color: #6366f1; width: 20px;"></i> Name:</strong> <c:out value="${customerDetail.fullName}" default="N/A"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-envelope" style="color: #6366f1; width: 20px;"></i> Email:</strong> <c:out value="${customerDetail.email}" default="N/A"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-phone" style="color: #6366f1; width: 20px;"></i> Phone:</strong> <c:out value="${customerDetail.phone}" default="N/A"/>
+                        </div>
+                        
+                        <h4 style="font-weight: 600; color: #2d3748; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px;">Device Details</h4>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-cube" style="color: #6366f1; width: 20px;"></i> Product:</strong> <c:out value="${requestDetail.device.productName}" default="N/A"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-barcode" style="color: #6366f1; width: 20px;"></i> Serial:</strong> <c:out value="${requestDetail.device.serialNumber}" default="N/A"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-bookmark" style="color: #6366f1; width: 20px;"></i> Brand:</strong> <c:out value="${requestDetail.device.brandName}" default="N/A"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-tags" style="color: #6366f1; width: 20px;"></i> Category:</strong> <c:out value="${requestDetail.device.categoryName}" default="N/A"/>
+                        </div>
+                        <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                            <strong><i class="fa fa-shield" style="color: #6366f1; width: 20px;"></i> Warranty:</strong>
+                            <fmt:formatDate value="${requestDetail.device.warrantyExpiration}" pattern="yyyy-MM-dd"/>
+                            <c:if test="${requestDetail.device.underWarranty}"><span class="status-label status-success" style="margin-left: 10px;">Under Warranty</span></c:if>
+                            <c:if test="${!requestDetail.device.underWarranty}"><span class="status-label status-critical" style="margin-left: 10px;">Expired</span></c:if>
+                        </div>
+                    </div>      
+                </div>
+            </div> 
+            
+            <div class="col-md-5">
+                <div class="content-card">
+                    <div class="card-header"><h3><i class="fa fa-users"></i> Assignment Details</h3></div>
+                    <div class="card-body">
+                        <c:if test="${empty assignmentDetail}">
+                            <div class="empty-state" style="padding: 1rem; text-align: center; color: #718096;">
+                                <i class="fa fa-user-times" style="font-size: 2rem; margin-bottom: 0.5rem; color: #6366f1;"></i>
+                                <p style="font-size: 1rem; margin: 0;">Not yet assigned.</p>
+                            </div>
+                        </c:if>
+                        <c:if test="${not empty assignmentDetail}">
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-calendar-check-o" style="color: #6366f1; width: 20px;"></i> Assigned:</strong> <fmt:formatDate value="${assignmentDetail.assigned_date}" pattern="yyyy-MM-dd"/>
+                            </div>
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-wrench" style="color: #6366f1; width: 20px;"></i> Technicians:</strong>
+                                <ul style="margin: 0; padding-left: 45px; list-style-type: disc;">
+                                    <c:forEach var="tech" items="${assignmentDetail.technician}">
+                                        <li>
+                                            <c:out value="${tech.fullName}"/>
+                                            <c:if test="${tech.id == assignmentDetail.technician_id && assignmentDetail.is_main == 1}">
+                                                <strong>(Main)</strong>
+                                            </c:if>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </div>
+                        </c:if>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header"><h3><i class="fa fa-money"></i> Meta, Payment & Feedback</h3></div>
+                    <div class="card-body">
+                        <c:if test="${empty metaDetail}">
+                            <div class="empty-state" style="padding: 1rem; text-align: center; color: #718096;">
+                                <i class="fa fa-file-o" style="font-size: 2rem; margin-bottom: 0.5rem; color: #6366f1;"></i>
+                                <p style="font-size: 1rem; margin: 0;">No meta-information added.</p>
+                            </div>
+                        </c:if>
+                        <c:if test="${not empty metaDetail}">
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-sort-amount-asc" style="color: #6366f1; width: 20px;"></i> Priority:</strong> <c:out value="${metaDetail.priority}" default="N/A"/>
+                            </div>
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-dollar" style="color: #6366f1; width: 20px;"></i> Total Cost:</strong> <fmt:formatNumber value="${metaDetail.total_cost}" type="CURRENCY" currencySymbol="$"/>
+                            </div>
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-credit-card" style="color: #6366f1; width: 20px;"></i> Paid Amount:</strong> <fmt:formatNumber value="${metaDetail.paid_amount}" type="CURRENCY" currencySymbol="$"/>
+                            </div>
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-check" style="color: #6366f1; width: 20px;"></i> Pay Status:</strong> <c:out value="${metaDetail.payment_status}" default="N/A"/>
+                            </div>
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-calendar-times-o" style="color: #6366f1; width: 20px;"></i> Due Date:</strong> <fmt:formatDate value="${metaDetail.payment_due_date}" pattern="yyyy-MM-dd"/>
+                            </div>
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-commenting-o" style="color: #6366f1; width: 20px;"></i> Reason:</strong> <c:out value="${metaDetail.reject_reason}" default="N/A"/>
+                            </div>
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-comments" style="color: #6366f1; width: 20px;"></i> Feedback:</strong> <c:out value="${metaDetail.customer_comment}" default="N/A"/>
+                            </div>
+                            <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
+                                <strong><i class="fa fa-star" style="color: #6366f1; width: 20px;"></i> Rating:</strong> <c:out value="${metaDetail.rating > 0 ? metaDetail.rating : 'N/A'}"/>
+                            </div>
+                        </c:if>
+                    </div>
+                </div>
+
+            </div> 
+        </div> 
+        
+        <div class="content-card">
+            <div class="card-body">
+                <form action="" method="POST" class="form-inline" style="justify-content: flex-end; gap: 10px;">
+                    <a href="${pageContext.request.contextPath}/cskh/customer-request" class="btn btn-default" style="margin-right: auto;">
+                        <i class="fa fa-arrow-left"></i> Back to List
+                    </a>
+
+                    <c:if test="${requestDetail.status == 'PENDING'}">
+                        <button type="button" class="btn btn-danger" onclick="openCancelModal()">
+                            <i class="fa fa-times-circle"></i> Cancel Request
+                        </button>
+                        
+                        <input type="hidden" name="action" value="transfer">
+                        <input type="hidden" name="requestId" value="${requestDetail.id}">
+
+                        <div class="form-group">
+                            <label for="prioritySelect" style="margin-right: 5px;">Set Priority:</label>
+                            <select name="priority" id="prioritySelect" class="form-control" style="height: 38px;"> <option value="Medium">Medium (Default)</option>
+                                <option value="Low">Low</option>
+                                <option value="High">High</option>
+                                <option value="URGENT">URGENT</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-share"></i> Transfer
+                        </button>
+                    </c:if>
+
+                    <c:if test="${requestDetail.status == 'PAID' || (requestDetail.status == 'COMPLETED' && (metaDetail == null || metaDetail.total_cost == 0))}">
+                        <form action="" method="POST" style="margin: 0; padding: 0;">
+                            <input type="hidden" name="action" value="close">
+                            <input type="hidden" name="requestId" value="${requestDetail.id}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-check-square-o"></i> Close Request
+                            </button>
+                        </form>
+                    </c:if>
+                </form>
             </div>
         </div>
     </section>
+
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <form action="" method="POST">
+                <div class="modal-header" style="background-color: #d9534f;"> <h2 style="margin: 0; font-size: 1.25rem; color: white;">Cancel Request</h2>
+                </div>
+                <div class="modal-body">
+                    <p>Please provide a reason for cancelling this request:</p>
+                    <input type="hidden" name="action" value="cancel">
+                    <input type="hidden" name="requestId" value="${requestDetail.id}">
+                    <textarea name="cancelReason" class="form-control" rows="4" placeholder="Reason for cancellation..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" onclick="closeCancelModal()">Abort</button>
+                    <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+    var modal = document.getElementById('cancelModal');
+
+    function openCancelModal() {
+        modal.style.display = "block";
+    }
+
+    function closeCancelModal() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            closeCancelModal();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const alerts = document.querySelectorAll('.alert');
+        if (alerts.length > 0) {
+            setTimeout(() => {
+                alerts.forEach(a => {
+                    a.style.transition = 'opacity 0.5s ease';
+                    a.style.opacity = '0';
+                    setTimeout(() => a.remove(), 500);
+                });
+            }, 4000);
+        }
+    });
+</script>
 
 <%@ include file="/jsp/layout/footer2.jsp" %>

@@ -44,7 +44,7 @@
                                     <i class="fa fa-clock-o"></i>
                                 </div>
                                 <div class="stat-number">${pending}</div>
-                                <div class="stat-label">Pending Requests</div>
+                                <div class="stat-label">Unprocessed Requests</div>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -53,7 +53,7 @@
                                     <i class="fa fa-check-circle"></i>
                                 </div>
                                 <div class="stat-number">${finish}</div>
-                                <div class="stat-label">Completed </div>
+                                <div class="stat-label">Processed Requests</div>
                             </div>
                         </div>
                     </div>

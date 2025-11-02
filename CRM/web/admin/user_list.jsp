@@ -1,8 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@ include file="/techmanager/layout/header.jsp" %>
-<%@ include file="/techmanager/layout/sidebar.jsp" %>
+<%@ include file="/admin/layout/header.jsp" %>
+<%@ include file="/admin/layout/sidebar.jsp" %>
 <html>
     <head>
         <style>
@@ -583,72 +583,57 @@
                     <!-- Page Header -->
                     <div class="row">
                         <div class="col-md-12">
-                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">View List Request</h1>
-                            <p style="color: #718096; margin-bottom: 2rem;">View and manage all request </p>
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">View List User</h1>
+                            <p style="color: #718096; margin-bottom: 2rem;">View and manage all user </p>
 
                             <c:if test="${not empty error}">
                                 <div class="alert alert-danger" style="margin: 10px;">
                                     ${error}
                                 </div>
                             </c:if>
+                            <c:if test="${not empty success}">
+                                <div class="alert alert-success" style="margin: 10px;">
+                                    ${success}
+                                </div>
+                            </c:if>
 
                         </div>
                     </div>
 
-                    <!-- Request Table -->
+                    <!-- Task Table -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="content-card">
                                 <div class="card-header">
-                                    <h3><i class="fa fa-list"></i> Request List</h3>
-                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask" class="btn btn-primary">
-                                        <i class="fa fa-plus"></i> Assign Task
+                                    <h3><i class="fa fa-list"></i> User List</h3>
+
+                                    <a href="${pageContext.request.contextPath}/admin/user?action=add" class="btn btn-primary">
+                                        <i class="fa fa-plus"></i> Add new user
                                     </a>
+
                                 </div>
 
                                 <!-- Filter Bar -->
-                                <form method="get" action="${pageContext.request.contextPath}/techmanager/request" >
+                                <form method="get" action="${pageContext.request.contextPath}/admin/user" >
                                     <div class="filter-bar">
                                         <input type="hidden" name="action" value="list"/>
                                         <input type="text" name="keyword" class="search-input" placeholder="Search ..." 
                                                value="${param.keyword}">
 
-                                        <select name="requestType" class="search-input" style="min-width: 150px;">
-                                            <option value="">--Request Type--</option>
-                                            <option value="repair" ${param.requestType=="REPAIR"?"selected":""}>Repair</option>
-                                            <option value="maintenance" ${param.requestType=="MAINTENANCE"?"selected":""}>Maintenance</option>
-                                            <option value="Warranty" ${param.requestType=="WARRANTY"?"selected":""}>Warranty</option>
+                                        <select name="role" class="search-input" style="min-width: 150px;">
+                                            <option value="">--Role--</option>
+                                            <option value="CUSTOMER_STAFF" ${param.role=="CUSTOMER_STAFF"?"selected":""}>CUSTOMER_STAFF</option>
+                                            <option value="TECH_MANAGER" ${param.role=="TECH_MANAGER"?"selected":""}>TECH_MANAGER</option>
+                                            <option value="TECHNICIAN" ${param.role=="TECHNICIAN"?"selected":""}>TECHNICIAN</option>
+                                            <option value="WAREHOUSE" ${param.role=="WAREHOUSE"?"selected":""}>WAREHOUSE</option>
+                                            <option value="CUSTOMER" ${param.role=="CUSTOMER"?"selected":""}>CUSTOMER</option>
                                         </select>
 
-                                        <input type="date" name="fromDate" class="search-input" value="${param.fromDate}" style="min-width:160px;" placeholder="From Date" >
-                                        <input type="date" name="toDate" class="search-input" value="${param.toDate}" style="min-width:160px;" placeholder="To Date" >
-
-                                        <!--                                        <select name="status" class="search-input" style="min-width: 150px;">
-                                                                                    <option value="">--Status--</option>
-                                                                                    <option value="rejected" ${param.status=="rejected"?"selected":""}>Rejected</option>
-                                                                                    <option value="processing" ${param.status=="processing"?"selected":""}>Processing</option>
-                                                                                    <option value="pending" ${param.status=="pending"?"selected":""}>Pending</option>
-                                                                                    <option value="done" ${param.status=="done"?"selected":""}>Done</option>
-                                                                                </select>-->
-                                        <select name="status" class="search-input" style="min-width: 150px;">
-                                            <option value="">--Status--</option>
-                                            
-                                            <option value="TRANSFERRED" ${param.status=="TRANSFERRED"?"selected":""}>Transferred</option>
-                                            <option value="ASSIGNED" ${param.status=="ASSIGNED"?"selected":""}>Assigned</option>
-                                            <option value="IN_PROGRESS" ${param.status=="IN_PROGRESS"?"selected":""}>In Progress</option>
-                                            <option value="COMPLETED" ${param.status=="COMPLETED"?"selected":""}>Completed</option>
-                                            <option value="AWAITING_PAYMENT" ${param.status=="AWAITING_PAYMENT"?"selected":""}>Awaiting Payment</option>
-                                            <option value="PAID" ${param.status=="PAID"?"selected":""}>Paid</option>
-                                            <option value="CLOSED" ${param.status=="CLOSED"?"selected":""}>Closed</option>
-                                            <option value="CANCELLED" ${param.status=="CANCELLED"?"selected":""}>Cancelled</option>
-                                        </select>
-
-                                        
 
                                         <button class="btn btn-primary" type="submit" >
                                             <i class="fa fa-filter"></i> Filter
                                         </button>
-                                        <a href="${pageContext.request.contextPath}/techmanager/request?action=list" class="btn btn-primary" style="background: #6c757d; border-color: #6c757d;"><i class="fa fa-times"></i>Clear</a>
+                                        <a href="${pageContext.request.contextPath}/admin/user?action=list" class="btn btn-primary" style="background: #6c757d; border-color: #6c757d;"><i class="fa fa-times"></i>Clear</a>
 
                                     </div>
                                 </form>
@@ -658,46 +643,40 @@
                                             <thead>
                                                 <tr>
                                                     <th>No.</th>
-                                                    <th>Customer</th>
-                                                    <th>Device</th>
-                                                    <th>Request Type</th>
-                                                    <th>Title</th>
-                                                    <th>Description</th>
-                                                    <th>Request Date</th>
-                                                    <th>Status</th>
-                                                    
+                                                    <th>Username</th>
+                                                    <th>Role</th>
+                                                    <th>Full Name</th>
+                                                    <th>Email</th>
+                                                    <th>Phone</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <c:forEach var="u" items="${requests}" varStatus="st">
-                                                    <c:if test="${u.status != 'PENDING'}">
-                                                        <tr>
-                                                            <td>${(page-1)*pageSize + st.index + 1}</td>
-                                                            <td>${u.customer.fullName}</td>
-                                                            <td>${u.device.productName}</td>
-                                                            <td>${u.request_type}</td>
-                                                            <td>${u.title}</td>
-                                                            <td>${u.description}</td>
-                                                            <td>${u.request_date}</td>
-                                                            <td>${u.status}</td>
-                                                            
-                                                            <td>
-                                                                <a href="${pageContext.request.contextPath}/techmanager/request?action=detail&id=${u.id}" class="btn btn-action btn-view">
-                                                                    <i class="fa fa-eye"></i> Detail
-                                                                </a>
+                                                <c:forEach var="u" items="${users}" varStatus="st">
 
-                                                                <c:if test="${u.status == 'TRANSFERRED'}">
-                                                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask&id=${u.id}" class="btn btn-action btn-edit">
-                                                                        <i class="fa fa-angle-right"></i> Assign
-                                                                    </a>
-                                                                </c:if>
-                                                            </td>
-                                                        </tr>
-                                                    </c:if>
+                                                    <tr>
+                                                        <td>${(page-1)*pageSize + st.index + 1}</td>
+                                                        <td>${u.username}</td>
+                                                        <td>${u.role.name}</td>
+                                                        <td>${u.fullName}</td>
+                                                        <td>${u.email}</td>
+                                                        <td>${u.phone}</td>
+
+                                                        <td>
+
+                                                            <a href="${pageContext.request.contextPath}/admin/user?action=edit&id=${u.id}" class="btn btn-action btn-edit">
+                                                                Edit <i class="fa fa-edit"></i>
+                                                            </a>
+
+                                                            <a href="${pageContext.request.contextPath}/admin/user?action=delete&id=${u.id}" class="btn btn-action btn-danger btn-delete">
+                                                                Delete <i class="fa fa-trash"></i>
+                                                            </a>
+
+                                                        </td>
+                                                    </tr>
 
                                                 </c:forEach>
-                                                <c:if test="${empty requests}">
+                                                <c:if test="${empty users}">
                                                     <tr><td colspan="8" class="text-center">No data found</td></tr>
                                                 </c:if>
                                             </tbody>
@@ -817,7 +796,7 @@
                                                         var urlParams = new URLSearchParams(window.location.search);
                                                         var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
                                                         var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
-                                                        var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0%>;
+                                                        var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>;
 
                                                         var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
                                                         var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalProducts);
@@ -837,7 +816,7 @@
                                                     function renderPagination() {
                                                         var urlParams = new URLSearchParams(window.location.search);
                                                         var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
                                                         var pageNumbersDiv = document.getElementById('pageNumbers');
 
                                                         if (!pageNumbersDiv)
@@ -879,7 +858,7 @@
                                                     function updatePaginationButtons() {
                                                         var urlParams = new URLSearchParams(window.location.search);
                                                         var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
 
                                                         var firstBtn = document.getElementById('firstPageBtn');
                                                         var prevBtn = document.getElementById('prevPageBtn');
@@ -918,14 +897,14 @@
                                                     window.goToNextPage = function () {
                                                         var urlParams = new URLSearchParams(window.location.search);
                                                         var currentPage = parseInt(urlParams.get('page')) || 1;
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
                                                         if (currentPage < totalPages) {
                                                             goToPage(currentPage + 1);
                                                         }
                                                     };
 
                                                     window.goToLastPage = function () {
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
                                                         goToPage(totalPages);
                                                     };
 

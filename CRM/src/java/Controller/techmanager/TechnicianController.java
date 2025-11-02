@@ -35,6 +35,12 @@ public class TechnicianController extends HttpServlet {
                 req.setAttribute("list", db.get(id));
                 req.getRequestDispatcher("/techmanager/technician_detail.jsp").forward(req, resp);
                 break;
+            case "delete":
+                int id2 = Integer.parseInt(req.getParameter("id"));
+                db.toggleCustomerStatus(id2);
+                
+                resp.sendRedirect("technician");
+                break;
                 
             case "list":
             default:
@@ -49,7 +55,7 @@ public class TechnicianController extends HttpServlet {
 
                 int totalPages = (int) Math.ceil((double) total / size);
 
-                req.setAttribute("users", db.list(page, size, keyword, role, status));
+                req.setAttribute("users", db.list(page, size, keyword, role, "active"));
                 req.setAttribute("totalProducts", total);
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);

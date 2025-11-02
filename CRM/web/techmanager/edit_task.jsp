@@ -267,15 +267,18 @@
             <aside class="right-side">
                 <section class="content">
 
-                    <!-- Page Header -->
                     <div class="row">
                         <div class="col-md-12">
                             <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Request Details</h1>
                             <p style="color: #718096; margin-bottom: 2rem;">View detailed information about this request</p>
+                            <c:if test="${not empty error}" >
+                                <div class="alert alert-danger" style="margin: 10px;">
+                                    ${error}
+                                </div>
+                            </c:if>
                         </div>
                     </div>
 
-                    <!-- Edit Task Assignment Card -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card product-detail-card">
@@ -286,10 +289,11 @@
                                     </h4>
 
                                     <form method="post" action="${pageContext.request.contextPath}/techmanager/task?action=update">
-                                        <!-- Hidden assignment ID -->
-                                        <input type="hidden" name="id" value="${tasks.id}" />
+                                        <input type="hidden" name="originalRequestId" value="${tasks.customerRequest.id}" /> 
 
-                                        
+                                        <input type="hidden" name="id" value="${tasks.id}" /> 
+
+
                                         <div class="info-row" style="margin-bottom: 1rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-tasks"></i> Task
@@ -300,7 +304,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- TECHNICIANS --> 
                                         <div class="info-row" style="margin-bottom: 1rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-user-cog"></i> Technician(s)
@@ -322,10 +325,10 @@
                                                             <label style="margin:0 8px; white-space:nowrap;">
                                                                 <input type="radio" name="leaderId" class="leader-radio"
                                                                        value="${techAssign.id}"
-                                                                       <c:if test="${techAssign.id == leaderId}">checked</c:if>> Leader
+                                                                       <c:if test="${techAssign.id == leaderId}">checked</c:if> required/> Leader
                                                                 </label>
 
-                                                                <button type="button" class="btn btn-success btn-sm addTechBtn">
+                                                                <button type="button" class="btn btn-primary btn-sm addTechBtn">
                                                                     <i class="fa fa-plus"></i>
                                                                 </button>
                                                                 <button type="button" class="btn btn-danger btn-sm removeTechBtn">
@@ -337,7 +340,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- ASSIGN DATE -->
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-calendar"></i> Assign Date
@@ -348,7 +350,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- BUTTONS -->
                                         <div class="mt-3 text-center">
                                             <a href="${pageContext.request.contextPath}/techmanager/task" class="btn btn-default" style="min-width: 150px;">
                                                 <i class="fa fa-arrow-left"></i> Back to List
@@ -372,7 +373,6 @@
 
         </div>
 
-        <!-- SCRIPTS -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
         <script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>
@@ -397,36 +397,72 @@
             document.addEventListener('DOMContentLoaded', function () {
                 const container = document.getElementById('technicianContainer');
 
-                // Add Technician Row
+                // Cập nhật các option select để không trùng
+                function updateTechnicianOptions() {
+                    const selected = Array.from(container.querySelectorAll('.technician-select'))
+                            .map(s => s.value)
+                            .filter(v => v !== "");
+
+                    container.querySelectorAll('.technician-select').forEach(select => {
+                        const currentValue = select.value;
+                        Array.from(select.options).forEach(opt => {
+                            if (opt.value === "" || opt.value === currentValue) {
+                                opt.hidden = false;
+                            } else {
+                                opt.hidden = selected.includes(opt.value);
+                            }
+                        });
+                    });
+                }
+
+
+                // Xử lý nút + và - và thay đổi select
                 container.addEventListener('click', function (e) {
+                    // Add Technician Row
                     if (e.target.closest('.addTechBtn')) {
                         const row = e.target.closest('.tech-row');
                         const clone = row.cloneNode(true);
 
-                        // Reset selection
+                        // Reset selection and radio
                         clone.querySelector('.technician-select').selectedIndex = 0;
-                        clone.querySelector('.leader-radio').checked = false;
+                        const radio = clone.querySelector('.leader-radio');
+                        radio.checked = false;
+                        radio.value = ""; // Reset value for the new row
 
                         container.appendChild(clone);
+                        updateTechnicianOptions();
                     }
 
                     // Remove Technician Row
                     if (e.target.closest('.removeTechBtn')) {
                         const rows = container.querySelectorAll('.tech-row');
-                        if (rows.length > 1) {
-                            e.target.closest('.tech-row').remove();
+                        if (rows.length > 1) { // Ensure at least one row remains
+                            const removedRow = e.target.closest('.tech-row');
+                            const removedRadio = removedRow.querySelector('.leader-radio');
+
+                            // If the removed technician was the leader, uncheck all, forcing a re-selection on submit
+                            if (removedRadio.checked) {
+                                document.querySelectorAll('.leader-radio').forEach(radio => radio.checked = false);
+                            }
+
+                            removedRow.remove();
+                            updateTechnicianOptions();
                         }
                     }
                 });
 
-                // Khi chọn kỹ thuật viên, tự gán value cho radio leader
+                // Khi chọn kỹ thuật viên, tự gán value cho radio leader & cập nhật options
                 container.addEventListener('change', function (e) {
                     if (e.target.classList.contains('technician-select')) {
                         const selectedTechId = e.target.value;
                         const radio = e.target.closest('.tech-row').querySelector('.leader-radio');
                         radio.value = selectedTechId;
+                        updateTechnicianOptions();
                     }
                 });
+
+                // Cập nhật ban đầu: Ensure pre-selected techs are hidden from other dropdowns
+                updateTechnicianOptions();
             });
         </script>
     </body>
