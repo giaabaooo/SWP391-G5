@@ -194,7 +194,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Transaction time</label>
-                                    <input type="datetime-local" name="transactionDate" class="form-control" />
+                                    <input type="datetime-local" name="transactionDate" class="form-control" value="<%= new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(new java.util.Date()) %>" />
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Supplier (optional)</label>

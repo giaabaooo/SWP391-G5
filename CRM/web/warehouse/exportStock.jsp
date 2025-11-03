@@ -146,6 +146,13 @@
                                     <label class="control-label">Product</label>
                                     <input type="text" class="form-control" value="<%= product.getName() %>" disabled />
                                 </div>
+                                <% Integer currentQty = (Integer) request.getAttribute("currentQty"); %>
+                                <% if (currentQty != null) { %>
+                                <div class="form-group">
+                                    <label class="control-label">Available stock</label>
+                                    <input type="text" class="form-control" value="<%= currentQty %>" disabled />
+                                </div>
+                                <% } %>
                                 <% } else { %>
                                 <div class="form-group">
                                     <label class="control-label">Select product<span style="color:red">*</span></label>
@@ -163,12 +170,12 @@
 
                                 <div class="form-group">
                                     <label class="control-label">Quantity<span style="color:red">*</span></label>
-                                    <input type="number" name="quantity" id="quantity" class="form-control" min="1" placeholder="Enter quantity" required />
+                                    <input type="number" name="quantity" id="quantity" class="form-control" min="1" placeholder="Enter quantity" required <%= (request.getAttribute("currentQty") != null) ? ("max=\"" + request.getAttribute("currentQty") + "\"") : "" %> />
                                     <div class="validation-error" id="quantityError">Quantity must be a positive number</div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Transaction time</label>
-                                    <input type="datetime-local" name="transactionDate" class="form-control" />
+                                    <input type="datetime-local" name="transactionDate" class="form-control" value="<%= new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(new java.util.Date()) %>" />
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Note (optional)</label>

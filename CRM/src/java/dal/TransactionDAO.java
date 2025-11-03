@@ -10,6 +10,20 @@ import java.util.List;
 import data.Transaction;
 
 public class TransactionDAO extends DBContext {
+    public Integer getCurrentInventoryQuantity(int productId) {
+        String sql = "SELECT quantity FROM Inventory WHERE product_id = ? AND is_active = 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting current inventory quantity: " + e.getMessage());
+        }
+        return null;
+    }
 
     public boolean createImportAndUpdateInventory(int productId, int quantity, Timestamp transactionDate, String supplier, String note) {
         if (quantity <= 0) return false;

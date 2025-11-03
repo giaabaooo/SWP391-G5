@@ -25,6 +25,12 @@ public class AddExportTransactionController extends HttpServlet {
                 Product product = productDAO.getProductById(productId);
                 if (product != null) {
                     request.setAttribute("product", product);
+                    // provide current inventory quantity for client-side max validation when product is preselected
+                    TransactionDAO txDao = new TransactionDAO();
+                    Integer currentQty = txDao.getCurrentInventoryQuantity(productId);
+                    if (currentQty != null) {
+                        request.setAttribute("currentQty", currentQty);
+                    }
                 }
             } catch (NumberFormatException ignored) {}
         } else {
@@ -54,6 +60,16 @@ public class AddExportTransactionController extends HttpServlet {
             return;
         }
 
+        // Pre-check available stock to provide a clearer error message if over-exporting
+        TransactionDAO stockDao = new TransactionDAO();
+        Integer available = stockDao.getCurrentInventoryQuantity(productId);
+        int availableQty = available != null ? available : 0;
+        if (quantity > availableQty) {
+            request.setAttribute("error", "Export quantity (" + quantity + ") exceeds available stock (" + availableQty + ").");
+            doGet(request, response);
+            return;
+        }
+
         Timestamp txTime = null;
         try {
             if (dateParam != null && !dateParam.trim().isEmpty()) {
@@ -61,7 +77,7 @@ public class AddExportTransactionController extends HttpServlet {
             }
         } catch (Exception ignored) {}
 
-        TransactionDAO transactionDAO = new TransactionDAO();
+        TransactionDAO transactionDAO = stockDao;
         boolean ok = transactionDAO.createExportAndUpdateInventory(productId, quantity, txTime, note);
         if (ok) {
             response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success=Export%20recorded%20successfully");
