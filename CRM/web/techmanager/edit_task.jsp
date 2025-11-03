@@ -269,8 +269,8 @@
 
                     <div class="row">
                         <div class="col-md-12">
-                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Request Details</h1>
-                            <p style="color: #718096; margin-bottom: 2rem;">View detailed information about this request</p>
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Edit task</h1>
+                            <p style="color: #718096; margin-bottom: 2rem;">Edit task for technician</p>
                             <c:if test="${not empty error}" >
                                 <div class="alert alert-danger" style="margin: 10px;">
                                     ${error}
