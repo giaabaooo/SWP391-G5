@@ -6,9 +6,9 @@
 
 
 <section class="content-header">
-    <h1>Customer Management</h1>
+    <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Customer Management</h1>
     <ol class="breadcrumb">
-        <li><a href="${pageContext.request.contextPath}/cskh/home"><i class="fa fa-dashboard"></i> CSKH</a></li>
+        <li><a href="${pageContext.request.contextPath}/cskh/home"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Customer List</li>
     </ol>
 </section>

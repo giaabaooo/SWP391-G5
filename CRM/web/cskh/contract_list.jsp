@@ -14,7 +14,7 @@
 <section class="content-header">
     <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Contract Management</h1>
     <ol class="breadcrumb" style="background: none; padding: 0; margin-bottom: 2rem;">
-        <li><a href="${pageContext.request.contextPath}/cskh/home"><i class="fa fa-dashboard"></i> CSKH</a></li>
+        <li><a href="${pageContext.request.contextPath}/cskh/home"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Contract List</li>
     </ol>
 </section>
