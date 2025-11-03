@@ -353,7 +353,7 @@
                                         <!-- Assign Date -->
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
-                                                <i class="fa fa-calendar"></i> Assign Date
+                                                <i class="fa fa-calendar"></i> Payment Due Date
                                             </div>
                                             <div class="info-value">
                                                 <input type="date" name="assignDate" class="form-control" required>

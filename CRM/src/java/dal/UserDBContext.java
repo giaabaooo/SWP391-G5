@@ -25,8 +25,11 @@ public class UserDBContext extends DBContext {
         try (
                 PreparedStatement stmt = connection.prepareStatement(sql)) {
             
+            var a = hashPassword("123");
+            var hashPass = hashPassword(password);
+            
             stmt.setString(1, username);
-            stmt.setString(2, password);
+            stmt.setString(2, hashPass);
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
