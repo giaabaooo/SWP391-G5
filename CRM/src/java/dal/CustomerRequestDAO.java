@@ -164,8 +164,7 @@ public class CustomerRequestDAO extends DBContext {
                     WHERE ct.customer_id = ? AND cr.is_active = 1
 
     """;
-
-        // dynamic filters
+       
         if (keyword != null && !keyword.isEmpty()) {
             sql += " AND (p.name LIKE ? OR cr.title LIKE ?) ";
         }
@@ -223,6 +222,55 @@ public class CustomerRequestDAO extends DBContext {
         }
         return list;
     }
+    
+    public int countRequestsByUserId(int userId, String keyword, String type, String status) {
+    int count = 0;
+       
+    String sql = """
+        SELECT COUNT(DISTINCT cr.id)
+        FROM CustomerRequest cr
+        JOIN Device d ON cr.device_id = d.id
+        JOIN ContractItem ci ON d.contract_item_id = ci.id
+        JOIN Product p ON ci.product_id = p.id
+        JOIN Contract ct ON ci.contract_id = ct.id
+        LEFT JOIN CustomerRequestMeta meta ON cr.id = meta.request_id 
+        WHERE ct.customer_id = ? AND cr.is_active = 1
+    """;
+   
+    if (keyword != null && !keyword.isEmpty()) {
+        sql += " AND (p.name LIKE ? OR cr.title LIKE ?) ";
+    }
+    if (type != null && !type.equalsIgnoreCase("ALL")) {
+        sql += " AND cr.request_type = ? ";
+    }
+    if (status != null && !status.equalsIgnoreCase("ALL")) {
+        sql += " AND cr.status = ? ";
+    }
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        int index = 1;
+        ps.setInt(index++, userId);
+      
+        if (keyword != null && !keyword.isEmpty()) {
+            ps.setString(index++, "%" + keyword + "%");
+            ps.setString(index++, "%" + keyword + "%");
+        }
+        if (type != null && !type.equalsIgnoreCase("ALL")) {
+            ps.setString(index++, type);
+        }
+        if (status != null && !status.equalsIgnoreCase("ALL")) {
+            ps.setString(index++, status);
+        }
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            count = rs.getInt(1); 
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return count;
+}
 
     public boolean updateRequest(String status, int isActive, int requestId) {
         String sql = "UPDATE customerrequest SET \n"

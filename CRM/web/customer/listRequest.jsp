@@ -4,6 +4,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="data.Product" %>
 <%@ page import="data.CustomerRequest" %>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -157,8 +158,8 @@
 
                                     <!-- Filter Bar -->
                                     <div class="filter-bar">
-                                        <input type="text" id="searchInput" class="search-input" placeholder="Search by device name..." 
-                                               value="<%= request.getAttribute("search") != null ? request.getAttribute("search") : "" %>">
+                                        <input type="text" id="searchInput" name="search" class="search-input" placeholder="Search by device name..." 
+                                               value="<c:out value='${search}'/>">
 
                                         <select id="typeFilter" name="type" class="search-input" style="min-width: 150px;">
                                             <option value="ALL" ${empty param.type || param.type == 'ALL' ? 'selected' : ''}>All Types</option>
@@ -181,7 +182,7 @@
                                             <i class="fa fa-times"></i> Clear
                                         </button>
                                     </div>
-
+                                   </form>
                                     <div class="card-body">
 
                                         <div class="table-responsive">
@@ -219,8 +220,10 @@
                                                             <a href="updateRequest?id=<%= req.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                                 <i class="fa fa-edit"></i> Update
                                                             </a>
-                                                            <button class="btn btn-action btn-danger btn-delete" data-request-id="<%= req.getId() %>" data-request-title="<c:out value='${req.title}' default='Request #${req.id}'/>">
-                                                                <i class="fa fa-trash"></i> Delete
+                                                            <button type="button" class="btn btn-action btn-danger btn-delete-request"
+                                                                    data-request-id="<%= req.getId() %>"
+                                                                    data-request-title="<%= req.getTitle() != null ? req.getTitle() : "Request #" + req.getId() %>">
+                                                                <i class="fa fa-trash"></i> Cancel
                                                             </button>
                                                             <%-- ========================================================= --%>
                                                             <%-- SỬA LẠI LOGIC NÚT "PAY" / "PAID" --%>
@@ -272,17 +275,18 @@
                                         <!-- Pagination Controls -->
                                         <div class="pagination-container">
                                             <div class="pagination-info">
-                                                <span id="paginationInfo">Showing 1 to 10 of 0 products</span>
+
                                             </div>
 
                                             <div class="page-size-selector">
                                                 <label for="pageSize">Show:</label>
                                                 <select id="pageSize" onchange="changePageSize()">
-                                                    <option value="5">5</option>
-                                                    <option value="10" selected>10</option>
-                                                    <option value="25">25</option>
-                                                    <option value="50">50</option>
-                                                    <option value="100">100</option>
+                                                    <%-- Dùng JSTL để kiểm tra và chọn đúng giá trị --%>
+                                                    <option value="5" ${pageSize == 5 ? 'selected' : ''}>5</option>
+                                                    <option value="10" ${pageSize == 10 ? 'selected' : ''}>10</option>
+                                                    <option value="25" ${pageSize == 25 ? 'selected' : ''}>25</option>
+                                                    <option value="50" ${pageSize == 50 ? 'selected' : ''}>50</option>
+                                                    <option value="100" ${pageSize == 100 ? 'selected' : ''}>100</option>
                                                 </select>
                                                 <span>per page</span>
                                             </div>
@@ -311,7 +315,7 @@
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    
                 </section>
                 <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>
             </aside>
@@ -331,8 +335,7 @@
                     <div class="product-name-display" id="modalRequestTitle" 
                          style="font-weight: bold; margin: 10px 0; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
                         <%-- JavaScript sẽ điền Title vào đây --%>
-                    </div> 
-                    <p class="warning-text">This will mark the request as inactive.</p> 
+                    </div>                  
                     <span class="warning-badge" style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;">
                         <i class="fa fa-exclamation-triangle"></i> This action sets the request status to inactive.
                     </span>
@@ -342,7 +345,7 @@
                         <i class="fa fa-times"></i> Close 
                     </button>
                     <button class="modal-btn modal-btn-delete" id="confirmDeleteRequestBtn" style="background-color: #dc3545;"> 
-                        <i class="fa fa-trash"></i> Confirm Cancel 
+                        <i class="fa fa-trash"></i> Confirm  
                     </button>
                 </div>
             </div>
@@ -361,12 +364,11 @@
         <script src="${pageContext.request.contextPath}/js/customer/listRequest.js" type="text/javascript"></script>
 
         <script>
+                        var totalProducts = ${not empty totalProducts ? totalProducts : 0};
+                        var totalPages = ${not empty totalPages ? totalPages : 1};
+                        var currentPage = ${not empty currentPage ? currentPage : 1};
+                        var currentLimit = ${not empty pageSize ? pageSize : 10};
                         $(function () {
-                            // Pagination variables
-                            let currentPage = 1;
-                            let pageSize = 10;
-                            let allRows = [];
-                            let filteredRows = [];
 
                             // Helper function to get current URL parameters
                             function getUrlParams() {
@@ -391,16 +393,17 @@
 
                             // Helper function to build URL with parameters
                             function buildUrlWithParams(params) {
-                                var url = window.location.pathname + '?';
+                                var url = window.location.pathname;
                                 var paramArray = [];
-
                                 for (var key in params) {
-                                    if (params[key] && params[key] !== '') {
+                                    if (params[key] && params[key] !== '' && params[key] !== 'ALL') {
                                         paramArray.push(key + '=' + encodeURIComponent(params[key]));
                                     }
                                 }
-
-                                return url + paramArray.join('&');
+                                if (paramArray.length > 0) {
+                                    url += '?' + paramArray.join('&');
+                                }
+                                return url;
                             }
 
                             // Initialize pagination (server-side)
@@ -411,55 +414,38 @@
 
                             // Update pagination info text (from server data)
                             function updatePaginationInfo() {
-                                var urlParams = new URLSearchParams(window.location.search);
-                                var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
-                                var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>;
-
-                                var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
-                                var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalProducts);
-
+                                // Dùng các biến toàn cục đã lấy từ server
+                                var startIndex = (currentPage - 1) * currentLimit + 1;
+                                var endIndex = Math.min(currentPage * currentLimit, totalProducts);
                                 var infoElement = document.getElementById('paginationInfo');
                                 if (infoElement) {
                                     if (totalProducts === 0) {
-                                        infoElement.textContent = '';
+                                        infoElement.textContent = 'No requests found.';
                                     } else {
-                                        infoElement.textContent =
-                                                'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' products';
+                                        infoElement.textContent = 'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' requests';
                                     }
                                 }
                             }
 
                             // Render pagination buttons
                             function renderPagination() {
-                                var urlParams = new URLSearchParams(window.location.search);
-                                var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
                                 var pageNumbersDiv = document.getElementById('pageNumbers');
-
                                 if (!pageNumbersDiv)
                                     return;
-
                                 pageNumbersDiv.innerHTML = '';
 
-                                // Determine which pages to show
-                                var startPage = Math.max(1, currentPageFromUrl - 2);
-                                var endPage = Math.min(totalPages, currentPageFromUrl + 2);
-
-                                // Adjust if near the beginning
-                                if (currentPageFromUrl <= 3) {
+                                var startPage = Math.max(1, currentPage - 2);
+                                var endPage = Math.min(totalPages, currentPage + 2);
+                                if (currentPage <= 3) {
                                     endPage = Math.min(5, totalPages);
                                 }
-
-                                // Adjust if near the end
-                                if (currentPageFromUrl > totalPages - 3) {
+                                if (currentPage > totalPages - 3) {
                                     startPage = Math.max(1, totalPages - 4);
                                 }
 
-                                // Create page buttons
                                 for (var i = startPage; i <= endPage; i++) {
                                     var btn = document.createElement('button');
-                                    btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
+                                    btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
                                     btn.textContent = i;
                                     btn.onclick = (function (pageNum) {
                                         return function () {
@@ -468,29 +454,24 @@
                                     })(i);
                                     pageNumbersDiv.appendChild(btn);
                                 }
-
                                 updatePaginationButtons();
                             }
 
                             // Update pagination button states
                             function updatePaginationButtons() {
-                                var urlParams = new URLSearchParams(window.location.search);
-                                var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
-
                                 var firstBtn = document.getElementById('firstPageBtn');
                                 var prevBtn = document.getElementById('prevPageBtn');
                                 var nextBtn = document.getElementById('nextPageBtn');
                                 var lastBtn = document.getElementById('lastPageBtn');
 
                                 if (firstBtn)
-                                    firstBtn.disabled = currentPageFromUrl === 1;
+                                    firstBtn.disabled = (currentPage === 1);
                                 if (prevBtn)
-                                    prevBtn.disabled = currentPageFromUrl === 1;
+                                    prevBtn.disabled = (currentPage === 1);
                                 if (nextBtn)
-                                    nextBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                                    nextBtn.disabled = (currentPage === totalPages || totalPages === 0);
                                 if (lastBtn)
-                                    lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                                    lastBtn.disabled = (currentPage === totalPages || totalPages === 0);
                             }
 
                             // Pagination navigation functions (with URL parameters preserved)
@@ -499,30 +480,18 @@
                                 params.page = page;
                                 window.location.href = buildUrlWithParams(params);
                             };
-
                             window.goToFirstPage = function () {
                                 goToPage(1);
                             };
-
                             window.goToPrevPage = function () {
-                                var urlParams = new URLSearchParams(window.location.search);
-                                var currentPage = parseInt(urlParams.get('page')) || 1;
-                                if (currentPage > 1) {
+                                if (currentPage > 1)
                                     goToPage(currentPage - 1);
-                                }
                             };
-
                             window.goToNextPage = function () {
-                                var urlParams = new URLSearchParams(window.location.search);
-                                var currentPage = parseInt(urlParams.get('page')) || 1;
-                                var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
-                                if (currentPage < totalPages) {
+                                if (currentPage < totalPages)
                                     goToPage(currentPage + 1);
-                                }
                             };
-
                             window.goToLastPage = function () {
-                                var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>;
                                 goToPage(totalPages);
                             };
 
@@ -530,69 +499,16 @@
                                 var newPageSize = document.getElementById('pageSize').value;
                                 var params = getUrlParams();
                                 params.pageSize = newPageSize;
-                                params.page = 1; // Reset to first page when changing page size
+                                params.page = 1;
                                 window.location.href = buildUrlWithParams(params);
                             };
 
-                            // Note: Search is now handled server-side via applyFilters() function
 
-                            // Delete product button click handler
-                            var currentDeleteProductId = null;
-
-                            $('.btn-delete').on('click', function () {
-                                var productId = $(this).data('product-id');
-                                var productName = $(this).closest('tr').find('td:eq(1) strong').text();
-
-                                // Store product info
-                                currentDeleteProductId = productId;
-
-                                // Update modal content
-                                $('#modalProductName').text(productName);
-
-                                // Show modal
-                                $('#deleteModal').addClass('active');
-                            });
-
-                            // Close modal function
-                            window.closeDeleteModal = function () {
-                                $('#deleteModal').removeClass('active');
-                                currentDeleteProductId = null;
-                            };
-
-                            // Close modal when clicking outside
-                            $('#deleteModal').on('click', function (e) {
-                                if ($(e.target).is('#deleteModal')) {
-                                    closeDeleteModal();
-                                }
-                            });
-
-                            // Close modal on ESC key
-                            $(document).on('keydown', function (e) {
-                                if (e.key === 'Escape' && $('#deleteModal').hasClass('active')) {
-                                    closeDeleteModal();
-                                }
-                            });
-
-                            // Confirm delete button
-                            $('#confirmDeleteBtn').on('click', function () {
-                                if (currentDeleteProductId) {
-                                    // Create and submit form
-                                    var form = $('<form>', {
-                                        'method': 'POST',
-                                        'action': '../warestaff/deleteProduct'
-                                    });
-
-                                    var input = $('<input>', {
-                                        'type': 'hidden',
-                                        'name': 'id',
-                                        'value': currentDeleteProductId
-                                    });
-
-                                    form.append(input);
-                                    $('body').append(form);
-                                    form.submit();
-                                }
-                            });
+                            setTimeout(function () {
+                                $('.alert-success, .alert-danger').fadeOut(500, function () {
+                                    $(this).remove();
+                                });
+                            }, 3000);
 
                             // Handle collapsible menu
                             $('.treeview > a').click(function (e) {
@@ -617,15 +533,7 @@
                             // Initialize pagination on page load
                             initPagination();
 
-                            // Auto-hide success and error messages after 3 seconds
-                            setTimeout(function () {
-                                $('.alert-success').fadeOut(500, function () {
-                                    $(this).remove();
-                                });
-                                $('.alert-danger').fadeOut(500, function () {
-                                    $(this).remove();
-                                });
-                            }, 3000);
+
 
                             // Apply filters function
                             window.applyFilters = function () {
@@ -659,7 +567,7 @@
 
                             // Clear filters function
                             window.clearFilters = function () {
-                                var baseUrl = document.getElementById('baseUrl').value; // Lấy URL gốc từ input ẩn
+                                var baseUrl = document.getElementById('baseUrl').value;
                                 window.location.href = baseUrl;
                             };
 
