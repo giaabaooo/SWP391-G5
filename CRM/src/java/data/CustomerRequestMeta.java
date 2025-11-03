@@ -24,6 +24,7 @@ public class CustomerRequestMeta {
     private String customer_service_response;
     private int rating;
     private CustomerRequest customerRequest;
+    private CustomerRequest request;
 
     public CustomerRequestMeta() {
     }
@@ -42,6 +43,20 @@ public class CustomerRequestMeta {
         this.rating = rating;
         this.customerRequest = customerRequest;
     }
+
+    public CustomerRequestMeta(CustomerRequest request) {
+        this.request = request;
+    }
+
+    public CustomerRequest getRequest() {
+        return request;
+    }
+
+    public void setRequest(CustomerRequest request) {
+        this.request = request;
+    }
+    
+    
 
     public CustomerRequest getCustomerRequest() {
         return customerRequest;

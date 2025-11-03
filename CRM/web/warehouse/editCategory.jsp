@@ -76,6 +76,16 @@
                         <li class="active"><a href="#"><i class="fa fa-edit"></i> Edit Category</a></li>
                     </ul>
                 </li>
+                <!-- Brands -->
+                <li class="treeview">
+                    <a href="#brandMenu" data-toggle="collapse" aria-expanded="false">
+                        <i class="fa fa-bookmark"></i> <span>Brands</span>
+                    </a>
+                    <ul class="collapse" id="brandMenu">
+                        <li><a href="../warestaff/brandList"><i class="fa fa-eye"></i> View Brands</a></li>
+                        <li><a href="../warestaff/addBrand"><i class="fa fa-plus"></i> Add Brand</a></li>
+                    </ul>
+                </li>
             </ul>
         </section>
     </aside>

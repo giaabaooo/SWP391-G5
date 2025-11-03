@@ -43,7 +43,7 @@ $(function () { // Đảm bảo code chạy sau khi trang đã tải xong
             // Tạo form động
             var form = $('<form>', {
                 'method': 'POST',
-                'action': '${pageContext.request.contextPath}/customer/deleteRequest' // Đảm bảo URL đúng
+                 'action': '../customer/deleteRequest'
             });
             
             var input = $('<input>', {

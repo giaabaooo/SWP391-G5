@@ -87,7 +87,57 @@ public class FeedbackDAO extends DBContext {
         }
         return list;
     }
+    
+    public int countFeedbacksByCustomer(int userId, String keyword, String type, String rating) {
+        int count = 0;
+        String sql = """
+            SELECT COUNT(r.id)
+            FROM CustomerRequest r
+            JOIN CustomerRequestMeta m ON r.id = m.request_id
+            JOIN Device d ON r.device_id = d.id
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Product p ON ci.product_id = p.id
+            JOIN Contract c ON ci.contract_id = c.id
+            WHERE c.customer_id = ? 
+              AND m.customer_comment IS NOT NULL
+              AND TRIM(m.customer_comment) <> ''
+        """;
+              
+        if (keyword != null && !keyword.isEmpty()) {
+            sql += " AND (p.name LIKE ? OR r.title LIKE ?) ";
+        }
+        if (type != null && !type.equalsIgnoreCase("ALL")) {
+            sql += " AND r.request_type = ? ";
+        }
+        if (rating != null && !rating.equalsIgnoreCase("ALL")) {
+            sql += " AND m.rating = ? ";
+        }
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int index = 1;
+            ps.setInt(index++, userId);
+
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(index++, "%" + keyword + "%");
+                ps.setString(index++, "%" + keyword + "%");
+            }
+            if (type != null && !type.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, type);
+            }
+            if (rating != null && !rating.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, rating);
+            }
+            
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+    
     public boolean saveFeedback(int requestId, String comment, int rating) {
         String sql = """
         INSERT INTO CustomerRequestMeta (request_id, customer_comment, rating)

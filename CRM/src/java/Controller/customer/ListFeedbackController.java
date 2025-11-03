@@ -36,28 +36,48 @@ private final int LIMIT = 10;
 
         User user = (User) session.getAttribute("user");
         String pageParam = request.getParameter("page");
-        int page = 1;
-        if (pageParam != null) {
-            try {
-                page = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                page = 1;
-            }
-        }
-        int offset = (page - 1) * LIMIT;
-
-        FeedbackDAO dao = new FeedbackDAO();
+        String limitParam = request.getParameter("pageSize");
         String searchQuery = request.getParameter("search");
         String type = request.getParameter("type");
         String rating = request.getParameter("rating");
-        String keyword = request.getParameter("keyword");
-        
-        List<Feedback> feedbacks = dao.getFeedbacksByCustomer(user.getId(), searchQuery, type, rating,offset,LIMIT);
+        int page = 1;
+        int limit = LIMIT;
+        try {
+            if (pageParam != null && !pageParam.isEmpty()) {
+                page = Integer.parseInt(pageParam);
+            }
+        } catch (NumberFormatException e) {
+            page = 1;
+        }
+
+        // Đọc số lượng mỗi trang (pageSize)
+        try {
+            if (limitParam != null && !limitParam.isEmpty()) {
+                limit = Integer.parseInt(limitParam);
+            }
+        } catch (NumberFormatException e) {
+            limit = LIMIT;
+        }
+
+        int offset = (page - 1) * limit;
+
+        FeedbackDAO dao = new FeedbackDAO();
+             
+        List<Feedback> feedbacks = dao.getFeedbacksByCustomer(user.getId(), searchQuery, type, rating,offset,limit);
+        int totalProducts = dao.countFeedbacksByCustomer(user.getId(), searchQuery, type, rating);
+        int totalPages = (int) Math.ceil((double) totalProducts / limit);
+        if (totalPages == 0) {
+            totalPages = 1; 
+        }
         List<String> requestTypes = List.of("WARRANTY", "REPAIR", "MAINTENANCE");
         request.setAttribute("types", requestTypes);
         request.setAttribute("type", type);
         request.setAttribute("search", searchQuery);
         request.setAttribute("rating", rating);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalProducts", totalProducts);
+        request.setAttribute("pageSize", limit);
 
         request.setAttribute("feedbacks", feedbacks);
         request.getRequestDispatcher("/customer/listFeedback.jsp").forward(request, response);

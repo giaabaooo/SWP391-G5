@@ -9,11 +9,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import dal.ProductDAO;
 import dal.CategoryDAO;
 import dal.BrandDAO;
+import dal.InventoryDAO;
 import data.Product;
 import data.Category;
 import data.Brand;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * Controller for viewing list of products
@@ -119,6 +121,18 @@ public class ViewListProductController extends HttpServlet {
             request.setAttribute("searchQuery", searchQuery);
             request.setAttribute("selectedCategoryId", categoryId);
             request.setAttribute("selectedBrandId", brandId);
+
+            // Build inventory map: productId -> quantity
+            Map<Integer, Integer> inventoryMap = new HashMap<>();
+            if (products != null && !products.isEmpty()) {
+                InventoryDAO inventoryDAO = new InventoryDAO();
+                ArrayList<Integer> productIds = new ArrayList<>();
+                for (Product p : products) {
+                    productIds.add(p.getId());
+                }
+                inventoryMap = inventoryDAO.getQuantitiesByProductIds(productIds);
+            }
+            request.setAttribute("inventoryMap", inventoryMap);
             
             // Forward to JSP
             request.getRequestDispatcher("/warehouse/productList.jsp").forward(request, response);

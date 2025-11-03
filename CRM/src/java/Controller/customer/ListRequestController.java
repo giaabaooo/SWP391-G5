@@ -26,6 +26,7 @@ public class ListRequestController extends HttpServlet {
     private CustomerRequestDAO CustomerRequestDAO = new CustomerRequestDAO();
     private final int LIMIT = 10; // số items 1 trang
     private DeviceDAO deviceDAO = new DeviceDAO();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -38,36 +39,56 @@ public class ListRequestController extends HttpServlet {
         User user = (User) session.getAttribute("user");
 
         // Lấy param từ URL (nếu có)
-        String keyword = request.getParameter("keyword");
+        String searchQuery = request.getParameter("search");
         String type = request.getParameter("type");
         String status = request.getParameter("status");
         String pageParam = request.getParameter("page");
-
-        // Phân trang
+        String limitParam = request.getParameter("pageSize");
+        
+        
         int page = 1;
-        if (pageParam != null) {
-            try {
+        int limit = LIMIT;
+        try {
+            if (pageParam != null && !pageParam.isEmpty()) {
                 page = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                page = 1;
             }
+        } catch (NumberFormatException e) {
+            page = 1;
         }
 
-        int offset = (page - 1) * LIMIT;
+        // Đọc số lượng mỗi trang (pageSize)
+        try {
+            if (limitParam != null && !limitParam.isEmpty()) {
+                limit = Integer.parseInt(limitParam);
+            }
+        } catch (NumberFormatException e) {
+            limit = LIMIT;
+        }
 
-        List<CustomerRequest> list = CustomerRequestDAO.getRequestsByUserId(user.getId(), keyword, type, status, offset, LIMIT);
+        int offset = (page - 1) * limit;
+
+        List<CustomerRequest> list = CustomerRequestDAO.getRequestsByUserId(user.getId(), searchQuery, type, status, offset, limit);
+        int totalProducts = CustomerRequestDAO.countRequestsByUserId(user.getId(), searchQuery, type, status);
+        int totalPages = (int) Math.ceil((double) totalProducts / limit);
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
         List<String> requestTypes = List.of("WARRANTY", "REPAIR", "MAINTENANCE");
         List<String> statuses = List.of("PENDING", "TRANSFERRED", "ASSIGNED",
-                "IN_PROGRESS","COMPLETED", "AWAITING_PAYMENT", "PAID", "CLOSED","CANCELLED" );
+                "IN_PROGRESS", "COMPLETED", "AWAITING_PAYMENT", "PAID", "CLOSED", "CANCELLED");
 
         request.setAttribute("types", requestTypes);
         request.setAttribute("statuses", statuses);
-
         request.setAttribute("list", list);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("keyword", keyword);
-        request.setAttribute("type", type);
+
         request.setAttribute("status", status);
+        request.setAttribute("search", searchQuery);
+        request.setAttribute("type", type);
+
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalProducts", totalProducts);
+        request.setAttribute("pageSize", limit);
 
         request.getRequestDispatcher("/customer/listRequest.jsp").forward(request, response);
     }
