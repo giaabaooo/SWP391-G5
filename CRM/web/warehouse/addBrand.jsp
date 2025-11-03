@@ -3,11 +3,10 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Warehouse Staff | Add Category</title>
+    <title>Warehouse Staff | Add Brand</title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta name="description" content="Warehouse Management System">
     <meta name="keywords" content="Warehouse, Inventory, Management">
-    <!-- bootstrap 3.0.2 -->
     <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
     <link href="${pageContext.request.contextPath}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
@@ -20,19 +19,15 @@
     <link href="${pageContext.request.contextPath}/css/warehouse/addProduct.css" rel="stylesheet" type="text/css" />
     <link href="${pageContext.request.contextPath}/css/warehouse/responsive.css" rel="stylesheet" type="text/css" />
     <style>
-        /* Minor overrides for category form reusing product styles */
         .content-card .card-header i { margin-right: 0.5rem; }
     </style>
-    
 </head>
 <body class="skin-black">
 
-<!-- Mobile Menu Toggle -->
 <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
     <i class="fa fa-bars"></i>
-</button>
+  </button>
 
-<!-- HEADER -->
 <header class="header">
     <a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
     <nav class="navbar navbar-static-top" role="navigation">
@@ -56,12 +51,9 @@
             </ul>
         </div>
     </nav>
-    
 </header>
 
 <div class="wrapper row-offcanvas row-offcanvas-left">
-
-    <!-- SIDEBAR -->
     <aside class="left-side sidebar-offcanvas">
         <section class="sidebar">
             <div class="user-panel">
@@ -76,7 +68,6 @@
 
             <ul class="sidebar-menu">
                 <li><a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-
                 <!-- Products -->
                 <li class="treeview">
                     <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
@@ -87,18 +78,16 @@
                         <li><a href="../warestaff/addNewProduct"><i class="fa fa-plus"></i> Add Product</a></li>
                     </ul>
                 </li>
-
                 <!-- Categories -->
                 <li class="treeview">
                     <a href="#categoryMenu" data-toggle="collapse" aria-expanded="false">
                         <i class="fa fa-tags"></i> <span>Categories</span>
                     </a>
-                    <ul class="collapse in" id="categoryMenu">
+                    <ul class="collapse" id="categoryMenu">
                         <li><a href="../warestaff/categoryList"><i class="fa fa-eye"></i> View Categories</a></li>
-                        <li class="active"><a href="../warestaff/addCategory"><i class="fa fa-plus"></i> Add Category</a></li>
+                        <li><a href="../warestaff/addCategory"><i class="fa fa-plus"></i> Add Category</a></li>
                     </ul>
                 </li>
-
                 <!-- Brands -->
                 <li class="treeview">
                     <a href="#brandMenu" data-toggle="collapse" aria-expanded="false">
@@ -109,7 +98,6 @@
                         <li><a href="../warestaff/addBrand"><i class="fa fa-plus"></i> Add Brand</a></li>
                     </ul>
                 </li>
-
                 <!-- Transactions -->
                 <li class="treeview">
                     <a href="#transactionMenu" data-toggle="collapse" aria-expanded="false">
@@ -121,25 +109,19 @@
                         <li><a href="importExport.jsp"><i class="fa fa-upload"></i> Import/Export</a></li>
                     </ul>
                 </li>
-
-                
-
                 <!-- Reports -->
                 <li><a href="reports.jsp"><i class="fa fa-bar-chart"></i> Inventory Reports</a></li>
             </ul>
         </section>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <aside class="right-side">
         <section class="content">
-            <!-- Page Header -->
             <div class="row">
                 <div class="col-md-12">
-                    <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Add New Category</h1>
-                    <p style="color: #718096; margin-bottom: 2rem;">Create a new product category for organizing your inventory</p>
-
-                    <% if (request.getAttribute("error") != null && !"Category name is required".equals(request.getAttribute("error"))) { %>
+                    <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Add New Brand</h1>
+                    <p style="color: #718096; margin-bottom: 2rem;">Create a new brand</p>
+                    <% if (request.getAttribute("error") != null && !"Brand name is required".equals(request.getAttribute("error"))) { %>
                         <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                             <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
                         </div>
@@ -147,21 +129,20 @@
                 </div>
             </div>
 
-            <!-- Add Category Form -->
             <div class="row">
                 <div class="col-md-12">
                     <div class="content-card">
                         <div class="card-header">
-                            <h3><i class="fa fa-plus"></i> Category Information</h3>
+                            <h3><i class="fa fa-plus"></i> Brand Information</h3>
                         </div>
                         <div class="card-body">
-                            <form method="post" action="../warestaff/addCategory" novalidate>
+                            <form method="post" action="../warestaff/addBrand" novalidate>
                                 <div class="form-row">
                                     <div class="form-col">
                                         <div class="form-group">
-                                            <label class="control-label">Category Name<span style="color:red">*</span></label>
-                                            <input type="text" id="categoryName" name="name" class="form-control<%= "Category name is required".equals(request.getAttribute("error")) ? " error" : "" %>" placeholder="Enter category name" required />
-                                            <div class="validation-error <%= "Category name is required".equals(request.getAttribute("error")) ? "show" : "" %>" id="categoryNameError">Category name is required</div>
+                                            <label class="control-label">Brand Name<span style="color:red">*</span></label>
+                                            <input type="text" id="brandName" name="name" class="form-control<%= "Brand name is required".equals(request.getAttribute("error")) ? " error" : "" %>" placeholder="Enter brand name" required />
+                                            <div class="validation-error <%= "Brand name is required".equals(request.getAttribute("error")) ? "show" : "" %>" id="brandNameError">Brand name is required</div>
                                         </div>
                                     </div>
                                     <div class="form-col">
@@ -189,9 +170,9 @@
                                 <div class="form-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; margin-bottom: 0;">
                                     <div class="form-col-full text-center">
                                         <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
-                                            <i class="fa fa-save"></i> Create Category
+                                            <i class="fa fa-save"></i> Create Brand
                                         </button>
-                                        <a href="../warestaff/categoryList" class="btn btn-default" style="min-width: 150px;">
+                                        <a href="../warestaff/brandList" class="btn btn-default" style="min-width: 150px;">
                                             <i class="fa fa-arrow-left"></i> Cancel
                                         </a>
                                     </div>
@@ -206,7 +187,6 @@
     </aside>
 </div>
 
-<!-- SCRIPTS -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>
@@ -218,29 +198,37 @@
 <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/warehouse/warehouse-responsive.js" type="text/javascript"></script>
 <script>
-    (function() {
-        var form = document.querySelector('form[action="../warestaff/addCategory"]');
-        var nameInput = document.getElementById('categoryName');
-        var nameError = document.getElementById('categoryNameError');
-        if (!form || !nameInput || !nameError) return;
-        form.addEventListener('submit', function(e) {
-            var value = (nameInput.value || '').trim();
-            if (!value) {
-                e.preventDefault();
-                nameError.classList.add('show');
-                nameInput.classList.add('error');
-                nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                nameInput.focus();
-            }
-        });
-        nameInput.addEventListener('input', function() {
-            if ((nameInput.value || '').trim()) {
-                nameError.classList.remove('show');
-                nameInput.classList.remove('error');
-            }
-        });
-    })();
-    </script>
+(function(){
+  var form = document.querySelector('form[action="../warestaff/addBrand"]');
+  var nameInput = document.getElementById('brandName');
+  var nameError = document.getElementById('brandNameError');
+  if (!form || !nameInput || !nameError) return;
+  form.addEventListener('submit', function(e) {
+    var value = (nameInput.value || '').trim();
+    if (!value) {
+      e.preventDefault();
+      nameError.classList.add('show');
+      nameInput.classList.add('error');
+      nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      nameInput.focus();
+    }
+  });
+  nameInput.addEventListener('input', function() {
+    if ((nameInput.value || '').trim()) {
+      nameError.classList.remove('show');
+      nameInput.classList.remove('error');
+    }
+  });
+})();
+
+// auto-hide alerts after 3s
+setTimeout(function(){
+  $('.alert-success').fadeOut(500,function(){ $(this).remove(); });
+  $('.alert-danger').fadeOut(500,function(){ $(this).remove(); });
+},3000);
+</script>
 
 </body>
 </html>
+
+

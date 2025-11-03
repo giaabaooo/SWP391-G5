@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 
 /**
  *
@@ -509,17 +510,17 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public void insertCusRequestMeta(CustomerRequestMeta ca) {
-        String sql = "INSERT INTO `crm_device_management`.`customerrequestmeta` (`request_id`, `total_cost`, `paid_amount`, `payment_status`, `payment_due_date`) "
-                + "VALUES (?, ?, ?, ?, ?);";
+        String sql = "INSERT INTO `crm_device_management`.`customerrequestmeta` (`request_id`, `total_cost`, `payment_status`, `payment_due_date`) "
+                + "VALUES (?, ?, ?, ?);";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, ca.getRequest_id());
             stm.setDouble(2, ca.getTotal_cost());
-            stm.setDouble(3, ca.getPaid_amount());
-            stm.setString(4, ca.getPayment_status());
+            
+            stm.setString(3, ca.getPayment_status());
 
             java.util.Date utilDate = ca.getPayment_due_date();
             java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-            stm.setDate(5, sqlDate);
+            stm.setDate(4, sqlDate);
 
             stm.executeUpdate();
         } catch (SQLException e) {
@@ -596,7 +597,7 @@ public class CustomerRequestDAO extends DBContext {
         SELECT cr.id, cr.customer_id, cr.device_id, cr.request_type, cr.title,
                cr.request_date, cr.status,
                u.full_name AS customer_name, p.name AS product_name,
-               crm.priority
+               crm.priority, crm.payment_status, crm.total_cost
         FROM customerrequest cr
         JOIN User u ON cr.customer_id = u.id
         JOIN Device d ON cr.device_id = d.id
@@ -661,7 +662,12 @@ public class CustomerRequestDAO extends DBContext {
                 c.setDevice(d);
 
                 c.setPriority(rs.getString("priority"));
+                c.setPayment_status(rs.getString("payment_status"));
 
+                CustomerRequestMeta meta = new CustomerRequestMeta();
+                meta.setTotal_cost(rs.getDouble("total_cost"));
+                c.setRequestMeta(meta);
+                
                 list.add(c);
             }
         } catch (Exception e) {
@@ -1089,4 +1095,30 @@ public class CustomerRequestDAO extends DBContext {
 
     return list;
 }
+
+    public Map<String, Integer> getWeeklyRequestStats(int days) {
+        Map<String, Integer> stats = new java.util.LinkedHashMap<>();
+        String sql = """
+        SELECT 
+            DATE(request_date) AS req_date,
+            COUNT(id) AS count
+        FROM customerrequest
+        WHERE request_date >= CURDATE() - INTERVAL ? DAY
+        GROUP BY req_date
+        ORDER BY req_date ASC
+    """;
+
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, days - 1);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                java.sql.Date dbDate = rs.getDate("req_date");
+                String formattedDate = new java.text.SimpleDateFormat("dd/MM").format(dbDate);
+                stats.put(formattedDate, rs.getInt("count"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return stats;
+    }
 }

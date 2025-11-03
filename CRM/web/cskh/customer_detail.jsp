@@ -6,9 +6,9 @@
 <%@ include file="/jsp/layout/sidebar2.jsp" %>
 
 <section class="content-header">
-    <h1>Customer Details</h1>
+    <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Customer Details</h1>
     <ol class="breadcrumb">
-        <li><a href="${pageContext.request.contextPath}/cskh/home"><i class="fa fa-dashboard"></i> CSKH</a></li>
+        <li><a href="${pageContext.request.contextPath}/cskh/home"><i class="fa fa-dashboard"></i> Home</a></li>
         <li><a href="${pageContext.request.contextPath}/cskh/customer">Customer List</a></li>
         <li class="active">Customer Details</li>
     </ol>

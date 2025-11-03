@@ -102,10 +102,8 @@
                         <i class="fa fa-bookmark"></i> <span>Brands</span>
                     </a>
                     <ul class="collapse" id="brandMenu">
-                        <li><a href="viewBrands.jsp"><i class="fa fa-eye"></i> View Brands</a></li>
-                        <li><a href="addBrand.jsp"><i class="fa fa-plus"></i> Add Brand</a></li>
-                        <li><a href="updateBrand.jsp"><i class="fa fa-edit"></i> Update Brand</a></li>
-                        <li><a href="deleteBrand.jsp"><i class="fa fa-trash"></i> Delete Brand</a></li>
+                        <li><a href="../warestaff/brandList"><i class="fa fa-eye"></i> View Brands</a></li>
+                        <li><a href="../warestaff/addBrand"><i class="fa fa-plus"></i> Add Brand</a></li>
                     </ul>
                 </li>
                 
@@ -121,8 +119,7 @@
                     </ul>
                 </li>
                 
-                <!-- Requests -->
-                <li><a href="requests.jsp"><i class="fa fa-clipboard"></i> Inventory Requests</a></li>
+                
                 
                 <!-- Reports -->
                 <li><a href="reports.jsp"><i class="fa fa-bar-chart"></i> Inventory Reports</a></li>
@@ -161,91 +158,6 @@
                 </div>
                 
                 <div class="category-info">
-                    <!-- Category Information Grid -->
-                    <div class="info-grid">
-                        <div class="info-card">
-                            <div class="icon">
-                                <i class="fa fa-cubes" style="color: #667eea;"></i>
-                            </div>
-                            <div class="number"><%= totalProducts != null ? totalProducts : 0 %></div>
-                            <div class="label">Total Products</div>
-                        </div>
-                        
-                        <div class="info-card">
-                            <div class="icon">
-                                <i class="fa fa-check-circle" style="color: #10b981;"></i>
-                            </div>
-                            <div class="number"><%= activeProducts != null ? activeProducts : 0 %></div>
-                            <div class="label">Active Products</div>
-                        </div>
-                        
-                        <div class="info-card">
-                            <div class="icon">
-                                <i class="fa fa-warehouse" style="color: #f59e0b;"></i>
-                            </div>
-                            <div class="number"><%= inventoryStats != null ? inventoryStats[0] : 0 %></div>
-                            <div class="label">Total Stock</div>
-                        </div>
-                        
-                        <div class="info-card">
-                            <div class="icon">
-                                <i class="fa fa-exclamation-triangle" style="color: #ef4444;"></i>
-                            </div>
-                            <div class="number"><%= inventoryStats != null ? inventoryStats[1] : 0 %></div>
-                            <div class="label">Low Stock Items</div>
-                        </div>
-                        
-                        <div class="info-card">
-                            <div class="icon">
-                                <i class="fa fa-file-contract" style="color: #8b5cf6;"></i>
-                            </div>
-                            <div class="number"><%= contractStats != null ? contractStats[0] : 0 %></div>
-                            <div class="label">Total Contracts</div>
-                        </div>
-                        
-                        <div class="info-card">
-                            <div class="icon">
-                                <i class="fa fa-dollar-sign" style="color: #059669;"></i>
-                            </div>
-                            <div class="number">
-                                <% if (contractStats != null && contractStats[1] != null) { %>
-                                    $<%= String.format("%.0f", ((java.math.BigDecimal) contractStats[1]).doubleValue()) %>
-                                <% } else { %>
-                                    $0
-                                <% } %>
-                            </div>
-                            <div class="label">Total Revenue</div>
-                        </div>
-                        
-                        <div class="info-card">
-                            <div class="icon">
-                                <i class="fa fa-microchip" style="color: #06b6d4;"></i>
-                            </div>
-                            <div class="number"><%= deviceStats != null ? deviceStats[0] : 0 %></div>
-                            <div class="label">Total Devices</div>
-                        </div>
-                        
-                        <div class="info-card">
-                            <div class="icon">
-                                <i class="fa fa-shield-alt" style="color: #10b981;"></i>
-                            </div>
-                            <div class="number"><%= deviceStats != null ? deviceStats[1] : 0 %></div>
-                            <div class="label">In Warranty</div>
-                        </div>
-                        
-                        <div class="info-card">
-                            <div class="icon">
-                                <i class="fa fa-info-circle" style="color: #3b82f6;"></i>
-                            </div>
-                            <div class="number">
-                                <span class="status-badge <%= category.isActive() ? "status-active" : "status-inactive" %>">
-                                    <%= category.isActive() ? "Active" : "Inactive" %>
-                                </span>
-                            </div>
-                            <div class="label">Category Status</div>
-                        </div>
-                    </div>
-                    
                     <!-- Category Description -->
                     <% if (category.getDescription() != null && !category.getDescription().trim().isEmpty()) { %>
                     <div class="description-section">
