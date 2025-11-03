@@ -18,10 +18,10 @@
             <div class="card-header">
                 <h3><i class="fa fa-filter" style="margin-right: 0.5rem;"></i> Filter Requests</h3>
             </div>
-            
+
             <div class="filter-bar">
                 <form method="get" action="${pageContext.request.contextPath}/cskh/customer-request">
-                    
+
                     <label for="typeFilter" style="font-weight: 500;">Request Type:</label>
                     <select name="type" id="typeFilter" class="search-input" style="min-width: 150px;">
                         <option value="">-- All --</option>
@@ -59,7 +59,7 @@
                     </select>
 
                     <button type="submit" class="btn btn-primary">
-                         <i class="fa fa-filter"></i> Filter
+                        <i class="fa fa-filter"></i> Filter
                     </button>
                     <a href="${pageContext.request.contextPath}/cskh/customer-request" class="btn btn-primary" style="background: #6c757d; border-color: #6c757d;">
                         <i class="fa fa-times"></i> Clear
@@ -72,7 +72,7 @@
             <div class="card-header">
                 <h3><i class="fa fa-table" style="margin-right: 0.5rem;"></i> Request List</h3>
             </div>
-            
+
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="inventory-table">
@@ -82,14 +82,10 @@
                                 <th><i class="fa fa-user" style="margin-right: 0.5rem;"></i>Customer</th>
                                 <th><i class="fa fa-cube" style="margin-right: 0.5rem;"></i>Device</th>
                                 <th><i class="fa fa-tag" style="margin-right: 0.5rem;"></i>Title</th>
-                                <th><i class="fa fa-info-circle" style="margin-right: 0.5rem;"></i>Description</th>
                                 <th><i class="fa fa-list" style="margin-right: 0.5rem;"></i>Request Type</th>
                                 <th><i class="fa fa-calendar" style="margin-right: 0.5rem;"></i>Request Date</th>
                                 <th><i class="fa fa-info" style="margin-right: 0.5rem;"></i>Status</th>
                                 <th><i class="fa fa-sort-amount-asc" style="margin-right: 0.5rem;"></i>Priority</th>
-                                <th><i class="fa fa-money" style="margin-right: 0.5rem;"></i>Payment Status</th>
-                                <th><i class="fa fa-calendar-times-o" style="margin-right: 0.5rem;"></i>Payment Due</th>
-                                <th><i class="fa fa-comment-o" style="margin-right: 0.5rem;"></i>Reject Reason</th>
                                 <th><i class="fa fa-cogs" style="margin-right: 0.5rem;"></i>Action</th>
                             </tr>
                         </thead>
@@ -107,130 +103,146 @@
 
                             <c:forEach var="r" items="${requests}" varStatus="loop">
                                 <tr>
-                                    <%-- Sửa lại lỗi logic: dùng loop.index thay vì st.index --%>
                                     <td>${(page-1)*pageSize + loop.index + 1}</td>
                                     <td>${r.customer.fullName}</td>
                                     <td>${r.device.productName}</td>
                                     <td>${r.title}</td>
                                     <td>
-                                        <c:choose>
-                                            <c:when test="${not empty r.description}">${r.description}</c:when>
-                                            <c:otherwise><span style="color: #a0aec0;">No description</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>${r.request_type}</td>
-                                    <td><fmt:formatDate value="${r.request_date}" pattern="yyyy-MM-dd HH:mm" /></td>
-                                    <td>
                                         <span class="status-label
-                                            ${r.status eq 'PENDING' ? 'status-warning' :
-                                              r.status eq 'TRANSFERRED' ? 'status-info' :
-                                              r.status eq 'ASSIGNED' ? 'status-info' :
-                                              r.status eq 'IN_PROGRESS' ? 'status-info' :
-                                              r.status eq 'COMPLETED' ? 'status-success' :
-                                              r.status eq 'CANCELLED' ? 'status-critical' : ''}">
-                                            <i class="fa ${r.status eq 'PENDING' ? 'fa-clock-o' :
-                                                           r.status eq 'TRANSFERRED' ? 'fa-share' :
-                                                           r.status eq 'ASSIGNED' ? 'fa-user-plus' :
-                                                           r.status eq 'IN_PROGRESS' ? 'fa-cog' :
-                                                           r.status eq 'COMPLETED' ? 'fa-check-circle' :
-                                                           r.status eq 'CANCELLED' ? 'fa-times-circle' : 'fa-circle'}"></i>
-                                            ${r.status}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <c:out value="${r.priority}" default="N/A"/>
-                                    </td>
-                                    <td>
-                                        <c:out value="${r.payment_status}" default="N/A"/>
-                                    </td>
-                                    <td>
-                                        <c:if test="${not empty r.payment_due_date}">
-                                            <fmt:formatDate value="${r.payment_due_date}" pattern="yyyy-MM-dd" />
+                                              ${r.request_type eq 'REPAIR' ? 'status-warning' :
+                                                r.request_type eq 'WARRANTY' ? 'status-info' :
+                                                r.request_type eq 'MAINTENANCE' ? 'status-success' : ''}">
+                                                  ${r.request_type}
+                                              </span>
+                                        </td>
+                                        <td><fmt:formatDate value="${r.request_date}" pattern="yyyy-MM-dd HH:mm" /></td>
+                                        <td>
+                                            <span class="status-label
+                                                  ${r.status eq 'PENDING' ? 'status-warning' :
+                                                    r.status eq 'TRANSFERRED' ? 'status-info' :
+                                                    r.status eq 'ASSIGNED' ? 'status-info' :
+                                                    r.status eq 'IN_PROGRESS' ? 'status-info' :
+                                                    r.status eq 'COMPLETED' ? 'status-success' :
+                                                    r.status eq 'CANCELLED' ? 'status-critical' : ''}">
+                                                <i class="fa ${r.status eq 'PENDING' ? 'fa-clock-o' :
+                                                               r.status eq 'TRANSFERRED' ? 'fa-share' :
+                                                               r.status eq 'ASSIGNED' ? 'fa-user-plus' :
+                                                               r.status eq 'IN_PROGRESS' ? 'fa-cog' :
+                                                               r.status eq 'COMPLETED' ? 'fa-check-circle' :
+                                                               r.status eq 'CANCELLED' ? 'fa-times-circle' : 'fa-circle'}"></i>
+                                                   ${r.status}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${not empty r.priority}">
+                                                        <span class="status-label
+                                                              ${r.priority eq 'URGENT' ? 'status-critical' :
+                                                                r.priority eq 'HIGH' ? 'status-warning' :
+                                                                r.priority eq 'MEDIUM' ? 'status-info' :
+                                                                r.priority eq 'LOW' ? 'status-success' : ''}">
+                                                                  ${r.priority}
+                                                              </span>
+                                                        </c:when>
+                                                        <c:otherwise>N/A</c:otherwise>
+                                                    </c:choose>
+                                                </td>
+                                                <td>
+                                                    <c:choose>
+                                                        <c:when test="${r.status eq 'PENDING'}">
+                                                            <form method="post" action="${pageContext.request.contextPath}/cskh/customer-request" style="display:inline;">
+                                                                <input type="hidden" name="action" value="transferToTechManager" />
+                                                                <input type="hidden" name="id" value="${r.id}" />
+                                                                <button type="submit" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                                    <i class="fa fa-share"></i> Transfer
+                                                                </button>
+                                                            </form>
+                                                        </c:when>
+                                                        <c:when test="${r.status eq 'PAID' || (r.status eq 'COMPLETED' && (empty r.requestMeta || r.requestMeta.total_cost == 0))}">
+                                                            <form method="post" action="${pageContext.request.contextPath}/cskh/customer-request" style="display:inline;">
+                                                                <input type="hidden" name="action" value="closeRequest" />
+                                                                <input type="hidden" name="id" value="${r.id}" />
+                                                                <button type="submit" class="btn btn-action" style="text-decoration: none; background-color: #059669; color: white;">
+                                                                    <i class="fa fa-check-square-o"></i> Close
+                                                                </button>
+                                                            </form>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <button class="btn btn-action" disabled>
+                                                                <c:choose>
+                                                                    <c:when test="${r.status eq 'CLOSED' || r.status eq 'CANCELLED'}">
+                                                                        <i class="fa fa-ban"></i> ${r.status}
+                                                                    </c:when>
+                                                                    <c:when test="${r.status eq 'TRANSFERRED' || r.status eq 'ASSIGNED' || r.status eq 'IN_PROGRESS'}">
+                                                                        <i class="fa fa-cog"></i> In Progress
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <i class="fa fa-clock-o"></i> ${r.status}
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </button>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                    <a href="${pageContext.request.contextPath}/cskh/customer-request/detail?id=${r.id}" class="btn btn-action btn-view" style="text-decoration: none;">
+                                                        <i class="fa fa-eye"></i> View
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div> <c:if test="${totalPages > 0}">
+                                <div class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div class="pagination-info">
+                                        Showing ${(page-1)*pageSize + 1} to ${page*pageSize > totalItems ? totalItems : page*pageSize} of ${totalItems} requests
+                                    </div>
+
+                                    <div class="pagination-controls">
+                                        <button class="pagination-btn" ${page == 1 ? 'disabled' : ''}
+                                                onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=${page - 1}&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">
+                                            <i class="fa fa-angle-left"></i>
+                                        </button>
+
+                                        <button class="pagination-btn ${page == 1 ? 'active' : ''}"
+                                                onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=1&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">1</button>
+
+                                        <c:if test="${page > 4}">
+                                            <span>...</span>
                                         </c:if>
-                                        <c:if test="${empty r.payment_due_date}">
-                                            N/A
+
+                                        <c:set var="startPage" value="${page - 2}" />
+                                        <c:set var="endPage" value="${page + 2}" />
+
+                                        <c:if test="${startPage < 2}">
+                                            <c:set var="startPage" value="2" />
                                         </c:if>
-                                    </td>
-                                    <td>
-                                        <c:out value="${r.reject_reason}" default="N/A"/>
-                                    </td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${r.status eq 'PENDING'}">
-                                                <form method="post" action="${pageContext.request.contextPath}/cskh/customer-request" style="display:inline;">
-                                                    <input type="hidden" name="action" value="transferToTechManager" />
-                                                    <input type="hidden" name="id" value="${r.id}" />
-                                                    <button type="submit" class="btn btn-action btn-edit" style="text-decoration: none;">
-                                                        <i class="fa fa-share"></i> Transfer
-                                                    </button>
-                                                </form>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <button class="btn btn-action" disabled>
-                                                    <i class="fa fa-check"></i> Transferred
-                                                </button>
-                                            </c:otherwise>
-                                        </c:choose>
-                                        <a href="${pageContext.request.contextPath}/cskh/customer-request/detail?id=${r.id}" class="btn btn-action btn-view" style="text-decoration: none;">
-                                            <i class="fa fa-eye"></i> View
-                                        </a>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div> <c:if test="${totalPages > 1}">
-                    <div class="pagination-container">
-                        <div class="pagination-info">
-                            Showing ${(page-1)*pageSize + 1} to ${page*pageSize > totalItems ? totalItems : page*pageSize} of ${totalItems} requests
-                        </div>
-                        
-                        <div class="pagination-controls">
-                            <button class="pagination-btn" ${page == 1 ? 'disabled' : ''}
-                                    onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=${page - 1}&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">
-                                <i class="fa fa-angle-left"></i>
-                            </button>
+                                        <c:if test="${endPage > totalPages - 1}">
+                                            <c:set var="endPage" value="${totalPages - 1}" />
+                                        </c:if>
 
-                            <button class="pagination-btn ${page == 1 ? 'active' : ''}"
-                                     onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=1&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">1</button>
+                                        <c:forEach var="i" begin="${startPage}" end="${endPage}">
+                                            <button class="pagination-btn ${i == page ? 'active' : ''}"
+                                                    onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=${i}&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">${i}</button>
+                                        </c:forEach>
 
-                            <c:if test="${page > 4}">
-                                <span>...</span>
+                                        <c:if test="${page < totalPages - 3}">
+                                            <span>...</span>
+                                        </c:if>
+
+                                        <c:if test="${totalPages > 1}">
+                                            <button class="pagination-btn ${page == totalPages ? 'active' : ''}"
+                                                    onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=${totalPages}&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">${totalPages}</button>
+                                        </c:if>
+
+                                        <button class="pagination-btn" ${page == totalPages ? 'disabled' : ''}
+                                                onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=${page + 1}&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">
+                                            <i class="fa fa-angle-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </c:if>
 
-                            <c:set var="startPage" value="${page - 2}" />
-                            <c:set var="endPage" value="${page + 2}" />
+                        </div> </div> </section>
+            </div>
 
-                            <c:if test="${startPage < 2}">
-                                <c:set var="startPage" value="2" />
-                            </c:if>
-                            <c:if test="${endPage > totalPages - 1}">
-                                <c:set var="endPage" value="${totalPages - 1}" />
-                            </c:if>
-
-                            <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                                <button class="pagination-btn ${i == page ? 'active' : ''}"
-                                        onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=${i}&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">${i}</button>
-                            </c:forEach>
-
-                            <c:if test="${page < totalPages - 3}">
-                                <span>...</span>
-                            </c:if>
-
-                            <c:if test="${totalPages > 1}">
-                                <button class="pagination-btn ${page == totalPages ? 'active' : ''}"
-                                        onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=${totalPages}&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">${totalPages}</button>
-                            </c:if>
-
-                            <button class="pagination-btn" ${page == totalPages ? 'disabled' : ''}
-                                    onclick="window.location = '${pageContext.request.contextPath}/cskh/customer-request?page=${page + 1}&type=${param.type}&status=${param.status}&priority=${param.priority}&paymentStatus=${param.paymentStatus}'">
-                                <i class="fa fa-angle-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                </c:if>
-
-            </div> </div> </section>
-</div>
-
-<%@ include file="/jsp/layout/footer2.jsp" %>
+            <%@ include file="/jsp/layout/footer2.jsp" %>

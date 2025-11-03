@@ -10,7 +10,7 @@
         <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Request Detail: <c:out value="#${requestDetail.id}"/></h1>
         <ol class="breadcrumb" style="background: none; padding: 0; margin-bottom: 2rem;">
             <li><a href="${pageContext.request.contextPath}/cskh/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li><a href="${pageContext.request.contextPath}/cskh/customer-request">Customer Requests</a></li>
+            <li><a href="${backUrl}">${backPageName}</a></li>
             <li class="active">Detail</li>
         </ol>
     </section>
@@ -36,7 +36,7 @@
                 <div class="content-card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <h3><i class="fa fa-info-circle"></i> Request Information</h3>
-                        
+
                         <c:if test="${not empty requestDetail.status}">
                             <span class="status-label ${requestDetail.status eq 'PENDING' ? 'status-warning' : requestDetail.status eq 'TRANSFERRED' ? 'status-info' : requestDetail.status eq 'ASSIGNED' ? 'status-info' : requestDetail.status eq 'IN_PROGRESS' ? 'status-info' : requestDetail.status eq 'COMPLETED' ? 'status-success' : requestDetail.status eq 'AWAITING_PAYMENT' ? 'status-warning' : requestDetail.status eq 'PAID' ? 'status-success' : requestDetail.status eq 'CLOSED' ? '' : requestDetail.status eq 'CANCELLED' ? 'status-critical' : ''}">
                                 <c:out value="${requestDetail.status}"/>
@@ -77,7 +77,7 @@
                         <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
                             <strong><i class="fa fa-phone" style="color: #6366f1; width: 20px;"></i> Phone:</strong> <c:out value="${customerDetail.phone}" default="N/A"/>
                         </div>
-                        
+
                         <h4 style="font-weight: 600; color: #2d3748; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px;">Device Details</h4>
                         <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
                             <strong><i class="fa fa-cube" style="color: #6366f1; width: 20px;"></i> Product:</strong> <c:out value="${requestDetail.device.productName}" default="N/A"/>
@@ -96,15 +96,15 @@
                             <fmt:formatDate value="${requestDetail.device.warrantyExpiration}" pattern="yyyy-MM-dd"/>
                             <c:if test="${requestDetail.device.underWarranty}"><span class="status-label status-success" style="margin-left: 10px;">Under Warranty</span></c:if>
                             <c:if test="${!requestDetail.device.underWarranty}"><span class="status-label status-critical" style="margin-left: 10px;">Expired</span></c:if>
-                        </div>
-                    </div>      
-                </div>
-            </div> 
-            
-            <div class="col-md-5">
-                <div class="content-card">
-                    <div class="card-header"><h3><i class="fa fa-users"></i> Assignment Details</h3></div>
-                    <div class="card-body">
+                            </div>
+                        </div>      
+                    </div>
+                </div> 
+
+                <div class="col-md-5">
+                    <div class="content-card">
+                        <div class="card-header"><h3><i class="fa fa-users"></i> Assignment Details</h3></div>
+                        <div class="card-body">
                         <c:if test="${empty assignmentDetail}">
                             <div class="empty-state" style="padding: 1rem; text-align: center; color: #718096;">
                                 <i class="fa fa-user-times" style="font-size: 2rem; margin-bottom: 0.5rem; color: #6366f1;"></i>
@@ -166,17 +166,50 @@
                             <div class="form-group" style="font-size: 1.1rem; color: #2d3748;">
                                 <strong><i class="fa fa-star" style="color: #6366f1; width: 20px;"></i> Rating:</strong> <c:out value="${metaDetail.rating > 0 ? metaDetail.rating : 'N/A'}"/>
                             </div>
+                            <c:if test="${not empty metaDetail.customer_comment || metaDetail.rating > 0}">
+                                <div class="content-card">
+                                    <div class="card-header"><h3><i class="fa fa-reply"></i> CSKH Feedback Response</h3></div>
+                                    <div class="card-body">
+
+                                        <c:if test="${param.message == 'responseSaved'}">
+                                            <div class="alert alert-success">Response saved successfully!</div>
+                                        </c:if>
+
+                                        <form action="" method="POST">
+                                            <input type="hidden" name="action" value="save_response">
+                                            <input type="hidden" name="requestId" value="${requestDetail.id}">
+
+                                            <div class="form-group">
+                                                <textarea name="cskhResponse" id="cskhResponseText" class="form-control-modern" rows="5" 
+                                                          placeholder="Enter your response here...">${metaDetail.customer_service_response}</textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
+                                                <i class="fa fa-save"></i> 
+                                                <c:choose>
+                                                    <c:when test="${not empty metaDetail.customer_service_response}">
+                                                        Update Response
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        Save Response
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </c:if>
+
                         </c:if>
                     </div>
                 </div>
 
             </div> 
         </div> 
-        
+
         <div class="content-card">
             <div class="card-body">
                 <form action="" method="POST" class="form-inline" style="justify-content: flex-end; gap: 10px;">
-                    <a href="${pageContext.request.contextPath}/cskh/customer-request" class="btn btn-default" style="margin-right: auto;">
+                    <a href="${backUrl}" class="btn btn-default" style="margin-right: auto;">
                         <i class="fa fa-arrow-left"></i> Back to List
                     </a>
 
@@ -184,7 +217,7 @@
                         <button type="button" class="btn btn-danger" onclick="openCancelModal()">
                             <i class="fa fa-times-circle"></i> Cancel Request
                         </button>
-                        
+
                         <input type="hidden" name="action" value="transfer">
                         <input type="hidden" name="requestId" value="${requestDetail.id}">
 

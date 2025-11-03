@@ -105,10 +105,8 @@
                         <i class="fa fa-bookmark"></i> <span>Brands</span>
                     </a>
                     <ul class="collapse" id="brandMenu">
-                        <li><a href="viewBrands.jsp"><i class="fa fa-eye"></i> View Brands</a></li>
-                        <li><a href="addBrand.jsp"><i class="fa fa-plus"></i> Add Brand</a></li>
-                        <li><a href="updateBrand.jsp"><i class="fa fa-edit"></i> Update Brand</a></li>
-                        <li><a href="deleteBrand.jsp"><i class="fa fa-trash"></i> Delete Brand</a></li>
+                        <li><a href="../warestaff/brandList"><i class="fa fa-eye"></i> View Brands</a></li>
+                        <li><a href="../warestaff/addBrand"><i class="fa fa-plus"></i> Add Brand</a></li>
                     </ul>
                 </li>
 
@@ -124,8 +122,7 @@
                     </ul>
                 </li>
 
-                <!-- Requests -->
-                <li><a href="requests.jsp"><i class="fa fa-clipboard"></i> Inventory Requests</a></li>
+                
 
                 <!-- Reports -->
                 <li><a href="reports.jsp"><i class="fa fa-bar-chart"></i> Inventory Reports</a></li>

@@ -6,6 +6,7 @@ package Controller.cskh;
 
 import dal.CustomerRequestDAO;
 import data.CustomerRequest;
+import data.CustomerRequestMeta;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -47,7 +48,6 @@ public class CustomerRequestController extends HttpServlet {
         String priority = request.getParameter("priority");
         String paymentStatus = request.getParameter("paymentStatus");
 
-        // Truyền filter mới vào DAO
         int total = dao.countCustomerRequests(type, status, priority, paymentStatus);
         int totalPages = (int) Math.ceil((double) total / pageSize);
         if (totalPages == 0) {
@@ -76,20 +76,41 @@ public class CustomerRequestController extends HttpServlet {
             throws ServletException, IOException {
 
         String action = request.getParameter("action");
+        String idParam = request.getParameter("id");
+
         CustomerRequestDAO dao = new CustomerRequestDAO();
         HttpSession session = request.getSession();
 
-        if ("transferToTechManager".equals(action)) {
-            try {
-                int requestId = Integer.parseInt(request.getParameter("id"));
-                dao.transferToTechManager(requestId);
-                session.setAttribute("message", "Request transferred successfully!");
-            } catch (Exception e) {
-                e.printStackTrace();
-                session.setAttribute("error", "Failed to transfer request!");
+        String redirectUrl = request.getContextPath() + "/cskh/customer-request";
+
+        try {
+            if (idParam == null || idParam.isEmpty()) {
+                throw new Exception("Missing ID");
             }
+
+            int requestId = Integer.parseInt(idParam);
+
+            if ("transferToTechManager".equals(action)) {
+                dao.transferToTechManager(requestId);
+                CustomerRequestMeta meta = dao.getCusRequestMetaById(requestId);
+                if (meta == null || meta.getPriority() == null || meta.getPriority().isEmpty()) {
+                dao.updatePriority(requestId, "MEDIUM");
+            }
+                session.setAttribute("message", "Request #" + requestId + " transferred successfully!");
+
+            } else if ("closeRequest".equals(action)) {
+                dao.updateRequest("CLOSED", 1, requestId);
+                session.setAttribute("message", "Request #" + requestId + " has been closed.");
+
+            } else {
+                throw new Exception("Unknown action");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            session.setAttribute("error", "Failed to perform action: " + e.getMessage());
         }
 
-        response.sendRedirect(request.getContextPath() + "/cskh/customer-request");
+        response.sendRedirect(redirectUrl);
     }
 }

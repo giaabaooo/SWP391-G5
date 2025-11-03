@@ -11,7 +11,8 @@ import java.util.Date;
  * @author admin
  */
 public class Feedback {
-     private int requestId;
+
+    private int requestId;
     private String title;
     private String requestType;
     private String productName;
@@ -19,8 +20,27 @@ public class Feedback {
     private String comment;
     private int rating;
     private Date requestDate;
-    
-    public Feedback() {}
+    private String customerServiceResponse;
+    private String customerName;
+
+    public String getCustomerServiceResponse() {
+        return customerServiceResponse;
+    }
+
+    public void setCustomerServiceResponse(String customerServiceResponse) {
+        this.customerServiceResponse = customerServiceResponse;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public Feedback() {
+    }
 
     public Feedback(int requestId, String title, String requestType, String productName, String description, String comment, int rating, Date requestDate) {
         this.requestId = requestId;
@@ -32,24 +52,69 @@ public class Feedback {
         this.rating = rating;
         this.requestDate = requestDate;
     }
-    
-    
 
     // Getters and setters
-    public int getRequestId() { return requestId; }
-    public void setRequestId(int requestId) { this.requestId = requestId; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    public String getRequestType() { return requestType; }
-    public void setRequestType(String requestType) { this.requestType = requestType; }
-    public String getProductName() { return productName; }
-    public void setProductName(String productName) { this.productName = productName; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public String getComment() { return comment; }
-    public void setComment(String comment) { this.comment = comment; }
-    public int getRating() { return rating; }
-    public void setRating(int rating) { this.rating = rating; }
-    public Date getRequestDate() { return requestDate; }
-    public void setRequestDate(Date requestDate) { this.requestDate = requestDate; }
+    public int getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(int requestId) {
+        this.requestId = requestId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(String requestType) {
+        this.requestType = requestType;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
+
+    public Date getRequestDate() {
+        return requestDate;
+    }
+
+    public void setRequestDate(Date requestDate) {
+        this.requestDate = requestDate;
+    }
 }

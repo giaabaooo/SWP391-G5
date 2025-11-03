@@ -108,10 +108,8 @@
                         <i class="fa fa-bookmark"></i> <span>Brands</span>
                     </a>
                     <ul class="collapse" id="brandMenu">
-                        <li><a href="viewBrands.jsp"><i class="fa fa-eye"></i> View Brands</a></li>
-                        <li><a href="addBrand.jsp"><i class="fa fa-plus"></i> Add Brand</a></li>
-                        <li><a href="updateBrand.jsp"><i class="fa fa-edit"></i> Update Brand</a></li>
-                        <li><a href="deleteBrand.jsp"><i class="fa fa-trash"></i> Delete Brand</a></li>
+                        <li><a href="../warestaff/brandList"><i class="fa fa-eye"></i> View Brands</a></li>
+                        <li><a href="../warestaff/addBrand"><i class="fa fa-plus"></i> Add Brand</a></li>
                     </ul>
                 </li>
 
@@ -121,14 +119,13 @@
                         <i class="fa fa-exchange"></i> <span>Transactions</span>
                     </a>
                     <ul class="collapse" id="transactionMenu">
-                        <li><a href="transactions.jsp"><i class="fa fa-list"></i> View Transactions</a></li>
-                        <li><a href="spareParts.jsp"><i class="fa fa-cogs"></i> Manage Spare Parts</a></li>
-                        <li><a href="importExport.jsp"><i class="fa fa-upload"></i> Import/Export</a></li>
+                        <li><a href="../warestaff/transactions"><i class="fa fa-list"></i> View Transactions</a></li>
+                        <li><a href="../warestaff/addImportTransaction"><i class="fa fa-plus"></i> Add Stock In</a></li>
+                        <li><a href="../warestaff/addExportTransaction"><i class="fa fa-minus"></i> Add Stock Out</a></li>
                     </ul>
                 </li>
 
-                <!-- Requests -->
-                <li><a href="requests.jsp"><i class="fa fa-clipboard"></i> Inventory Requests</a></li>
+                
 
                 <!-- Reports -->
                 <li><a href="reports.jsp"><i class="fa fa-bar-chart"></i> Inventory Reports</a></li>
@@ -246,6 +243,7 @@
                                             <th>Product Name</th>
                                             <th>Category</th>
                                             <th>Brand</th>
+                                            <th>Quantity</th>
                                             <th>Purchase Price</th>
                                             <th>Selling Price</th>
                                             <th>Status</th>
@@ -256,6 +254,9 @@
                                         <% for (Product product : products) { 
                                             String categoryName = categoryMap.get(product.getCategoryId());
                                             String brandName = product.getBrandId() != null ? brandMap.get(product.getBrandId()) : "N/A";
+                                            Map<Integer, Integer> invMap = (Map<Integer, Integer>) request.getAttribute("inventoryMap");
+                                            Integer qty = (invMap != null) ? invMap.get(product.getId()) : null;
+                                            int quantity = (qty != null) ? qty : 0;
                                         %>
                                         <tr>
                                             <td><strong>#<%= product.getId() %></strong></td>
@@ -267,6 +268,12 @@
                                             </td>
                                             <td><%= categoryName != null ? categoryName : "Unknown" %></td>
                                             <td><%= brandName %></td>
+                                            <td>
+                                                <%= quantity %>
+                                                <% if (quantity < 5) { %>
+                                                    <span class="badge-inactive" style="margin-left:6px">Low</span>
+                                                <% } %>
+                                            </td>
                                             <td>$<%= String.format("%,.2f", product.getPurchasePrice()) %></td>
                                             <td>
                                                 <% if (product.getSellingPrice() != null) { %>
@@ -292,6 +299,11 @@
                                                 <button class="btn btn-action btn-delete" data-product-id="<%= product.getId() %>" data-product-name="<%= product.getName() %>">
                                                     <i class="fa fa-trash"></i> Delete
                                                 </button>
+                                                <% if (quantity < 5) { %>
+                                                <a href="<%= request.getContextPath() %>/warestaff/addImportTransaction?productId=<%= product.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none; background:#16a34a; border-color:#16a34a; color:#fff;">
+                                                    <i class="fa fa-upload"></i> Stock In
+                                                </a>
+                                                <% } %>
                                             </td>
                                         </tr>
                                         <% } %>
@@ -357,8 +369,8 @@
 
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="modal-overlay">
-    <div class="delete-modal">
-        <div class="modal-header-custom">
+    <div class="delete-modal" style="max-width:380px;width:80%">
+        <div class="modal-header-custom" style="background:#f8f9fa;border-bottom:1px solid #f1f3f4;">
             <div class="modal-icon">
                 <i class="fa fa-trash"></i>
             </div>

@@ -300,6 +300,18 @@ public class UserDBContext extends DBContext {
                 case "fullname_desc":
                     orderBy = "u.full_name DESC";
                     break;
+                case "email_asc":
+                    orderBy = "u.email ASC";
+                    break;
+                case "email_desc":
+                    orderBy = "u.email DESC";
+                    break;
+                case "phone_asc":
+                    orderBy = "u.phone ASC";
+                    break;
+                case "phone_desc":
+                    orderBy = "u.phone DESC";
+                    break;
             }
         }
         sql += " ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
