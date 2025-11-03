@@ -3,14 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/techmanager/edit_task.jsp</file>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/data/User.java</file>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/dal/UserDBContext.java</file>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/cskh/contract_list.jsp</file>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/LoginController.java</file>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/web/technician/create_bill.jsp</file>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/Controller/technician/TaskController.java</file>
-            <file>file:/D:/FPT/KY8/SWP/SWP391-G5/CRM/src/java/dal/CustomerRequestDAO.java</file>
+            <file>file:/D:/FPT%20SE/SWP%20391_2/Project/SWP391-G5/CRM/web/cskh/cskh_dashboard.jsp</file>
+            <file>file:/D:/FPT%20SE/SWP%20391_2/Project/SWP391-G5/CRM/web/cskh/contract_list.jsp</file>
+            <file>file:/D:/FPT%20SE/SWP%20391_2/Project/SWP391-G5/CRM/src/java/dal/CustomerRequestDAO.java</file>
+            <file>file:/D:/FPT%20SE/SWP%20391_2/Project/SWP391-G5/CRM/src/java/Controller/api/ProductSearchController.java</file>
+            <file>file:/D:/FPT%20SE/SWP%20391_2/Project/SWP391-G5/CRM/src/java/Controller/api/ProductPriceController.java</file>
         </group>
     </open-files>
 </project-private>
