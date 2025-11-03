@@ -30,7 +30,7 @@
         <input type="hidden" id="baseUrl" value="${pageContext.request.contextPath}/customer/listRequest">
         <!-- HEADER -->
         <header class="header">
-            <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
+            <a href="dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
 
                 <div class="navbar-right">
@@ -69,7 +69,7 @@
                     </div>
 
                     <ul class="sidebar-menu">
-                        <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                        <li><a href="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
                         <li class="treeview">
@@ -182,7 +182,7 @@
                                             <i class="fa fa-times"></i> Clear
                                         </button>
                                     </div>
-                                   </form>
+                                    </form>
                                     <div class="card-body">
 
                                         <div class="table-responsive">
@@ -315,7 +315,7 @@
                                 </div>
                             </div>
                         </div>
-                    
+
                 </section>
                 <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>
             </aside>
@@ -373,22 +373,13 @@
                             // Helper function to get current URL parameters
                             function getUrlParams() {
                                 var params = new URLSearchParams(window.location.search);
-                                var urlParams = {};
-
-                                if (params.get('search')) {
-                                    urlParams.search = params.get('search');
-                                }
-                                if (params.get('type')) {
-                                    urlParams.type = params.get('type');
-                                }
-                                if (params.get('status')) {
-                                    urlParams.status = params.get('status');
-                                }
-                                if (params.get('pageSize')) {
-                                    urlParams.pageSize = params.get('pageSize');
-                                }
-
-                                return urlParams;
+                                return {
+                                    search: params.get('search') || '',
+                                    type: params.get('type') || 'ALL',
+                                    status: params.get('status') || 'ALL',
+                                    page: params.get('page') || 1,
+                                    pageSize: params.get('pageSize') || currentLimit
+                                };
                             }
 
                             // Helper function to build URL with parameters
@@ -396,7 +387,8 @@
                                 var url = window.location.pathname;
                                 var paramArray = [];
                                 for (var key in params) {
-                                    if (params[key] && params[key] !== '' && params[key] !== 'ALL') {
+                                    // chỉ bỏ qua nếu null hoặc chuỗi rỗng, KHÔNG loại 'ALL'
+                                    if (params[key] != null && params[key] !== '') {
                                         paramArray.push(key + '=' + encodeURIComponent(params[key]));
                                     }
                                 }
@@ -541,34 +533,22 @@
                                 var type = document.getElementById('typeFilter').value;
                                 var status = document.getElementById('statusFilter').value;
 
+                                // Giữ các param hiện có (như pageSize)
+                                var params = getUrlParams();
 
-                                var params = [];
+                                // Cập nhật filter mới
+                                params.search = searchQuery;
+                                params.type = type;
+                                params.status = status;
+                                params.page = 1; // reset về trang 1
 
-                                if (searchQuery && searchQuery.trim() !== '') {
-                                    params.push('search=' + encodeURIComponent(searchQuery));
-                                }
-                                if (type && type !== 'ALL') {
-                                    params.push('type=' + encodeURIComponent(type));
-                                }
-                                if (status && status !== 'ALL') {
-                                    params.push('status=' + encodeURIComponent(status));
-                                }
-
-                                let url = window.location.pathname;
-                                if (params.length > 0) {
-                                    url += '?' + params.join('&');
-                                }
-                                console.log("Redirect to:", url);
-
-                                window.location.href = url;
-
-
+                                window.location.href = buildUrlWithParams(params);
                             };
 
                             // Clear filters function
                             window.clearFilters = function () {
-                                var baseUrl = document.getElementById('baseUrl').value;
-                                window.location.href = baseUrl;
+                                var baseUrl = window.location.pathname; // ví dụ /CRM/customer/listRequest
+                                window.location.href = baseUrl + "?search=&type=ALL&status=ALL&page=1";
                             };
 
                             // Handle Enter key in search input

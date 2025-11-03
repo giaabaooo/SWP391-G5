@@ -164,7 +164,7 @@ public class CustomerRequestDAO extends DBContext {
                     WHERE ct.customer_id = ? AND cr.is_active = 1
 
     """;
-       
+
         if (keyword != null && !keyword.isEmpty()) {
             sql += " AND (p.name LIKE ? OR cr.title LIKE ?) ";
         }
@@ -222,11 +222,11 @@ public class CustomerRequestDAO extends DBContext {
         }
         return list;
     }
-    
+
     public int countRequestsByUserId(int userId, String keyword, String type, String status) {
-    int count = 0;
-       
-    String sql = """
+        int count = 0;
+
+        String sql = """
         SELECT COUNT(DISTINCT cr.id)
         FROM CustomerRequest cr
         JOIN Device d ON cr.device_id = d.id
@@ -236,41 +236,41 @@ public class CustomerRequestDAO extends DBContext {
         LEFT JOIN CustomerRequestMeta meta ON cr.id = meta.request_id 
         WHERE ct.customer_id = ? AND cr.is_active = 1
     """;
-   
-    if (keyword != null && !keyword.isEmpty()) {
-        sql += " AND (p.name LIKE ? OR cr.title LIKE ?) ";
-    }
-    if (type != null && !type.equalsIgnoreCase("ALL")) {
-        sql += " AND cr.request_type = ? ";
-    }
-    if (status != null && !status.equalsIgnoreCase("ALL")) {
-        sql += " AND cr.status = ? ";
-    }
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        int index = 1;
-        ps.setInt(index++, userId);
-      
         if (keyword != null && !keyword.isEmpty()) {
-            ps.setString(index++, "%" + keyword + "%");
-            ps.setString(index++, "%" + keyword + "%");
+            sql += " AND (p.name LIKE ? OR cr.title LIKE ?) ";
         }
         if (type != null && !type.equalsIgnoreCase("ALL")) {
-            ps.setString(index++, type);
+            sql += " AND cr.request_type = ? ";
         }
         if (status != null && !status.equalsIgnoreCase("ALL")) {
-            ps.setString(index++, status);
+            sql += " AND cr.status = ? ";
         }
 
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            count = rs.getInt(1); 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int index = 1;
+            ps.setInt(index++, userId);
+
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(index++, "%" + keyword + "%");
+                ps.setString(index++, "%" + keyword + "%");
+            }
+            if (type != null && !type.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, type);
+            }
+            if (status != null && !status.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, status);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return count;
     }
-    return count;
-}
 
     public boolean updateRequest(String status, int isActive, int requestId) {
         String sql = "UPDATE customerrequest SET \n"
@@ -1021,4 +1021,72 @@ public class CustomerRequestDAO extends DBContext {
             return false;
         }
     }
+
+    public List<CustomerRequest> getPendingRequestsByCustomer(int userId, int limit) {
+        List<CustomerRequest> list = new ArrayList<>();
+        String sql = "SELECT cr.id, cr.title, cr.description, cr.request_type, cr.status, cr.request_date "
+           + "FROM CustomerRequest cr "
+           + "WHERE cr.customer_id = ? AND cr.status = 'PENDING' AND cr.is_active = 1 "
+           + "ORDER BY cr.request_date DESC LIMIT " + limit;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);           
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    CustomerRequest req = new CustomerRequest();
+                    req.setId(rs.getInt("id"));
+                    req.setTitle(rs.getString("title"));
+                    req.setDescription(rs.getString("description"));
+                    req.setRequest_type(rs.getString("request_type"));
+                    req.setStatus(rs.getString("status"));
+                    req.setRequest_date(rs.getTimestamp("request_date"));
+                    list.add(req);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    public List<CustomerRequestMeta> getRecentFeedbacksByCustomer(int userId, int limit) {
+    List<CustomerRequestMeta> list = new ArrayList<>();
+
+    String sql = "SELECT m.customer_comment, m.customer_service_response, r.title, r.request_date " +
+                 "FROM CustomerRequestMeta m " +
+                 "JOIN CustomerRequest r ON m.request_id = r.id " +
+                 "WHERE r.customer_id = ? AND r.is_active = 1 " +
+                 "AND (m.customer_comment IS NOT NULL OR m.customer_service_response IS NOT NULL) " +
+                 "ORDER BY r.request_date DESC LIMIT ?";
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+        ps.setInt(2, limit);
+
+         try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                // Tạo đối tượng CustomerRequestMeta
+                CustomerRequestMeta meta = new CustomerRequestMeta();
+                meta.setCustomer_comment(rs.getString("customer_comment"));
+                meta.setCustomer_service_response(rs.getString("customer_service_response"));
+
+                // Gán thêm thông tin request
+                CustomerRequest req = new CustomerRequest();
+                req.setTitle(rs.getString("title"));
+                req.setRequest_date(rs.getTimestamp("request_date"));
+
+                // Liên kết lại
+                meta.setRequest(req);
+
+                // Thêm vào danh sách
+                list.add(meta);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
 }

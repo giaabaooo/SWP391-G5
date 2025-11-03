@@ -1,4 +1,7 @@
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="data.CustomerRequest" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -23,7 +26,7 @@
 
         <!-- HEADER -->
         <header class="header">
-            <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
+            <a href="dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
                 <!-- <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
                     <span class="sr-only">Toggle navigation</span>
@@ -56,7 +59,7 @@
         <div class="wrapper row-offcanvas row-offcanvas-left">
 
             <!-- SIDEBAR -->
-           <aside class="left-side sidebar-offcanvas">
+            <aside class="left-side sidebar-offcanvas">
                 <section class="sidebar">
                     <div class="user-panel">
 
@@ -66,8 +69,8 @@
                         </div>
                     </div>
 
-                   <ul class="sidebar-menu">
-                        <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                    <ul class="sidebar-menu">
+                        <li><a href="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
                         <li class="treeview">
@@ -77,7 +80,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -93,7 +96,7 @@
 
 
 
-                       
+
                         <li class="treeview">
                             <a href="#feedbackMenu" data-toggle="collapse" aria-expanded="false">
                                 <i class="fa fa-tags"></i> <span>Feedback</span>
@@ -101,7 +104,7 @@
                             <ul class="collapse" id="feedbackMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createFeedback"><i class="fa fa-plus"></i> Create Feedback</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listFeedback"><i class="fa fa-eye"></i> View List Feedback</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -119,49 +122,7 @@
                         </div>
                     </div>
 
-                    <!-- Statistics Cards -->
-                    <div class="row stats-row">
-                        <div class="col-md-3">
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fa fa-cubes"></i>
-                                </div>
-                                <div class="stat-number">1,247</div>
-                                <div class="stat-label">Total Items</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card red">
-                                <div class="stat-icon">
-                                    <i class="fa fa-exclamation-triangle"></i>
-                                </div>
-                                <div class="stat-number">23</div>
-                                <div class="stat-label">Low Stock Items</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card yellow">
-                                <div class="stat-icon">
-                                    <i class="fa fa-clock-o"></i>
-                                </div>
-                                <div class="stat-number">8</div>
-                                <div class="stat-label">Pending Requests</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card green">
-                                <div class="stat-icon">
-                                    <i class="fa fa-check-circle"></i>
-                                </div>
-                                <div class="stat-number">156</div>
-                                <div class="stat-label">Completed Today</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions and Pending Requests -->
-                    <div class="row">
-                        <!-- Left Column: Quick Actions + Pending Requests -->
+                    <div class="row">                      
                         <div class="col-md-6">
                             <!-- Quick Actions -->
                             <div class="content-card">
@@ -171,25 +132,25 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <a href="../warestaff/addNewProduct" class="action-btn">
-                                                <i class="fa fa-plus"></i> Add New Item
+                                            <a href="../customer/createRequest" class="action-btn">
+                                                <i class="fa fa-plus"></i> Create New Request
                                             </a>
                                         </div>
                                         <div class="col-md-6">
-                                            <a href="../warestaff/viewListProduct" class="action-btn info">
-                                                <i class="fa fa-list"></i> View List Product
+                                            <a href="../customer/listRequest" class="action-btn info">
+                                                <i class="fa fa-list"></i> List Request
                                             </a>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <a href="requests.jsp" class="action-btn warning">
-                                                <i class="fa fa-clipboard"></i> Manage Requests
+                                            <a href="../customer/devices" class="action-btn warning">
+                                                <i class="fa fa-clipboard"></i> Device
                                             </a>
                                         </div>
                                         <div class="col-md-6">
-                                            <a href="reports.jsp" class="action-btn success">
-                                                <i class="fa fa-bar-chart"></i> Generate Reports
+                                            <a href="../customer/listFeedback" class="action-btn success">
+                                                <i class="fa fa-bar-chart"></i> Feedback
                                             </a>
                                         </div>
                                     </div>
@@ -202,38 +163,36 @@
                         <div class="col-md-6">
                             <div class="content-card">
                                 <div class="card-header">
-                                    <h3><i class="fa fa-history"></i> Recent Activities</h3>
+                                    <h3><i class="fa fa-history"></i> Recent Feedback</h3>
                                 </div>
                                 <div class="card-body">
-                                    <ul class="activity-list">
-                                        <li class="activity-item">
-                                            <div class="activity-checkbox">
-                                                <input type="checkbox" class="flat-grey list-child" checked/>
-                                            </div>
-                                            <div class="activity-content">
-                                                <div class="activity-text">Added 50 units of "Dell XPS 13"</div>
-                                                <span class="activity-time status-success">2 hours ago</span>
-                                            </div>
-                                        </li>
-                                        <li class="activity-item">
-                                            <div class="activity-checkbox">
-                                                <input type="checkbox" class="flat-grey list-child" checked/>
-                                            </div>
-                                            <div class="activity-content">
-                                                <div class="activity-text">Removed 5 units of "iPhone 15" for repair</div>
-                                                <span class="activity-time status-info">4 hours ago</span>
-                                            </div>
-                                        </li>
-                                        <li class="activity-item">
-                                            <div class="activity-checkbox">
-                                                <input type="checkbox" class="flat-grey list-child"/>
-                                            </div>
-                                            <div class="activity-content">
-                                                <div class="activity-text">Approved inventory request #IR-2024-001</div>
-                                                <span class="activity-time status-warning">6 hours ago</span>
-                                            </div>
-                                        </li>
-                                    </ul>
+                                    <c:choose>
+                                        <c:when test="${not empty recentFeedbacks}">
+                                            <ul class="activity-list">
+                                                <c:forEach var="meta" items="${recentFeedbacks}">
+                                                    <li class="activity-item">
+                                                        <div class="activity-content">
+                                                            <div class="activity-text">
+                                                                <strong>${meta.request.title}</strong> <br/>
+                                                                <c:if test="${not empty meta.customer_comment}">
+                                                                    <span class="text-muted">Customer:</span> ${meta.customer_comment} <br/>
+                                                                </c:if>
+                                                                <c:if test="${not empty meta.customer_service_response}">
+                                                                    <span class="text-muted">CS Response:</span> ${meta.customer_service_response}
+                                                                </c:if>
+                                                            </div>
+                                                            <span class="activity-time text-secondary">
+                                                                <fmt:formatDate value="${meta.request.request_date}" pattern="dd/MM/yyyy HH:mm" />
+                                                            </span>
+                                                        </div>
+                                                    </li>
+                                                </c:forEach>
+                                            </ul>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <p class="text-center mb-3">No feedback found.</p>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </div>
                         </div>
@@ -248,60 +207,40 @@
                                     <h3><i class="fa fa-clock-o"></i> Pending Requests</h3>
                                 </div>
                                 <div class="card-body">
-                                    <div class="request-item">
-                                        <div class="row">
-                                            <div class="col-md-8">
-                                                <div class="request-header">Request #IR-2024-008</div>
-                                                <div class="request-description">Technician needs 2x "RAM 16GB DDR4"</div>
-                                                <span class="status-label priority-high">High Priority</span>
-                                            </div>
-                                            <div class="col-md-4 text-right">
-                                                <div class="request-actions">
-                                                    <button class="btn-sm btn-approve">Approve</button>
-                                                    <button class="btn-sm btn-reject">Reject</button>
+                                    <c:choose>
+                                        <c:when test="${not empty pendingRequests}">
+                                            <c:forEach var="req" items="${pendingRequests}">
+                                                <div class="request-item">
+                                                    <div class="row">
+                                                        <div class="col-md-8">
+                                                            <div class="request-header">Request #${req.id}</div>
+                                                            <div class="request-description">${req.title}</div>
+                                                            <div class="text-muted small">
+                                                                ${req.request_type} | 
+                                                                <fmt:formatDate value="${req.request_date}" pattern="dd/MM/yyyy HH:mm" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 text-right">
+                                                            <a href="detailRequest?id=${req.id}" class="btn btn-sm btn-outline-primary">View</a>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="request-item">
-                                        <div class="row">
-                                            <div class="col-md-8">
-                                                <div class="request-header">Request #IR-2024-009</div>
-                                                <div class="request-description">Customer service needs 1x "iPhone Screen"</div>
-                                                <span class="status-label priority-medium">Medium Priority</span>
-                                            </div>
-                                            <div class="col-md-4 text-right">
-                                                <div class="request-actions">
-                                                    <button class="btn-sm btn-approve">Approve</button>
-                                                    <button class="btn-sm btn-reject">Reject</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="request-item">
-                                        <div class="row">
-                                            <div class="col-md-8">
-                                                <div class="request-header">Request #IR-2024-010</div>
-                                                <div class="request-description">Repair center needs 3x "Laptop Battery"</div>
-                                                <span class="status-label priority-low">Low Priority</span>
-                                            </div>
-                                            <div class="col-md-4 text-right">
-                                                <div class="request-actions">
-                                                    <button class="btn-sm btn-approve">Approve</button>
-                                                    <button class="btn-sm btn-reject">Reject</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-center" style="margin-top: 1rem;">
-                                        <a href="requests.jsp" class="action-btn" style="width: auto; padding: 0.5rem 1.5rem;">View All Requests</a>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <p class="text-center mb-3">No pending requests found.</p>
+                                        </c:otherwise>
+                                    </c:choose>
+
+                                    <div class="text-center mt-3">
+                                        <a href="listRequest" class="btn btn-outline-primary">View All Requests</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Right Column: Low Stock Alert -->
-                        <div class="col-md-6">
+<!--                        <div class="col-md-6">
                             <div class="content-card low-stock-card">
                                 <div class="card-header">
                                     <h3><i class="fa fa-exclamation-triangle"></i> Low Stock Alert</h3>
@@ -374,7 +313,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                     </div>
 
                 </section>
