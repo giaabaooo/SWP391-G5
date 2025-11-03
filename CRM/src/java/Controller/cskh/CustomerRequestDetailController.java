@@ -51,6 +51,19 @@ public class CustomerRequestDetailController extends HttpServlet {
 
             CustomerRequestMeta metaDetail = requestDAO.getCusRequestMetaById(requestId);
 
+            String referer = req.getHeader("Referer");
+            String backUrl = req.getContextPath() + "/cskh/customer-request";
+            String backPageName = "Customer Requests";
+
+            if (referer != null) {
+                if (referer.contains("/cskh/feedback")) {
+                    backUrl = req.getContextPath() + "/cskh/feedback";
+                    backPageName = "Feedback List";
+                }
+            }
+
+            req.setAttribute("backUrl", backUrl);
+            req.setAttribute("backPageName", backPageName);
             req.setAttribute("requestDetail", requestDetail);
             req.setAttribute("customerDetail", customerDetail);
             req.setAttribute("assignmentDetail", assignmentDetail);

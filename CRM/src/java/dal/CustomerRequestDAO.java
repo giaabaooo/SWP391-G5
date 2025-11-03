@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 
 /**
  *
@@ -548,7 +549,7 @@ public class CustomerRequestDAO extends DBContext {
         SELECT cr.id, cr.customer_id, cr.device_id, cr.request_type, cr.title,
                cr.request_date, cr.status,
                u.full_name AS customer_name, p.name AS product_name,
-               crm.priority
+               crm.priority, crm.payment_status, crm.total_cost
         FROM customerrequest cr
         JOIN User u ON cr.customer_id = u.id
         JOIN Device d ON cr.device_id = d.id
@@ -613,7 +614,12 @@ public class CustomerRequestDAO extends DBContext {
                 c.setDevice(d);
 
                 c.setPriority(rs.getString("priority"));
+                c.setPayment_status(rs.getString("payment_status"));
 
+                CustomerRequestMeta meta = new CustomerRequestMeta();
+                meta.setTotal_cost(rs.getDouble("total_cost"));
+                c.setRequestMeta(meta);
+                
                 list.add(c);
             }
         } catch (Exception e) {
@@ -972,5 +978,68 @@ public class CustomerRequestDAO extends DBContext {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public List<CustomerRequest> getRecentPendingRequests(int limit) {
+        List<CustomerRequest> list = new ArrayList<>();
+        String sql = """
+        SELECT cr.id, cr.title, cr.request_type, cr.request_date,
+               u.full_name AS customer_name,
+               crm.priority
+        FROM customerrequest cr
+        JOIN User u ON cr.customer_id = u.id
+        LEFT JOIN CustomerRequestMeta crm ON cr.id = crm.request_id
+        WHERE cr.status = 'PENDING'
+        ORDER BY cr.request_date DESC
+        LIMIT ?
+    """;
+
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, limit);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                CustomerRequest c = new CustomerRequest();
+                c.setId(rs.getInt("id"));
+                c.setTitle(rs.getString("title"));
+                c.setRequest_type(rs.getString("request_type"));
+                c.setRequest_date(rs.getTimestamp("request_date"));
+                c.setPriority(rs.getString("priority"));
+
+                User u = new User();
+                u.setFullName(rs.getString("customer_name"));
+                c.setCustomer(u);
+
+                list.add(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public Map<String, Integer> getWeeklyRequestStats(int days) {
+        Map<String, Integer> stats = new java.util.LinkedHashMap<>();
+        String sql = """
+        SELECT 
+            DATE(request_date) AS req_date,
+            COUNT(id) AS count
+        FROM customerrequest
+        WHERE request_date >= CURDATE() - INTERVAL ? DAY
+        GROUP BY req_date
+        ORDER BY req_date ASC
+    """;
+
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, days - 1);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                java.sql.Date dbDate = rs.getDate("req_date");
+                String formattedDate = new java.text.SimpleDateFormat("dd/MM").format(dbDate);
+                stats.put(formattedDate, rs.getInt("count"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return stats;
     }
 }

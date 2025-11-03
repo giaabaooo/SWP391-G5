@@ -14,6 +14,12 @@
             </div>
             <ul class="sidebar-menu">
                 <li>
+                    <a href="${pageContext.request.contextPath}/cskh/dashboard">
+                        <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="${pageContext.request.contextPath}/cskh/customer?action=list">
                         <i class="fa fa-user"></i> <span>Customer Manager</span>
                     </a>
@@ -28,6 +34,12 @@
                 <li>
                     <a href="${pageContext.request.contextPath}/cskh/customer-request">
                         <i class="fa fa-tasks"></i> <span>Customer Request Manager</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="${pageContext.request.contextPath}/cskh/feedback">
+                        <i class="fa fa-comments-o"></i> <span>Feedback Inbox</span>
                     </a>
                 </li>
             </ul>
