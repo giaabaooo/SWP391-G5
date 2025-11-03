@@ -32,7 +32,7 @@
 
         <!-- HEADER -->
         <header class="header">
-            <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
+            <a href="dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
 
                 <div class="navbar-right">
@@ -60,7 +60,7 @@
         <div class="wrapper row-offcanvas row-offcanvas-left">
 
             <!-- SIDEBAR -->
-             <aside class="left-side sidebar-offcanvas">
+            <aside class="left-side sidebar-offcanvas">
                 <section class="sidebar">
                     <div class="user-panel">
 
@@ -70,8 +70,8 @@
                         </div>
                     </div>
 
-                   <ul class="sidebar-menu">
-                        <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                    <ul class="sidebar-menu">
+                        <li><a href="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
                         <li class="treeview">
@@ -81,7 +81,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -97,7 +97,7 @@
 
 
 
-                       
+
                         <li class="treeview">
                             <a href="#feedbackMenu" data-toggle="collapse" aria-expanded="false">
                                 <i class="fa fa-tags"></i> <span>Feedback</span>
@@ -105,7 +105,7 @@
                             <ul class="collapse" id="feedbackMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createFeedback"><i class="fa fa-plus"></i> Create Feedback</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listFeedback"><i class="fa fa-eye"></i> View List Feedback</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -226,7 +226,7 @@
                                                 <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                                     <i class="fa fa-save"></i> Save 
                                                 </button>
-                                                <a href="${pageContext.request.contextPath}/customer/dashboard.jsp" class="btn btn-default" style="min-width: 150px;">
+                                                <a href="${pageContext.request.contextPath}/customer/dashboard" class="btn btn-default" style="min-width: 150px;">
                                                     <i class="fa fa-arrow-left"></i> Back to Dashboard
                                                 </a>
                                             </div>
@@ -254,7 +254,29 @@
         <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/warehouse/addProduct.js" type="text/javascript"></script>
         <script>
-                                               
+                                                document.addEventListener("DOMContentLoaded", function () {
+                                                    const urlParams = new URLSearchParams(window.location.search);
+                                                    const deviceId = urlParams.get("deviceId");
+                                                    const type = urlParams.get("type");
+
+                                                    if (deviceId) {
+                                                        const productSelect = document.getElementById("productSelect");
+                                                        const options = productSelect.options;
+
+                                                        for (let i = 0; i < options.length; i++) {
+                                                            if (options[i].value === deviceId) {
+                                                                options[i].selected = true;
+                                                                fillProductInfo(); // Gọi hàm có sẵn để fill các input khác
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if (type) {
+                                                        const requestTypeSelect = document.getElementById("requestTypeSelect");
+                                                        requestTypeSelect.value = type;
+                                                    }
+                                                });
                                                 function fillProductInfo() {
                                                     const productSelect = document.getElementById("productSelect");
                                                     const selectedOption = productSelect.options[productSelect.selectedIndex];
@@ -268,40 +290,40 @@
 
 
                                                 }
-                                                
+
                                                 function validateForm() {
                                                     // Lấy giá trị từ các trường
                                                     var title = document.getElementById('title').value.trim();
                                                     var device = document.getElementById('productSelect').value;
                                                     var requestType = document.getElementById('requestTypeSelect').value;
 
-                                                    
-                                                    var titleGroup = document.getElementById('titleGroup');
-                                                    var deviceGroup = document.getElementById('deviceGroup'); 
-                                                    var typeGroup = document.getElementById('typeGroup');     
 
-                                                    
+                                                    var titleGroup = document.getElementById('titleGroup');
+                                                    var deviceGroup = document.getElementById('deviceGroup');
+                                                    var typeGroup = document.getElementById('typeGroup');
+
+
                                                     titleGroup.classList.remove('has-error');
                                                     deviceGroup.classList.remove('has-error');
                                                     typeGroup.classList.remove('has-error');
 
                                                     var isValid = true;
 
-                                                    
+
                                                     if (title === "") {
-                                                        titleGroup.classList.add('has-error'); 
+                                                        titleGroup.classList.add('has-error');
                                                         isValid = false;
                                                     }
 
-                                                    
+
                                                     if (device === "") {
-                                                        deviceGroup.classList.add('has-error'); 
+                                                        deviceGroup.classList.add('has-error');
                                                         isValid = false;
                                                     }
 
-                                                    
+
                                                     if (requestType === "") {
-                                                        typeGroup.classList.add('has-error'); 
+                                                        typeGroup.classList.add('has-error');
                                                         isValid = false;
                                                     }
 

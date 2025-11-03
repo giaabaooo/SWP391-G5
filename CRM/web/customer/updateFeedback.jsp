@@ -74,7 +74,7 @@
 
 
         <header class="header">
-            <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600;">${sessionScope.user.role.name}</a>
+            <a href="dashboard" class="logo" style="color: #ffffff; font-weight: 600;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">
                 <div class="navbar-right">
                     <ul class="nav navbar-nav">
@@ -107,7 +107,7 @@
                     </div>
 
                     <ul class="sidebar-menu">
-                        <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                        <li><a href="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
                         <li class="treeview">

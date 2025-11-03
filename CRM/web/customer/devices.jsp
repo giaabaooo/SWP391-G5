@@ -27,7 +27,7 @@
 
         <!-- HEADER -->
         <header class="header">
-            <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
+            <a href="dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${sessionScope.user.role.name}</a>
             <nav class="navbar navbar-static-top" role="navigation">            
                 <div class="navbar-right">
                     <ul class="nav navbar-nav">
@@ -54,7 +54,7 @@
         <div class="wrapper row-offcanvas row-offcanvas-left">
 
             <!-- SIDEBAR -->
-             <aside class="left-side sidebar-offcanvas">
+            <aside class="left-side sidebar-offcanvas">
                 <section class="sidebar">
                     <div class="user-panel">
 
@@ -64,8 +64,8 @@
                         </div>
                     </div>
 
-                   <ul class="sidebar-menu">
-                        <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                    <ul class="sidebar-menu">
+                        <li><a href="dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
 
                         <li class="treeview">
@@ -75,7 +75,7 @@
                             <ul class="collapse" id="categoryMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createRequest"><i class="fa fa-plus"></i> Create Request</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listRequest"><i class="fa fa-eye"></i> View List Request</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -91,7 +91,7 @@
 
 
 
-                       
+
                         <li class="treeview">
                             <a href="#feedbackMenu" data-toggle="collapse" aria-expanded="false">
                                 <i class="fa fa-tags"></i> <span>Feedback</span>
@@ -99,7 +99,7 @@
                             <ul class="collapse" id="feedbackMenu">
                                 <li><a href="${pageContext.request.contextPath}/customer/createFeedback"><i class="fa fa-plus"></i> Create Feedback</a></li>
                                 <li><a href="${pageContext.request.contextPath}/customer/listFeedback"><i class="fa fa-eye"></i> View List Feedback</a></li>
-                                
+
 
                             </ul>
                         </li>
@@ -220,10 +220,13 @@
                                                             <a href="detailDevice?id=<%= d.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
-                                                            <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=Warranty" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                                 <i class="fa fa-edit"></i> Warranty
                                                             </a>
-                                                            <a href="" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=Maintenance" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                                <i class="fa fa-edit"></i> Maintenance
+                                                            </a>
+                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=Repair" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                                 <i class="fa fa-edit"></i> Repair
                                                             </a>
                                                         </td>
@@ -304,6 +307,7 @@
         <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
         <!--<script src="${pageContext.request.contextPath}/js/warehouse/productList.js" type="text/javascript"></script>-->
         <script>
+            
                                                     $(function () {
                                                         // Pagination variables
                                                         let currentPage = 1;

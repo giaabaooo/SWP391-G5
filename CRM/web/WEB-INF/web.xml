@@ -133,7 +133,11 @@
         <servlet-name>CustomerDetailController</servlet-name>
         <servlet-class>Controller.cskh.CustomerDetailController</servlet-class>
     </servlet>
-    <servlet>
+     <servlet>
+        <servlet-name>DashboardController</servlet-name>
+        <servlet-class>Controller.customer.DashboardController</servlet-class>
+    </servlet>
+  <servlet>
         <servlet-name>FeedbackController</servlet-name>
         <servlet-class>Controller.cskh.FeedbackController</servlet-class>
     </servlet>
@@ -236,6 +240,10 @@
         <url-pattern>/CustomerDetailController</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>DashboardController</servlet-name>
+        <url-pattern>/customer/dashboard</url-pattern>
+    </servlet-mapping>
+  <servlet-mapping>
         <servlet-name>FeedbackController</servlet-name>
         <url-pattern>/FeedbackController</url-pattern>
     </servlet-mapping>
