@@ -462,17 +462,17 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public void insertCusRequestMeta(CustomerRequestMeta ca) {
-        String sql = "INSERT INTO `crm_device_management`.`customerrequestmeta` (`request_id`, `total_cost`, `paid_amount`, `payment_status`, `payment_due_date`) "
-                + "VALUES (?, ?, ?, ?, ?);";
+        String sql = "INSERT INTO `crm_device_management`.`customerrequestmeta` (`request_id`, `total_cost`, `payment_status`, `payment_due_date`) "
+                + "VALUES (?, ?, ?, ?);";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, ca.getRequest_id());
             stm.setDouble(2, ca.getTotal_cost());
-            stm.setDouble(3, ca.getPaid_amount());
-            stm.setString(4, ca.getPayment_status());
+            
+            stm.setString(3, ca.getPayment_status());
 
             java.util.Date utilDate = ca.getPayment_due_date();
             java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-            stm.setDate(5, sqlDate);
+            stm.setDate(4, sqlDate);
 
             stm.executeUpdate();
         } catch (SQLException e) {
