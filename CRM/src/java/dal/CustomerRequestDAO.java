@@ -593,10 +593,10 @@ public class CustomerRequestDAO extends DBContext {
     public List<CustomerRequest> getCustomerRequestsByCSKH(int offset, int pageSize, String type, String status, String priority, String paymentStatus) {
         List<CustomerRequest> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
-        SELECT cr.id, cr.customer_id, cr.device_id, cr.request_type, cr.title, cr.description,
+        SELECT cr.id, cr.customer_id, cr.device_id, cr.request_type, cr.title,
                cr.request_date, cr.status,
                u.full_name AS customer_name, p.name AS product_name,
-               crm.priority, crm.reject_reason, crm.payment_status, crm.payment_due_date
+               crm.priority
         FROM customerrequest cr
         JOIN User u ON cr.customer_id = u.id
         JOIN Device d ON cr.device_id = d.id
@@ -635,7 +635,7 @@ public class CustomerRequestDAO extends DBContext {
             if (paymentStatus != null && !paymentStatus.isEmpty()) {
                 st.setString(idx++, paymentStatus);
             }
-            
+
             st.setInt(idx++, pageSize);
             st.setInt(idx, offset);
 
@@ -647,7 +647,6 @@ public class CustomerRequestDAO extends DBContext {
                 c.setDevice_id(rs.getInt("device_id"));
                 c.setRequest_type(rs.getString("request_type"));
                 c.setTitle(rs.getString("title"));
-                c.setDescription(rs.getString("description"));
                 c.setRequest_date(rs.getTimestamp("request_date"));
                 c.setStatus(rs.getString("status"));
 
@@ -662,9 +661,6 @@ public class CustomerRequestDAO extends DBContext {
                 c.setDevice(d);
 
                 c.setPriority(rs.getString("priority"));
-                c.setReject_reason(rs.getString("reject_reason"));
-                c.setPayment_status(rs.getString("payment_status"));
-                c.setPayment_due_date(rs.getTimestamp("payment_due_date"));
 
                 list.add(c);
             }
@@ -912,10 +908,6 @@ public class CustomerRequestDAO extends DBContext {
         return list;
     }
 
-    
-    
-
-
     public boolean saveFeedback(int requestId, String comment, int rating) {
         String sql = """
         INSERT INTO customerrequestmeta (request_id, customer_comment, rating)
@@ -936,7 +928,6 @@ public class CustomerRequestDAO extends DBContext {
             return false;
         }
     }
-
 
     public boolean updatePriority(int requestId, String priority) {
         String sql = """
@@ -1010,6 +1001,24 @@ public class CustomerRequestDAO extends DBContext {
             } catch (SQLException e) {
                 System.err.println("Error restoring auto-commit: " + e.getMessage());
             }
+        }
+    }
+
+    public boolean saveCsResponse(int requestId, String response) {
+        String sql = """
+        INSERT INTO customerrequestmeta (request_id, customer_service_response)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE 
+        customer_service_response = ?
+    """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+            ps.setString(2, response);
+            ps.setString(3, response);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

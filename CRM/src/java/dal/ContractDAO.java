@@ -495,4 +495,32 @@ public class ContractDAO extends DBContext {
             }
         }
     }
+    
+    public ArrayList<Contract> getContractsByCustomerId(int customerId) {
+    ArrayList<Contract> contracts = new ArrayList<>();
+    String sql = "SELECT id, contract_code, contract_date, total_amount, description, is_active "
+            + "FROM Contract "
+            + "WHERE customer_id = ? AND is_active = true "
+            + "ORDER BY contract_date DESC";
+
+    try (PreparedStatement stm = connection.prepareStatement(sql)) {
+        stm.setInt(1, customerId);
+        ResultSet rs = stm.executeQuery();
+        while (rs.next()) {
+            Contract c = new Contract();
+            c.setId(rs.getInt("id"));
+            c.setContractCode(rs.getString("contract_code"));
+            c.setContractDate(rs.getDate("contract_date"));
+            c.setTotalAmount(rs.getDouble("total_amount"));
+            c.setDescription(rs.getString("description"));
+            c.setIsActive(rs.getBoolean("is_active"));
+            c.setCustomerId(customerId);
+            
+            contracts.add(c);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return contracts;
+}
 }
