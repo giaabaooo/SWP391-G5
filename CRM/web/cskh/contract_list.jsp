@@ -136,7 +136,7 @@
                         </c:choose>
                     </tbody>
                 </table>
-            </div> </div> </div> <c:if test="${totalPages > 1}">
+            </div> </div> </div> <c:if test="${totalPages > 0}">
         <div class="pagination-container">
             <span class="pagination-info">
                 Showing ${(page-1)*pageSize + 1} to ${page*pageSize > totalItems ? totalItems : page*pageSize} of ${totalItems} contracts
