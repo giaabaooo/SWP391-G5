@@ -17,21 +17,25 @@ public class CustomerRequestAssignment {
     private int technician_id;
     private int is_main;
     private Date assigned_date;
+    private int estimated_hours;
     private CustomerRequest customerRequest;
     private ArrayList<User> technician;
 
     public CustomerRequestAssignment() {
     }
 
-    public CustomerRequestAssignment(int id, int request_id, int technician_id, int is_main, Date assigned_date, CustomerRequest customerRequest, ArrayList<User> technician) {
+    public CustomerRequestAssignment(int id, int request_id, int technician_id, int is_main, Date assigned_date, int estimated_hours, CustomerRequest customerRequest, ArrayList<User> technician) {
         this.id = id;
         this.request_id = request_id;
         this.technician_id = technician_id;
         this.is_main = is_main;
         this.assigned_date = assigned_date;
+        this.estimated_hours = estimated_hours;
         this.customerRequest = customerRequest;
         this.technician = technician;
     }
+
+    
 
     public int getId() {
         return id;
@@ -87,6 +91,14 @@ public class CustomerRequestAssignment {
 
     public void setTechnician(ArrayList<User> technician) {
         this.technician = technician;
+    }
+
+    public int getEstimated_hours() {
+        return estimated_hours;
+    }
+
+    public void setEstimated_hours(int estimated_hours) {
+        this.estimated_hours = estimated_hours;
     }
 
     

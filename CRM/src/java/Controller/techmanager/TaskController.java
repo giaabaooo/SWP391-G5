@@ -13,6 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
 
 /**
  *
@@ -41,11 +42,14 @@ public class TaskController extends HttpServlet {
             case "edit":
                 String error = req.getParameter("error");
                 String techName = req.getParameter("techName");
-                
+
                 if ("tooMuchTask".equals(error)) {
                     req.setAttribute("error", techName + " has had a lot of task on that day");
                 }
-                
+                if ("errorTime".equals(error)) {
+                    req.setAttribute("error", "Estimated hours must be between 1 and 200");
+                }
+
                 int id2 = Integer.parseInt(req.getParameter("id"));
 
                 int leaderId = 0;
@@ -133,17 +137,43 @@ public class TaskController extends HttpServlet {
                 String[] technicianIds = req.getParameterValues("technicianIds");
                 String leaderId = req.getParameter("leaderId");
                 String assignedDate = req.getParameter("assignedDate");
+                int estimatedHours = Integer.parseInt(req.getParameter("estimatedHours"));
+
+                if (estimatedHours <= 0 || estimatedHours > 200) {
+                    resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=assignTask&id=" + requestId + "&error=errorTime");
+
+                    return;
+                }
 
                 if (technicianIds != null) {
+                    LocalDate startDate = LocalDate.parse(assignedDate);
+                    int remainingHours = estimatedHours;
+
                     for (String techIdStr : technicianIds) {
                         if (techIdStr == null || techIdStr.isEmpty()) {
                             continue;
                         }
 
                         int techId = Integer.parseInt(techIdStr);
-                        int taskCount = db.getNumberTaskByIdAnDate(techId, assignedDate);
+                        LocalDate currentDay = startDate;
+                        boolean overloaded = false;
 
-                        if (taskCount >= 4) {
+                        while (remainingHours > 0) {
+                            int todayHours = Math.min(8, remainingHours);
+                            int totalHours = db.getTotalEstimatedHoursByTechnicianAndDate(techId, currentDay.toString());
+
+                            if (totalHours + todayHours > 8) {
+                                overloaded = true;
+                                break;
+                            }
+
+                            remainingHours -= todayHours;
+                            currentDay = currentDay.plusDays(1);
+                        }
+
+                        remainingHours = estimatedHours;
+
+                        if (overloaded) {
                             resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=assignTask&id=" + requestId + "&techName=" + userDb.get(techId).getFullName() + "&error=tooMuchTask");
                             return;
                         }
@@ -162,6 +192,7 @@ public class TaskController extends HttpServlet {
                         ca.setTechnician_id(techId);
                         ca.setIs_main(isLeader ? 1 : 0);
                         ca.setAssigned_date(java.sql.Date.valueOf(assignedDate));
+                        ca.setEstimated_hours(estimatedHours);
 
                         db.insert(ca);
                     }
@@ -173,8 +204,7 @@ public class TaskController extends HttpServlet {
 
             } catch (Exception ex) {
                 ex.printStackTrace();
-                req.setAttribute("error", "Có lỗi xảy ra khi thêm task assignment!");
-                req.getRequestDispatcher("/techmanager/error.jsp").forward(req, resp);
+
             }
             break;
             case "update":
@@ -184,13 +214,23 @@ public class TaskController extends HttpServlet {
                 String[] technicianIds = req.getParameterValues("technicianIds");
                 String leaderId = req.getParameter("leaderId");
                 String assignedDateStr = req.getParameter("assignedDate");
-                
+
                 java.sql.Date assignedDate = java.sql.Date.valueOf(assignedDateStr);
+                int estimatedHours = Integer.parseInt(req.getParameter("estimatedHours"));
+
+                if (estimatedHours <= 0 || estimatedHours > 200) {
+                    resp.sendRedirect(req.getContextPath() + "/techmanager/task?action=edit&id=" + requestId + "&error=errorTime");
+
+                    return;
+                }
 
                 if (technicianIds == null || technicianIds.length == 0 || (technicianIds.length == 1 && (technicianIds[0] == null || technicianIds[0].isEmpty()))) {
                     resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=editTask&requestId=" + requestId + "&error=noTechnician");
                     return;
                 }
+
+                
+                LocalDate startDate = assignedDate.toLocalDate();
 
                 for (String techIdStr : technicianIds) {
                     if (techIdStr == null || techIdStr.isEmpty()) {
@@ -198,9 +238,33 @@ public class TaskController extends HttpServlet {
                     }
                     int techId = Integer.parseInt(techIdStr);
 
-                    int taskCount = db.getNumberTaskByIdAnDate(techId, assignedDateStr);
+                    int oldEstimatedHours = db.getOldEstimatedHours(requestId);
 
-                    if (taskCount >= 4) {
+                    LocalDate currentDay = startDate;
+                    int remainingHours = estimatedHours;
+                    boolean overloaded = false;
+
+                    while (remainingHours > 0) {
+                        int todayHours = Math.min(8, remainingHours);
+
+                        int totalHours = db.getTotalEstimatedHoursByTechnicianAndDate(techId, currentDay.toString());
+
+                        if (oldEstimatedHours > 0) {
+                            int oldHoursToday = Math.min(8, oldEstimatedHours);
+                            totalHours = Math.max(0, totalHours - oldHoursToday);
+                            oldEstimatedHours -= oldHoursToday;
+                        }
+
+                        if (totalHours + todayHours > 8) {
+                            overloaded = true;
+                            break;
+                        }
+
+                        remainingHours -= todayHours;
+                        currentDay = currentDay.plusDays(1);
+                    }
+
+                    if (overloaded) {
                         resp.sendRedirect(req.getContextPath() + "/techmanager/task?action=edit&id=" + requestId + "&techName=" + userDb.get(techId).getFullName() + "&error=tooMuchTask");
                         return;
                     }
@@ -221,6 +285,7 @@ public class TaskController extends HttpServlet {
                     ca.setTechnician_id(techId);
                     ca.setIs_main(isLeader ? 1 : 0);
                     ca.setAssigned_date(assignedDate);
+                    ca.setEstimated_hours(estimatedHours);
 
                     db.insert(ca);
                 }
