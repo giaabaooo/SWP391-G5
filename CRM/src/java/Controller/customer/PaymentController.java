@@ -76,7 +76,7 @@ public class PaymentController extends HttpServlet {
         PaymentDAO dao = new PaymentDAO();
 
         try {
-            //  Lấy dữ liệu từ form
+            //  Lấy dữ liệu từ form 
             requestId = Integer.parseInt(request.getParameter("requestId"));
             double amountToPay = Double.parseDouble(request.getParameter("amountToPay")); // Dùng double
             
