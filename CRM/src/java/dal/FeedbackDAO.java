@@ -136,18 +136,17 @@ public class FeedbackDAO extends DBContext {
         return count;
     }
     
-    public boolean saveFeedback(int requestId, String comment, int rating) {
+    public boolean saveFeedback(Feedback feed) {
     String sql = """
-        INSERT INTO CustomerRequestMeta (request_id, customer_comment, rating)
-        VALUES (?, ?, ?)
-        
+        UPDATE CustomerRequestMeta
+        SET customer_comment = ?, rating = ?
+        WHERE request_id = ?
     """;
+
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, requestId);
-        ps.setString(2, comment);
-        ps.setInt(3, rating);
-        
-        
+        ps.setString(1, feed.getComment());
+        ps.setInt(2, feed.getRating());
+        ps.setInt(3, feed.getRequestId());
         return ps.executeUpdate() > 0;
     } catch (SQLException e) {
         e.printStackTrace();
