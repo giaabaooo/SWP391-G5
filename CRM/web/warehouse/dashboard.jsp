@@ -19,12 +19,22 @@
     <link href="../css/admin/style.css" rel="stylesheet" type="text/css" />
     <link href="../css/warehouse/dashboard.css" rel="stylesheet" type="text/css" />
     <link href="../css/warehouse/responsive.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* Pastel theme tweaks */
+        body.skin-black { background-color:#f8fafc; }
+        .content-card { background:#ffffff; border:1px solid #e9ecff; border-radius:10px; box-shadow: 0 1px 2px rgba(99,102,241,0.04); }
+        .content-card .card-header { border-bottom:1px solid #eef2ff; padding:12px 16px; background:#fbfdff; }
+        .content-card .card-body { padding:16px; }
+        .modern-table th, .modern-table td { border-color:#eef2ff; }
+        /* Reduce chart visual size */
+        #summaryChart, #todayChart { max-height:260px !important; }
+    </style>
 </head>
 <body class="skin-black">
 
 <!-- HEADER -->
 <header class="header">
-    <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
+    <a href="${pageContext.request.contextPath}/warestaff/dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
     <nav class="navbar navbar-static-top" role="navigation">
         <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
             <span class="sr-only">Toggle navigation</span>
@@ -70,7 +80,7 @@
             </div>
 
             <ul class="sidebar-menu">
-                <li><a href="dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                <li><a href="${pageContext.request.contextPath}/warestaff/dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
                 
                 <!-- Product -->
                 <li class="treeview">
@@ -117,10 +127,6 @@
                     </ul>
                 </li>
                 
-                
-                
-                <!-- Reports -->
-                <li><a href="reports.jsp"><i class="fa fa-bar-chart"></i> Inventory Reports</a></li>
             </ul>
         </section>
     </aside>
@@ -136,258 +142,54 @@
                 </div>
             </div>
 
-            <!-- Statistics Cards -->
-            <div class="row stats-row">
-                <div class="col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fa fa-cubes"></i>
-                        </div>
-                        <div class="stat-number">1,247</div>
-                        <div class="stat-label">Total Items</div>
-                    </div>
+            <!-- Summary charts instead of cards -->
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 style="margin: 0 0 8px; color:#111827;"><i class="fa fa-cubes"></i> Inventory Summary (Products)</h3>
+                    <canvas id="summaryChart" height="110"></canvas>
                 </div>
-                <div class="col-md-3">
-                    <div class="stat-card red">
-                        <div class="stat-icon">
-                            <i class="fa fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="stat-number">23</div>
-                        <div class="stat-label">Low Stock Items</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card yellow">
-                        <div class="stat-icon">
-                            <i class="fa fa-clock-o"></i>
-                        </div>
-                        <div class="stat-number">8</div>
-                        <div class="stat-label">Pending Requests</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-card green">
-                        <div class="stat-icon">
-                            <i class="fa fa-check-circle"></i>
-                        </div>
-                        <div class="stat-number">156</div>
-                        <div class="stat-label">Completed Today</div>
-                    </div>
+                <div class="col-md-6">
+                    <h3 style="margin: 0 0 8px; color:#111827;"><i class="fa fa-exchange"></i> Month Imports/Exports</h3>
+                    <canvas id="todayChart" height="110"></canvas>
                 </div>
             </div>
 
-            <!-- Quick Actions and Pending Requests -->
+            <!-- Recent Transactions -->
             <div class="row">
-                <!-- Left Column: Quick Actions + Pending Requests -->
-                <div class="col-md-6">
-                    <!-- Quick Actions -->
+                <div class="col-md-12">
                     <div class="content-card">
                         <div class="card-header">
-                            <h3><i class="fa fa-bolt"></i> Quick Actions</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <a href="../warestaff/addNewProduct" class="action-btn">
-                                        <i class="fa fa-plus"></i> Add New Item
-                                    </a>
-                                </div>
-                                <div class="col-md-6">
-                                    <a href="../warestaff/viewListProduct" class="action-btn info">
-                                        <i class="fa fa-list"></i> View List Product
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <a href="requests.jsp" class="action-btn warning">
-                                        <i class="fa fa-clipboard"></i> Manage Requests
-                                    </a>
-                                </div>
-                                <div class="col-md-6">
-                                    <a href="reports.jsp" class="action-btn success">
-                                        <i class="fa fa-bar-chart"></i> Generate Reports
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Right Column: Recent Activities -->
-                <div class="col-md-6">
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h3><i class="fa fa-history"></i> Recent Activities</h3>
-                        </div>
-                        <div class="card-body">
-                            <ul class="activity-list">
-                                <li class="activity-item">
-                                    <div class="activity-checkbox">
-                                        <input type="checkbox" class="flat-grey list-child" checked/>
-                                    </div>
-                                    <div class="activity-content">
-                                        <div class="activity-text">Added 50 units of "Dell XPS 13"</div>
-                                        <span class="activity-time status-success">2 hours ago</span>
-                                    </div>
-                                </li>
-                                <li class="activity-item">
-                                    <div class="activity-checkbox">
-                                        <input type="checkbox" class="flat-grey list-child" checked/>
-                                    </div>
-                                    <div class="activity-content">
-                                        <div class="activity-text">Removed 5 units of "iPhone 15" for repair</div>
-                                        <span class="activity-time status-info">4 hours ago</span>
-                                    </div>
-                                </li>
-                                <li class="activity-item">
-                                    <div class="activity-checkbox">
-                                        <input type="checkbox" class="flat-grey list-child"/>
-                                    </div>
-                                    <div class="activity-content">
-                                        <div class="activity-text">Approved inventory request #IR-2024-001</div>
-                                        <span class="activity-time status-warning">6 hours ago</span>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pending Requests and Low Stock Alert -->
-            <div class="row">
-                <!-- Left Column: Pending Requests -->
-                <div class="col-md-6">
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h3><i class="fa fa-clock-o"></i> Pending Requests</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="request-item">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <div class="request-header">Request #IR-2024-008</div>
-                                        <div class="request-description">Technician needs 2x "RAM 16GB DDR4"</div>
-                                        <span class="status-label priority-high">High Priority</span>
-                                    </div>
-                                    <div class="col-md-4 text-right">
-                                        <div class="request-actions">
-                                            <button class="btn-sm btn-approve">Approve</button>
-                                            <button class="btn-sm btn-reject">Reject</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="request-item">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <div class="request-header">Request #IR-2024-009</div>
-                                        <div class="request-description">Customer service needs 1x "iPhone Screen"</div>
-                                        <span class="status-label priority-medium">Medium Priority</span>
-                                    </div>
-                                    <div class="col-md-4 text-right">
-                                        <div class="request-actions">
-                                            <button class="btn-sm btn-approve">Approve</button>
-                                            <button class="btn-sm btn-reject">Reject</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="request-item">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <div class="request-header">Request #IR-2024-010</div>
-                                        <div class="request-description">Repair center needs 3x "Laptop Battery"</div>
-                                        <span class="status-label priority-low">Low Priority</span>
-                                    </div>
-                                    <div class="col-md-4 text-right">
-                                        <div class="request-actions">
-                                            <button class="btn-sm btn-approve">Approve</button>
-                                            <button class="btn-sm btn-reject">Reject</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-center" style="margin-top: 1rem;">
-                                <a href="requests.jsp" class="action-btn" style="width: auto; padding: 0.5rem 1.5rem;">View All Requests</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column: Low Stock Alert -->
-                <div class="col-md-6">
-                    <div class="content-card low-stock-card">
-                        <div class="card-header">
-                            <h3><i class="fa fa-exclamation-triangle"></i> Low Stock Alert</h3>
+                            <h3><i class="fa fa-history"></i> Recent Transactions</h3>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table modern-table">
                                     <thead>
                                         <tr>
-                                            <th>Item Name</th>
-                                            <th>Current</th>
-                                            <th>Min</th>
-                                            <th>Status</th>
+                                            <th>ID</th>
+                                            <th>Type</th>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Date</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                    <% java.util.List<data.Transaction> rtx = (java.util.List<data.Transaction>) request.getAttribute("recentTransactions");
+                                       if (rtx != null && !rtx.isEmpty()) {
+                                           for (data.Transaction t : rtx) { %>
                                         <tr>
-                                            <td>Dell XPS 13</td>
-                                            <td>3</td>
-                                            <td>10</td>
-                                            <td><span class="status-label status-critical">Critical</span></td>
+                                            <td>#<%= t.getId() %></td>
+                                            <td><%= t.getType() %></td>
+                                            <td><%= t.getProductName() != null ? t.getProductName() : ("ID:"+t.getProductId()) %></td>
+                                            <td><%= t.getQuantity() %></td>
+                                            <td><%= t.getTransactionDate() %></td>
                                         </tr>
-                                        <tr>
-                                            <td>iPhone 15 Screen</td>
-                                            <td>7</td>
-                                            <td>15</td>
-                                            <td><span class="status-label status-warning">Low</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>RAM 16GB DDR4</td>
-                                            <td>12</td>
-                                            <td>20</td>
-                                            <td><span class="status-label status-warning">Low</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>MacBook Pro M3</td>
-                                            <td>2</td>
-                                            <td>8</td>
-                                            <td><span class="status-label status-critical">Critical</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Samsung Galaxy S24</td>
-                                            <td>5</td>
-                                            <td>12</td>
-                                            <td><span class="status-label status-warning">Low</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>NVIDIA RTX 4090</td>
-                                            <td>1</td>
-                                            <td>5</td>
-                                            <td><span class="status-label status-critical">Critical</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>iPad Pro 12.9"</td>
-                                            <td>4</td>
-                                            <td>10</td>
-                                            <td><span class="status-label status-warning">Low</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>AirPods Pro 2nd Gen</td>
-                                            <td>6</td>
-                                            <td>15</td>
-                                            <td><span class="status-label status-warning">Low</span></td>
-                                        </tr>
+                                    <%   }
+                                       } else { %>
+                                        <tr><td colspan="5" style="color:#6b7280; text-align:center;">No recent transactions</td></tr>
+                                    <% } %>
                                     </tbody>
                                 </table>
-                            </div>
-                            <div class="text-center" style="margin-top: 1rem;">
-                                <button class="action-btn warning" style="width: auto; padding: 0.5rem 1.5rem;">Reorder Items</button>
                             </div>
                         </div>
                     </div>
@@ -403,12 +205,98 @@
 <script src="../js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
 <script src="../js/bootstrap.min.js" type="text/javascript"></script>
 <script src="../js/daterangepicker.js" type="text/javascript"></script>
-<script src="../js/chart.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="../js/icheck.min.js" type="text/javascript"></script>
 <script src="../js/fullcalendar.js" type="text/javascript"></script>
 <script src="../js/app.js" type="text/javascript"></script>
 <script src="../js/dashboard.js" type="text/javascript"></script>
 <script src="../js/warehouse/dashboard.js" type="text/javascript"></script>
+
+<script>
+    (function(){
+        var labels = <%
+            java.util.List<String> lbl = (java.util.List<String>) request.getAttribute("chartLabels");
+            out.print(lbl != null ? new com.google.gson.Gson().toJson(lbl) : "[]");
+        %>;
+        var dataImport = <%
+            java.util.List<Integer> imp = (java.util.List<Integer>) request.getAttribute("chartImport");
+            out.print(imp != null ? new com.google.gson.Gson().toJson(imp) : "[]");
+        %>;
+        var dataExport = <%
+            java.util.List<Integer> exp = (java.util.List<Integer>) request.getAttribute("chartExport");
+            out.print(exp != null ? new com.google.gson.Gson().toJson(exp) : "[]");
+        %>;
+        // removed weekly chart
+
+        // Summary charts
+        if (window.Chart && document.getElementById('summaryChart')){
+            var sctx = document.getElementById('summaryChart').getContext('2d');
+            var low = ${lowStockCount != null ? lowStockCount : 0};
+            var active = ${activeProducts != null ? activeProducts : 0};
+            var other = Math.max(active - low, 0);
+            new Chart(sctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Low-stock products','Other active products'],
+                    datasets: [{
+                        data: [low, other],
+                        backgroundColor: ['rgba(252,165,165,0.85)','rgba(165,180,252,0.85)']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#111827' } } }
+                }
+            });
+        }
+
+        if (window.Chart && document.getElementById('todayChart')){
+            var tCanvas = document.getElementById('todayChart');
+            var tctx = tCanvas.getContext('2d');
+            var dayLabels = <%
+                java.util.List<String> mdl = (java.util.List<String>) request.getAttribute("monthDayLabels");
+                out.print(mdl != null ? new com.google.gson.Gson().toJson(mdl) : "[]");
+            %>;
+            var impSeries = <%
+                java.util.List<Integer> mdi = (java.util.List<Integer>) request.getAttribute("monthDayImport");
+                out.print(mdi != null ? new com.google.gson.Gson().toJson(mdi) : "[]");
+            %>;
+            var expSeries = <%
+                java.util.List<Integer> mde = (java.util.List<Integer>) request.getAttribute("monthDayExport");
+                out.print(mde != null ? new com.google.gson.Gson().toJson(mde) : "[]");
+            %>;
+
+            var totalPoints = (impSeries.reduce((a,b)=>a+b,0) + expSeries.reduce((a,b)=>a+b,0));
+            if (totalPoints === 0) {
+                var msg = 'No transactions recorded this month';
+                tctx.clearRect(0, 0, tCanvas.width, tCanvas.height);
+                tctx.fillStyle = '#6b7280';
+                tctx.font = '16px Segoe UI, Arial, sans-serif';
+                tctx.textAlign = 'center';
+                tctx.fillText(msg, tCanvas.width/2, tCanvas.height/2);
+            } else {
+                new Chart(tctx, {
+                    type: 'line',
+                    data: {
+                        labels: dayLabels.map(d => d.substring(8)), // show day only
+                        datasets: [
+                            { label: 'Import', data: impSeries, borderColor: 'rgba(96,165,250,1)', backgroundColor: 'rgba(96,165,250,0.25)', tension: 0.3, fill: true },
+                            { label: 'Export', data: expSeries, borderColor: 'rgba(52,211,153,1)', backgroundColor: 'rgba(52,211,153,0.25)', tension: 0.3, fill: true }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position:'bottom', labels: { color:'#111827' } } },
+                        scales: {
+                            x: { ticks: { color: '#374151' }, grid: { display:false } },
+                            y: { ticks: { color: '#374151' }, grid: { color:'#eef2ff' }, beginAtZero:true, precision:0 }
+                        }
+                    }
+                });
+            }
+        }
+    })();
+</script>
 
 </body>
 </html>
