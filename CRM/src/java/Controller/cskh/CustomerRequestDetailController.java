@@ -98,7 +98,7 @@ public class CustomerRequestDetailController extends HttpServlet {
         }
 
         String redirectUrl = req.getContextPath() + "/cskh/customer-request/detail?id=" + requestId;
-
+        String returnUrl = req.getParameter("returnUrl");
         try {
             switch (action) {
                 case "transfer":
@@ -136,7 +136,12 @@ public class CustomerRequestDetailController extends HttpServlet {
                     String cskhResponse = req.getParameter("cskhResponse");
                     if (cskhResponse != null && !cskhResponse.trim().isEmpty()) {
                         requestDAO.saveCsResponse(requestId, cskhResponse);
-                        redirectUrl += "&message=responseSaved";
+                        if (returnUrl != null && returnUrl.contains("/cskh/feedback")) {
+                            redirectUrl = returnUrl + "?message=responseSaved";
+                        } else {
+                            redirectUrl += "&message=responseSaved";
+                        }
+
                     } else {
                         redirectUrl += "&error=responseEmpty";
                     }

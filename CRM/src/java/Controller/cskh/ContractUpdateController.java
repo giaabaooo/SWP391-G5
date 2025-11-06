@@ -102,6 +102,36 @@ public class ContractUpdateController extends HttpServlet {
             String contractDateStr = request.getParameter("contractDate");
             String description = request.getParameter("description");
 
+            String[] serialNumbers = request.getParameterValues("serialNumber");
+            
+            if (serialNumbers != null) {
+                java.util.Set<String> serialSet = new java.util.HashSet<>();
+                for (String serial : serialNumbers) {
+                    if (serial == null || serial.trim().isEmpty()) {
+                        request.setAttribute("error", "Serial number cannot be empty.");
+                        reloadFormData(request);
+                        request.getRequestDispatcher("/cskh/contract_update.jsp").forward(request, response);
+                        return;
+                    }
+                    
+                    String trimmedSerial = serial.trim();
+                    
+                    if (!serialSet.add(trimmedSerial)) {
+                        request.setAttribute("error", "Duplicate serial number entered: " + trimmedSerial);
+                        reloadFormData(request);
+                        request.getRequestDispatcher("/cskh/contract_update.jsp").forward(request, response);
+                        return;
+                    }
+
+                    if (deviceDAO.isSerialNumberExistsOnOtherContracts(trimmedSerial, contractId)) {
+                        request.setAttribute("error", "Serial number already exists on another contract: " + trimmedSerial);
+                        reloadFormData(request);
+                        request.getRequestDispatcher("/cskh/contract_update.jsp").forward(request, response);
+                        return;
+                    }
+                }
+            }
+            
             Date contractDate = Date.valueOf(contractDateStr);
 
             Contract contract = new Contract();
@@ -117,7 +147,7 @@ public class ContractUpdateController extends HttpServlet {
             String[] warrantyMonths = request.getParameterValues("warrantyMonths");
             String[] maintenanceMonths = request.getParameterValues("maintenanceMonths");
             String[] maintenanceFreq = request.getParameterValues("maintenanceFrequencyMonths");
-            String[] serialNumbers = request.getParameterValues("serialNumber");
+            
 
             List<ContractItem> items = new ArrayList<>();
             double calculatedTotalAmount = 0.0;
