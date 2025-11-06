@@ -87,7 +87,7 @@ public class FeedbackDAO extends DBContext {
         }
         return list;
     }
-    
+
     public int countFeedbacksByCustomer(int userId, String keyword, String type, String rating) {
         int count = 0;
         String sql = """
@@ -102,7 +102,7 @@ public class FeedbackDAO extends DBContext {
               AND m.customer_comment IS NOT NULL
               AND TRIM(m.customer_comment) <> ''
         """;
-              
+
         if (keyword != null && !keyword.isEmpty()) {
             sql += " AND (p.name LIKE ? OR r.title LIKE ?) ";
         }
@@ -127,7 +127,7 @@ public class FeedbackDAO extends DBContext {
             if (rating != null && !rating.equalsIgnoreCase("ALL")) {
                 ps.setString(index++, rating);
             }
-            
+
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
@@ -137,28 +137,29 @@ public class FeedbackDAO extends DBContext {
         }
         return count;
     }
-    
+
     public boolean saveFeedback(Feedback feed) {
-    String sql = """
+        String sql = """
         UPDATE CustomerRequestMeta
         SET customer_comment = ?, rating = ?
         WHERE request_id = ?
     """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setString(1, feed.getComment());
-        ps.setInt(2, feed.getRating());
-        ps.setInt(3, feed.getRequestId());
-        return ps.executeUpdate() > 0;
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, feed.getComment());
+            ps.setInt(2, feed.getRating());
+            ps.setInt(3, feed.getRequestId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean updateFeedback(Feedback feedback) {
         String sql = """
-        UPDATE CustomerRequestMeta 
-        SET customer_comment = ?, rating = ? 
+        UPDATE CustomerRequestMeta
+        SET customer_comment = ?, rating = ?
         WHERE request_id = ?
     """;
 

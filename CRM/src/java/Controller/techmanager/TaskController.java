@@ -45,9 +45,10 @@ public class TaskController extends HttpServlet {
 
                 if ("tooMuchTask".equals(error)) {
                     req.setAttribute("error", techName + " has had a lot of task on that day");
-                }
-                if ("errorTime".equals(error)) {
+                } else if ("errorTime".equals(error)) {
                     req.setAttribute("error", "Estimated hours must be between 1 and 200");
+                } else if ("pastDate".equals(error)) {
+                    req.setAttribute("error", "Date can not in the part");
                 }
 
                 int id2 = Integer.parseInt(req.getParameter("id"));
@@ -147,6 +148,13 @@ public class TaskController extends HttpServlet {
 
                 if (technicianIds != null) {
                     LocalDate startDate = LocalDate.parse(assignedDate);
+
+                    LocalDate today = LocalDate.now();
+                    if (startDate.isBefore(today)) {
+                        resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=assignTask&id=" + requestId + "&error=pastDate");
+                        return;
+                    }
+
                     int remainingHours = estimatedHours;
 
                     for (String techIdStr : technicianIds) {
@@ -225,12 +233,17 @@ public class TaskController extends HttpServlet {
                 }
 
                 if (technicianIds == null || technicianIds.length == 0 || (technicianIds.length == 1 && (technicianIds[0] == null || technicianIds[0].isEmpty()))) {
-                    resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=editTask&requestId=" + requestId + "&error=noTechnician");
+                    resp.sendRedirect(req.getContextPath() + "/techmanager/task?action=edit&id=" + requestId + "&error=noTechnician");
                     return;
                 }
 
-                
                 LocalDate startDate = assignedDate.toLocalDate();
+
+                LocalDate today = LocalDate.now();
+                if (startDate.isBefore(today)) {
+                    resp.sendRedirect(req.getContextPath() + "/techmanager/task?action=edit&id=" + requestId + "&error=pastDate");
+                    return;
+                }
 
                 for (String techIdStr : technicianIds) {
                     if (techIdStr == null || techIdStr.isEmpty()) {
