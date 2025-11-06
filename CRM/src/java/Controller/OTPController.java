@@ -1,8 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 package Controller;
 
 import java.io.IOException;
@@ -13,23 +8,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.UUID;
 
-/**
- *
- * @author pdatt
- */
-@WebServlet(name="OTPController", urlPatterns={"/otp"})
+@WebServlet(name = "OTPController", urlPatterns = {"/otp"})
 public class OTPController extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try {
             String otpStr = request.getParameter("otp");
@@ -43,25 +28,30 @@ public class OTPController extends HttpServlet {
             Integer storedOtp = (Integer) session.getAttribute("otp");
             if (storedOtp == null) {
                 request.setAttribute("mess", "OTP session expired. Please request a new OTP.");
-                request.getRequestDispatcher("forgotPassword.jsp").forward(request, response);
+                request.getRequestDispatcher("forgetPassword.jsp").forward(request, response);
                 return;
             }
 
             int value = Integer.parseInt(otpStr);
-            
+
             if (value == storedOtp) {
-                // Clear the OTP from session after successful validation
-                session.removeAttribute("otp");
-                
                 String email = (String) session.getAttribute("email");
                 if (email == null || email.trim().isEmpty()) {
                     request.setAttribute("mess", "Session expired. Please try again.");
-                    request.getRequestDispatcher("forgotPassword.jsp").forward(request, response);
+                    request.getRequestDispatcher("forgetPassword.jsp").forward(request, response);
                     return;
                 }
-                
-                request.setAttribute("email", email);
-                request.getRequestDispatcher("newPassword.jsp").forward(request, response);
+
+                String token = UUID.randomUUID().toString();
+
+                session.setAttribute("resetToken", token);
+                session.setAttribute("emailForReset", email);
+
+                session.removeAttribute("otp");
+                session.removeAttribute("email");
+
+                response.sendRedirect("newpassword?token=" + token);
+
             } else {
                 request.setAttribute("mess", "Invalid OTP. Please try again!");
                 request.getRequestDispatcher("OTPConfirm.jsp").forward(request, response);
@@ -74,41 +64,22 @@ public class OTPController extends HttpServlet {
             request.setAttribute("mess", "An error occurred. Please try again.");
             request.getRequestDispatcher("OTPConfirm.jsp").forward(request, response);
         }
-    } 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
-    } 
+            throws ServletException, IOException {
+        response.sendRedirect("forgetPassword.jsp");
+    }
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
-
+    }
 }

@@ -80,7 +80,8 @@ public class ForgotPassword extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        // Chuyển hướng về trang gốc nếu cố gắng truy cập GET
+        response.sendRedirect("forgetPassword.jsp");
     }
 
     @Override
