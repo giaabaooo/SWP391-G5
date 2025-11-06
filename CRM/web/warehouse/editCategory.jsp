@@ -28,7 +28,7 @@
 </button>
 
 <header class="header">
-    <a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
+    <a href="${pageContext.request.contextPath}/warestaff/dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
     <nav class="navbar navbar-static-top" role="navigation">
         <div class="navbar-right">
             <ul class="nav navbar-nav">
@@ -66,7 +66,18 @@
             </div>
 
             <ul class="sidebar-menu">
-                <li><a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                <li><a href="${pageContext.request.contextPath}/warestaff/dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                
+                <!-- Products -->
+                <li class="treeview">
+                    <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
+                        <i class="fa fa-cubes"></i> <span>Products</span>
+                    </a>
+                    <ul class="collapse" id="inventoryMenu">
+                        <li><a href="../warestaff/viewListProduct"><i class="fa fa-list"></i> View List Product</a></li>
+                        <li><a href="../warestaff/addNewProduct"><i class="fa fa-plus"></i> Add Product</a></li>
+                    </ul>
+                </li>
                 <li class="treeview">
                     <a href="#categoryMenu" data-toggle="collapse" aria-expanded="false">
                         <i class="fa fa-tags"></i> <span>Categories</span>
@@ -74,6 +85,28 @@
                     <ul class="collapse in" id="categoryMenu">
                         <li><a href="../warestaff/categoryList"><i class="fa fa-eye"></i> View Categories</a></li>
                         <li class="active"><a href="#"><i class="fa fa-edit"></i> Edit Category</a></li>
+                    </ul>
+                </li>
+                <!-- Brands -->
+                <li class="treeview">
+                    <a href="#brandMenu" data-toggle="collapse" aria-expanded="false">
+                        <i class="fa fa-bookmark"></i> <span>Brands</span>
+                    </a>
+                    <ul class="collapse" id="brandMenu">
+                        <li><a href="../warestaff/brandList"><i class="fa fa-eye"></i> View Brands</a></li>
+                        <li><a href="../warestaff/addBrand"><i class="fa fa-plus"></i> Add Brand</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Transactions -->
+                <li class="treeview">
+                    <a href="#transactionMenu" data-toggle="collapse" aria-expanded="false">
+                        <i class="fa fa-exchange"></i> <span>Transactions</span>
+                    </a>
+                    <ul class="collapse" id="transactionMenu">
+                        <li><a href="../warestaff/transactions"><i class="fa fa-list"></i> View Transactions</a></li>
+                        <li><a href="../warestaff/addImportTransaction"><i class="fa fa-plus"></i> Add Stock In</a></li>
+                        <li><a href="../warestaff/addExportTransaction"><i class="fa fa-minus"></i> Add Stock Out</a></li>
                     </ul>
                 </li>
             </ul>

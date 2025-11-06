@@ -45,8 +45,8 @@ public class LoginController extends HttpServlet {
                 case "CUSTOMER":
                     resp.sendRedirect("customer/dashboard");
                     break;
-                case "CUSTOMER_STAFF":
-                    resp.sendRedirect("cskh/customer?action=list");
+                case "CUSTOMERSERVICE":
+                    resp.sendRedirect("cskh/dashboard");
                     break;
                 case "TECH_MANAGER":
                     resp.sendRedirect("techmanager/dashboard");
@@ -55,7 +55,7 @@ public class LoginController extends HttpServlet {
                     resp.sendRedirect("technician/dashboard.jsp");
                     break;
                 case "WAREHOUSE":
-                    resp.sendRedirect("warehouse/dashboard.jsp");
+                    resp.sendRedirect("warestaff/dashboard");
                     break;
                 default:
                     resp.sendRedirect("index.jsp"); // fallback

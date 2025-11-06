@@ -324,8 +324,8 @@
                                                 <input type="number" name="totalCost" class="form-control" placeholder="Enter total cost" required min="0">
                                             </div>
                                         </div>
-
-                                        <!-- Payment Status -->
+<!--
+                                         Payment Status 
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-credit-card"></i> Payment Status
@@ -340,7 +340,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- Paid Amount -->
+                                         Paid Amount 
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-coins"></i> Paid Amount
@@ -348,12 +348,12 @@
                                             <div class="info-value">
                                                 <input type="number" name="paidAmount" class="form-control" placeholder="Enter paid amount" required min="0">
                                             </div>
-                                        </div>
+                                        </div>-->
 
                                         <!-- Assign Date -->
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
-                                                <i class="fa fa-calendar"></i> Assign Date
+                                                <i class="fa fa-calendar"></i> Payment Due Date
                                             </div>
                                             <div class="info-value">
                                                 <input type="date" name="assignDate" class="form-control" required>

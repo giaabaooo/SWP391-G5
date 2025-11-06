@@ -43,6 +43,8 @@ public class User {
     public boolean isIsActive() { return isActive; }
     public void setIsActive(boolean isActive) { this.isActive = isActive; }
 
+    
+    
     public Employee getE() { return e; }
     public void setE(Employee e) { this.e = e; }
 
