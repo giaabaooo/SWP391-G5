@@ -24,10 +24,10 @@ public class UserDBContext extends DBContext {
 
         try (
                 PreparedStatement stmt = connection.prepareStatement(sql)) {
-            
+
             var a = hashPassword("123");
             var hashPass = hashPassword(password);
-            
+
             stmt.setString(1, username);
             stmt.setString(2, hashPass);
 
@@ -249,14 +249,14 @@ public class UserDBContext extends DBContext {
             e.printStackTrace();
         }
     }
-    
+
     public ArrayList<User> getAllActiveCustomers() {
         ArrayList<User> users = new ArrayList<>();
         String sql = "SELECT u.id, u.full_name, u.email "
                 + "FROM User u INNER JOIN Role r ON u.role_id = r.id "
                 + "WHERE r.name = 'Customer' AND u.is_active = 1 "
-                + "ORDER BY u.full_name ASC"; 
-        
+                + "ORDER BY u.full_name ASC";
+
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet rs = stm.executeQuery();
             while (rs.next()) {
@@ -271,7 +271,7 @@ public class UserDBContext extends DBContext {
         }
         return users;
     }
-    
+
     public ArrayList<User> listCustomers(int page, int pageSize, String keyword, String status, String sort) {
         ArrayList<User> users = new ArrayList<>();
         String sql = "SELECT u.*, r.id AS role_id, r.name AS role_name, r.description AS role_desc "
@@ -405,7 +405,7 @@ public class UserDBContext extends DBContext {
 
     public void sendEmailForNewUser(String toEmail, String username, String password) {
         final String fromEmail = "ducnmhe172104@fpt.edu.vn";
-        final String appPassword = "zkqa szgs ucqr chws"; 
+        final String appPassword = "zkqa szgs ucqr chws";
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -459,5 +459,30 @@ public class UserDBContext extends DBContext {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void updateUserProfile(int userId, String fullName, String phone, String address) {
+        String sql = "UPDATE user SET full_name=?, phone=?, address=? WHERE id=?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, fullName);
+            stm.setString(2, phone);
+            stm.setString(3, address);
+            stm.setInt(4, userId);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean changePassword(int userId, String newHashedPassword) {
+        String sql = "UPDATE user SET password=? WHERE id=?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, newHashedPassword);
+            stm.setInt(2, userId);
+            return stm.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

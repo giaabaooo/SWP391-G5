@@ -11,9 +11,21 @@ public class Validation {
         return Pattern.matches(regex, password);
     }
 
-    // Validate Vietnamese Phone Number: Starts with '84' or '0' followed by 3,5,7,8,9 and exactly 8 more digits
     public static boolean checkPhoneNum(String phone) {
-        String regex = "^(84|0[35789])[0-9]{8}$";
+        String regex = "^(\\+84|84|0)[35789][0-9]{8}$";
         return Pattern.matches(regex, phone);
+    }
+
+    public static String normalizeVietnamesePhone(String phone) {
+        if (phone == null) {
+            return null;
+        }
+        if (phone.startsWith("+84")) {
+            return "0" + phone.substring(3);
+        }
+        if (phone.startsWith("84")) {
+            return "0" + phone.substring(2);
+        }
+        return phone;
     }
 }
