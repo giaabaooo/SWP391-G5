@@ -29,7 +29,7 @@
 
 <!-- HEADER -->
 <header class="header">
-    <a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
+    <a href="${pageContext.request.contextPath}/warestaff/dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
     <nav class="navbar navbar-static-top" role="navigation">
         <!-- <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
             <span class="sr-only">Toggle navigation</span>
@@ -75,7 +75,7 @@
             </div>
 
             <ul class="sidebar-menu">
-                <li><a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                <li><a href="${pageContext.request.contextPath}/warestaff/dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
                 <!-- Products -->
                 <li class="treeview">
@@ -123,9 +123,6 @@
                 </li>
 
                 
-
-                <!-- Reports -->
-                <li><a href="reports.jsp"><i class="fa fa-bar-chart"></i> Inventory Reports</a></li>
             </ul>
         </section>
     </aside>
@@ -265,7 +262,7 @@
                                         <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                             <i class="fa fa-save"></i> Save Product
                                         </button>
-                                        <a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp" class="btn btn-default" style="min-width: 150px;">
+                                        <a href="${pageContext.request.contextPath}/warestaff/dashboard" class="btn btn-default" style="min-width: 150px;">
                                             <i class="fa fa-arrow-left"></i> Back to Dashboard
                                         </a>
                                     </div>

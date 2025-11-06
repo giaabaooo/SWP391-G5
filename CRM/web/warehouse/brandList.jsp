@@ -28,7 +28,7 @@
 </button>
 
 <header class="header">
-    <a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
+    <a href="${pageContext.request.contextPath}/warestaff/dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
     <nav class="navbar navbar-static-top" role="navigation">
         <div class="navbar-right">
             <ul class="nav navbar-nav">
@@ -66,7 +66,7 @@
             </div>
 
             <ul class="sidebar-menu">
-                <li><a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                <li><a href="${pageContext.request.contextPath}/warestaff/dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
                 <li class="treeview">
                     <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
                         <i class="fa fa-cubes"></i> <span>Products</span>
@@ -105,8 +105,7 @@
                         <li><a href="importExport.jsp"><i class="fa fa-upload"></i> Import/Export</a></li>
                     </ul>
                 </li>
-                <!-- Reports -->
-                <li><a href="reports.jsp"><i class="fa fa-bar-chart"></i> Inventory Reports</a></li>
+                
             </ul>
         </section>
     </aside>
