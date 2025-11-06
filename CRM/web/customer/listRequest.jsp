@@ -201,10 +201,12 @@
 
                                                 <tbody>
                                                     <% 
-                                                        List<CustomerRequest> list = (List<CustomerRequest>) request.getAttribute("list");                   
+                                                        List<CustomerRequest> list = (List<CustomerRequest>) request.getAttribute("list"); 
+                                                        
                                                         int no = 1;
                                                         if (list != null) {
                                                         for (CustomerRequest req : list) {
+                                                        String reqStatus = req.getStatus();
                                                     %>
                                                     <tr>
                                                         <td><%= no++ %></td>
@@ -220,21 +222,24 @@
                                                             <a href="updateRequest?id=<%= req.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                                 <i class="fa fa-edit"></i> Update
                                                             </a>
-                                                            <button type="button" class="btn btn-action btn-danger btn-delete-request"
-                                                                    data-request-id="<%= req.getId() %>"
-                                                                    data-request-title="<%= req.getTitle() != null ? req.getTitle() : "Request #" + req.getId() %>">
-                                                                <i class="fa fa-trash"></i> Cancel
-                                                            </button>
-                                                            <%-- ========================================================= --%>
-                                                            <%-- SỬA LẠI LOGIC NÚT "PAY" / "PAID" --%>
                                                             <% 
-         // 1. Lấy trạng thái từ đối tượng 'req' (biến Java)
-         String reqStatus = req.getStatus();
-         String paymentStatus = req.getPaymentStatus(); // Dùng getter camelCase
-    
-         // 2. Kiểm tra logic
-         if ("AWAITING_PAYMENT".equals(reqStatus) && 
-             (paymentStatus != null && ("UNPAID".equals(paymentStatus) || "PARTIALLY_PAID".equals(paymentStatus)))) {
+                                                                
+                                                                if ("PENDING".equals(req.getStatus())) {
+                                                            %>
+                                                            <button type="button" class="btn btn-action btn-danger btn-delete-request" <%-- Dùng class đúng (btn-delete-request) --%>
+                                                                    data-request-id="<%= req.getId() %>" 
+                                                                    data-request-title="<%= (req.getTitle() != null ? req.getTitle() : "Request #" + req.getId()) %>">
+                                                                <i class="fa fa-trash"></i> Cancel <%-- Đổi tên nút thành "Cancel" --%>
+                                                            </button>
+                                                            <%
+                                                                } 
+                                                            %>
+                                                           
+                                                            <%-- SỬA LẠI LOGIC NÚT "PAY" / "PAID" --%>
+                                                            <%             
+                                                              String paymentStatus = req.getPaymentStatus();        
+                                                             if ("AWAITING_PAYMENT".equals(reqStatus) && 
+                                                             (paymentStatus != null && ("UNPAID".equals(paymentStatus) || "PARTIALLY_PAID".equals(paymentStatus)))) {
                                                             %>
                                                             <%-- Nếu đúng -> Hiển thị nút "Pay Now" --%>
                                                             <a href="${pageContext.request.contextPath}/customer/payment?id=<%= req.getId() %>" 
@@ -252,11 +257,9 @@
                                                                 <i class="fa fa-check-circle"></i> Paid
                                                             </a>
                                                             <% 
-                                                                } 
-                                                                // Nếu không rơi vào 2 trường hợp trên, không hiển thị gì cả
+                                                                }                                                                
                                                             %>
-                                                            <%-- ========================================================= --%>
-                                                            <%-- ========================================================= --%>
+                                                            
                                                         </td>
                                                     </tr>
                                                     <%

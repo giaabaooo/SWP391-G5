@@ -342,14 +342,21 @@
                                             </div>
                                         </div>
 
-
-
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-calendar"></i> Assign Date
                                             </div>
                                             <div class="info-value">
                                                 <input type="date" name="assignedDate" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                                            <div class="info-label">
+                                                <i class="fa fa-calendar"></i> Estimated Hours
+                                            </div>
+                                            <div class="info-value">
+                                                <input type="number" name="estimatedHours" class="form-control" required>
                                             </div>
                                         </div>
 

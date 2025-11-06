@@ -12,6 +12,7 @@ import data.Device;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
@@ -411,6 +412,7 @@ public class CustomerRequestDAO extends DBContext {
                     ca.setRequest_id(rs.getInt("request_id"));
                     ca.setIs_main(rs.getInt("is_main"));
                     ca.setAssigned_date(rs.getDate("assigned_date"));
+                    ca.setEstimated_hours(rs.getInt("estimated_hours"));
 
                     cusRe = getRequestById(rs.getInt("request_id"));
                     ca.setCustomerRequest(cusRe);
@@ -431,8 +433,8 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public void insert(CustomerRequestAssignment ca) {
-        String sql = "INSERT INTO customerrequest_assignment (request_id, technician_id, is_main, assigned_date) "
-                + "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO customerrequest_assignment (request_id, technician_id, is_main, assigned_date, estimated_hours) "
+                + "VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, ca.getRequest_id());
             stm.setInt(2, ca.getTechnician_id());
@@ -441,6 +443,7 @@ public class CustomerRequestDAO extends DBContext {
             java.util.Date utilDate = ca.getAssigned_date();
             java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
             stm.setDate(4, sqlDate);
+            stm.setInt(5, ca.getEstimated_hours());
 
             stm.executeUpdate();
         } catch (SQLException e) {
@@ -515,7 +518,7 @@ public class CustomerRequestDAO extends DBContext {
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, ca.getRequest_id());
             stm.setDouble(2, ca.getTotal_cost());
-            
+
             stm.setString(3, ca.getPayment_status());
 
             java.util.Date utilDate = ca.getPayment_due_date();
@@ -667,7 +670,7 @@ public class CustomerRequestDAO extends DBContext {
                 CustomerRequestMeta meta = new CustomerRequestMeta();
                 meta.setTotal_cost(rs.getDouble("total_cost"));
                 c.setRequestMeta(meta);
-                
+
                 list.add(c);
             }
         } catch (Exception e) {
@@ -824,7 +827,7 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public boolean deactivateRequest(int requestId, int customerId) {
-        String sql = "UPDATE customerrequest SET is_active = 0 WHERE id = ? AND customer_id = ?";
+        String sql = "UPDATE customerrequest SET is_active = 0 WHERE id = ? AND customer_id = ? AND status = 'PENDING'";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -841,26 +844,52 @@ public class CustomerRequestDAO extends DBContext {
         }
     }
 
-    public int getNumberTaskByIdAnDate(int id, String date) {
-        String sql = "SELECT COUNT(*) FROM customerrequest_assignment "
-                + "WHERE technician_id = ? AND assigned_date = ?";
+    public int getTotalEstimatedHoursByTechnicianAndDate(int technicianId, String date) throws SQLException {
+        String sql = """
+        SELECT assigned_date, estimated_hours
+        FROM customerrequest_assignment
+        WHERE technician_id = ?
+    """;
+        LocalDate targetDate = LocalDate.parse(date);
+        int totalHoursForDate = 0;
 
-        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, technicianId);
+            ResultSet rs = ps.executeQuery();
 
-        try (PreparedStatement stm = connection.prepareStatement(sql)) {
-            stm.setInt(1, id);
-            stm.setString(2, date);
+            while (rs.next()) {
+                LocalDate assignedDate = rs.getDate("assigned_date").toLocalDate();
+                int estHours = rs.getInt("estimated_hours");
 
-            try (ResultSet rs = stm.executeQuery()) {
-                if (rs.next()) {
-                    count = rs.getInt(1);
+                int remainingHours = estHours;
+                LocalDate currentDay = assignedDate;
+
+                while (remainingHours > 0) {
+                    int hoursToday = Math.min(8, remainingHours);
+
+                    if (currentDay.equals(targetDate)) {
+                        totalHoursForDate += hoursToday;
+                    }
+
+                    remainingHours -= hoursToday;
+                    currentDay = currentDay.plusDays(1);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
-        return count;
+        return totalHoursForDate;
+    }
+
+    public int getOldEstimatedHours(int assignmentId) throws SQLException {
+        String sql = "SELECT estimated_hours FROM customerrequest_assignment WHERE request_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, assignmentId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("estimated_hours");
+            }
+        }
+        return 0;
     }
 
     public List<CustomerRequest> getCompletableRequests(int userId) {
@@ -1031,12 +1060,12 @@ public class CustomerRequestDAO extends DBContext {
     public List<CustomerRequest> getPendingRequestsByCustomer(int userId, int limit) {
         List<CustomerRequest> list = new ArrayList<>();
         String sql = "SELECT cr.id, cr.title, cr.description, cr.request_type, cr.status, cr.request_date "
-           + "FROM CustomerRequest cr "
-           + "WHERE cr.customer_id = ? AND cr.status = 'PENDING' AND cr.is_active = 1 "
-           + "ORDER BY cr.request_date DESC LIMIT " + limit;
+                + "FROM CustomerRequest cr "
+                + "WHERE cr.customer_id = ? AND cr.status = 'PENDING' AND cr.is_active = 1 "
+                + "ORDER BY cr.request_date DESC LIMIT " + limit;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, userId);           
+            ps.setInt(1, userId);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -1055,46 +1084,46 @@ public class CustomerRequestDAO extends DBContext {
         }
         return list;
     }
-    
+
     public List<CustomerRequestMeta> getRecentFeedbacksByCustomer(int userId, int limit) {
-    List<CustomerRequestMeta> list = new ArrayList<>();
+        List<CustomerRequestMeta> list = new ArrayList<>();
 
-    String sql = "SELECT m.customer_comment, m.customer_service_response, r.title, r.request_date " +
-                 "FROM CustomerRequestMeta m " +
-                 "JOIN CustomerRequest r ON m.request_id = r.id " +
-                 "WHERE r.customer_id = ? AND r.is_active = 1 " +
-                 "AND (m.customer_comment IS NOT NULL OR m.customer_service_response IS NOT NULL) " +
-                 "ORDER BY r.request_date DESC LIMIT ?";
+        String sql = "SELECT m.customer_comment, m.customer_service_response, r.title, r.request_date "
+                + "FROM CustomerRequestMeta m "
+                + "JOIN CustomerRequest r ON m.request_id = r.id "
+                + "WHERE r.customer_id = ? AND r.is_active = 1 "
+                + "AND (m.customer_comment IS NOT NULL OR m.customer_service_response IS NOT NULL) "
+                + "ORDER BY r.request_date DESC LIMIT ?";
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setInt(1, userId);
-        ps.setInt(2, limit);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, limit);
 
-         try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                // Tạo đối tượng CustomerRequestMeta
-                CustomerRequestMeta meta = new CustomerRequestMeta();
-                meta.setCustomer_comment(rs.getString("customer_comment"));
-                meta.setCustomer_service_response(rs.getString("customer_service_response"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Tạo đối tượng CustomerRequestMeta
+                    CustomerRequestMeta meta = new CustomerRequestMeta();
+                    meta.setCustomer_comment(rs.getString("customer_comment"));
+                    meta.setCustomer_service_response(rs.getString("customer_service_response"));
 
-                // Gán thêm thông tin request
-                CustomerRequest req = new CustomerRequest();
-                req.setTitle(rs.getString("title"));
-                req.setRequest_date(rs.getTimestamp("request_date"));
+                    // Gán thêm thông tin request
+                    CustomerRequest req = new CustomerRequest();
+                    req.setTitle(rs.getString("title"));
+                    req.setRequest_date(rs.getTimestamp("request_date"));
 
-                // Liên kết lại
-                meta.setRequest(req);
+                    // Liên kết lại
+                    meta.setRequest(req);
 
-                // Thêm vào danh sách
-                list.add(meta);
+                    // Thêm vào danh sách
+                    list.add(meta);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
 
-    return list;
-}
+        return list;
+    }
 
     public Map<String, Integer> getWeeklyRequestStats(int days) {
         Map<String, Integer> stats = new java.util.LinkedHashMap<>();
@@ -1121,7 +1150,8 @@ public class CustomerRequestDAO extends DBContext {
         }
         return stats;
     }
-public List<CustomerRequest> getRecentPendingRequests(int limit) {
+
+    public List<CustomerRequest> getRecentPendingRequests(int limit) {
         List<CustomerRequest> list = new ArrayList<>();
         String sql = """
         SELECT cr.id, cr.title, cr.request_type, cr.request_date,

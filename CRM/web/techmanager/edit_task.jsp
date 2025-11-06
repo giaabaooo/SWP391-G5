@@ -349,6 +349,16 @@
                                                        value="${tasks.assigned_date}" required>
                                             </div>
                                         </div>
+                                            
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                                            <div class="info-label">
+                                                <i class="fa fa-calendar"></i> Estimated Hours
+                                            </div>
+                                            <div class="info-value">
+                                                <input type="number" name="estimatedHours" class="form-control" 
+                                                       value="${tasks.estimated_hours}" required>
+                                            </div>
+                                        </div>
 
                                         <div class="mt-3 text-center">
                                             <a href="${pageContext.request.contextPath}/techmanager/task" class="btn btn-default" style="min-width: 150px;">

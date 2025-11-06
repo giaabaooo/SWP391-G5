@@ -7,6 +7,7 @@ package Controller.customer;
 import dal.CustomerRequestDAO;
 import dal.FeedbackDAO;
 import data.CustomerRequest;
+import data.Feedback;
 import data.User;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -54,13 +55,14 @@ public class CreateFeedbackController extends HttpServlet {
             int rating = Integer.parseInt(request.getParameter("rating"));
             String comment = request.getParameter("comment");
 
-            if (comment == null || comment.trim().isEmpty() || rating < 1 || rating > 5) {
-                throw new Exception("Comment and rating (1-5) are required.");
-            }
-
-            FeedbackDAO dao = new FeedbackDAO();
+            Feedback feed = new Feedback();
+            feed.setRequestId(requestId);
+            feed.setComment(comment);
+            feed.setRating(rating);
+            
+            FeedbackDAO dao = new FeedbackDAO();           
             // Lưu feedback
-            boolean success = dao.saveFeedback(requestId, comment, rating);
+            boolean success = dao.saveFeedback(feed);
 
             if (success) {
                 response.sendRedirect(request.getContextPath() + "/customer/listFeedback?success=Feedback created successfully!");

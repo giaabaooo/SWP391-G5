@@ -39,8 +39,8 @@ public class TaskController extends HttpServlet {
         switch (action) {
             case "createBill":
                 String error = req.getParameter("error");
-                if ("paidExceed".equals(error)) {
-                    req.setAttribute("error", "The amount paid cannot be greater than the total amount.");
+                if ("pastDate".equals(error)) {
+                    req.setAttribute("error", "Date can not in the part.");
                 }
 
                 if (req.getParameter("id") != null) {
@@ -202,43 +202,24 @@ public class TaskController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int taskId = Integer.parseInt(req.getParameter("taskId"));
         double totalCost = Double.parseDouble(req.getParameter("totalCost"));
-//        String paidAmountStr = req.getParameter("paidAmount");
-//        double paidAmount = 0;
-//
-//        if (paidAmountStr != null && !paidAmountStr.trim().isEmpty()) {
-//            paidAmount = Double.parseDouble(paidAmountStr);
-//        }
-//
-//        String paymentStatus = req.getParameter("paymentStatus");
         String assignDate = req.getParameter("assignDate");
 
-//        if (paidAmount > totalCost) {
-//            req.setAttribute("error", "The amount paid cannot be greater than the total amount.");
-//            //req.getRequestDispatcher("/technician/task?action=createBill").forward(req, resp);
-//            resp.sendRedirect(req.getContextPath() + "/technician/task?action=createBill&error=paidExceed");
-//
-//            return;
-//        }
-//        if (paidAmount == totalCost) {
-//            paymentStatus = "PAID";
-//        }
-
+        
+        LocalDate assDate = LocalDate.parse(assignDate);
+        LocalDate today = LocalDate.now();
+                    if (assDate.isBefore(today)) {
+                        resp.sendRedirect(req.getContextPath() + "/technician/task?action=createBill&id="
+                                + taskId + "&error=pastDate");
+                        return;
+                    }
+        
         CustomerRequestMeta bill = new CustomerRequestMeta();
         bill.setRequest_id(taskId);
         bill.setTotal_cost(totalCost);
-//        bill.setPaid_amount(paidAmount);
-//        bill.setPayment_status(paymentStatus);
         bill.setPayment_due_date(java.sql.Date.valueOf(assignDate));
-
-//        if (paymentStatus.toLowerCase().equals("unpaid") || paymentStatus.toLowerCase().equals("partially_paid")) {
-//            db.updateRequest("AWAITING_PAYMENT", 1, taskId);
-//        } else {
-//            db.updateRequest("PAID", 1, taskId);
-//        }
 
         db.updateRequest("AWAITING_PAYMENT", 1, taskId);
         db.insertCusRequestMeta(bill);
-        //db.deleteByRequestId(taskId);
 
         resp.sendRedirect("task");
     }

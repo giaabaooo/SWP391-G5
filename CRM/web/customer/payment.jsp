@@ -8,6 +8,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> 
 
 
+
 <c:set var="reqInfo" value="${requestScope.requestPaymentInfo}" />
 <c:set var="amountDue" value="${requestScope.amountDue}" />
 <c:set var="totalCost" value="${requestScope.totalCost}" />
@@ -100,7 +101,8 @@
                 background: none !important; /* Xóa mọi background */
             }
         </style>
-    </head>
+    </head>   
+
     <body class="skin-black">
 
         <!-- HEADER -->
@@ -227,7 +229,7 @@
                                                     <input type="text" value="<c:out value='${reqInfo.request_type}'/>" class="form-control">
                                                 </div>
                                             </fieldset>
-                                            
+
                                         </div>
 
                                         <div class="payment-summary">
@@ -251,33 +253,39 @@
                                         <c:choose>
                                             <%-- TRƯỜNG HỢP 1: CHƯA TRẢ HOẶC TRẢ MỘT PHẦN --%>
                                             <c:when test="${paymentStatus == 'UNPAID' || paymentStatus == 'PARTIALLY_PAID'}">
-                                                <%-- Hiển thị Form chọn tiền và nút Pay --%>
-                                                <input type="hidden" id="amountDueValue" value="${amountDue}">
-                                                <div class="form-group payment-options">
+                                                <div class="form-group payment-options" id="paymentOptionGroup">
                                                     <label>Select Amount to Pay:<span style="color:red">*</span></label>
-                                                    <c:if test="${paymentStatus == 'UNPAID'}"> <%-- Chỉ hiện 50% nếu là lần đầu --%>
+                                                    <c:if test="${paymentStatus == 'UNPAID'}"> 
                                                         <label for="pct50">
                                                             <input type="radio" name="amountToPay" id="pct50" value="${totalCost * 0.5}"> 
                                                             Pay 50% (<fmt:formatNumber value="${totalCost * 0.5}" type="currency" currencyCode="VND" maxFractionDigits="0"/>)
                                                         </label>
                                                     </c:if>
                                                     <label for="pctFullDue">
+                                                        <%-- SỬA LỖI: THÊM "checked" VÀO ĐÂY --%>
                                                         <input type="radio" name="amountToPay" id="pctFullDue" value="${amountDue}" checked> 
                                                         Pay Full Amount Due (<fmt:formatNumber value="${amountDue}" type="currency" currencyCode="VND" maxFractionDigits="0"/>)
                                                     </label>
+                                                    <div class="validation-error">Please select a payment option.</div>
                                                 </div>
                                                 <hr>
-                                                <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
-                                                    <i class="fa fa-save"></i> Payment 
+                                                <button type="button" id="generateQrBtn" class="btn btn-info btn-block" style="background-color: #17a2b8; margin-bottom: 20px;">
+                                                    <i class="fa fa-qrcode"></i> QR Code to Pay
                                                 </button>
-                                                <a href="${pageContext.request.contextPath}/customer/listRequest" class="btn btn-default" style="min-width: 150px;">
-                                                    <i class="fa fa-arrow-left"></i> Back to List Request
-                                                </a>
+                                                <div id="qrSection" style="text-align:center; display:none; margin-top:20px; border: 1px solid #eee; padding: 20px; border-radius: 5px;">
+                                                    <h5>Scan to Pay</h5>
+                                                    <img id="qrImage" src="" alt="VietQR" style="max-width:300px; border:1px solid #ddd; border-radius:10px; padding:10px;">
+                                                    <p style="margin-top:10px; color:#666;">Use your banking app to scan and pay</p>
+                                                    <button type="submit" class="btn btn-success" style="margin-top:10px;">
+                                                        <i class="fa fa-check"></i> Confirm
+                                                    </button>
+                                                    <a href="${pageContext.request.contextPath}/customer/listRequest" class="btn btn-default" style="margin-top: 10px;">
+                                                        <i class="fa fa-arrow-left"></i> Back to List
+                                                    </a>
+                                                </div>
                                             </c:when>
-                                            
                                             <%-- TRƯỜNG HỢP 2: ĐÃ TRẢ ĐỦ (PAID) --%>
                                             <c:otherwise>
-                                                <%-- Chỉ hiển thị thông báo thành công và nút Back --%>
                                                 <div class="alert alert-success text-center">
                                                     <i class="fa fa-check-circle fa-lg"></i> 
                                                     <strong>Payment Successful!</strong>
@@ -295,17 +303,6 @@
                                         </div>
                                         <% } %>
 
-
-<!--                                        <div class="form-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; margin-bottom: 0;">
-                                            <div class="form-col-full text-center">
-                                                <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
-                                                    <i class="fa fa-save"></i> Save 
-                                                </button>
-                                                <a href="${pageContext.request.contextPath}/customer/listRequest" class="btn btn-default" style="min-width: 150px;">
-                                                    <i class="fa fa-arrow-left"></i> Back to List Request
-                                                </a>
-                                            </div>
-                                        </div>-->
                                     </form>
                                 </div>
                             </div>
@@ -318,7 +315,7 @@
         </div>
 
         <!-- SCRIPTS -->
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
         <script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/daterangepicker.js" type="text/javascript"></script>
@@ -329,85 +326,90 @@
         <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/warehouse/addProduct.js" type="text/javascript"></script>
         <script>
+                                        (function () {
+                                            // Lấy các biến từ JSTL
+                                            const requestId = "${reqInfo.id}";
+                                            const accountName = "Nguyen Gia Bao";
+                                            const bankId = "VPB";
+                                            const accountNo = "1230007122003";
 
-                                        function calculatePercent(percentValue) {
-                                            var amountDue = parseFloat(document.getElementById('amountDueValue').value);
-                                            var amountToPayInput = document.getElementById('amountToPay');
-                                            var calculatedAmount = Math.round(amountDue * parseFloat(percentValue));
-                                            amountToPayInput.value = calculatedAmount;
-                                        }
+                                            // Hàm hiển thị QR
+                                            function showQR(amount) {
+                                                const qrImage = document.getElementById("qrImage");
+                                                const qrSection = document.getElementById("qrSection");
 
-                                        document.addEventListener("DOMContentLoaded", function () {
-                                            var amountToPayInput = document.getElementById('amountToPay');
-                                            amountToPayInput.addEventListener('input', function () {
-                                                var amountDue = parseFloat(document.getElementById('amountDueValue').value);
-                                                var currentAmount = parseFloat(this.value);
-                                                var radios = document.getElementsByName('percent');
-                                                var matchedAPercent = false;
-
-                                                for (var i = 0; i < radios.length; i++) {
-                                                    var radio = radios[i];
-                                                    var percentValue = parseFloat(radio.value);
-                                                    var calculatedAmount = Math.round(amountDue * percentValue);
-                                                    if (currentAmount === calculatedAmount) {
-                                                        radio.checked = true;
-                                                        matchedAPercent = true;
-                                                    }
+                                                if (!amount || parseFloat(amount) <= 0) {
+                                                    qrSection.style.display = "none";
+                                                    return;
                                                 }
-                                                if (!matchedAPercent) {
-                                                    for (var i = 0; i < radios.length; i++) {
-                                                        radios[i].checked = false;
-                                                    }
+                                                const desc = encodeURIComponent(`Payment for Request #${requestId}`);
+                                                const qrUrl = "https://img.vietqr.io/image/"
+                                                        + bankId + "-" + accountNo + "-compact2.jpg"
+                                                        + "?amount=" + amount
+                                                        + "&addInfo=" + desc
+                                                        + "&accountName=" + encodeURIComponent(accountName);
+                                                qrImage.src = qrUrl;
+                                                qrSection.style.display = "block";
+                                            }
+
+                                           
+
+                                            
+
+                                            // Chạy khi trang tải xong
+                                            document.addEventListener("DOMContentLoaded", function () {
+                                                const generateBtn = document.getElementById("generateQrBtn");
+                                                const qrSection = document.getElementById("qrSection");
+                                                const radios = document.getElementsByName('amountToPay');
+
+                                                // 1. Hiển thị QR cho lựa chọn mặc định
+                                                const defaultSelected = document.querySelector('input[name="amountToPay"]:checked');
+                                                if (defaultSelected) {
+                                                    showQR(defaultSelected.value);
+                                                }
+
+                                                // 2. Gắn sự kiện cho nút "Generate QR"
+                                                if (generateBtn) {
+                                                    generateBtn.addEventListener('click', function () {
+                                                        const paymentSelected = document.querySelector('input[name="amountToPay"]:checked');
+                                                        const paymentGroup = document.getElementById("paymentOptionGroup");
+                                                        const errorDiv = paymentGroup.querySelector(".validation-error");
+
+                                                        paymentGroup.classList.remove("has-error");
+                                                        errorDiv.style.display = "none";
+
+                                                        if (paymentSelected) {
+                                                            showQR(paymentSelected.value);
+                                                        } else {
+                                                            errorDiv.style.display = "block";
+                                                            paymentGroup.classList.add("has-error");
+                                                        }
+                                                    });
+                                                }
+
+                                                // 3. Ẩn QR khi người dùng đổi radio
+                                                for (let i = 0; i < radios.length; i++) {
+                                                    radios[i].addEventListener('change', function () {
+                                                        if (qrSection) {
+                                                            qrSection.style.display = "none"; // Ẩn QR
+                                                        }
+                                                        // Bỏ highlight label
+                                                        document.querySelectorAll('.payment-options label.selected').forEach(label => {
+                                                            label.classList.remove('selected');
+                                                        });
+                                                        // Highlight label được chọn
+                                                        if (this.checked) {
+                                                            this.parentElement.classList.add('selected');
+                                                        }
+                                                    });
+                                                }
+
+                                                // Highlight label mặc định
+                                                if (defaultSelected) {
+                                                    defaultSelected.parentElement.classList.add('selected');
                                                 }
                                             });
-                                        });
-                                        function validatePayment() {
-                                            var amountDue = parseFloat(document.getElementById('amountDueValue').value);
-                                            var amountToPayInput = document.getElementById('amountToPay');
-                                            var amountToPayValue = amountToPayInput.value; // Lấy giá trị dạng chuỗi (để check trống)
-                                            var amountToPayNumber = parseFloat(amountToPayValue); // Lấy giá trị dạng số (để check "abc")
-
-                                            var amountGroup = document.getElementById("amountToPayGroup");
-                                            var errorDiv = amountGroup.querySelector(".validation-error");
-
-                                            // Reset lỗi
-                                            amountGroup.classList.remove("has-error");
-                                            errorDiv.style.display = "none";
-
-                                            // --- BẮT LỖI THEO YÊU CẦU ---
-
-                                            // 1. Check lỗi "Blank box" (để trống)
-                                            if (amountToPayValue.trim() === "") {
-                                                errorDiv.innerText = "Amount to pay cannot be blank.";
-                                                amountGroup.classList.add("has-error");
-                                                return false; // Chặn submit
-                                            }
-
-                                            // 2. Check lỗi "Nhập abc" (không phải số)
-                                            // parseFloat("abc") sẽ trả về NaN (Not a Number)
-                                            if (isNaN(amountToPayNumber)) {
-                                                errorDiv.innerText = "Please enter a valid number (e.g., 500000).";
-                                                amountGroup.classList.add("has-error");
-                                                return false; // Chặn submit
-                                            }
-
-                                            // 3. Check lỗi nhập số âm hoặc 0
-                                            if (amountToPayNumber <= 0) {
-                                                errorDiv.innerText = "Payment amount must be greater than 0.";
-                                                amountGroup.classList.add("has-error");
-                                                return false;
-                                            }
-
-                                            // 4. Check lỗi "Nhập quá số tiền cost" (quá nợ)
-                                            // (Thêm 0.001 làm sai số cho kiểu double/float)
-                                            if (amountToPayNumber > (amountDue + 0.001)) {
-                                                errorDiv.innerText = "Payment amount cannot be greater than the amount due.";
-                                                amountGroup.classList.add("has-error");
-                                                return false;
-                                            }
-
-                                            return true; // Tất cả đều ổn, cho phép submit
-                                        }
+                                        })(); // Chạy hàm ng
         </script>
     </body>
 </html>

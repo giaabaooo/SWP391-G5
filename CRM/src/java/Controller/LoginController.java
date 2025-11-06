@@ -55,7 +55,7 @@ public class LoginController extends HttpServlet {
                     resp.sendRedirect("technician/dashboard.jsp");
                     break;
                 case "WAREHOUSE":
-                    resp.sendRedirect("warehouse/dashboard.jsp");
+                    resp.sendRedirect("warestaff/dashboard");
                     break;
                 default:
                     resp.sendRedirect("index.jsp"); // fallback
