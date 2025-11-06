@@ -827,7 +827,7 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public boolean deactivateRequest(int requestId, int customerId) {
-        String sql = "UPDATE customerrequest SET is_active = 0 WHERE id = ? AND customer_id = ?";
+        String sql = "UPDATE customerrequest SET is_active = 0 WHERE id = ? AND customer_id = ? AND status = 'PENDING'";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);

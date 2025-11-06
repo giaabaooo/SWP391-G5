@@ -186,9 +186,6 @@
                                                 <input type="text" id="autoDeviceName" class="form-control" readonly></div>
                                         </div>  
 
-
-
-
                                         <div class="form-group mt-3">
                                             <div class="form-group"><label>Request Type</label>
                                                 <input type="text" id="autoRequestType" class="form-control" readonly></div>
