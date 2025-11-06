@@ -20,8 +20,8 @@ import dal.DAOAccount;
 @WebServlet(name = "ForgotPassword", urlPatterns = {"/forgotpw"})
 public class ForgotPassword extends HttpServlet {
 
-    private final String fromEmail = "thereroll.001@gmail.com";
-    private final String password = "qfxs hyue wsap npou";
+    private final String fromEmail = "ducnmhe172104@fpt.edu.vn";
+    private final String password = "zkqa szgs ucqr chws";
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

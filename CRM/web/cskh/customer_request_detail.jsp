@@ -178,6 +178,7 @@
                                         <form action="" method="POST">
                                             <input type="hidden" name="action" value="save_response">
                                             <input type="hidden" name="requestId" value="${requestDetail.id}">
+                                            <input type="hidden" name="returnUrl" value="${backUrl}">
 
                                             <div class="form-group">
                                                 <textarea name="cskhResponse" id="cskhResponseText" class="form-control-modern" rows="5" 
