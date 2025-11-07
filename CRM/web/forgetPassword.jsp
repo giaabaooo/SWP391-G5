@@ -49,7 +49,7 @@
                                 <label for="email">Email Address</label>
                             </div>
                      
-                            <button type="submit" value="Login" class="btn btn-primary py-3 w-100 mb-4">Send Reset Link</button>
+                            <button type="submit" value="Login" class="btn btn-primary py-3 w-100 mb-4">Send OTP</button>
                             
                             <div class="text-center">
                                  <a href="login.jsp">Back to Login</a>
