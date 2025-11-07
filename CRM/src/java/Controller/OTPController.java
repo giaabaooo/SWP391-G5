@@ -26,8 +26,21 @@ public class OTPController extends HttpServlet {
 
             HttpSession session = request.getSession();
             Integer storedOtp = (Integer) session.getAttribute("otp");
-            if (storedOtp == null) {
+            Long otpCreationTime = (Long) session.getAttribute("otpTime");
+            if (storedOtp == null || otpCreationTime == null) {
                 request.setAttribute("mess", "OTP session expired. Please request a new OTP.");
+                request.getRequestDispatcher("forgetPassword.jsp").forward(request, response);
+                return;
+            }
+
+            long currentTime = System.currentTimeMillis();
+            long timeElapsed = currentTime - otpCreationTime;
+
+            if (timeElapsed > 600000) {
+                session.removeAttribute("otp");
+                session.removeAttribute("otpTime");
+
+                request.setAttribute("mess", "OTP has expired. Please request a new one.");
                 request.getRequestDispatcher("forgetPassword.jsp").forward(request, response);
                 return;
             }
@@ -35,6 +48,8 @@ public class OTPController extends HttpServlet {
             int value = Integer.parseInt(otpStr);
 
             if (value == storedOtp) {
+                session.removeAttribute("otp");
+                session.removeAttribute("otpTime");
                 String email = (String) session.getAttribute("email");
                 if (email == null || email.trim().isEmpty()) {
                     request.setAttribute("mess", "Session expired. Please try again.");
