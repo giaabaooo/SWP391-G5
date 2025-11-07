@@ -258,7 +258,7 @@ public class ContractDAO extends DBContext {
         }
     }
 
-    public List<Contract> getContractsByUserId(int userId, String keyword, String brand, String category, int offset, int limit) {
+    public List<Contract> getContractsByUserId(int userId, String keyword, String contractcode, String brand, String category, int offset, int limit) {
         List<Contract> contracts = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
         SELECT 
@@ -283,6 +283,9 @@ public class ContractDAO extends DBContext {
         if (keyword != null && !keyword.isEmpty()) {
             sql.append(" AND p.name LIKE ? ");
         }
+        if (contractcode != null && !contractcode.equalsIgnoreCase("ALL")) {
+            sql.append(" AND ct.contract_code = ? ");
+        }
         if (brand != null && !brand.equalsIgnoreCase("ALL")) {
             sql.append(" AND b.name = ? ");
         }
@@ -297,6 +300,9 @@ public class ContractDAO extends DBContext {
 
             if (keyword != null && !keyword.isEmpty()) {
                 ps.setString(index++, "%" + keyword + "%");
+            }
+            if (contractcode != null && !contractcode.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, contractcode);
             }
             if (brand != null && !brand.equalsIgnoreCase("ALL")) {
                 ps.setString(index++, brand);

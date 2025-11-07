@@ -151,6 +151,15 @@
                                     <div class="filter-bar">
                                         <input type="text" id="searchInput" class="search-input" placeholder="Search by device name..." 
                                                value="${search != null ? search : ''}">
+                                        
+                                         <select id="codeFilter" class="search-input" style="min-width: 150px;">
+
+                                            <option value="ALL" ${param.contractcode == 'ALL' ? 'selected' : ''}>All Contract Code</option>
+                                            <c:forEach var="d" items="${codes}">
+                                                <option value="${c}" ${param.contractcode == d ? 'selected' : ''}>${d}</option>
+                                            </c:forEach>
+
+                                        </select>
 
                                         <select id="categoryFilter" class="search-input" style="min-width: 150px;">
 
@@ -304,6 +313,8 @@
 
                                                             if (params.get('search'))
                                                                 urlParams.search = params.get('search');
+                                                            if (params.get('contract_code'))
+                                                                urlParams.search = params.get('contract_code');
                                                             if (params.get('category'))
                                                                 urlParams.category = params.get('category');
                                                             if (params.get('brand'))
@@ -449,12 +460,15 @@
                                                             const searchQuery = document.getElementById('searchInput')?.value.trim();
                                                             const category = document.getElementById('categoryFilter')?.value;
                                                             const brand = document.getElementById('brandFilter')?.value;
+                                                            const contractcode = document.getElementById('codeFilter')?.value;
 
                                                             const params = [];
 
                                                             if (searchQuery && searchQuery !== '')
                                                                 params.push('search=' + encodeURIComponent(searchQuery));
                                                             if (category && category !== 'ALL')
+                                                                params.push('contract_code=' + encodeURIComponent(contractcode));
+                                                            if (contractcode && contractcode !== 'ALL')
                                                                 params.push('category=' + encodeURIComponent(category));
                                                             if (brand && brand !== 'ALL')
                                                                 params.push('brand=' + encodeURIComponent(brand));

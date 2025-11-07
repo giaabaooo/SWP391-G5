@@ -140,6 +140,21 @@ public class DeviceDAO extends DBContext {
 
         return total;
     }
+    public List<String> getContractCodesByUserId(int userId) {
+        List<String> codes = new ArrayList<>();
+        
+        String sql = "SELECT DISTINCT contract_code FROM Contract WHERE customer_id = ? AND is_active = 1 ORDER BY contract_code";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                codes.add(rs.getString("contract_code"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return codes;
+    }
 
     // Lấy danh sách brand/category/status để hiển thị filter
     public List<String> getBrandsByUserId(int userId) {
