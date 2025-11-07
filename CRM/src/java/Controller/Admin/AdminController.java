@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import utils.Validation;
 
 /**
  *
@@ -39,6 +40,8 @@ public class AdminController extends HttpServlet {
                     switch (error) {
                         case "empty" ->
                             req.setAttribute("error", "All fields must be filled in and must not be spaces.");
+                        case "addressEmpty" ->
+                            req.setAttribute("error", "All address fields (Province, District, Ward, Street) are required.");
                         case "usernameTooLong" ->
                             req.setAttribute("error", "Username must be between 4 and 30 character");
                         case "fullNameTooLong" ->
@@ -48,7 +51,7 @@ public class AdminController extends HttpServlet {
                         case "invalidEmail" ->
                             req.setAttribute("error", "Invalid email format.");
                         case "invalidPhone" ->
-                            req.setAttribute("error", "Invalid phone number format.");
+                            req.setAttribute("error", "Invalid Vietnamese phone format. Use 0..., 84..., or +84...");
                         case "usernameContain" ->
                             req.setAttribute("error", "Username is contain");
                         case "emailContain" ->
@@ -71,6 +74,8 @@ public class AdminController extends HttpServlet {
                     switch (errorE) {
                         case "empty" ->
                             req.setAttribute("error", "All fields must be filled in and must not be spaces.");
+                        case "addressEmpty" ->
+                            req.setAttribute("error", "All address fields (Province, District, Ward, Street) are required.");
                         case "usernameTooLong" ->
                             req.setAttribute("error", "Username must be between 4 and 30 character");
                         case "fullNameTooLong" ->
@@ -80,7 +85,7 @@ public class AdminController extends HttpServlet {
                         case "invalidEmail" ->
                             req.setAttribute("error", "Invalid email format.");
                         case "invalidPhone" ->
-                            req.setAttribute("error", "Invalid phone number format.");
+                            req.setAttribute("error", "Invalid Vietnamese phone format. Use 0..., 84..., or +84...");
                         case "usernameContain" ->
                             req.setAttribute("error", "Username is contain");
                         case "emailContain" ->
@@ -88,6 +93,15 @@ public class AdminController extends HttpServlet {
                         default -> {
                         }
                     }
+                }
+
+                User user = userDb.get(Integer.parseInt(id));
+
+                if (user.getAddress() != null && !user.getAddress().trim().isEmpty()) {
+                    String[] parts = user.getAddress().split(",", 2);
+                    req.setAttribute("streetDetail", parts[0].trim());
+                } else {
+                    req.setAttribute("streetDetail", "");
                 }
 
                 req.setAttribute("roleList", userDb.getAllRoles());
@@ -138,14 +152,24 @@ public class AdminController extends HttpServlet {
                 String fullName = req.getParameter("fullName");
                 String email = req.getParameter("email");
                 String phone = req.getParameter("phone");
-                String address = req.getParameter("address");
+                String street = req.getParameter("street");
+                String ward = req.getParameter("wardName");
+                String district = req.getParameter("districtName");
+                String province = req.getParameter("provinceName");
 
                 if (username == null || username.trim().isEmpty()
                         || fullName == null || fullName.trim().isEmpty()
                         || email == null || email.trim().isEmpty()
-                        || phone == null || phone.trim().isEmpty()
-                        || address == null || address.trim().isEmpty()) {
+                        || phone == null || phone.trim().isEmpty()) {
                     resp.sendRedirect(req.getContextPath() + "/admin/user?action=add" + "&error=empty");
+                    return;
+                }
+
+                if (street == null || street.trim().isEmpty()
+                        || ward == null || ward.trim().isEmpty()
+                        || district == null || district.trim().isEmpty()
+                        || province == null || province.trim().isEmpty()) {
+                    resp.sendRedirect(req.getContextPath() + "/admin/user?action=add" + "&error=addressEmpty");
                     return;
                 }
 
@@ -158,17 +182,12 @@ public class AdminController extends HttpServlet {
                     return;
                 }
 
-                if (address.length() < 5 || address.length() > 255) {
-                    resp.sendRedirect(req.getContextPath() + "/admin/user?action=add" + "&error=addressTooLong");
-                    return;
-                }
-
                 if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
                     resp.sendRedirect(req.getContextPath() + "/admin/user?action=add" + "&error=invalidEmail");
                     return;
                 }
 
-                if (!phone.matches("^\\+?[0-9]{9,15}$")) {
+                if (!Validation.checkPhoneNum(phone.trim())) {
                     resp.sendRedirect(req.getContextPath() + "/admin/user?action=add" + "&error=invalidPhone");
                     return;
                 }
@@ -191,8 +210,12 @@ public class AdminController extends HttpServlet {
                     newUser.setUsername(username);
                     newUser.setFullName(fullName);
                     newUser.setEmail(email);
-                    newUser.setPhone(phone);
-                    newUser.setAddress(address);
+
+                    String normalizedPhone = Validation.normalizeVietnamesePhone(phone.trim());
+                    String fullAddress = street + ", " + ward + ", " + district + ", " + province;
+
+                    newUser.setPhone(normalizedPhone);
+                    newUser.setAddress(fullAddress);
                     newUser.setRole(userDb.getRoleById(Integer.parseInt(roleId)));
                     newUser.setPassword(hashedPassword);
                     newUser.setIsActive(true);
@@ -216,14 +239,24 @@ public class AdminController extends HttpServlet {
                 String fullNameE = req.getParameter("fullName");
                 String emailE = req.getParameter("email");
                 String phoneE = req.getParameter("phone");
-                String addressE = req.getParameter("address");
+                String streetE = req.getParameter("street");
+                String wardE = req.getParameter("wardName");
+                String districtE = req.getParameter("districtName");
+                String provinceE = req.getParameter("provinceName");
 
                 if (usernameE == null || usernameE.trim().isEmpty()
                         || fullNameE == null || fullNameE.trim().isEmpty()
                         || emailE == null || emailE.trim().isEmpty()
-                        || phoneE == null || phoneE.trim().isEmpty()
-                        || addressE == null || addressE.trim().isEmpty()) {
+                        || phoneE == null || phoneE.trim().isEmpty()) {
                     resp.sendRedirect(req.getContextPath() + "/admin/user?action=edit&id=" + idE + "&error=empty");
+                    return;
+                }
+
+                if (streetE == null || streetE.trim().isEmpty()
+                        || wardE == null || wardE.trim().isEmpty()
+                        || districtE == null || districtE.trim().isEmpty()
+                        || provinceE == null || provinceE.trim().isEmpty()) {
+                    resp.sendRedirect(req.getContextPath() + "/admin/user?action=edit&id=" + idE + "&error=addressEmpty");
                     return;
                 }
 
@@ -236,17 +269,12 @@ public class AdminController extends HttpServlet {
                     return;
                 }
 
-                if (addressE.length() < 5 || addressE.length() > 255) {
-                    resp.sendRedirect(req.getContextPath() + "/admin/user?action=edit&id=" + idE + "&error=addressTooLong");
-                    return;
-                }
-
                 if (!emailE.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
                     resp.sendRedirect(req.getContextPath() + "/admin/user?action=edit&id=" + idE + "&error=invalidEmail");
                     return;
                 }
 
-                if (!phoneE.matches("^\\+?[0-9]{9,15}$")) {
+                if (!Validation.checkPhoneNum(phoneE.trim())) {
                     resp.sendRedirect(req.getContextPath() + "/admin/user?action=edit&id=" + idE + "&error=invalidPhone");
                     return;
                 }
@@ -270,8 +298,12 @@ public class AdminController extends HttpServlet {
                     newUser.setUsername(usernameE);
                     newUser.setFullName(fullNameE);
                     newUser.setEmail(emailE);
-                    newUser.setPhone(phoneE);
-                    newUser.setAddress(addressE);
+
+                    String normalizedPhoneE = Validation.normalizeVietnamesePhone(phoneE.trim());
+                    String fullAddressE = streetE + ", " + wardE + ", " + districtE + ", " + provinceE;
+
+                    newUser.setPhone(normalizedPhoneE);
+                    newUser.setAddress(fullAddressE);
                     newUser.setRole(userDb.getRoleById(Integer.parseInt(roleIdE)));
                     newUser.setIsActive(true);
 
@@ -290,5 +322,4 @@ public class AdminController extends HttpServlet {
 
     }
 
-    
 }
