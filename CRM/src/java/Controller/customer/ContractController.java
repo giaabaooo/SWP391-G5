@@ -40,6 +40,7 @@ public class ContractController extends HttpServlet {
         String category = request.getParameter("category");
         String pageParam = request.getParameter("page");
         String searchQuery = request.getParameter("search");
+        String contractcode = request.getParameter("contract_code");
         int page = 1;
         if (pageParam != null) {
             try {
@@ -52,10 +53,12 @@ public class ContractController extends HttpServlet {
 
         List<String> brands = deviceDAO.getBrandsByUserId(user.getId());
         List<String> categories = deviceDAO.getCategoriesByUserId(user.getId());
-        List<Contract> contracts = contractDAO.getContractsByUserId(user.getId(), searchQuery, brand, category, offset, LIMIT);
+        List<String> codes = deviceDAO.getContractCodesByUserId(user.getId());
+        List<Contract> contracts = contractDAO.getContractsByUserId(user.getId(), searchQuery, contractcode, brand, category, offset, LIMIT);
 
         request.setAttribute("brands", brands);
         request.setAttribute("categories", categories);
+        request.setAttribute("codes", codes);
         request.setAttribute("brand", brand);
         request.setAttribute("category", category);
         request.setAttribute("search", searchQuery);

@@ -114,6 +114,12 @@
             <!-- MAIN CONTENT -->
             <aside class="right-side">
                 <section class="content">
+                    <div id="paginationData" style="display:none;"
+                         data-total-products="${not empty totalProducts ? totalProducts : 0}"
+                         data-total-pages="${not empty totalPages ? totalPages : 1}"
+                         data-current-page="${not empty currentPage ? currentPage : 1}"
+                         data-page-size="${not empty pageSize ? pageSize : 10}">
+                    </div>
                     <form method="get" action="${pageContext.request.contextPath}/customer/listRequest" class="form-inline mb-3">
                         <!-- Page Header -->
                         <div class="row">
@@ -234,7 +240,7 @@
                                                             <%
                                                                 } 
                                                             %>
-                                                           
+
                                                             <%-- SỬA LẠI LOGIC NÚT "PAY" / "PAID" --%>
                                                             <%             
                                                               String paymentStatus = req.getPaymentStatus();        
@@ -259,7 +265,7 @@
                                                             <% 
                                                                 }                                                                
                                                             %>
-                                                            
+
                                                         </td>
                                                     </tr>
                                                     <%
@@ -276,42 +282,41 @@
                                         </div>
 
                                         <!-- Pagination Controls -->
-                                        <div class="pagination-container">
-                                            <div class="pagination-info">
+                                       <div class="pagination-container">
+                                        <div class="pagination-info">
 
-                                            </div>
-
-                                            <div class="page-size-selector">
-                                                <label for="pageSize">Show:</label>
-                                                <select id="pageSize" onchange="changePageSize()">
-                                                    <%-- Dùng JSTL để kiểm tra và chọn đúng giá trị --%>
-                                                    <option value="5" ${pageSize == 5 ? 'selected' : ''}>5</option>
-                                                    <option value="10" ${pageSize == 10 ? 'selected' : ''}>10</option>
-                                                    <option value="25" ${pageSize == 25 ? 'selected' : ''}>25</option>
-                                                    <option value="50" ${pageSize == 50 ? 'selected' : ''}>50</option>
-                                                    <option value="100" ${pageSize == 100 ? 'selected' : ''}>100</option>
-                                                </select>
-                                                <span>per page</span>
-                                            </div>
-
-                                            <div class="pagination-controls">
-                                                <button class="pagination-btn" id="firstPageBtn" onclick="goToFirstPage()">
-                                                    <i class="fa fa-angle-double-left"></i>
-                                                </button>
-                                                <button class="pagination-btn" id="prevPageBtn" onclick="goToPrevPage()">
-                                                    <i class="fa fa-angle-left"></i>
-                                                </button>
-
-                                                <div id="pageNumbers"></div>
-
-                                                <button class="pagination-btn" id="nextPageBtn" onclick="goToNextPage()">
-                                                    <i class="fa fa-angle-right"></i>
-                                                </button>
-                                                <button class="pagination-btn" id="lastPageBtn" onclick="goToLastPage()">
-                                                    <i class="fa fa-angle-double-right"></i>
-                                                </button>
-                                            </div>
                                         </div>
+
+                                        <div class="page-size-selector">
+                                            <label for="pageSize">Show:</label>
+                                            <select id="pageSize" onchange="changePageSize()">
+                                                <option value="5">5</option>
+                                                <option value="10" selected>10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                            </select>
+                                            <span>per page</span>
+                                        </div>
+
+                                        <div class="pagination-controls">
+                                            <button class="pagination-btn" id="firstPageBtn" onclick="goToFirstPage()">
+                                                <i class="fa fa-angle-double-left"></i>
+                                            </button>
+                                            <button class="pagination-btn" id="prevPageBtn" onclick="goToPrevPage()">
+                                                <i class="fa fa-angle-left"></i>
+                                            </button>
+
+                                            <div id="pageNumbers"></div>
+
+                                            <button class="pagination-btn" id="nextPageBtn" onclick="goToNextPage()">
+                                                <i class="fa fa-angle-right"></i>
+                                            </button>
+                                            <button class="pagination-btn" id="lastPageBtn" onclick="goToLastPage()">
+                                                <i class="fa fa-angle-double-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
 
 
                                     </div>
@@ -365,207 +370,266 @@
         <script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/customer/listRequest.js" type="text/javascript"></script>
-
         <script>
-                        var totalProducts = ${not empty totalProducts ? totalProducts : 0};
-                        var totalPages = ${not empty totalPages ? totalPages : 1};
-                        var currentPage = ${not empty currentPage ? currentPage : 1};
-                        var currentLimit = ${not empty pageSize ? pageSize : 10};
-                        $(function () {
+             $(function () {
+                                                    // Pagination variables
+                                                    let currentPage = 1;
+                                                    let pageSize = 10;
+                                                    let allRows = [];
+                                                    let filteredRows = [];
 
-                            // Helper function to get current URL parameters
-                            function getUrlParams() {
-                                var params = new URLSearchParams(window.location.search);
-                                return {
-                                    search: params.get('search') || '',
-                                    type: params.get('type') || 'ALL',
-                                    status: params.get('status') || 'ALL',
-                                    page: params.get('page') || 1,
-                                    pageSize: params.get('pageSize') || currentLimit
-                                };
-                            }
+                                                    // Helper function to get current URL parameters
+                                                    function getUrlParams() {
+                                                        var params = new URLSearchParams(window.location.search);
+                                                        var urlParams = {};
 
-                            // Helper function to build URL with parameters
-                            function buildUrlWithParams(params) {
-                                var url = window.location.pathname;
-                                var paramArray = [];
-                                for (var key in params) {
-                                    // chỉ bỏ qua nếu null hoặc chuỗi rỗng, KHÔNG loại 'ALL'
-                                    if (params[key] != null && params[key] !== '') {
-                                        paramArray.push(key + '=' + encodeURIComponent(params[key]));
-                                    }
-                                }
-                                if (paramArray.length > 0) {
-                                    url += '?' + paramArray.join('&');
-                                }
-                                return url;
-                            }
+                                                        if (params.get('search')) {
+                                                            urlParams.search = params.get('search');
+                                                        }
+                                                        if (params.get('categoryId')) {
+                                                            urlParams.categoryId = params.get('categoryId');
+                                                        }
+                                                        if (params.get('brandId')) {
+                                                            urlParams.brandId = params.get('brandId');
+                                                        }
+                                                        if (params.get('pageSize')) {
+                                                            urlParams.pageSize = params.get('pageSize');
+                                                        }
 
-                            // Initialize pagination (server-side)
-                            function initPagination() {
-                                renderPagination();
-                                updatePaginationInfo();
-                            }
+                                                        return urlParams;
+                                                    }
 
-                            // Update pagination info text (from server data)
-                            function updatePaginationInfo() {
-                                // Dùng các biến toàn cục đã lấy từ server
-                                var startIndex = (currentPage - 1) * currentLimit + 1;
-                                var endIndex = Math.min(currentPage * currentLimit, totalProducts);
-                                var infoElement = document.getElementById('paginationInfo');
-                                if (infoElement) {
-                                    if (totalProducts === 0) {
-                                        infoElement.textContent = 'No requests found.';
-                                    } else {
-                                        infoElement.textContent = 'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' requests';
-                                    }
-                                }
-                            }
+                                                    // Helper function to build URL with parameters
+                                                    function buildUrlWithParams(params) {
+                                                        var url = window.location.pathname + '?';
+                                                        var paramArray = [];
 
-                            // Render pagination buttons
-                            function renderPagination() {
-                                var pageNumbersDiv = document.getElementById('pageNumbers');
-                                if (!pageNumbersDiv)
-                                    return;
-                                pageNumbersDiv.innerHTML = '';
+                                                        for (var key in params) {
+                                                            if (params[key] && params[key] !== '') {
+                                                                paramArray.push(key + '=' + encodeURIComponent(params[key]));
+                                                            }
+                                                        }
 
-                                var startPage = Math.max(1, currentPage - 2);
-                                var endPage = Math.min(totalPages, currentPage + 2);
-                                if (currentPage <= 3) {
-                                    endPage = Math.min(5, totalPages);
-                                }
-                                if (currentPage > totalPages - 3) {
-                                    startPage = Math.max(1, totalPages - 4);
-                                }
+                                                        return url + paramArray.join('&');
+                                                    }
 
-                                for (var i = startPage; i <= endPage; i++) {
-                                    var btn = document.createElement('button');
-                                    btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
-                                    btn.textContent = i;
-                                    btn.onclick = (function (pageNum) {
-                                        return function () {
-                                            goToPage(pageNum);
-                                        };
-                                    })(i);
-                                    pageNumbersDiv.appendChild(btn);
-                                }
-                                updatePaginationButtons();
-                            }
+                                                    // Initialize pagination (server-side)
+                                                    function initPagination() {
+                                                        renderPagination();
+                                                        updatePaginationInfo();
+                                                    }
 
-                            // Update pagination button states
-                            function updatePaginationButtons() {
-                                var firstBtn = document.getElementById('firstPageBtn');
-                                var prevBtn = document.getElementById('prevPageBtn');
-                                var nextBtn = document.getElementById('nextPageBtn');
-                                var lastBtn = document.getElementById('lastPageBtn');
+                                                    // Update pagination info text (from server data)
+                                                    function updatePaginationInfo() {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                        var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
+                                                        var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0%>;
 
-                                if (firstBtn)
-                                    firstBtn.disabled = (currentPage === 1);
-                                if (prevBtn)
-                                    prevBtn.disabled = (currentPage === 1);
-                                if (nextBtn)
-                                    nextBtn.disabled = (currentPage === totalPages || totalPages === 0);
-                                if (lastBtn)
-                                    lastBtn.disabled = (currentPage === totalPages || totalPages === 0);
-                            }
+                                                        var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
+                                                        var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalProducts);
 
-                            // Pagination navigation functions (with URL parameters preserved)
-                            window.goToPage = function (page) {
-                                var params = getUrlParams();
-                                params.page = page;
-                                window.location.href = buildUrlWithParams(params);
-                            };
-                            window.goToFirstPage = function () {
-                                goToPage(1);
-                            };
-                            window.goToPrevPage = function () {
-                                if (currentPage > 1)
-                                    goToPage(currentPage - 1);
-                            };
-                            window.goToNextPage = function () {
-                                if (currentPage < totalPages)
-                                    goToPage(currentPage + 1);
-                            };
-                            window.goToLastPage = function () {
-                                goToPage(totalPages);
-                            };
+                                                        var infoElement = document.getElementById('paginationInfo');
+                                                        if (infoElement) {
+                                                            if (totalProducts === 0) {
+                                                                infoElement.textContent = 'No products to display';
+                                                            } else {
+                                                                infoElement.textContent =
+                                                                        'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' products';
+                                                            }
+                                                        }
+                                                    }
 
-                            window.changePageSize = function () {
-                                var newPageSize = document.getElementById('pageSize').value;
-                                var params = getUrlParams();
-                                params.pageSize = newPageSize;
-                                params.page = 1;
-                                window.location.href = buildUrlWithParams(params);
-                            };
+                                                    // Render pagination buttons
+                                                    function renderPagination() {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
+                                                        var pageNumbersDiv = document.getElementById('pageNumbers');
 
+                                                        if (!pageNumbersDiv)
+                                                            return;
 
-                            setTimeout(function () {
-                                $('.alert-success, .alert-danger').fadeOut(500, function () {
-                                    $(this).remove();
-                                });
-                            }, 3000);
+                                                        pageNumbersDiv.innerHTML = '';
 
-                            // Handle collapsible menu
-                            $('.treeview > a').click(function (e) {
-                                e.preventDefault();
-                                var target = $(this).attr('href');
-                                $(target).collapse('toggle');
-                            });
+                                                        // Determine which pages to show
+                                                        var startPage = Math.max(1, currentPageFromUrl - 2);
+                                                        var endPage = Math.min(totalPages, currentPageFromUrl + 2);
 
-                            // Auto-expand Products menu since we're on view list product page
-                            $('#inventoryMenu').addClass('in');
+                                                        // Adjust if near the beginning
+                                                        if (currentPageFromUrl <= 3) {
+                                                            endPage = Math.min(5, totalPages);
+                                                        }
 
-                            // Set page size from URL parameter
-                            var urlParams = new URLSearchParams(window.location.search);
-                            var pageSizeFromUrl = urlParams.get('pageSize');
-                            if (pageSizeFromUrl) {
-                                var pageSizeSelect = document.getElementById('pageSize');
-                                if (pageSizeSelect) {
-                                    pageSizeSelect.value = pageSizeFromUrl;
-                                }
-                            }
+                                                        // Adjust if near the end
+                                                        if (currentPageFromUrl > totalPages - 3) {
+                                                            startPage = Math.max(1, totalPages - 4);
+                                                        }
 
-                            // Initialize pagination on page load
-                            initPagination();
+                                                        // Create page buttons
+                                                        for (var i = startPage; i <= endPage; i++) {
+                                                            var btn = document.createElement('button');
+                                                            btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
+                                                            btn.textContent = i;
+                                                            btn.onclick = (function (pageNum) {
+                                                                return function () {
+                                                                    goToPage(pageNum);
+                                                                };
+                                                            })(i);
+                                                            pageNumbersDiv.appendChild(btn);
+                                                        }
 
+                                                        updatePaginationButtons();
+                                                    }
 
+                                                    // Update pagination button states
+                                                    function updatePaginationButtons() {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
 
-                            // Apply filters function
-                            window.applyFilters = function () {
-                                var searchQuery = document.getElementById('searchInput').value;
-                                var type = document.getElementById('typeFilter').value;
-                                var status = document.getElementById('statusFilter').value;
+                                                        var firstBtn = document.getElementById('firstPageBtn');
+                                                        var prevBtn = document.getElementById('prevPageBtn');
+                                                        var nextBtn = document.getElementById('nextPageBtn');
+                                                        var lastBtn = document.getElementById('lastPageBtn');
 
-                                // Giữ các param hiện có (như pageSize)
-                                var params = getUrlParams();
+                                                        if (firstBtn)
+                                                            firstBtn.disabled = currentPageFromUrl === 1;
+                                                        if (prevBtn)
+                                                            prevBtn.disabled = currentPageFromUrl === 1;
+                                                        if (nextBtn)
+                                                            nextBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                                                        if (lastBtn)
+                                                            lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                                                    }
 
-                                // Cập nhật filter mới
-                                params.search = searchQuery;
-                                params.type = type;
-                                params.status = status;
-                                params.page = 1; // reset về trang 1
+                                                    // Pagination navigation functions (with URL parameters preserved)
+                                                    window.goToPage = function (page) {
+                                                        var params = getUrlParams();
+                                                        params.page = page;
+                                                        window.location.href = buildUrlWithParams(params);
+                                                    };
 
-                                window.location.href = buildUrlWithParams(params);
-                            };
+                                                    window.goToFirstPage = function () {
+                                                        goToPage(1);
+                                                    };
 
-                            // Clear filters function
-                            window.clearFilters = function () {
-                                var baseUrl = window.location.pathname; // ví dụ /CRM/customer/listRequest
-                                window.location.href = baseUrl + "?search=&type=ALL&status=ALL&page=1";
-                            };
+                                                    window.goToPrevPage = function () {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPage = parseInt(urlParams.get('page')) || 1;
+                                                        if (currentPage > 1) {
+                                                            goToPage(currentPage - 1);
+                                                        }
+                                                    };
 
-                            // Handle Enter key in search input
-                            $('#searchInput').on('keypress', function (e) {
-                                if (e.which === 13) { // Enter key
-                                    applyFilters();
-                                }
-                            });
+                                                    window.goToNextPage = function () {
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var currentPage = parseInt(urlParams.get('page')) || 1;
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
+                                                        if (currentPage < totalPages) {
+                                                            goToPage(currentPage + 1);
+                                                        }
+                                                    };
 
-//                                                         Handle change event for dropdowns
-//                                                        $('#typeFilter, #statusFilter').on('change', function () {
-//                                                            applyFilters();
-//                                                        });
-                        });
+                                                    window.goToLastPage = function () {
+                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
+                                                        goToPage(totalPages);
+                                                    };
+
+                                                    window.changePageSize = function () {
+                                                        var newPageSize = document.getElementById('pageSize').value;
+                                                        var params = getUrlParams();
+                                                        params.pageSize = newPageSize;
+                                                        params.page = 1; // Reset to first page when changing page size
+                                                        window.location.href = buildUrlWithParams(params);
+                                                    };
+                                              
+                                                    // Close modal on ESC key
+                                                    $(document).on('keydown', function (e) {
+                                                        if (e.key === 'Escape' && $('#deleteModal').hasClass('active')) {
+                                                            closeDeleteModal();
+                                                        }
+                                                    });
+
+                                                    
+
+                                                    // Handle collapsible menu
+                                                    $('.treeview > a').click(function (e) {
+                                                        e.preventDefault();
+                                                        var target = $(this).attr('href');
+                                                        $(target).collapse('toggle');
+                                                    });
+
+                                                    // Auto-expand Products menu since we're on view list product page
+                                                    $('#inventoryMenu').addClass('in');
+
+                                                    // Set page size from URL parameter
+                                                    var urlParams = new URLSearchParams(window.location.search);
+                                                    var pageSizeFromUrl = urlParams.get('pageSize');
+                                                    if (pageSizeFromUrl) {
+                                                        var pageSizeSelect = document.getElementById('pageSize');
+                                                        if (pageSizeSelect) {
+                                                            pageSizeSelect.value = pageSizeFromUrl;
+                                                        }
+                                                    }
+
+                                                    // Initialize pagination on page load
+                                                    initPagination();
+
+                                                    // Auto-hide success and error messages after 3 seconds
+                                                    setTimeout(function () {
+                                                        $('.alert-success').fadeOut(500, function () {
+                                                            $(this).remove();
+                                                        });
+                                                        $('.alert-danger').fadeOut(500, function () {
+                                                            $(this).remove();
+                                                        });
+                                                    }, 3000);
+
+                                                    // Apply filters function
+                                                    window.applyFilters = function () {
+                                                        var searchQuery = document.getElementById('searchInput').value;
+                                                        var categoryId = document.getElementById('categoryFilter').value;
+                                                        var brandId = document.getElementById('brandFilter').value;
+
+                                                        // Build URL with parameters
+                                                        var url = window.location.pathname + '?';
+                                                        var params = [];
+
+                                                        if (searchQuery && searchQuery.trim() !== '') {
+                                                            params.push('search=' + encodeURIComponent(searchQuery));
+                                                        }
+                                                        if (categoryId && categoryId !== '') {
+                                                            params.push('categoryId=' + categoryId);
+                                                        }
+                                                        if (brandId && brandId !== '') {
+                                                            params.push('brandId=' + brandId);
+                                                        }
+
+                                                        url += params.join('&');
+
+                                                        // Redirect to filtered URL
+                                                        window.location.href = url;
+                                                    };
+
+                                                    // Clear filters function
+                                                    window.clearFilters = function () {
+                                                        // Redirect to page without parameters
+                                                        window.location.href = window.location.pathname;
+                                                    };
+
+                                                    // Handle Enter key in search input
+                                                    $('#searchInput').on('keypress', function (e) {
+                                                        if (e.which === 13) { // Enter key
+                                                            applyFilters();
+                                                        }
+                                                    });
+
+                                                    // Handle change event for dropdowns
+                                                    $('#categoryFilter, #brandFilter').on('change', function () {
+                                                        applyFilters();
+                                                    });
+                                                });
         </script>
     </body>
 </html>
