@@ -1,8 +1,10 @@
 package data;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 public class User {
+
     private int id;
     private Role role;
     private String username;
@@ -14,42 +16,102 @@ public class User {
     private boolean isActive;
     private Employee e;
     private ArrayList<Role> roles = new ArrayList<>();
+    private Set<String> permissions;
 
     // getter/setter
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public Role getRole() {
+        return role;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getUsername() {
+        return username;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public String getPassword() {
+        return password;
+    }
 
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    public boolean isIsActive() { return isActive; }
-    public void setIsActive(boolean isActive) { this.isActive = isActive; }
+    public String getFullName() {
+        return fullName;
+    }
 
-    
-    
-    public Employee getE() { return e; }
-    public void setE(Employee e) { this.e = e; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-    public ArrayList<Role> getRoles() { return roles; }
-    public void setRoles(ArrayList<Role> roles) { this.roles = roles; }
-    
-    
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Employee getE() {
+        return e;
+    }
+
+    public void setE(Employee e) {
+        this.e = e;
+    }
+
+    public ArrayList<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(ArrayList<Role> roles) {
+        this.roles = roles;
+    }
+
+    public Set<String> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<String> permissions) {
+        this.permissions = permissions;
+    }
 }

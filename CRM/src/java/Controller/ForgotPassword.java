@@ -39,7 +39,6 @@ public class ForgotPassword extends HttpServlet {
 
             String subject = "Password Reset OTP";
             String htmlContent = EmailTemplate.getOtpEmailHtml(String.valueOf(otpValue));
-            EmailUtility.sendEmail(email, subject, htmlContent);
             long otpCreationTime = System.currentTimeMillis();
 
             EmailUtility.sendEmail(email, subject, htmlContent);

@@ -18,7 +18,10 @@
             <li>
                 <a href="${pageContext.request.contextPath}/admin/user?action=list"><i class="fa fa-plus"></i> User Manager </a>
             </li>
-
+            
+            <li>
+                <a href="${pageContext.request.contextPath}/admin/permissions"><i class="fa fa-shield"></i> Permission Manager </a>
+            </li>
         </ul>
     </section>
 </aside>

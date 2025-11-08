@@ -1,5 +1,6 @@
 package dal;
 
+import data.Permission;
 import data.User;
 import data.Role;
 import jakarta.mail.Message;
@@ -12,7 +13,9 @@ import jakarta.mail.internet.MimeMessage;
 import java.security.SecureRandom;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 public class UserDBContext extends DBContext {
 
@@ -49,6 +52,9 @@ public class UserDBContext extends DBContext {
                 user.setAddress(rs.getString("address"));
                 user.setIsActive(rs.getBoolean("is_active"));
                 user.setRole(role);
+
+                Set<String> permissions = getUserPermissions(user.getRole().getId(), user.getId());
+                user.setPermissions(permissions);
 
                 return user;
             }
@@ -484,5 +490,125 @@ public class UserDBContext extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public ArrayList<Permission> getAllPermissions() {
+        ArrayList<Permission> permissions = new ArrayList<>();
+        String sql = "SELECT id, name, description FROM Permission WHERE is_active = 1 ORDER BY name";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                Permission p = new Permission();
+                p.setId(rs.getInt("id"));
+                p.setName(rs.getString("name"));
+                p.setDescription(rs.getString("description"));
+                permissions.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return permissions;
+    }
+
+    public Set<String> getRolePermissionMatrix() {
+        Set<String> matrix = new HashSet<>();
+        String sql = "SELECT role_id, permission_id FROM Role_Permission";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                String key = rs.getInt("role_id") + "_" + rs.getInt("permission_id");
+                matrix.add(key);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return matrix;
+    }
+
+    public boolean updateFullPermissionMatrix(String[] allCheckedPerms) {
+        String deleteSql = "DELETE FROM Role_Permission";
+        String insertSql = "INSERT INTO Role_Permission (role_id, permission_id) VALUES (?, ?)";
+
+        try {
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement stmDelete = connection.prepareStatement(deleteSql)) {
+                stmDelete.executeUpdate();
+            }
+
+            if (allCheckedPerms != null && allCheckedPerms.length > 0) {
+                try (PreparedStatement stmInsert = connection.prepareStatement(insertSql)) {
+                    for (String checkedValue : allCheckedPerms) {
+                        String[] parts = checkedValue.split("_");
+                        if (parts.length == 2) {
+                            int roleId = Integer.parseInt(parts[0]);
+                            int permId = Integer.parseInt(parts[1]);
+
+                            stmInsert.setInt(1, roleId);
+                            stmInsert.setInt(2, permId);
+                            stmInsert.addBatch();
+                        }
+                    }
+                    stmInsert.executeBatch();
+                }
+            }
+
+            connection.commit();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Set<String> getUserPermissions(int roleId, int userId) {
+        Set<String> permissions = new HashSet<>();
+
+        String roleSql = "SELECT p.name FROM Permission p "
+                + "JOIN Role_Permission rp ON p.id = rp.permission_id "
+                + "WHERE rp.role_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(roleSql)) {
+            stm.setInt(1, roleId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                permissions.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        String userSql = "SELECT p.name, up.is_granted FROM Permission p "
+                + "JOIN User_Permission up ON p.id = up.permission_id "
+                + "WHERE up.user_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(userSql)) {
+            stm.setInt(1, userId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                String permissionName = rs.getString("name");
+                boolean isGranted = rs.getBoolean("is_granted");
+
+                if (isGranted) {
+                    permissions.add(permissionName);
+                } else {
+                    permissions.remove(permissionName);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return permissions;
     }
 }
