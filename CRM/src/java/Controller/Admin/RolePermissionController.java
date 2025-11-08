@@ -24,29 +24,17 @@ public class RolePermissionController extends HttpServlet {
         try {
             ArrayList<Role> allRoles = userDb.getAllRoles();
             ArrayList<Permission> allPermissions = userDb.getAllPermissions();
+            Set<String> matrix = userDb.getRolePermissionMatrix();
 
             req.setAttribute("allRoles", allRoles);
             req.setAttribute("allPermissions", allPermissions);
+            req.setAttribute("matrix", matrix);
 
-            String roleIdParam = req.getParameter("role_id");
-            if (roleIdParam != null && !roleIdParam.isEmpty()) {
-                int selectedRoleId = Integer.parseInt(roleIdParam);
-
-                Set<Integer> currentRolePermissions = userDb.getPermissionIdsForRole(selectedRoleId);
-
-                Role selectedRole = allRoles.stream()
-                        .filter(r -> r.getId() == selectedRoleId)
-                        .findFirst()
-                        .orElse(null);
-
-                req.setAttribute("selectedRoleId", selectedRoleId);
-                req.setAttribute("selectedRole", selectedRole);
-                req.setAttribute("currentRolePermissions", currentRolePermissions);
-            }
-
-            // 4. Hiển thị thông báo (nếu có)
             if ("true".equals(req.getParameter("success"))) {
-                req.setAttribute("successMessage", "Permissions updated successfully!");
+                req.setAttribute("successMessage", "Permissions matrix updated successfully!");
+            }
+            if ("true".equals(req.getParameter("error"))) {
+                req.setAttribute("errorMessage", "Failed to update permissions matrix.");
             }
 
         } catch (Exception e) {
@@ -61,28 +49,20 @@ public class RolePermissionController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String roleIdParam = req.getParameter("role_id");
-        String[] permissionIds = req.getParameterValues("permission_id");
-
-        if (roleIdParam == null || roleIdParam.isEmpty()) {
-            resp.sendRedirect(req.getContextPath() + "/admin/permissions?error=true");
-            return;
-        }
+        String[] allCheckedPerms = req.getParameterValues("permission_matrix");
 
         try {
-            int roleId = Integer.parseInt(roleIdParam);
-
-            boolean success = userDb.updatePermissionsForRole(roleId, permissionIds);
+            boolean success = userDb.updateFullPermissionMatrix(allCheckedPerms);
 
             if (success) {
-                resp.sendRedirect(req.getContextPath() + "/admin/permissions?role_id=" + roleId + "&success=true");
+                resp.sendRedirect(req.getContextPath() + "/admin/permissions?success=true");
             } else {
                 throw new Exception("Failed to update permissions in database.");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            resp.sendRedirect(req.getContextPath() + "/admin/permissions?role_id=" + roleIdParam + "&error=true");
+            resp.sendRedirect(req.getContextPath() + "/admin/permissions?error=true");
         }
     }
 }

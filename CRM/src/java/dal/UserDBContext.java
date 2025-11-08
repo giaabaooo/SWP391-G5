@@ -494,7 +494,7 @@ public class UserDBContext extends DBContext {
 
     public ArrayList<Permission> getAllPermissions() {
         ArrayList<Permission> permissions = new ArrayList<>();
-        String sql = "SELECT id, name, description FROM Permission WHERE is_active = 1";
+        String sql = "SELECT id, name, description FROM Permission WHERE is_active = 1 ORDER BY name";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet rs = stm.executeQuery();
             while (rs.next()) {
@@ -510,39 +510,44 @@ public class UserDBContext extends DBContext {
         return permissions;
     }
 
-    public Set<Integer> getPermissionIdsForRole(int roleId) {
-        Set<Integer> permissionIds = new HashSet<>();
-        String sql = "SELECT permission_id FROM Role_Permission WHERE role_id = ?";
+    public Set<String> getRolePermissionMatrix() {
+        Set<String> matrix = new HashSet<>();
+        String sql = "SELECT role_id, permission_id FROM Role_Permission";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
-            stm.setInt(1, roleId);
             ResultSet rs = stm.executeQuery();
             while (rs.next()) {
-                permissionIds.add(rs.getInt("permission_id"));
+                String key = rs.getInt("role_id") + "_" + rs.getInt("permission_id");
+                matrix.add(key);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return permissionIds;
+        return matrix;
     }
 
-    public boolean updatePermissionsForRole(int roleId, String[] permissionIds) {
-        String deleteSql = "DELETE FROM Role_Permission WHERE role_id = ?";
+    public boolean updateFullPermissionMatrix(String[] allCheckedPerms) {
+        String deleteSql = "DELETE FROM Role_Permission";
         String insertSql = "INSERT INTO Role_Permission (role_id, permission_id) VALUES (?, ?)";
 
         try {
             connection.setAutoCommit(false);
 
             try (PreparedStatement stmDelete = connection.prepareStatement(deleteSql)) {
-                stmDelete.setInt(1, roleId);
                 stmDelete.executeUpdate();
             }
 
-            if (permissionIds != null && permissionIds.length > 0) {
+            if (allCheckedPerms != null && allCheckedPerms.length > 0) {
                 try (PreparedStatement stmInsert = connection.prepareStatement(insertSql)) {
-                    for (String permId : permissionIds) {
-                        stmInsert.setInt(1, roleId);
-                        stmInsert.setInt(2, Integer.parseInt(permId));
-                        stmInsert.addBatch();
+                    for (String checkedValue : allCheckedPerms) {
+                        String[] parts = checkedValue.split("_");
+                        if (parts.length == 2) {
+                            int roleId = Integer.parseInt(parts[0]);
+                            int permId = Integer.parseInt(parts[1]);
+
+                            stmInsert.setInt(1, roleId);
+                            stmInsert.setInt(2, permId);
+                            stmInsert.addBatch();
+                        }
                     }
                     stmInsert.executeBatch();
                 }
