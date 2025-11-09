@@ -115,6 +115,12 @@
             <!-- MAIN CONTENT -->
             <aside class="right-side">
                 <section class="content">
+                    <!-- Hidden div for server data -->
+                    <div id="paginationData" style="display:none;"
+                         data-total-feedbacks="<%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>"
+                         data-total-pages="<%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>">
+                    </div>
+                    
                     <form method="get" action="${pageContext.request.contextPath}/customer/listFeedback" class="form-inline mb-3">
                         <!-- Page Header -->
                         <div class="row">
@@ -209,7 +215,13 @@
                                                     <%
                                                         List<data.Feedback> feedbacks = (List<data.Feedback>) request.getAttribute("feedbacks");
                                                         if (feedbacks != null ) {
-                                                        int no = 1;
+                                                        // Tính số thứ tự bắt đầu dựa trên trang hiện tại
+                                                        int currentPage = request.getAttribute("currentPage") != null ? 
+                                                            (Integer) request.getAttribute("currentPage") : 1;
+                                                        int pageSize = request.getAttribute("pageSize") != null ? 
+                                                            (Integer) request.getAttribute("pageSize") : 10;
+                                                        int no = (currentPage - 1) * pageSize + 1;
+                                                        
                                                             for (data.Feedback f : feedbacks) {
                                                         
                                                     %>
@@ -247,18 +259,22 @@
                                         <!-- Pagination Controls -->
                                         <div class="pagination-container">
                                             <div class="pagination-info">
-                                                
+                                                <span id="paginationInfo">Showing feedbacks</span>
                                             </div>
 
                                             <div class="page-size-selector">
                                                 <label for="pageSize">Show:</label>
                                                 <select id="pageSize" onchange="changePageSize()">
-                                                    <%-- Dùng JSTL để kiểm tra và chọn đúng giá trị --%>
-                                                    <option value="5" ${pageSize == 5 ? 'selected' : ''}>5</option>
-                                                    <option value="10" ${pageSize == 10 ? 'selected' : ''}>10</option>
-                                                    <option value="25" ${pageSize == 25 ? 'selected' : ''}>25</option>
-                                                    <option value="50" ${pageSize == 50 ? 'selected' : ''}>50</option>
-                                                    <option value="100" ${pageSize == 100 ? 'selected' : ''}>100</option>
+                                                    <%
+                                                        int currentPageSize = request.getAttribute("pageSize") != null ? 
+                                                            (Integer) request.getAttribute("pageSize") : 10;
+                                                    %>
+                                                    <option value="2" <%= currentPageSize == 2 ? "selected" : "" %>>2</option>
+                                                    <option value="5" <%= currentPageSize == 5 ? "selected" : "" %>>5</option>
+                                                    <option value="10" <%= currentPageSize == 10 ? "selected" : "" %>>10</option>
+                                                    <option value="25" <%= currentPageSize == 25 ? "selected" : "" %>>25</option>
+                                                    <option value="50" <%= currentPageSize == 50 ? "selected" : "" %>>50</option>
+                                                    <option value="100" <%= currentPageSize == 100 ? "selected" : "" %>>100</option>
                                                 </select>
                                                 <span>per page</span>
                                             </div>
@@ -312,8 +328,18 @@
                                                         // Pagination variables
                                                         let currentPage = 1;
                                                         let pageSize = 10;
-                                                        let allRows = [];
-                                                        let filteredRows = [];
+
+                                                        // Get server data from data attributes
+                                                        function getServerData() {
+                                                            var paginationData = document.getElementById('paginationData');
+                                                            if (paginationData) {
+                                                                return {
+                                                                    totalFeedbacks: parseInt(paginationData.dataset.totalFeedbacks) || 0,
+                                                                    totalPages: parseInt(paginationData.dataset.totalPages) || 1
+                                                                };
+                                                            }
+                                                            return { totalFeedbacks: 0, totalPages: 1 };
+                                                        }
 
                                                         // Helper function to get current URL parameters
                                                         function getUrlParams() {
@@ -329,7 +355,13 @@
                                                             if (params.get('rating')) {
                                                                 urlParams.rating = params.get('rating');
                                                             }
-
+                                                            if (params.get('pageSize')) {
+                                                                urlParams.pageSize = params.get('pageSize');
+                                                            }
+                                                            // Always preserve pageSize if not set, use default
+                                                            if (!urlParams.pageSize) {
+                                                                urlParams.pageSize = '10';
+                                                            }
 
                                                             return urlParams;
                                                         }
@@ -338,14 +370,28 @@
                                                         function buildUrlWithParams(params) {
                                                             var url = window.location.pathname;
                                                             var paramArray = [];
+                                                            
                                                             for (var key in params) {
-                                                                if (params[key] && params[key] !== '' && params[key] !== 'ALL') {
-                                                                    paramArray.push(key + '=' + encodeURIComponent(params[key]));
+                                                                var value = params[key];
+                                                                // Xử lý đúng các tham số số (như page, pageSize)
+                                                                if (value !== null && value !== undefined && value !== '') {
+                                                                    // Luôn thêm page và pageSize vào URL
+                                                                    if (key === 'page' || key === 'pageSize') {
+                                                                        paramArray.push(key + '=' + encodeURIComponent(String(value)));
+                                                                    }
+                                                                    // Don't filter out 'ALL' for type and rating, but do for others
+                                                                    else if (key === 'type' || key === 'rating') {
+                                                                        paramArray.push(key + '=' + encodeURIComponent(String(value)));
+                                                                    } else if (value !== 'ALL') {
+                                                                        paramArray.push(key + '=' + encodeURIComponent(String(value)));
+                                                                    }
                                                                 }
                                                             }
+                                                            
                                                             if (paramArray.length > 0) {
                                                                 url += '?' + paramArray.join('&');
                                                             }
+                                                            
                                                             return url;
                                                         }
 
@@ -357,43 +403,51 @@
 
                                                         // Update pagination info text (from server data)
                                                         function updatePaginationInfo() {
-                                                            // Dùng các biến toàn cục đã lấy từ server
-                                                            var startIndex = (currentPage - 1) * currentLimit + 1;
-                                                            var endIndex = Math.min(currentPage * currentLimit, totalProducts);
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                            var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
+                                                            var serverData = getServerData();
+                                                            var totalFeedbacks = serverData.totalFeedbacks;
+
+                                                            var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
+                                                            var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalFeedbacks);
                                                             var infoElement = document.getElementById('paginationInfo');
                                                             if (infoElement) {
-                                                                if (totalProducts === 0) {
-                                                                    infoElement.textContent = 'No requests found.';
+                                                                if (totalFeedbacks === 0) {
+                                                                    infoElement.textContent = 'No feedbacks to display';
                                                                 } else {
-                                                                    infoElement.textContent = 'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' requests';
+                                                                    infoElement.textContent = 'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalFeedbacks + ' feedbacks';
                                                                 }
                                                             }
                                                         }
 
                                                         // Render pagination buttons
                                                         function renderPagination() {
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                            var serverData = getServerData();
+                                                            var totalPages = serverData.totalPages;
                                                             var pageNumbersDiv = document.getElementById('pageNumbers');
                                                             if (!pageNumbersDiv)
                                                                 return;
                                                             pageNumbersDiv.innerHTML = '';
 
-                                                            var startPage = Math.max(1, currentPage - 2);
-                                                            var endPage = Math.min(totalPages, currentPage + 2);
-                                                            if (currentPage <= 3) {
+                                                            var startPage = Math.max(1, currentPageFromUrl - 2);
+                                                            var endPage = Math.min(totalPages, currentPageFromUrl + 2);
+                                                            if (currentPageFromUrl <= 3) {
                                                                 endPage = Math.min(5, totalPages);
                                                             }
-                                                            if (currentPage > totalPages - 3) {
+                                                            if (currentPageFromUrl > totalPages - 3) {
                                                                 startPage = Math.max(1, totalPages - 4);
                                                             }
 
                                                             for (var i = startPage; i <= endPage; i++) {
                                                                 var btn = document.createElement('button');
-                                                                btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+                                                                btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
                                                                 btn.textContent = i;
-                                                                btn.onclick = (function (pageNum) {
-                                                                    return function () {
-                                                                        goToPage(pageNum);
-                                                                    };
+                                                                btn.setAttribute('type', 'button');
+                                                                btn.onclick = (function(pageNum) {
+                                                                    return function() { window.goToPage(pageNum); };
                                                                 })(i);
                                                                 pageNumbersDiv.appendChild(btn);
                                                             }
@@ -402,47 +456,67 @@
 
                                                         // Update pagination button states
                                                         function updatePaginationButtons() {
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                            var serverData = getServerData();
+                                                            var totalPages = serverData.totalPages;
+
                                                             var firstBtn = document.getElementById('firstPageBtn');
                                                             var prevBtn = document.getElementById('prevPageBtn');
                                                             var nextBtn = document.getElementById('nextPageBtn');
                                                             var lastBtn = document.getElementById('lastPageBtn');
 
                                                             if (firstBtn)
-                                                                firstBtn.disabled = (currentPage === 1);
+                                                                firstBtn.disabled = (currentPageFromUrl === 1);
                                                             if (prevBtn)
-                                                                prevBtn.disabled = (currentPage === 1);
+                                                                prevBtn.disabled = (currentPageFromUrl === 1);
                                                             if (nextBtn)
-                                                                nextBtn.disabled = (currentPage === totalPages || totalPages === 0);
+                                                                nextBtn.disabled = (currentPageFromUrl === totalPages || totalPages === 0);
                                                             if (lastBtn)
-                                                                lastBtn.disabled = (currentPage === totalPages || totalPages === 0);
+                                                                lastBtn.disabled = (currentPageFromUrl === totalPages || totalPages === 0);
                                                         }
 
-                                                        // Pagination navigation functions (with URL parameters preserved)
-                                                        window.goToPage = function (page) {
+                                                        // Pagination navigation functions (with URL parameters preserved) - Define first
+                                                        window.goToPage = function(page) {
                                                             var params = getUrlParams();
-                                                            params.page = page;
-                                                            window.location.href = buildUrlWithParams(params);
+                                                            params.page = String(page);
+                                                            var newUrl = buildUrlWithParams(params);
+                                                            window.location.href = newUrl;
                                                         };
-                                                        window.goToFirstPage = function () {
-                                                            goToPage(1);
+                                                        
+                                                        window.goToFirstPage = function() {
+                                                            window.goToPage(1);
                                                         };
-                                                        window.goToPrevPage = function () {
-                                                            if (currentPage > 1)
-                                                                goToPage(currentPage - 1);
+                                                        
+                                                        window.goToPrevPage = function() {
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPage = parseInt(urlParams.get('page')) || 1;
+                                                            if (currentPage > 1) {
+                                                                window.goToPage(currentPage - 1);
+                                                            }
                                                         };
-                                                        window.goToNextPage = function () {
-                                                            if (currentPage < totalPages)
-                                                                goToPage(currentPage + 1);
+                                                        
+                                                        window.goToNextPage = function() {
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPage = parseInt(urlParams.get('page')) || 1;
+                                                            var serverData = getServerData();
+                                                            var totalPages = serverData.totalPages;
+                                                            if (currentPage < totalPages) {
+                                                                window.goToPage(currentPage + 1);
+                                                            }
                                                         };
-                                                        window.goToLastPage = function () {
-                                                            goToPage(totalPages);
+                                                        
+                                                        window.goToLastPage = function() {
+                                                            var serverData = getServerData();
+                                                            var totalPages = serverData.totalPages;
+                                                            window.goToPage(totalPages);
                                                         };
 
-                                                        window.changePageSize = function () {
+                                                        window.changePageSize = function() {
                                                             var newPageSize = document.getElementById('pageSize').value;
                                                             var params = getUrlParams();
                                                             params.pageSize = newPageSize;
-                                                            params.page = 1;
+                                                            params.page = 1; // Reset to first page when changing page size
                                                             window.location.href = buildUrlWithParams(params);
                                                         };
 
@@ -475,13 +549,26 @@
 
                                                         // Initialize pagination on page load
                                                         initPagination();
+                                                        
+                                                        // Auto-hide success and error messages after 3 seconds
+                                                        setTimeout(function () {
+                                                            $('.alert-success').fadeOut(500, function () {
+                                                                $(this).remove();
+                                                            });
+                                                            $('.alert-danger').fadeOut(500, function () {
+                                                                $(this).remove();
+                                                            });
+                                                        }, 3000);
 
                                                         // Apply filters function
                                                         window.applyFilters = function () {
                                                             var searchQuery = document.getElementById('searchInput').value;
                                                             var type = document.getElementById('typeFilter').value;
                                                             var rating = document.getElementById('ratingFilter').value;
-
+                                                            
+                                                            // Get current pageSize to preserve it
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPageSize = urlParams.get('pageSize');
 
                                                             // Build URL with parameters
                                                             var url = window.location.pathname + '?';
@@ -496,7 +583,9 @@
                                                             if (rating && rating !== 'ALL') {
                                                                 params.push('rating=' + encodeURIComponent(rating));
                                                             }
-
+                                                            if (currentPageSize) {
+                                                                params.push('pageSize=' + currentPageSize);
+                                                            }
 
                                                             url += params.join('&');
 
