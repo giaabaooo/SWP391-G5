@@ -30,6 +30,9 @@ public class CustomerRequest {
     private String reject_reason;
     private String payment_status;
     private java.util.Date payment_due_date;
+    private Date desired_completion_date;
+    
+    
 
     public String getPriority() {
         return priority;
@@ -64,6 +67,22 @@ public class CustomerRequest {
     }
     public CustomerRequest() {
     }
+
+    public CustomerRequest(Date desired_completion_date) {
+        this.desired_completion_date = desired_completion_date;
+    }
+
+    public Date getDesired_completion_date() {
+        return desired_completion_date;
+    }
+
+    public void setDesired_completion_date(Date desired_completion_date) {
+        this.desired_completion_date = desired_completion_date;
+    }
+
+    
+    
+   
 
     public CustomerRequest(int id, int customer_id, int device_id, String request_type, String title, String description, Date request_date, String status, boolean isActive, User customer, Device device, String productName) {
         this.id = id;
