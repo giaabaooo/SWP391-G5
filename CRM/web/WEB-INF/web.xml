@@ -140,8 +140,11 @@
     <servlet>
         <servlet-name>DetailContract</servlet-name>
         <servlet-class>Controller.customer.DetailContract</servlet-class>
+
         </servlet>
-    <servlet> 
+
+  <servlet>
+
         <servlet-name>FeedbackController</servlet-name>
         <servlet-class>Controller.cskh.FeedbackController</servlet-class>
     </servlet>
@@ -266,8 +269,10 @@
     <servlet-mapping>
         <servlet-name>DetailContract</servlet-name>
         <url-pattern>/customer/detailContract</url-pattern>
+
     </servlet-mapping>
-    <servlet-mapping>
+ 
+   <servlet-mapping>
         <servlet-name>FeedbackController</servlet-name>
         <url-pattern>/FeedbackController</url-pattern>
     </servlet-mapping>
