@@ -160,7 +160,7 @@
                                 <input type="hidden" name="user_id" value="${selectedUser.id}">
                                 
                                 <div class="card-header">
-                                    <h4 class="permission-header">3: Set Overrides for User: ${selectedUser.fullName} (Role: ${selectedUser.role.name})</h4>
+                                    <h4 class="permission-header">Set Overrides for User: ${selectedUser.fullName} (Role: ${selectedUser.role.name})</h4>
                                 </div>
 
                                 <div class="card-body matrix-body">
