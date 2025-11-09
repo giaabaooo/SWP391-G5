@@ -166,6 +166,8 @@
         <servlet-class>Controller.Admin.UserPermissionController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>LandingPageController</servlet-name>
+        <servlet-class>Controller.LandingPageController</servlet-class>
         <servlet-name>RegisterController</servlet-name>
         <servlet-class>Controller.RegisterController</servlet-class>
     </servlet>
@@ -296,11 +298,13 @@
         <url-pattern>/UserPermissionController</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>LandingPageController</servlet-name>
+        <url-pattern>/LandingPageController</url-pattern>
         <servlet-name>RegisterController</servlet-name>
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
-        <welcome-file>redirect.jsp</welcome-file>
+        <welcome-file>landing_page.jsp</welcome-file>
     </welcome-file-list>
     <servlet-mapping>
         <servlet-name>AddNewProductController</servlet-name>
