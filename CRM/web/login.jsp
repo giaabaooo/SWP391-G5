@@ -52,7 +52,7 @@
                         <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
                             <div class="text-center mb-4">                                  
                                     <img src="img/logo-Crm.png" alt="Company Logo" style="max-width: 250px; margin-bottom: 1rem;"/>
-                                    <h2>Customer and Device Management</h2>                                   
+                                    <h2>Customer Resource Management</h2>                                   
                                 </div>
                             
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
