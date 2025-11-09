@@ -140,11 +140,8 @@
     <servlet>
         <servlet-name>DetailContract</servlet-name>
         <servlet-class>Controller.customer.DetailContract</servlet-class>
-
-        </servlet>
-
-  <servlet>
-
+    </servlet>
+    <servlet>
         <servlet-name>FeedbackController</servlet-name>
         <servlet-class>Controller.cskh.FeedbackController</servlet-class>
     </servlet>
@@ -167,6 +164,10 @@
     <servlet>
         <servlet-name>UserPermissionController</servlet-name>
         <servlet-class>Controller.Admin.UserPermissionController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RegisterController</servlet-name>
+        <servlet-class>Controller.RegisterController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
@@ -269,10 +270,8 @@
     <servlet-mapping>
         <servlet-name>DetailContract</servlet-name>
         <url-pattern>/customer/detailContract</url-pattern>
-
     </servlet-mapping>
- 
-   <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>FeedbackController</servlet-name>
         <url-pattern>/FeedbackController</url-pattern>
     </servlet-mapping>
@@ -295,6 +294,10 @@
     <servlet-mapping>
         <servlet-name>UserPermissionController</servlet-name>
         <url-pattern>/UserPermissionController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RegisterController</servlet-name>
+        <url-pattern>/register</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>redirect.jsp</welcome-file>
