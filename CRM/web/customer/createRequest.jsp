@@ -201,14 +201,33 @@
                                             <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..."></textarea>
                                         </div>
 
+                                        <div class="form-group">
+                                            <label>Desired Completion Date (Optional)</label>
+                                            <input type="date" name="desired_date" class="form-control" 
+                                                   min="${java.time.LocalDate.now().plusDays(1)}">
+                                        </div>
+                                        <div class="form-group" style="border-top: 1px solid #f0f0f0; padding-top: 15px;">
+                                            <div class="checkbox">
+                                                <label style="font-size: 1.1em;">
+                                                    <input type="checkbox" name="isUrgent" value="true">
+                                                    <strong>Urgent Request (Prioritized)</strong>
+                                                </label>
+                                                <p class="help-block" style="color: #c94a4a; margin-top: 7px; font-size: 13px;">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                    By checking this, your request will be prioritized. This may incur a 
+                                                    <strong>+5% surcharge</strong> on the final repair/service bill.
+                                                </p>
+                                            </div>
+                                        </div>
+
 
                                         <div class="form-group" id="typeGroup">
                                             <label >Request Type<span style="color:red">*</span></label>
                                             <select id="requestTypeSelect" name="request_type" class="form-control" required>
                                                 <option value="">-- Choose Type --</option>
-                                                <option value="Repair">Repair</option>
-                                                <option value="Warranty">Warranty</option>
-                                                <option value="Maintenance">Maintenance</option>
+                                                <option value="REPAIR">Repair</option>
+                                                <option value="WARRANTY">Warranty</option>
+                                                <option value="MAINTENANCE">Maintenance</option>
                                             </select>
                                             <div class="validation-error" >Request Type is required</div>
                                         </div>
