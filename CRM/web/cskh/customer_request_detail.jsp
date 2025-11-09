@@ -10,7 +10,7 @@
         <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Request Detail: <c:out value="#${requestDetail.id}"/></h1>
         <ol class="breadcrumb" style="background: none; padding: 0; margin-bottom: 2rem;">
             <li><a href="${pageContext.request.contextPath}/cskh/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li><a href="${pageContext.request.contextPath}/cskh/customer-request">Customer Requests</a></li>
+            <li><a href="${backUrl}">${backPageName}</a></li>
             <li class="active">Detail</li>
         </ol>
     </section>
@@ -178,6 +178,7 @@
                                         <form action="" method="POST">
                                             <input type="hidden" name="action" value="save_response">
                                             <input type="hidden" name="requestId" value="${requestDetail.id}">
+                                            <input type="hidden" name="returnUrl" value="${backUrl}">
 
                                             <div class="form-group">
                                                 <textarea name="cskhResponse" id="cskhResponseText" class="form-control-modern" rows="5" 
@@ -209,7 +210,7 @@
         <div class="content-card">
             <div class="card-body">
                 <form action="" method="POST" class="form-inline" style="justify-content: flex-end; gap: 10px;">
-                    <a href="${pageContext.request.contextPath}/cskh/customer-request" class="btn btn-default" style="margin-right: auto;">
+                    <a href="${backUrl}" class="btn btn-default" style="margin-right: auto;">
                         <i class="fa fa-arrow-left"></i> Back to List
                     </a>
 

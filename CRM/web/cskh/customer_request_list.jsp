@@ -158,9 +158,28 @@
                                                                 </button>
                                                             </form>
                                                         </c:when>
+                                                        <c:when test="${r.status eq 'PAID' || (r.status eq 'COMPLETED' && (empty r.requestMeta || r.requestMeta.total_cost == 0))}">
+                                                            <form method="post" action="${pageContext.request.contextPath}/cskh/customer-request" style="display:inline;">
+                                                                <input type="hidden" name="action" value="closeRequest" />
+                                                                <input type="hidden" name="id" value="${r.id}" />
+                                                                <button type="submit" class="btn btn-action" style="text-decoration: none; background-color: #059669; color: white;">
+                                                                    <i class="fa fa-check-square-o"></i> Close
+                                                                </button>
+                                                            </form>
+                                                        </c:when>
                                                         <c:otherwise>
                                                             <button class="btn btn-action" disabled>
-                                                                <i class="fa fa-check"></i> Transferred
+                                                                <c:choose>
+                                                                    <c:when test="${r.status eq 'CLOSED' || r.status eq 'CANCELLED'}">
+                                                                        <i class="fa fa-ban"></i> ${r.status}
+                                                                    </c:when>
+                                                                    <c:when test="${r.status eq 'TRANSFERRED' || r.status eq 'ASSIGNED' || r.status eq 'IN_PROGRESS'}">
+                                                                        <i class="fa fa-cog"></i> In Progress
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <i class="fa fa-clock-o"></i> ${r.status}
+                                                                    </c:otherwise>
+                                                                </c:choose>
                                                             </button>
                                                         </c:otherwise>
                                                     </c:choose>

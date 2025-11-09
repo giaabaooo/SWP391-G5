@@ -50,6 +50,38 @@
         <servlet-class>Controller.warestaff.ViewCategoryDetailController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>BrandListController</servlet-name>
+        <servlet-class>Controller.warestaff.BrandListController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddBrandController</servlet-name>
+        <servlet-class>Controller.warestaff.AddBrandController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EditBrandController</servlet-name>
+        <servlet-class>Controller.warestaff.EditBrandController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteBrandController</servlet-name>
+        <servlet-class>Controller.warestaff.DeleteBrandController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewBrandDetailController</servlet-name>
+        <servlet-class>Controller.warestaff.ViewBrandDetailController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewTransactionHistoryController</servlet-name>
+        <servlet-class>Controller.warestaff.ViewTransactionHistoryController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddImportTransactionController</servlet-name>
+        <servlet-class>Controller.warestaff.AddImportTransactionController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddExportTransactionController</servlet-name>
+        <servlet-class>Controller.warestaff.AddExportTransactionController</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>ContractController</servlet-name>
         <servlet-class>Controller.customer.ContractController</servlet-class>
     </servlet>
@@ -108,6 +140,30 @@
     <servlet>
         <servlet-name>DetailContract</servlet-name>
         <servlet-class>Controller.customer.DetailContract</servlet-class>
+     </servlet> 
+  <servlet>
+        <servlet-name>FeedbackController</servlet-name>
+        <servlet-class>Controller.cskh.FeedbackController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CSKHDashboardController</servlet-name>
+        <servlet-class>Controller.cskh.CSKHDashboardController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ProfileController</servlet-name>
+        <servlet-class>Controller.ProfileController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AuthorizationFilter</servlet-name>
+        <servlet-class>Controller.AuthorizationFilter</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RolePermissionController</servlet-name>
+        <servlet-class>Controller.Admin.RolePermissionController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UserPermissionController</servlet-name>
+        <servlet-class>Controller.Admin.UserPermissionController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
@@ -210,6 +266,30 @@
     <servlet-mapping>
         <servlet-name>DetailContract</servlet-name>
         <url-pattern>/customer/detailContract</url-pattern>
+      </servlet-mapping>
+   <servlet-mapping>
+        <servlet-name>FeedbackController</servlet-name>
+        <url-pattern>/FeedbackController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CSKHDashboardController</servlet-name>
+        <url-pattern>/CSKHDashboardController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProfileController</servlet-name>
+        <url-pattern>/ProfileController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AuthorizationFilter</servlet-name>
+        <url-pattern>/AuthorizationFilter</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RolePermissionController</servlet-name>
+        <url-pattern>/RolePermissionController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UserPermissionController</servlet-name>
+        <url-pattern>/UserPermissionController</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>redirect.jsp</welcome-file>
@@ -253,5 +333,37 @@
     <servlet-mapping>
         <servlet-name>ViewCategoryDetailController</servlet-name>
         <url-pattern>/warestaff/viewCategoryDetail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BrandListController</servlet-name>
+        <url-pattern>/warestaff/brandList</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddBrandController</servlet-name>
+        <url-pattern>/warestaff/addBrand</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditBrandController</servlet-name>
+        <url-pattern>/warestaff/editBrand</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteBrandController</servlet-name>
+        <url-pattern>/warestaff/deleteBrand</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewBrandDetailController</servlet-name>
+        <url-pattern>/warestaff/viewBrandDetail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewTransactionHistoryController</servlet-name>
+        <url-pattern>/warestaff/transactions</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddImportTransactionController</servlet-name>
+        <url-pattern>/warestaff/addImportTransaction</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddExportTransactionController</servlet-name>
+        <url-pattern>/warestaff/addExportTransaction</url-pattern>
     </servlet-mapping>
 </web-app>

@@ -4,7 +4,12 @@
 
 <div class="content-wrapper">
     <section class="content p-4">
-        <h2 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Create New Contract</h2>
+        <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Create New Contract</h1>
+        <ol class="breadcrumb" style="background: none; padding: 0; margin-bottom: 2rem;">
+            <li><a href="${pageContext.request.contextPath}/cskh/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="${pageContext.request.contextPath}/cskh/contract">Contracts</a></li>
+            <li class="active">Create Contract</li>
+        </ol>
 
         <c:if test="${not empty error}">
             <div class="alert alert-danger" role="alert">
@@ -61,7 +66,7 @@
 
                         <div id="itemContainer">
                             <div class="item-row" style="margin-bottom: 10px; padding: 15px; border: 1px solid #eee; border-radius: 5px; background: #fdfdfd;">
-                                
+
                                 <div class="row">
                                     <div class="col-xs-12">
                                         <button type="button" class="btn btn-danger btn-sm remove-item pull-right">
@@ -69,7 +74,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
@@ -116,13 +121,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="serial-container" style="margin-top: 10px;"></div>
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
 

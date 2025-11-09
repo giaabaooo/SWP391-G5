@@ -29,7 +29,7 @@
 
 <!-- HEADER -->
 <header class="header">
-    <a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
+    <a href="${pageContext.request.contextPath}/warestaff/dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Warehouse Staff</a>
     <nav class="navbar navbar-static-top" role="navigation">
         <!-- <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
             <span class="sr-only">Toggle navigation</span>
@@ -75,7 +75,7 @@
             </div>
 
             <ul class="sidebar-menu">
-                <li><a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                <li><a href="${pageContext.request.contextPath}/warestaff/dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
                 <!-- Products -->
                 <li class="treeview">
@@ -105,10 +105,8 @@
                         <i class="fa fa-bookmark"></i> <span>Brands</span>
                     </a>
                     <ul class="collapse" id="brandMenu">
-                        <li><a href="viewBrands.jsp"><i class="fa fa-eye"></i> View Brands</a></li>
-                        <li><a href="addBrand.jsp"><i class="fa fa-plus"></i> Add Brand</a></li>
-                        <li><a href="updateBrand.jsp"><i class="fa fa-edit"></i> Update Brand</a></li>
-                        <li><a href="deleteBrand.jsp"><i class="fa fa-trash"></i> Delete Brand</a></li>
+                        <li><a href="../warestaff/brandList"><i class="fa fa-eye"></i> View Brands</a></li>
+                        <li><a href="../warestaff/addBrand"><i class="fa fa-plus"></i> Add Brand</a></li>
                     </ul>
                 </li>
 
@@ -124,11 +122,7 @@
                     </ul>
                 </li>
 
-                <!-- Requests -->
-                <li><a href="requests.jsp"><i class="fa fa-clipboard"></i> Inventory Requests</a></li>
-
-                <!-- Reports -->
-                <li><a href="reports.jsp"><i class="fa fa-bar-chart"></i> Inventory Reports</a></li>
+                
             </ul>
         </section>
     </aside>
@@ -268,7 +262,7 @@
                                         <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                             <i class="fa fa-save"></i> Save Product
                                         </button>
-                                        <a href="${pageContext.request.contextPath}/warehouse/dashboard.jsp" class="btn btn-default" style="min-width: 150px;">
+                                        <a href="${pageContext.request.contextPath}/warestaff/dashboard" class="btn btn-default" style="min-width: 150px;">
                                             <i class="fa fa-arrow-left"></i> Back to Dashboard
                                         </a>
                                     </div>

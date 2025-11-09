@@ -67,8 +67,38 @@ public class ContractCreateController extends HttpServlet {
                 reloadFormData(request);
                 request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
                 return;
-            }
+            }   
+            
+            String[] serialNumbers = request.getParameterValues("serialNumber");
+            
+            if (serialNumbers != null) {
+                java.util.Set<String> serialSet = new java.util.HashSet<>();
+                for (String serial : serialNumbers) {
+                    if (serial == null || serial.trim().isEmpty()) {
+                        request.setAttribute("error", "Serial number cannot be empty.");
+                        reloadFormData(request);
+                        request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
+                        return;
+                    }
+                    
+                    String trimmedSerial = serial.trim();                   
+                   
+                    if (!serialSet.add(trimmedSerial)) {
+                        request.setAttribute("error", "Duplicate serial number entered: " + trimmedSerial);
+                        reloadFormData(request);
+                        request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
+                        return;
+                    }
 
+                    if (deviceDAO.isSerialNumberExists(trimmedSerial)) {
+                        request.setAttribute("error", "Serial number already exists: " + trimmedSerial);
+                        reloadFormData(request);
+                        request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
+                        return;
+                    }
+                }
+            }
+            
             Date contractDate = Date.valueOf(contractDateStr);
 
             Contract contract = new Contract();
@@ -83,8 +113,7 @@ public class ContractCreateController extends HttpServlet {
             String[] warrantyMonths = request.getParameterValues("warrantyMonths");
             String[] maintenanceMonths = request.getParameterValues("maintenanceMonths");
             String[] maintenanceFreq = request.getParameterValues("maintenanceFrequencyMonths");
-            String[] serialNumbers = request.getParameterValues("serialNumber"); // thêm dòng này
-
+            
             List<ContractItem> items = new ArrayList<>();
             double calculatedTotalAmount = 0.0;
 

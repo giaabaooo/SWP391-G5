@@ -22,7 +22,7 @@
         <link href="${pageContext.request.contextPath}/css/warehouse/responsive.css" rel="stylesheet" type="text/css" />
         <!-- Select2 CSS & JS -->
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
         <style>
@@ -560,7 +560,7 @@
 
         <!-- HEADER -->
         <header class="header">
-            <a href="dashboard.jsp" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">CSKH</a>
+            <a href="${pageContext.request.contextPath}/cskh/dashboard" class="logo" style="color: #ffffff; font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Customer Service</a>
             <nav class="navbar navbar-static-top" role="navigation">
                 <!-- <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
                     <span class="sr-only">Toggle navigation</span>
@@ -578,7 +578,7 @@
                             <ul class="dropdown-menu dropdown-custom dropdown-menu-right">
                                 <li class="dropdown-header text-center">Account</li>
                                 <li>
-                                    <a href="#"><i class="fa fa-user fa-fw pull-right"></i> Profile</a>
+                                    <a href="${pageContext.request.contextPath}/user/profile"><i class="fa fa-user fa-fw pull-right"></i> Profile</a>
                                     <a data-toggle="modal" href="#modal-user-settings"><i class="fa fa-cog fa-fw pull-right"></i> Settings</a>
                                 </li>
                                 <li class="divider"></li>

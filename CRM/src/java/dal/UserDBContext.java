@@ -1,5 +1,6 @@
 package dal;
 
+import data.Permission;
 import data.User;
 import data.Role;
 import jakarta.mail.Message;
@@ -12,7 +13,11 @@ import jakarta.mail.internet.MimeMessage;
 import java.security.SecureRandom;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 public class UserDBContext extends DBContext {
 
@@ -24,9 +29,12 @@ public class UserDBContext extends DBContext {
 
         try (
                 PreparedStatement stmt = connection.prepareStatement(sql)) {
-            
+
+            var a = hashPassword("123");
+            var hashPass = hashPassword(password);
+
             stmt.setString(1, username);
-            stmt.setString(2, password);
+            stmt.setString(2, hashPass);
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -46,6 +54,9 @@ public class UserDBContext extends DBContext {
                 user.setAddress(rs.getString("address"));
                 user.setIsActive(rs.getBoolean("is_active"));
                 user.setRole(role);
+
+                Set<String> permissions = getUserPermissions(user.getRole().getId(), user.getId());
+                user.setPermissions(permissions);
 
                 return user;
             }
@@ -246,14 +257,14 @@ public class UserDBContext extends DBContext {
             e.printStackTrace();
         }
     }
-    
+
     public ArrayList<User> getAllActiveCustomers() {
         ArrayList<User> users = new ArrayList<>();
         String sql = "SELECT u.id, u.full_name, u.email "
                 + "FROM User u INNER JOIN Role r ON u.role_id = r.id "
                 + "WHERE r.name = 'Customer' AND u.is_active = 1 "
-                + "ORDER BY u.full_name ASC"; 
-        
+                + "ORDER BY u.full_name ASC";
+
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             ResultSet rs = stm.executeQuery();
             while (rs.next()) {
@@ -268,7 +279,7 @@ public class UserDBContext extends DBContext {
         }
         return users;
     }
-    
+
     public ArrayList<User> listCustomers(int page, int pageSize, String keyword, String status, String sort) {
         ArrayList<User> users = new ArrayList<>();
         String sql = "SELECT u.*, r.id AS role_id, r.name AS role_name, r.description AS role_desc "
@@ -402,7 +413,7 @@ public class UserDBContext extends DBContext {
 
     public void sendEmailForNewUser(String toEmail, String username, String password) {
         final String fromEmail = "ducnmhe172104@fpt.edu.vn";
-        final String appPassword = "zkqa szgs ucqr chws"; 
+        final String appPassword = "zkqa szgs ucqr chws";
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -455,6 +466,285 @@ public class UserDBContext extends DBContext {
             return hexString.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void updateUserProfile(int userId, String fullName, String phone, String address) {
+        String sql = "UPDATE user SET full_name=?, phone=?, address=? WHERE id=?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, fullName);
+            stm.setString(2, phone);
+            stm.setString(3, address);
+            stm.setInt(4, userId);
+            stm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean changePassword(int userId, String newHashedPassword) {
+        String sql = "UPDATE user SET password=? WHERE id=?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, newHashedPassword);
+            stm.setInt(2, userId);
+            return stm.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public ArrayList<Permission> getAllPermissions() {
+        ArrayList<Permission> permissions = new ArrayList<>();
+        String sql = "SELECT id, name, description FROM Permission WHERE is_active = 1 ORDER BY name";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                Permission p = new Permission();
+                p.setId(rs.getInt("id"));
+                p.setName(rs.getString("name"));
+                p.setDescription(rs.getString("description"));
+                permissions.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return permissions;
+    }
+
+    public Set<String> getRolePermissionMatrix() {
+        Set<String> matrix = new HashSet<>();
+        String sql = "SELECT role_id, permission_id FROM Role_Permission";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                String key = rs.getInt("role_id") + "_" + rs.getInt("permission_id");
+                matrix.add(key);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return matrix;
+    }
+
+    public boolean updateFullPermissionMatrix(String[] allCheckedPerms) {
+        String deleteSql = "DELETE FROM Role_Permission";
+        String insertSql = "INSERT INTO Role_Permission (role_id, permission_id) VALUES (?, ?)";
+
+        try {
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement stmDelete = connection.prepareStatement(deleteSql)) {
+                stmDelete.executeUpdate();
+            }
+
+            if (allCheckedPerms != null && allCheckedPerms.length > 0) {
+                try (PreparedStatement stmInsert = connection.prepareStatement(insertSql)) {
+                    for (String checkedValue : allCheckedPerms) {
+                        String[] parts = checkedValue.split("_");
+                        if (parts.length == 2) {
+                            int roleId = Integer.parseInt(parts[0]);
+                            int permId = Integer.parseInt(parts[1]);
+
+                            stmInsert.setInt(1, roleId);
+                            stmInsert.setInt(2, permId);
+                            stmInsert.addBatch();
+                        }
+                    }
+                    stmInsert.executeBatch();
+                }
+            }
+
+            connection.commit();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Set<String> getUserPermissions(int roleId, int userId) {
+        Set<String> permissions = new HashSet<>();
+
+        String roleSql = "SELECT p.name FROM Permission p "
+                + "JOIN Role_Permission rp ON p.id = rp.permission_id "
+                + "WHERE rp.role_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(roleSql)) {
+            stm.setInt(1, roleId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                permissions.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        String userSql = "SELECT p.name, up.is_granted FROM Permission p "
+                + "JOIN User_Permission up ON p.id = up.permission_id "
+                + "WHERE up.user_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(userSql)) {
+            stm.setInt(1, userId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                String permissionName = rs.getString("name");
+                boolean isGranted = rs.getBoolean("is_granted");
+
+                if (isGranted) {
+                    permissions.add(permissionName);
+                } else {
+                    permissions.remove(permissionName);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return permissions;
+    }
+
+    public ArrayList<User> getAllActiveUsers() {
+        ArrayList<User> users = new ArrayList<>();
+        String sql = "SELECT u.id, u.username, u.full_name, r.name as role_name "
+                + "FROM User u JOIN Role r ON u.role_id = r.id "
+                + "WHERE u.is_active = 1 ORDER BY u.full_name";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setFullName(rs.getString("full_name"));
+
+                Role r = new Role();
+                r.setName(rs.getString("role_name"));
+                u.setRole(r);
+
+                users.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public ArrayList<User> getFilteredActiveUsers(String keyword, String roleIdStr) {
+        ArrayList<User> users = new ArrayList<>();
+
+        String sql = "SELECT u.id, u.username, u.full_name, r.name as role_name "
+                + "FROM User u JOIN Role r ON u.role_id = r.id "
+                + "WHERE u.is_active = 1";
+
+        ArrayList<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql += " AND (u.username LIKE ? OR u.full_name LIKE ?)";
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
+        }
+
+        if (roleIdStr != null && !roleIdStr.trim().isEmpty()) {
+            try {
+                int roleId = Integer.parseInt(roleIdStr);
+                sql += " AND u.role_id = ?";
+                params.add(roleId);
+            } catch (NumberFormatException e) {
+            }
+        }
+
+        sql += " ORDER BY u.full_name";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                stm.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setFullName(rs.getString("full_name"));
+
+                Role r = new Role();
+                r.setName(rs.getString("role_name"));
+                u.setRole(r);
+
+                users.add(u);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public Map<Integer, Boolean> getUserOverrides(int userId) {
+        Map<Integer, Boolean> overrides = new HashMap<>();
+        String sql = "SELECT permission_id, is_granted FROM User_Permission WHERE user_id = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, userId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                overrides.put(rs.getInt("permission_id"), rs.getBoolean("is_granted"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return overrides;
+    }
+
+    public boolean updateUserOverrides(int userId, Map<Integer, Boolean> overrides) {
+        String deleteSql = "DELETE FROM User_Permission WHERE user_id = ?";
+        String insertSql = "INSERT INTO User_Permission (user_id, permission_id, is_granted) VALUES (?, ?, ?)";
+
+        try {
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement stmDelete = connection.prepareStatement(deleteSql)) {
+                stmDelete.setInt(1, userId);
+                stmDelete.executeUpdate();
+            }
+
+            if (overrides != null && !overrides.isEmpty()) {
+                try (PreparedStatement stmInsert = connection.prepareStatement(insertSql)) {
+                    for (Map.Entry<Integer, Boolean> entry : overrides.entrySet()) {
+                        stmInsert.setInt(1, userId);
+                        stmInsert.setInt(2, entry.getKey());
+                        stmInsert.setBoolean(3, entry.getValue());
+                        stmInsert.addBatch();
+                    }
+                    stmInsert.executeBatch();
+                }
+            }
+
+            connection.commit();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
