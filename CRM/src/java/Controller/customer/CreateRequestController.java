@@ -16,6 +16,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import static java.time.Clock.offset;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -44,6 +47,7 @@ public class CreateRequestController extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         try {
+            DeviceDAO deviceDAO = new DeviceDAO();
             User user = (User) request.getSession().getAttribute("user");
             if (user == null) {
                 response.sendRedirect(request.getContextPath() + "/login.jsp");
@@ -54,7 +58,8 @@ public class CreateRequestController extends HttpServlet {
             String title = request.getParameter("title");
             String description = request.getParameter("description");
             String requestType = request.getParameter("request_type");
-            
+            String desiredDateStr = request.getParameter("desired_date");
+            String isUrgentStr = request.getParameter("isUrgent");
 
             CustomerRequest req = new CustomerRequest();
             req.setCustomer_id(customerId);
@@ -62,20 +67,54 @@ public class CreateRequestController extends HttpServlet {
             req.setTitle(title);
             req.setDescription(description);
             req.setRequest_type(requestType);
-            req.setStatus("Pending");
+            req.setStatus("PENDING");
+            java.util.Date utilDate = null;
+
+            if (desiredDateStr != null && !desiredDateStr.isEmpty()) {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    sdf.setLenient(false); 
+                    utilDate = sdf.parse(desiredDateStr);
+
+                    LocalDate today = LocalDate.now();
+
+                    LocalDate selectedDate = utilDate.toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+
+                    if (selectedDate.isBefore(today.plusDays(1))) {
+                        request.setAttribute("error", "The desired completion date must be tomorrow or later.");
+
+                        List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
+                        request.setAttribute("devices", devices);
+                        request.getRequestDispatcher("/customer/createRequest.jsp").forward(request, response);
+                        return;
+                    }
+                    req.setDesired_completion_date(utilDate);
+                } catch (Exception e) {
+                    System.err.println("Error parsing desired_date: " + e.getMessage());
+                request.setAttribute("error", "Invalid date format.");
+                List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
+                request.setAttribute("devices", devices);
+                request.getRequestDispatcher("/customer/createRequest.jsp").forward(request, response);
+                return;
+                }
+            }
+            String priority = (isUrgentStr != null && isUrgentStr.equals("true")) ? "URGENT" : "MEDIUM";
 
             CustomerRequestDAO dao = new CustomerRequestDAO();
-            boolean success = dao.createRequest(req);
+            int newRequestId = dao.createRequest(req);
 
-            
-            
-            if (success) {
-            response.sendRedirect(request.getContextPath() + "/customer/listRequest?success=Request created successfully!");
-        } else {
-            request.setAttribute("error", "Failed to create request. Please try again.");
-        }  
-
-            DeviceDAO deviceDAO = new DeviceDAO();
+            if (newRequestId > 0) {
+                if (req.getDesired_completion_date() != null) {
+                   dao.insertRequestMeta(newRequestId, req.getDesired_completion_date(), priority);
+                }
+                response.sendRedirect(request.getContextPath() + "/customer/listRequest?success=Request created successfully!");
+                return;
+            } else {
+                request.setAttribute("error", "Failed to create request. Please try again.");
+            }
+        
             List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
             request.setAttribute("devices", devices);
 
@@ -83,8 +122,7 @@ public class CreateRequestController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            
-           
+
         }
     }
 

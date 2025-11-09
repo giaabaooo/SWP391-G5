@@ -68,8 +68,8 @@ public class ListRequestController extends HttpServlet {
         int offset = (page - 1) * limit;
 
         List<CustomerRequest> list = CustomerRequestDAO.getRequestsByUserId(user.getId(), searchQuery, type, status, offset, limit);
-        int totalProducts = CustomerRequestDAO.countRequestsByUserId(user.getId(), searchQuery, type, status);
-        int totalPages = (int) Math.ceil((double) totalProducts / limit);
+        int totalRequests = CustomerRequestDAO.countRequestsByUserId(user.getId(), searchQuery, type, status);
+        int totalPages = (int) Math.ceil((double) totalRequests / (double) limit);
         if (totalPages == 0) {
             totalPages = 1;
         }
@@ -87,7 +87,7 @@ public class ListRequestController extends HttpServlet {
 
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
-        request.setAttribute("totalProducts", totalProducts);
+        request.setAttribute("totalRequests", totalRequests);
         request.setAttribute("pageSize", limit);
 
         request.getRequestDispatcher("/customer/listRequest.jsp").forward(request, response);

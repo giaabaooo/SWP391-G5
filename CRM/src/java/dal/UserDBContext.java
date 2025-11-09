@@ -747,4 +747,57 @@ public class UserDBContext extends DBContext {
             }
         }
     }
+    public boolean isUsernameExists(String username) {
+        String sql = "SELECT COUNT(*) FROM User WHERE username = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isEmailExists(String email) {
+        String sql = "SELECT COUNT(*) FROM User WHERE email = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean createUser(User user) {
+        // ID Role 'CUSTOMER' là 6 (dựa theo DB dump của bạn)
+        String sql = "INSERT INTO User (role_id, username, password, full_name, email, phone, address, is_active) "
+                   + "VALUES (6, ?, ?, ?, ?, ?, ?, 1)";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            
+            // Dùng hàm hashPassword CÓ SẴN trong file này
+            String hashedPassword = hashPassword(user.getPassword()); 
+            
+            ps.setString(2, hashedPassword); // Lưu mật khẩu đã HASH
+            ps.setString(3, user.getFullName());
+            ps.setString(4, user.getEmail());
+            ps.setString(5, user.getPhone());
+            ps.setString(6, user.getAddress());
+            
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="data.Product" %>
 <%@ page import="data.Category" %>
 <%@ page import="data.Brand" %>
@@ -225,6 +226,35 @@
                                             <strong><%=  requestDetails.getRequest_date()  %></strong>
                                         </div>
                                        
+                                    </div>
+                                        <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-calendar-check-o"></i> Desired Date
+                                        </div>
+                                        <div class="info-row">
+                                            <c:choose>
+                                                <c:when test="${not empty requestDetails.desired_completion_date}">
+                                                    <strong><fmt:formatDate value="${requestDetails.desired_completion_date}" pattern="yyyy-MM-dd" /></strong>
+                                                </c:when>
+                                                <c:otherwise>N/A</c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="info-row">
+                                        <div class="info-label">
+                                            <i class="fa fa-bolt"></i> Priority
+                                        </div>
+                                        <div class="info-row">
+                                            <c:choose>
+                                                <c:when test="${requestDetails.priority == 'URGENT'}">
+                                                    <strong style="color: #ef4444;">URGENT (+5% Surcharge)</strong>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <strong>${not empty requestDetails.priority ? requestDetails.priority : 'MEDIUM'}</strong>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
                                     </div>
                                     <div class="info-row">
                                         <div class="info-label">
