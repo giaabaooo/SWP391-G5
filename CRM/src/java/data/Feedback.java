@@ -20,6 +20,24 @@ public class Feedback {
     private String comment;
     private int rating;
     private Date requestDate;
+    private String customerServiceResponse;
+    private String customerName;
+
+    public String getCustomerServiceResponse() {
+        return customerServiceResponse;
+    }
+
+    public void setCustomerServiceResponse(String customerServiceResponse) {
+        this.customerServiceResponse = customerServiceResponse;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 
     public Feedback() {
     }

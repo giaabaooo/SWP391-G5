@@ -1,50 +1,68 @@
-
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-        <title>Password Reset</title>
-        <style>
-            body {
-                background-color: #f8f9fa; /* Light background color */
-            }
-        </style>
-    </head>
-    <body>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CRM - Forgot Password</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/login/log/bootstrap.min.css" rel="stylesheet">
+    <link href="css/login/log/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid position-relative bg-white d-flex p-0">
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
+                <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
+                    
+                    <div class="text-center mb-4">                                  
+                        <img src="img/logo-Crm.png" alt="Company Logo" style="max-width: 250px; margin-bottom: 1rem;"/>
+                        <h2>Customer and Device Management</h2>                                   
+                    </div>
+                            
+                    <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
+                        <form action="forgotpw" method="POST">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h3>Reset Password</h3>
+                            </div>
+                            
+                            <c:if test="${not empty mess}">
+                                <div class="alert alert-danger" role="alert">
+                                    ${mess}
+                                </div>
+                            </c:if>
 
-        <!-- Center content vertically and horizontally -->
-        <div class="d-flex justify-content-center align-items-center vh-100">
-            <div class="card text-center" style="width: 350px;">
-                <div class="card-header h5 text-white bg-primary">Password Reset</div>
-                <div class="card-body px-4">
-                    <p class="card-text py-2">
-                        Enter your email address, and we'll send you instructions to reset your password.
-                    </p>
+                            <p>Enter your email address, and we'll send you instructions to reset your password.</p>
 
-                    <%-- Display message if set in request attribute --%>
-                    <% String message = (String) request.getAttribute("mess"); %>
-                    <% if (message != null) { %>
-                    <p style="color: red;"><%= message %></p>
-                    <% } %>
-                    <!-- Form for password reset -->
-                    <form action="forgotpw" method="post">
-                        <div class="form-outline">
-                            <input type="email" id="typeEmail" class="form-control my-3" name="email" placeholder="name@example.com" required />
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Reset Password</button>
-                    </form>
-
-                    <div class="d-flex justify-content-between mt-4">
-                        <a class="login" href="login.jsp">Login</a>
-                        <a class="signup" href="signup.jsp">Register</a>
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                                <label for="email">Email Address</label>
+                            </div>
+                     
+                            <button type="submit" value="Login" class="btn btn-primary py-3 w-100 mb-4">Send OTP</button>
+                            
+                            <div class="text-center">
+                                 <a href="login.jsp">Back to Login</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
+        </div>
 
-    </body>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
 </html>

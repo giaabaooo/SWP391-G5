@@ -50,6 +50,12 @@ public class RequestController extends HttpServlet {
                 if ("tooMuchTask".equals(error)) {
                     req.setAttribute("error", techName + " has had a lot of task on that day");
                 }
+                else if ("errorTime".equals(error)) {
+                    req.setAttribute("error", "Estimated hours must be between 1 and 200");
+                }
+                else if ("pastDate".equals(error)) {
+                    req.setAttribute("error", "Date can not in the part");
+                }
                 
                 if(req.getParameter("id")!=null){
                     req.setAttribute("requestSelected", Integer.valueOf(req.getParameter("id")));

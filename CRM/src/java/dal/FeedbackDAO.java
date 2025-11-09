@@ -8,12 +8,14 @@ import data.Feedback;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.*;
+
 /**
  *
  * @author admin
  */
 public class FeedbackDAO extends DBContext {
-    public List<Feedback> getFeedbacksByCustomer(int userId,String keyword, String type, String rating, int offset, int limit) {
+
+    public List<Feedback> getFeedbacksByCustomer(int userId, String keyword, String type, String rating, int offset, int limit) {
         List<Feedback> list = new ArrayList<>();
         String sql = """
             SELECT 
@@ -60,13 +62,13 @@ public class FeedbackDAO extends DBContext {
             if (type != null && !type.equalsIgnoreCase("ALL")) {
                 ps.setString(index++, type);
             }
-            if (rating  != null && !rating .equalsIgnoreCase("ALL")) {
-                ps.setString(index++, rating );
+            if (rating != null && !rating.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, rating);
             }
-            
+
             ps.setInt(index++, limit);
             ps.setInt(index++, offset);
-           
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Feedback fb = new Feedback();
@@ -85,7 +87,7 @@ public class FeedbackDAO extends DBContext {
         }
         return list;
     }
-    
+
     public int countFeedbacksByCustomer(int userId, String keyword, String type, String rating) {
         int count = 0;
         String sql = """
@@ -100,7 +102,7 @@ public class FeedbackDAO extends DBContext {
               AND m.customer_comment IS NOT NULL
               AND TRIM(m.customer_comment) <> ''
         """;
-              
+
         if (keyword != null && !keyword.isEmpty()) {
             sql += " AND (p.name LIKE ? OR r.title LIKE ?) ";
         }
@@ -125,7 +127,7 @@ public class FeedbackDAO extends DBContext {
             if (rating != null && !rating.equalsIgnoreCase("ALL")) {
                 ps.setString(index++, rating);
             }
-            
+
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
@@ -135,46 +137,45 @@ public class FeedbackDAO extends DBContext {
         }
         return count;
     }
-    
+
     public boolean saveFeedback(Feedback feed) {
-    String sql = """
+        String sql = """
         UPDATE CustomerRequestMeta
         SET customer_comment = ?, rating = ?
         WHERE request_id = ?
     """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setString(1, feed.getComment());
-        ps.setInt(2, feed.getRating());
-        ps.setInt(3, feed.getRequestId());
-        return ps.executeUpdate() > 0;
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, feed.getComment());
+            ps.setInt(2, feed.getRating());
+            ps.setInt(3, feed.getRequestId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
-}
-    
+
     public boolean updateFeedback(Feedback feedback) {
-    String sql = """
-        UPDATE CustomerRequestMeta 
-        SET customer_comment = ?, rating = ? 
+        String sql = """
+        UPDATE CustomerRequestMeta
+        SET customer_comment = ?, rating = ?
         WHERE request_id = ?
     """;
-    
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        // Lấy giá trị từ đối tượng feedback
-        ps.setString(1, feedback.getComment());
-        ps.setInt(2, feedback.getRating());
-        ps.setInt(3, feedback.getRequestId());
-        
-        return ps.executeUpdate() > 0;
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
-    }
-}
 
-    
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            // Lấy giá trị từ đối tượng feedback
+            ps.setString(1, feedback.getComment());
+            ps.setInt(2, feedback.getRating());
+            ps.setInt(3, feedback.getRequestId());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public Feedback getFeedbackByRequestId(int requestId, int customerId) {
         Feedback fb = null;
         String sql = """
@@ -189,12 +190,12 @@ public class FeedbackDAO extends DBContext {
             JOIN Contract c ON ci.contract_id = c.id
             WHERE r.id = ? AND c.customer_id = ?
               AND m.customer_comment IS NOT NULL
-        """; 
+        """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, requestId);
-           ps.setInt(2, customerId);
-            
+            ps.setInt(2, customerId);
+
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 fb = new Feedback();
@@ -211,5 +212,126 @@ public class FeedbackDAO extends DBContext {
             e.printStackTrace();
         }
         return fb;
+    }
+
+    public int countAllFeedbacks(String responseStatus, String rating) {
+        StringBuilder sql = new StringBuilder("""
+        SELECT COUNT(m.request_id)
+        FROM CustomerRequestMeta m
+        WHERE (m.customer_comment IS NOT NULL OR m.rating > 0)
+    """);
+
+        List<Object> params = new ArrayList<>();
+
+        if ("responded".equals(responseStatus)) {
+            sql.append(" AND m.customer_service_response IS NOT NULL");
+        } else if ("not_responded".equals(responseStatus)) {
+            sql.append(" AND m.customer_service_response IS NULL");
+        }
+
+        if (rating != null && !rating.isEmpty()) {
+            sql.append(" AND m.rating = ?");
+            params.add(Integer.parseInt(rating));
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Feedback> getAllFeedbacks(int page, int pageSize, String responseStatus, String rating) {
+        List<Feedback> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
+        SELECT 
+            m.request_id,
+            m.customer_comment,
+            m.rating,
+            m.customer_service_response,
+            r.request_date,
+            u.full_name AS customer_name
+        FROM CustomerRequestMeta m
+        JOIN CustomerRequest r ON m.request_id = r.id
+        JOIN User u ON r.customer_id = u.id
+        WHERE (m.customer_comment IS NOT NULL OR m.rating > 0)
+    """);
+
+        List<Object> params = new ArrayList<>();
+
+        if ("responded".equals(responseStatus)) {
+            sql.append(" AND m.customer_service_response IS NOT NULL");
+        } else if ("not_responded".equals(responseStatus)) {
+            sql.append(" AND m.customer_service_response IS NULL");
+        }
+
+        if (rating != null && !rating.isEmpty()) {
+            sql.append(" AND m.rating = ?");
+            params.add(Integer.parseInt(rating));
+        }
+
+        sql.append(" ORDER BY r.request_date DESC LIMIT ? OFFSET ?");
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Feedback fb = new Feedback();
+                fb.setRequestId(rs.getInt("request_id"));
+                fb.setComment(rs.getString("customer_comment"));
+                fb.setRating(rs.getInt("rating"));
+                fb.setCustomerServiceResponse(rs.getString("customer_service_response"));
+                fb.setRequestDate(rs.getTimestamp("request_date"));
+                fb.setCustomerName(rs.getString("customer_name"));
+                list.add(fb);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Feedback> getRecentFeedbacks(int limit) {
+        List<Feedback> list = new ArrayList<>();
+        String sql = """
+        SELECT 
+            m.request_id, m.customer_comment, m.rating,
+            u.full_name AS customer_name
+        FROM CustomerRequestMeta m
+        JOIN CustomerRequest r ON m.request_id = r.id
+        JOIN User u ON r.customer_id = u.id
+        WHERE (m.customer_comment IS NOT NULL OR m.rating > 0)
+        AND m.customer_service_response IS NULL
+        ORDER BY r.request_date DESC
+        LIMIT ?
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Feedback fb = new Feedback();
+                fb.setRequestId(rs.getInt("request_id"));
+                fb.setComment(rs.getString("customer_comment"));
+                fb.setRating(rs.getInt("rating"));
+                fb.setCustomerName(rs.getString("customer_name"));
+                list.add(fb);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

@@ -334,4 +334,40 @@ public class DeviceDAO extends DBContext {
         }
         return devices;
     }
+
+    public boolean isSerialNumberExists(String serialNumber) {
+        String sql = "SELECT COUNT(*) FROM Device WHERE serial_number = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, serialNumber);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isSerialNumberExistsOnOtherContracts(String serialNumber, int currentContractId) {
+        String sql = """
+        SELECT COUNT(d.id) 
+        FROM Device d
+        JOIN ContractItem ci ON d.contract_item_id = ci.id
+        WHERE d.serial_number = ? 
+        AND ci.contract_id != ?
+    """;
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, serialNumber);
+            stm.setInt(2, currentContractId);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

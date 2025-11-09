@@ -306,16 +306,16 @@
                                                 <i class="fa fa-users"></i> Role
                                             </div>
                                             <div class="info-value">
-                                                
-                                                    <div class="tech-row" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                                                        <select name="roleId" class="form-control " required>
-                                                            <option value="">-- Select Role --</option>
-                                                            <c:forEach var="t" items="${roleList}">
-                                                                <option value="${t.id}">${t.name}</option>
-                                                            </c:forEach>
-                                                        </select>
-                                                    </div>
-                                                
+
+                                                <div class="tech-row" style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                                                    <select name="roleId" class="form-control " required>
+                                                        <option value="">-- Select Role --</option>
+                                                        <c:forEach var="t" items="${roleList}">
+                                                            <option value="${t.id}">${t.name}</option>
+                                                        </c:forEach>
+                                                    </select>
+                                                </div>
+
                                             </div>
                                         </div>
 
@@ -336,26 +336,44 @@
                                                 <input type="text" name="email" class="form-control" required>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-phone"></i> Phone
                                             </div>
                                             <div class="info-value">
                                                 <input type="text" name="phone" class="form-control" required>
+                                                <small class="form-text text-muted" style="color: #718096; font-size: 12px;">Vietnamese format only (e.g., 0912345678, 84..., +84...).</small>
                                             </div>
                                         </div>
 
-                                        <div class="info-row" style="margin-bottom: 1.5rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-home"></i> Address
-                                            </div>
-                                            <div class="info-value">
-                                                <input type="text" name="address" class="form-control" required>
-                                            </div>
+                                        <div class="info-label" style="margin-bottom: 1rem;"><i class="fa fa-home"></i> Address</div>
+
+                                        <div class="form-group" style="margin-bottom: 1rem;">
+                                            <label class="form-label" for="province">Province/City:</label>
+                                            <select class="form-control" id="province" required>
+                                                <option value="">-- Select Province/City --</option>
+                                            </select>
+                                            <input type="hidden" name="provinceName" id="provinceName">
                                         </div>
-
-
+                                        <div class="form-group" style="margin-bottom: 1rem;">
+                                            <label class="form-label" for="district">District:</label>
+                                            <select class="form-control" id="district" required>
+                                                <option value="">-- Select District --</option>
+                                            </select>
+                                            <input type="hidden" name="districtName" id="districtName">
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 1rem;">
+                                            <label class="form-label" for="ward">Ward/Commune:</label>
+                                            <select class="form-control" id="ward" required>
+                                                <option value="">-- Select Ward/Commune --</option>
+                                            </select>
+                                            <input type="hidden" name="wardName" id="wardName">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label" for="street">Street Address, House Number:</label>
+                                            <input type="text" class="form-control" id="street" name="street" required>
+                                        </div>
                                         <div class="mt-3 text-center">
                                             <a href="${pageContext.request.contextPath}/admin/user" class="btn btn-default" style="min-width: 150px;">
                                                 <i class="fa fa-arrow-left"></i> Back to List
@@ -400,7 +418,78 @@
                 $('#inventoryMenu').addClass('in');
             });
 
-            
+
+        </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const provinceSelect = document.getElementById("province");
+                const districtSelect = document.getElementById("district");
+                const wardSelect = document.getElementById("ward");
+
+                const provinceNameInput = document.getElementById("provinceName");
+                const districtNameInput = document.getElementById("districtName");
+                const wardNameInput = document.getElementById("wardName");
+
+                const apiHost = "https://provinces.open-api.vn/api/";
+
+                fetch(apiHost + "?depth=1")
+                        .then(response => response.json())
+                        .then(provinces => {
+                            provinces.forEach(province => {
+                                const option = new Option(province.name, province.code);
+                                provinceSelect.add(option);
+                            });
+                        });
+
+                provinceSelect.addEventListener("change", function () {
+                    const selectedCode = this.value;
+                    const selectedName = this.options[this.selectedIndex].text;
+                    provinceNameInput.value = (selectedCode) ? selectedName : "";
+
+                    districtSelect.innerHTML = '<option value="">-- Select District --</option>';
+                    wardSelect.innerHTML = '<option value="">-- Select Ward/Commune --</option>';
+                    districtNameInput.value = "";
+                    wardNameInput.value = "";
+
+                    if (selectedCode) {
+                        fetch(apiHost + "p/" + selectedCode + "?depth=2")
+                                .then(response => response.json())
+                                .then(provinceData => {
+                                    provinceData.districts.forEach(district => {
+                                        const option = new Option(district.name, district.code);
+                                        districtSelect.add(option);
+                                    });
+                                });
+                    }
+                });
+
+                districtSelect.addEventListener("change", function () {
+                    const selectedCode = this.value;
+                    const selectedName = this.options[this.selectedIndex].text;
+                    districtNameInput.value = (selectedCode) ? selectedName : "";
+
+                    wardSelect.innerHTML = '<option value="">-- Select Ward/Commune --</option>';
+                    wardNameInput.value = "";
+
+                    if (selectedCode) {
+                        fetch(apiHost + "d/" + selectedCode + "?depth=2")
+                                .then(response => response.json())
+                                .then(districtData => {
+                                    districtData.wards.forEach(ward => {
+                                        const option = new Option(ward.name, ward.code);
+                                        wardSelect.add(option);
+                                    });
+                                });
+                    }
+                });
+
+                wardSelect.addEventListener("change", function () {
+                    const selectedCode = this.value;
+                    const selectedName = this.options[this.selectedIndex].text;
+                    wardNameInput.value = (selectedCode) ? selectedName : "";
+                });
+            });
         </script>
     </body>
 </html>

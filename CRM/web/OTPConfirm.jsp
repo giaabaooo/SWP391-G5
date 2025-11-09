@@ -1,79 +1,62 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-
-<html>
-    <head>
-
-        <link
-            href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css"
-            rel="stylesheet" id="bootstrap-css">
-        <script
-        src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-        <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-        <!------ Include the above in your HEAD tag ---------->
-
-        <link rel="stylesheet"
-              href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-
-        <style type="text/css">
-            .form-gap {
-                padding-top: 70px;
-            }
-        </style>
-    </head>
-
-    <body>
-        <div class="form-gap"></div>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 col-md-offset-4">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <div class="text-center">
-                                <h3>
-                                    <i class="fa fa-lock fa-4x"></i>
-                                </h3>
-                                <h2 class="text-center">Enter OTP</h2>
-                                <%
-                                    String message = (String) request.getAttribute("mess");
-                                    if (message != null) {
-                                %>
-                                    <p style="color: red;"><%= message %></p>
-                                <%
-                                    }
-                                %>
-
-                                <div class="panel-body">
-
-                                    <form id="register-form" action="otp" role="form" autocomplete="off"
-                                          class="form" method="post">
-
-                                        <div class="form-group">
-                                            <div class="input-group">
-                                                <span class="input-group-addon"><i
-                                                        class="glyphicon glyphicon-envelope color-blue"></i></span> <input
-                                                    id="opt" name="otp" placeholder="Enter OTP"
-                                                    class="form-control" type="text" required="required">
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <input name="recover-submit"
-                                                   class="btn btn-lg btn-primary btn-block"
-                                                   value="Reset Password" type="submit">
-                                        </div>
-
-                                        <input type="hidden" name="email" value="<%= session.getAttribute("email") %>">
-                                        <input type="hidden" class="hide" name="token" id="token"
-                                               value="">
-                                    </form>
-
-                                </div>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CRM - Verify OTP</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/login/log/bootstrap.min.css" rel="stylesheet">
+    <link href="css/login/log/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid position-relative bg-white d-flex p-0">
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"><span class="sr-only">Loading...</span></div>
+        </div>
+        <div class="container-fluid">
+            <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
+                <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
+                    
+                    <div class="text-center mb-4">                                  
+                        <img src="img/logo-Crm.png" alt="Company Logo" style="max-width: 250px; margin-bottom: 1rem;"/>
+                        <h2>Customer and Device Management</h2>                                   
+                    </div>
+                            
+                    <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
+                        <form action="otp" method="POST">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h3>Enter OTP</h3>
                             </div>
-                        </div>
+                            
+                            <c:if test="${not empty mess}">
+                                <div class="alert alert-danger" role="alert">
+                                    ${mess}
+                                </div>
+                            </c:if>
+
+                            <p>An OTP has been sent to your email. Please enter it below.</p>
+
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="otp" name="otp" placeholder="123456" required>
+                                <label for="otp">OTP Code</label>
+                            </div>
+                     
+                            <button type="submit" class="btn btn-primary py-3 w-100 mb-4">Verify OTP</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </body>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
 </html>

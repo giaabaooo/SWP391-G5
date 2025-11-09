@@ -1,109 +1,97 @@
-<%-- 
-    Document   : newPassword
-    Created on : Feb 13, 2025, 3:27:47 AM
-    Author     : pdatt
---%>
-
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-
-<!doctype html>
-<html>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html lang="en">
     <head>
-        <meta charset='utf-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1'>
-        <title>Snippet - BBBootstrap</title>
-        <link
-            href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css'
-            rel='stylesheet'>
-        <link
-            href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css'
-            rel='stylesheet'>
-        <script type='text/javascript'
-        src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
-        <style>
-            .placeicon {
-                font-family: fontawesome
-            }
+        <meta charset="utf-8">
+        <title>CRM - New Password</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-            .custom-control-label::before {
-                background-color: #dee2e6;
-                border: #dee2e6
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+        <link href="css/login/log/bootstrap.min.css" rel="stylesheet">
+        <link href="css/login/log/style.css" rel="stylesheet">
+
+        <style>
+            .field-icon {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                cursor: pointer;
+                color: #6c757d;
             }
         </style>
     </head>
-    <body oncontextmenu='return false' class='snippet-body bg-info'>
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.css">
-        <div>
-            <!-- Container containing all contents -->
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-12 col-md-9 col-lg-7 col-xl-6 mt-5">
-                        <!-- White Container -->
-                        <div class="container bg-white rounded mt-2 mb-2 px-0">
-                            <!-- Main Heading -->
-                            <div class="row justify-content-center align-items-center pt-3">
-                                <h1>
-                                    <strong>Reset Password</strong>
-                                </h1>
-                            </div>
-                   
-                            <%
-                                String message = (String) request.getAttribute("mess");
-                                if (message != null) {
-                            %>
-                                <div class="row justify-content-center">
-                                    <div class="col-9">
-                                        <div class="alert alert-danger" role="alert">
-                                            <%= message %>
-                                        </div>
-                                    </div>
-                                </div>
-                            <%
-                                }
-                            %>
-                            <div class="pt-3 pb-3">
-                                <form class="form-horizontal" action="newpassword" method="POST">
-                                    <!-- User Name Input -->
-                                    <div class="form-group row justify-content-center px-3">
-                                        <div class="col-9 px-0">
-                                            <input type="password" name="password" placeholder="&#xf084; &nbsp; New Password"
-                                                   class="form-control border-info placeicon">
-                                        </div>
-                                    </div>
-                                    <!-- Password Input -->
-                                    <div class="form-group row justify-content-center px-3">
-                                        <div class="col-9 px-0">
-                                            <input type="password" name="repassword"
-                                                   placeholder="&#xf084; &nbsp; Confirm New Password"
-                                                   class="form-control border-info placeicon">
-                                        </div>
-                                    </div>
+    <body>
+        <div class="container-fluid position-relative bg-white d-flex p-0">
+            <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"><span class="sr-only">Loading...</span></div>
+            </div>
+            <div class="container-fluid">
+                <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
+                    <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
 
-                                    <!-- Log in Button -->
-                                    <div class="form-group row justify-content-center">
-                                        <div class="col-3 px-3 mt-3">
-                                            <input type="submit" value="Reset"
-                                                   class="btn btn-block btn-info">
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <!-- Alternative Login -->
-                            <div class="mx-0 px-0 bg-light">
+                        <div class="text-center mb-4">                                  
+                            <img src="img/logo-Crm.png" alt="Company Logo" style="max-width: 250px; margin-bottom: 1rem;"/>
+                            <h2>Customer and Device Management</h2>                                   
+                        </div>
 
-                                <!-- Horizontal Line -->
-                                <div class="px-4 pt-5">
-                                    <hr>
+                        <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
+                            <form action="newpassword" method="POST"> 
+                                <input type="hidden" name="token" value="${param.token}">
+
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h3>New Password</h3>
                                 </div>
-                            </div>
+
+                                <c:if test="${not empty mess}">
+                                    <div class="alert alert-danger" role="alert">
+                                        ${mess}
+                                    </div>
+                                </c:if>
+
+                                <p>Please enter your new password.</p>
+
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="New Password" required>
+                                    <label for="password">New Password</label>
+                                    <span toggle="#password" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                </div>
+
+                                <div class="form-floating mb-4">
+                                    <input type="password" class="form-control" id="repassword" name="repassword" placeholder="Confirm Password" required>
+                                    <label for="repassword">Confirm New Password</label>
+                                    <span toggle="#repassword" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary py-3 w-100 mb-4">Set New Password</button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <script type='text/javascript'
-        src='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js'></script>
 
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <script>
+            $(document).ready(function () {
+                $(".toggle-password").click(function () {
+                    $(this).toggleClass("fa-eye fa-eye-slash");
+                    var inputId = $(this).attr("toggle");
+                    var input = $(inputId);
+                    if (input.attr("type") === "password") {
+                        input.attr("type", "text");
+                    } else {
+                        input.attr("type", "password");
+                    }
+                });
+            });
+        </script>
     </body>
 </html>

@@ -141,4 +141,139 @@ public class BrandDAO extends DBContext {
         
         return generatedId;
     }
+
+    /**
+     * Update an existing brand
+     */
+    public boolean updateBrand(Brand brand) {
+        String sql = "UPDATE Brand SET name = ?, description = ?, is_active = ? WHERE id = ?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, brand.getName());
+            statement.setString(2, brand.getDescription());
+            statement.setBoolean(3, brand.isActive());
+            statement.setInt(4, brand.getId());
+            int rows = statement.executeUpdate();
+            statement.close();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating brand: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Soft delete: deactivate brand
+     */
+    public boolean deactivateBrand(int id) {
+        String sql = "UPDATE Brand SET is_active = 0 WHERE id = ?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            int rows = statement.executeUpdate();
+            statement.close();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deactivating brand: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Hard delete brand (use with caution)
+     */
+    public boolean deleteBrand(int id) {
+        String sql = "DELETE FROM Brand WHERE id = ?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            int rows = statement.executeUpdate();
+            statement.close();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting brand: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get brands with pagination, search and active filter
+     */
+    public List<Brand> getBrandsWithFilters(int page, int pageSize, String search, Integer isActive) {
+        List<Brand> brands = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT id, name, description, is_active FROM Brand WHERE 1=1 ");
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND name LIKE ? ");
+        }
+        if (isActive != null) {
+            sql.append("AND is_active = ? ");
+        }
+        sql.append("ORDER BY name LIMIT ? OFFSET ?");
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql.toString());
+            int idx = 1;
+            if (search != null && !search.trim().isEmpty()) {
+                statement.setString(idx++, "%" + search.trim() + "%");
+            }
+            if (isActive != null) {
+                statement.setInt(idx++, isActive);
+            }
+            statement.setInt(idx++, pageSize);
+            statement.setInt(idx, (page - 1) * pageSize);
+
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                brands.add(new Brand(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("description"),
+                    rs.getBoolean("is_active")
+                ));
+            }
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error getting brands with filters: " + e.getMessage());
+        }
+        return brands;
+    }
+
+    /**
+     * Count total brands with filters
+     */
+    public int getTotalBrandsWithFilters(String search, Integer isActive) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) AS total FROM Brand WHERE 1=1 ");
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND name LIKE ? ");
+        }
+        if (isActive != null) {
+            sql.append("AND is_active = ? ");
+        }
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql.toString());
+            int idx = 1;
+            if (search != null && !search.trim().isEmpty()) {
+                statement.setString(idx++, "%" + search.trim() + "%");
+            }
+            if (isActive != null) {
+                statement.setInt(idx++, isActive);
+            }
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                int total = rs.getInt("total");
+                rs.close();
+                statement.close();
+                return total;
+            }
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error counting brands with filters: " + e.getMessage());
+        }
+        return 0;
+    }
 }
