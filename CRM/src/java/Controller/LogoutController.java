@@ -34,7 +34,7 @@ public class LogoutController extends HttpServlet {
         request.getSession().invalidate();
        
         // Chuyển hướng về trang login
-        response.sendRedirect(request.getContextPath() + "/login");
+        response.sendRedirect(request.getContextPath() + "/landing_page.jsp");
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

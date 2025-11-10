@@ -202,7 +202,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Desired Completion Date (Optional)</label>
+                                            <label>Desired Completion Date</label>
                                             <input type="date" name="desired_date" class="form-control" 
                                                    min="${java.time.LocalDate.now().plusDays(1)}">
                                         </div>

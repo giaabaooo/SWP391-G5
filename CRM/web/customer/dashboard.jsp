@@ -181,7 +181,7 @@
                                                                     <span class="text-muted">CS Response:</span> ${meta.customer_service_response}
                                                                 </c:if>
                                                             </div>
-                                                            <span class="activity-time text-secondary">
+                                                            <span class="text-muted">
                                                                 <fmt:formatDate value="${meta.request.request_date}" pattern="dd/MM/yyyy HH:mm" />
                                                             </span>
                                                         </div>

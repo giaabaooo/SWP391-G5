@@ -128,8 +128,8 @@
                         <p>We support customers with warranty, maintenance, and repairs for all devices – even those not purchased from our system.</p>
 
                         <a href="#services" class="btn btn-primary py-3 px-5 me-2 mt-2">View Services</a>
-                        <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-light py-3 px-5 me-2 mt-2">Login</a>
-                        <a href="${pageContext.request.contextPath}/register.jsp" class="btn btn-outline-light py-3 px-5 mt-2">Register</a>
+                        <a href="${pageContext.request.contextPath}/login" class="btn btn-light py-3 px-5 me-2 mt-2">Login</a>
+                        <a href="${pageContext.request.contextPath}/register" class="btn btn-outline-light py-3 px-5 mt-2">Register</a>
                     </div>
                 </section>
 
@@ -153,25 +153,25 @@
                             <div class="col-md-4">
                                 <div class="service-box text-center">
                                     <div class="service-icon"><i class="fa fa-shield-alt"></i></div>
-                                    <h5>🛡️ Product Warranty</h5>
+                                    <h5>🛡️Warranty</h5>
                                     <p>Easily track and claim warranties for products purchased through our system.</p>
-                                    <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-outline-primary mt-3">Manage Warranties</a>
+                                    <a href="${pageContext.request.contextPath}/login" class="btn btn-outline-primary mt-3">Manage Warranties</a>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="service-box text-center">
-                                    <div class="service-icon"><i class="fa fa-sync-alt"></i></div>
-                                    <h5>🔄 Periodic Maintenance</h5>
+                                    <div class="service-icon"><i class="fa fa-shield-alt"></i></div>
+                                    <h5>🔄 Maintenance</h5>
                                     <p>Schedule maintenance, inspections, and periodic device calibration to ensure optimal performance.</p>
-                                    <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-outline-primary mt-3">Schedule Maintenance</a>
+                                    <a href="${pageContext.request.contextPath}/login" class="btn btn-outline-primary mt-3">Schedule Maintenance</a>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="service-box text-center">
-                                    <div class="service-icon"><i class="fa fa-tools"></i></div>
-                                    <h5>🧰 Out-of-Warranty Repairs</h5>
+                                    <div class="service-icon"><i class="fa fa-shield-alt"></i></div>
+                                    <h5>🧰  Repairs</h5>
                                     <p>Quickly submit repair requests for any device, including products not from our system.</p>
-                                    <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-primary mt-3">Submit Request Now</a>
+                                    <a href="${pageContext.request.contextPath}/login" class="btn btn-outline-primary mt-3">Submit Request Now</a>
                                 </div>
                             </div>
                         </div>
@@ -182,8 +182,8 @@
                     <div class="container text-center">
                         <h2 class="section-title text-center" style="color: white;">Already have an account?</h2>
                         <p class="lead mb-4">Log in to the CRM system to access your dashboard and manage your tasks.</p>
-                        <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-light btn-lg py-3 px-5 me-2 mt-2">🔐 System Login</a>
-                        <a href="${pageContext.request.contextPath}/register.jsp" class="btn btn-outline-light btn-lg py-3 px-5 mt-2">Register New Account</a>
+                        <a href="${pageContext.request.contextPath}/login" class="btn btn-light btn-lg py-3 px-5 me-2 mt-2">🔐 System Login</a>
+                        <a href="${pageContext.request.contextPath}/register" class="btn btn-outline-light btn-lg py-3 px-5 mt-2">Register New Account</a>
                     </div>
                 </section>
 
@@ -207,7 +207,7 @@
                         </div>
                         <div class="col-md-3 flow-step">
                             <div class="step-icon"><i class="fa fa-star"></i></div>
-                            <h5>4. Pay & Review</h5>
+                            <h5>4. Pay & Feedback</h5>
                             <p>Pay any costs (if applicable) and rate the quality of service.</p>
                         </div>
                     </div>
