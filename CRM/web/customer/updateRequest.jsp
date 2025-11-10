@@ -8,6 +8,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="data.Device" %>
 <%@ page import="data.CustomerRequest" %> 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
     
@@ -179,6 +180,30 @@
                                     <div class="form-group">
                                         <label>Issue Description</label>
                                         <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..."><%= requestData.getDescription() != null ? requestData.getDescription() : "" %></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Desired Completion Date (Optional)</label>
+                                        <%-- Định dạng ngày (yyyy-MM-dd) để value hiển thị đúng --%>
+                                        <fmt:formatDate value="${requestData.desired_completion_date}" pattern="yyyy-MM-dd" var="formattedDate" />
+                                        <input type="date" name="desired_date" class="form-control" 
+                                               min="${java.time.LocalDate.now().plusDays(1)}"
+                                               value="${formattedDate}">
+                                    </div>
+
+                                    <div class="form-group" style="border-top: 1px solid #f0f0f0; padding-top: 15px;">
+                                        <div class="checkbox">
+                                            <label style="font-size: 1.1em;">
+                                                <%-- Kiểm tra xem priority có phải URGENT không --%>
+                                                <input type="checkbox" name="isUrgent" value="true" 
+                                                       ${requestData.priority == 'URGENT' ? 'checked' : ''}>
+                                                <strong>Urgent Request (Prioritized)</strong>
+                                            </label>
+                                            <p class="help-block" style="color: #c94a4a; margin-top: 7px; font-size: 13px;">
+                                                <i class="fa fa-exclamation-triangle"></i>
+                                                By checking this, your request will be prioritized. This may incur a 
+                                                <strong>+5% surcharge</strong> on the final repair/service bill.
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <div class="form-group" id="typeGroup">

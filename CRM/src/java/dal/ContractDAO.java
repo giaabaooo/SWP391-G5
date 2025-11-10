@@ -248,7 +248,56 @@ public class ContractDAO extends DBContext {
         }
     }
 
-    public List<Contract> getContractsByUserId(int userId, String keyword, String contractcode, String brand, String category, int offset, int limit) {
+    public int countContractsByUserId(int userId, String keyword, String brand, String category) {
+        StringBuilder sql = new StringBuilder("""
+        SELECT COUNT(*)
+        FROM 
+            Contract ct
+            JOIN ContractItem ci ON ci.contract_id = ct.id
+            JOIN Product p ON p.id = ci.product_id
+            JOIN Brand b ON p.brand_id = b.id
+            JOIN Category cg ON p.category_id = cg.id
+        WHERE 
+            ct.customer_id = ?
+            AND ct.is_active = true
+            AND ci.is_active = true                                
+        
+        """);
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" AND p.name LIKE ? ");
+        }
+        if (brand != null && !brand.equalsIgnoreCase("ALL")) {
+            sql.append(" AND b.name = ? ");
+        }
+        if (category != null && !category.equalsIgnoreCase("ALL")) {
+            sql.append(" AND cg.name = ? ");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            ps.setInt(index++, userId);
+
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(index++, "%" + keyword + "%");
+            }
+            if (brand != null && !brand.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, brand);
+            }
+            if (category != null && !category.equalsIgnoreCase("ALL")) {
+                ps.setString(index++, category);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Contract> getContractsByUserId(int userId, String keyword, String brand, String category, int offset, int limit) {
         List<Contract> contracts = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
         SELECT 
@@ -273,9 +322,6 @@ public class ContractDAO extends DBContext {
         if (keyword != null && !keyword.isEmpty()) {
             sql.append(" AND p.name LIKE ? ");
         }
-        if (contractcode != null && !contractcode.equalsIgnoreCase("ALL")) {
-            sql.append(" AND ct.contract_code = ? ");
-        }
         if (brand != null && !brand.equalsIgnoreCase("ALL")) {
             sql.append(" AND b.name = ? ");
         }
@@ -290,9 +336,6 @@ public class ContractDAO extends DBContext {
 
             if (keyword != null && !keyword.isEmpty()) {
                 ps.setString(index++, "%" + keyword + "%");
-            }
-            if (contractcode != null && !contractcode.equalsIgnoreCase("ALL")) {
-                ps.setString(index++, contractcode);
             }
             if (brand != null && !brand.equalsIgnoreCase("ALL")) {
                 ps.setString(index++, brand);

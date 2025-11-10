@@ -39,32 +39,51 @@ public class ContractController extends HttpServlet {
         String brand = request.getParameter("brand");
         String category = request.getParameter("category");
         String pageParam = request.getParameter("page");
+        String pageSizeParam = request.getParameter("pageSize");
         String searchQuery = request.getParameter("search");
-        String contractcode = request.getParameter("contract_code");
+        
         int page = 1;
-        if (pageParam != null) {
+        int pageSize = LIMIT;
+        
+        // Parse page number
+        if (pageParam != null && !pageParam.isEmpty()) {
             try {
                 page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
             } catch (NumberFormatException e) {
                 page = 1;
             }
         }
-        int offset = (page - 1) * LIMIT;
+        
+        // Parse page size
+        if (pageSizeParam != null && !pageSizeParam.isEmpty()) {
+            try {
+                pageSize = Integer.parseInt(pageSizeParam);
+                if (pageSize < 1) pageSize = LIMIT;
+                if (pageSize > 100) pageSize = 100; // Max 100 items per page
+            } catch (NumberFormatException e) {
+                pageSize = LIMIT;
+            }
+        }
+        
+        int offset = (page - 1) * pageSize;
 
         List<String> brands = deviceDAO.getBrandsByUserId(user.getId());
         List<String> categories = deviceDAO.getCategoriesByUserId(user.getId());
-        List<String> codes = deviceDAO.getContractCodesByUserId(user.getId());
-        List<Contract> contracts = contractDAO.getContractsByUserId(user.getId(), searchQuery, contractcode, brand, category, offset, LIMIT);
+        List<Contract> contracts = contractDAO.getContractsByUserId(user.getId(), searchQuery, brand, category, offset, pageSize);
+        int totalContracts = contractDAO.countContractsByUserId(user.getId(), searchQuery, brand, category);
+        int totalPages = (int) Math.ceil((double) totalContracts / (double) pageSize);
+        if (totalPages == 0) totalPages = 1; // At least 1 page even if no contracts
 
         request.setAttribute("brands", brands);
         request.setAttribute("categories", categories);
-        request.setAttribute("codes", codes);
         request.setAttribute("brand", brand);
         request.setAttribute("category", category);
         request.setAttribute("search", searchQuery);
         request.setAttribute("contracts", contracts);
-        request.setAttribute("totalProducts", contracts.size());
-        request.setAttribute("totalPages", 1);
+        request.setAttribute("totalContracts", totalContracts);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("pageSize", pageSize);
 
         request.getRequestDispatcher("/customer/contract.jsp").forward(request, response);
     }

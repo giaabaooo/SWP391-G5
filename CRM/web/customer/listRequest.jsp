@@ -114,187 +114,202 @@
             <!-- MAIN CONTENT -->
             <aside class="right-side">
                 <section class="content">
+                    <!-- Hidden div for server data -->
                     <div id="paginationData" style="display:none;"
-                         data-total-products="${not empty totalProducts ? totalProducts : 0}"
-                         data-total-pages="${not empty totalPages ? totalPages : 1}"
-                         data-current-page="${not empty currentPage ? currentPage : 1}"
-                         data-page-size="${not empty pageSize ? pageSize : 10}">
+                         data-total-requests="<%= request.getAttribute("totalRequests") != null ? request.getAttribute("totalRequests") : 0 %>"
+                         data-total-pages="<%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>">
                     </div>
-                    <form method="get" action="${pageContext.request.contextPath}/customer/listRequest" class="form-inline mb-3">
-                        <!-- Page Header -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">View List Request</h1>
+
+                    <!-- Page Header -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">View List Request</h1>
 
 
-                                <%-- Display error message if any --%>
-                                <% if (request.getAttribute("error") != null) { %>
-                                <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                                    <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
-                                </div>
-                                <% } %>
-
-                                <%-- Display success message if any --%>
-                                <% if (request.getParameter("success") != null) { %>
-                                <div class="alert alert-success" style="background-color: #d1fae5; border: 1px solid #86efac; color: #059669; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                                    <i class="fa fa-check-circle"></i> <%= request.getParameter("success") %>
-                                </div>
-                                <% } %>
-
-                                <%-- Display error message from URL parameter --%>
-                                <% if (request.getParameter("error") != null) { %>
-                                <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                                    <i class="fa fa-exclamation-circle"></i> <%= request.getParameter("error") %>
-                                </div>
-                                <% } %>
+                            <%-- Display error message if any --%>
+                            <% if (request.getAttribute("error") != null) { %>
+                            <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
                             </div>
+                            <% } %>
+
+                            <%-- Display success message if any --%>
+                            <% if (request.getParameter("success") != null) { %>
+                            <div class="alert alert-success" style="background-color: #d1fae5; border: 1px solid #86efac; color: #059669; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                <i class="fa fa-check-circle"></i> <%= request.getParameter("success") %>
+                            </div>
+                            <% } %>
+
+                            <%-- Display error message from URL parameter --%>
+                            <% if (request.getParameter("error") != null) { %>
+                            <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                <i class="fa fa-exclamation-circle"></i> <%= request.getParameter("error") %>
+                            </div>
+                            <% } %>
                         </div>
+                    </div>
 
-                        <!-- Inventory Table -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="content-card">
-                                    <div class="card-header">
-                                        <h3><i class="fa fa-list"></i> Request List</h3>
-                                        <a href="../customer/createRequest" class="btn btn-primary">
-                                            <i class="fa fa-plus"></i> Add New Request
-                                        </a>
+                    <!-- Inventory Table -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="content-card">
+                                <div class="card-header">
+                                    <h3><i class="fa fa-list"></i> Request List</h3>
+                                    <a href="../customer/createRequest" class="btn btn-primary">
+                                        <i class="fa fa-plus"></i> Add New Request
+                                    </a>
 
-                                    </div>
+                                </div>
 
-                                    <!-- Filter Bar -->
-                                    <div class="filter-bar">
-                                        <input type="text" id="searchInput" name="search" class="search-input" placeholder="Search by device name..." 
-                                               value="<c:out value='${search}'/>">
+                                <!-- Filter Bar -->
+                                <div class="filter-bar">
+                                    <input type="text" id="searchInput" class="search-input" placeholder="Search by device name..." 
+                                           value="<c:out value='${search}'/>">
 
-                                        <select id="typeFilter" name="type" class="search-input" style="min-width: 150px;">
-                                            <option value="ALL" ${empty param.type || param.type == 'ALL' ? 'selected' : ''}>All Types</option>
-                                            <c:forEach var="t" items="${types}">
-                                                <option value="${t}" ${param.type == t ? 'selected' : ''}>${t}</option>
-                                            </c:forEach>
-                                        </select>
+                                    <select id="typeFilter" class="search-input" style="min-width: 150px;">
+                                        <option value="ALL" ${empty param.type || param.type == 'ALL' ? 'selected' : ''}>All Types</option>
+                                        <c:forEach var="t" items="${types}">
+                                            <option value="${t}" ${param.type == t ? 'selected' : ''}>${t}</option>
+                                        </c:forEach>
+                                    </select>
 
-                                        <select id="statusFilter" name="status" class="search-input" style="min-width: 150px;">
-                                            <option value="ALL" ${empty param.status || param.status == 'ALL' ? 'selected' : ''}>All Statuses</option>
-                                            <c:forEach var="s" items="${statuses}">
-                                                <option value="${s}" ${param.status == s ? 'selected' : ''}>${s}</option>
-                                            </c:forEach>
-                                        </select>
+                                    <select id="statusFilter" class="search-input" style="min-width: 150px;">
+                                        <option value="ALL" ${empty param.status || param.status == 'ALL' ? 'selected' : ''}>All Statuses</option>
+                                        <c:forEach var="s" items="${statuses}">
+                                            <option value="${s}" ${param.status == s ? 'selected' : ''}>${s}</option>
+                                        </c:forEach>
+                                    </select>
 
-                                        <button class="btn btn-primary" onclick="applyFilters()">
-                                            <i class="fa fa-filter"></i> Filter
-                                        </button>
-                                        <button class="btn btn-primary" onclick="clearFilters()" style="background: #6c757d; border-color: #6c757d;">
-                                            <i class="fa fa-times"></i> Clear
-                                        </button>
-                                    </div>
-                                    </form>
-                                    <div class="card-body">
+                                    <button class="btn btn-primary" onclick="applyFilters()">
+                                        <i class="fa fa-filter"></i> Filter
+                                    </button>
+                                    <button class="btn btn-primary" onclick="clearFilters()" style="background: #6c757d; border-color: #6c757d;">
+                                        <i class="fa fa-times"></i> Clear
+                                    </button>
+                                </div>
+                                <div class="card-body">
 
-                                        <div class="table-responsive">
-                                            <table class="inventory-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>No</th>
-                                                        <th>Device</th>
-                                                        <th>Title</th>
-                                                        <th>Type</th>
-                                                        <th>Date</th>                                                       
-                                                        <th>Status</th>
-                                                        <th>Actions</th>
-                                                    </tr>
-                                                </thead>
+                                    <div class="table-responsive">
+                                        <table class="inventory-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>Device</th>
+                                                    <th>Title</th>
+                                                    <th>Type</th>
+                                                    <th>Date</th>
+                                                    <th>Desired Complete Date</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
 
-                                                <tbody>
-                                                    <% 
-                                                        List<CustomerRequest> list = (List<CustomerRequest>) request.getAttribute("list"); 
+                                            <tbody>
+                                                <% 
+                                                    List<CustomerRequest> list = (List<CustomerRequest>) request.getAttribute("list");                                                                                                            
+                                                    int currentPage = request.getAttribute("currentPage") != null ? 
+                                                        (Integer) request.getAttribute("currentPage") : 1;
+                                                    int pageSize = request.getAttribute("pageSize") != null ? 
+                                                        (Integer) request.getAttribute("pageSize") : 10;
+                                                    int no = (currentPage - 1) * pageSize + 1;
                                                         
-                                                        int no = 1;
-                                                        if (list != null) {
-                                                        for (CustomerRequest req : list) {
-                                                        String reqStatus = req.getStatus();
-                                                    %>
-                                                    <tr>
-                                                        <td><%= no++ %></td>
-                                                        <td><%= req.getProductName() %></td>
-                                                        <td><%= req.getTitle() %></td>
-                                                        <td><%= req.getRequest_type() %></td>
-                                                        <td><%= req.getRequest_date() %></td>
-                                                        <td><%= req.getStatus() %></td>
-                                                        <td>
-                                                            <a href="detailRequest?id=<%= req.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
-                                                                <i class="fa fa-eye"></i> Detail
-                                                            </a>
-                                                            <a href="updateRequest?id=<%= req.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
-                                                                <i class="fa fa-edit"></i> Update
-                                                            </a>
-                                                            <% 
+                                                    if (list != null) {
+                                                    for (CustomerRequest req : list) {
+                                                    String reqStatus = req.getStatus();
+                                                %>
+                                                <tr>
+                                                    <td><%= no++ %></td>
+                                                    <td><%= req.getProductName() %></td>
+                                                    <td><%= req.getTitle() %></td>
+                                                    <td><%= req.getRequest_type() %></td>
+                                                    <td><%= req.getRequest_date() %></td>
+                                                    <td><%= req.getDesired_completion_date() %></td>
+                                                    <td><%= req.getStatus() %></td>
+                                                    <td>
+                                                        <a href="detailRequest?id=<%= req.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
+                                                            <i class="fa fa-eye"></i> Detail
+                                                        </a>
+                                                        <% 
+                                                        if ("PENDING".equals(req.getStatus())) {
+                                                        %>
+                                                        <a href="updateRequest?id=<%= req.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
+                                                            <i class="fa fa-edit"></i> Update
+                                                        </a>
+                                                        <%
+                                                            } 
+                                                        %>
+                                                        <% 
                                                                 
-                                                                if ("PENDING".equals(req.getStatus())) {
-                                                            %>
-                                                            <button type="button" class="btn btn-action btn-danger btn-delete-request" <%-- Dùng class đúng (btn-delete-request) --%>
-                                                                    data-request-id="<%= req.getId() %>" 
-                                                                    data-request-title="<%= (req.getTitle() != null ? req.getTitle() : "Request #" + req.getId()) %>">
-                                                                <i class="fa fa-trash"></i> Cancel <%-- Đổi tên nút thành "Cancel" --%>
-                                                            </button>
-                                                            <%
-                                                                } 
-                                                            %>
+                                                            if ("PENDING".equals(req.getStatus())) {
+                                                        %>
+                                                        <button type="button" class="btn btn-action btn-danger btn-delete-request" 
+                                                                data-request-id="<%= req.getId() %>" 
+                                                                data-request-title="<%= (req.getTitle() != null ? req.getTitle() : "Request #" + req.getId()) %>">
+                                                            <i class="fa fa-trash"></i> Cancel 
+                                                        </button>
+                                                        <%
+                                                            } 
+                                                        %>
 
-                                                            <%-- SỬA LẠI LOGIC NÚT "PAY" / "PAID" --%>
-                                                            <%             
-                                                              String paymentStatus = req.getPaymentStatus();        
-                                                             if ("AWAITING_PAYMENT".equals(reqStatus) && 
-                                                             (paymentStatus != null && ("UNPAID".equals(paymentStatus) || "PARTIALLY_PAID".equals(paymentStatus)))) {
-                                                            %>
-                                                            <%-- Nếu đúng -> Hiển thị nút "Pay Now" --%>
-                                                            <a href="${pageContext.request.contextPath}/customer/payment?id=<%= req.getId() %>" 
-                                                               class="btn btn-action btn-success" 
-                                                               style="text-decoration: none; margin-left: 5px;">
-                                                                <i class="fa fa-credit-card"></i> Pay Now
-                                                            </a>
-                                                            <% 
-                                                                } else if ("PAID".equals(paymentStatus) || "PAID".equals(reqStatus)) {
-                                                            %>
-                                                            <%-- Nếu đã trả tiền -> Hiển thị nút "Paid" --%>
-                                                            <a href="${pageContext.request.contextPath}/customer/payment?id=<%= req.getId() %>" 
-                                                               class="btn btn-action btn-info" 
-                                                               style="text-decoration: none; margin-left: 5px;">
-                                                                <i class="fa fa-check-circle"></i> Paid
-                                                            </a>
-                                                            <% 
-                                                                }                                                                
-                                                            %>
+                                                        <%-- SỬA LẠI LOGIC NÚT "PAY" / "PAID" --%>
+                                                        <%             
+                                                          String paymentStatus = req.getPaymentStatus();        
+                                                         if ("AWAITING_PAYMENT".equals(reqStatus) && 
+                                                         (paymentStatus != null && ("UNPAID".equals(paymentStatus) || "PARTIALLY_PAID".equals(paymentStatus)))) {
+                                                        %>
+                                                        <%-- Nếu đúng -> Hiển thị nút "Pay Now" --%>
+                                                        <a href="${pageContext.request.contextPath}/customer/payment?id=<%= req.getId() %>" 
+                                                           class="btn btn-action btn-success" 
+                                                           style="text-decoration: none; margin-left: 5px;">
+                                                            <i class="fa fa-credit-card"></i> Pay Now
+                                                        </a>
+                                                        <% 
+                                                            } else if ("PAID".equals(paymentStatus) || "PAID".equals(reqStatus)) {
+                                                        %>
+                                                        <%-- Nếu đã trả tiền -> Hiển thị nút "Paid" --%>
+                                                        <a href="${pageContext.request.contextPath}/customer/payment?id=<%= req.getId() %>" 
+                                                           class="btn btn-action btn-info" 
+                                                           style="text-decoration: none; margin-left: 5px;">
+                                                            <i class="fa fa-check-circle"></i> Paid
+                                                        </a>
+                                                        <% 
+                                                            }                                                                
+                                                        %>
 
-                                                        </td>
-                                                    </tr>
-                                                    <%
-                                                            }
-                                                        } else {
-                                                    %>
-                                                    <tr>
-                                                        <td colspan="8">No request found.</td>
-                                                    </tr>
-                                                    <% } %>
+                                                    </td>
+                                                </tr>
+                                                <%
+                                                        }
+                                                    } else {
+                                                %>
+                                                <tr>
+                                                    <td colspan="8">No request found.</td>
+                                                </tr>
+                                                <% } %>
 
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-                                        <!-- Pagination Controls -->
-                                       <div class="pagination-container">
+                                    <!-- Pagination Controls -->
+                                    <div class="pagination-container">
                                         <div class="pagination-info">
-
+                                            <span id="paginationInfo">Showing 1 to 10 of 0 requests</span>
                                         </div>
 
                                         <div class="page-size-selector">
                                             <label for="pageSize">Show:</label>
                                             <select id="pageSize" onchange="changePageSize()">
-                                                <option value="5">5</option>
-                                                <option value="10" selected>10</option>
-                                                <option value="25">25</option>
-                                                <option value="50">50</option>
-                                                <option value="100">100</option>
+                                                <%
+                                                    int currentPageSize = request.getAttribute("pageSize") != null ? 
+                                                        (Integer) request.getAttribute("pageSize") : 10;
+                                                %>
+                                                <option value="2" <%= currentPageSize == 2 ? "selected" : "" %>>2</option>
+                                                <option value="5" <%= currentPageSize == 5 ? "selected" : "" %>>5</option>
+                                                <option value="10" <%= currentPageSize == 10 ? "selected" : "" %>>10</option>
+                                                <option value="25" <%= currentPageSize == 25 ? "selected" : "" %>>25</option>
+                                                <option value="50" <%= currentPageSize == 50 ? "selected" : "" %>>50</option>
+                                                <option value="100" <%= currentPageSize == 100 ? "selected" : "" %>>100</option>
                                             </select>
                                             <span>per page</span>
                                         </div>
@@ -319,10 +334,10 @@
                                     </div>
 
 
-                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
                 </section>
                 <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>
@@ -370,266 +385,268 @@
         <script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
         <script src="${pageContext.request.contextPath}/js/customer/listRequest.js" type="text/javascript"></script>
+
         <script>
-             $(function () {
-                                                    // Pagination variables
-                                                    let currentPage = 1;
-                                                    let pageSize = 10;
-                                                    let allRows = [];
-                                                    let filteredRows = [];
+                        $(function () {
+                            // Pagination variables
+                            let currentPage = 1;
+                            let pageSize = 10;
+                            let allRows = [];
+                            let filteredRows = [];
 
-                                                    // Helper function to get current URL parameters
-                                                    function getUrlParams() {
-                                                        var params = new URLSearchParams(window.location.search);
-                                                        var urlParams = {};
+                            // Get server data from data attributes
+                            function getServerData() {
+                                var paginationData = document.getElementById('paginationData');
+                                if (paginationData) {
+                                    return {
+                                        totalRequests: parseInt(paginationData.dataset.totalRequests) || 0,
+                                        totalPages: parseInt(paginationData.dataset.totalPages) || 1
+                                    };
+                                }
+                                return {totalRequests: 0, totalPages: 1};
+                            }
 
-                                                        if (params.get('search')) {
-                                                            urlParams.search = params.get('search');
-                                                        }
-                                                        if (params.get('categoryId')) {
-                                                            urlParams.categoryId = params.get('categoryId');
-                                                        }
-                                                        if (params.get('brandId')) {
-                                                            urlParams.brandId = params.get('brandId');
-                                                        }
-                                                        if (params.get('pageSize')) {
-                                                            urlParams.pageSize = params.get('pageSize');
-                                                        }
+                            // Helper function to get current URL parameters
+                            function getUrlParams() {
+                                var params = new URLSearchParams(window.location.search);
+                                var urlParams = {};
 
-                                                        return urlParams;
-                                                    }
+                                if (params.get('search')) {
+                                    urlParams.search = params.get('search');
+                                }
+                                if (params.get('type')) {
+                                    urlParams.type = params.get('type');
+                                }
+                                if (params.get('status')) {
+                                    urlParams.status = params.get('status');
+                                }
+                                if (params.get('pageSize')) {
+                                    urlParams.pageSize = params.get('pageSize');
+                                }
 
-                                                    // Helper function to build URL with parameters
-                                                    function buildUrlWithParams(params) {
-                                                        var url = window.location.pathname + '?';
-                                                        var paramArray = [];
+                                return urlParams;
+                            }
 
-                                                        for (var key in params) {
-                                                            if (params[key] && params[key] !== '') {
-                                                                paramArray.push(key + '=' + encodeURIComponent(params[key]));
-                                                            }
-                                                        }
+                            // Helper function to build URL with parameters
+                            function buildUrlWithParams(params) {
+                                var url = window.location.pathname + '?';
+                                var paramArray = [];
 
-                                                        return url + paramArray.join('&');
-                                                    }
+                                for (var key in params) {
+                                    // Xử lý đúng các tham số số (như page, pageSize)
+                                    if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+                                        paramArray.push(key + '=' + encodeURIComponent(params[key]));
+                                    }
+                                }
 
-                                                    // Initialize pagination (server-side)
-                                                    function initPagination() {
-                                                        renderPagination();
-                                                        updatePaginationInfo();
-                                                    }
+                                return url + paramArray.join('&');
+                            }
 
-                                                    // Update pagination info text (from server data)
-                                                    function updatePaginationInfo() {
-                                                        var urlParams = new URLSearchParams(window.location.search);
-                                                        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                        var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
-                                                        var totalProducts = <%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0%>;
+                            // Initialize pagination (server-side)
+                            function initPagination() {
+                                renderPagination();
+                                updatePaginationInfo();
+                            }
 
-                                                        var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
-                                                        var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalProducts);
+                            // Update pagination info text (from server data)
+                            function updatePaginationInfo() {
+                                var urlParams = new URLSearchParams(window.location.search);
+                                var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
+                                var serverData = getServerData();
+                                var totalRequests = serverData.totalRequests;
 
-                                                        var infoElement = document.getElementById('paginationInfo');
-                                                        if (infoElement) {
-                                                            if (totalProducts === 0) {
-                                                                infoElement.textContent = 'No products to display';
-                                                            } else {
-                                                                infoElement.textContent =
-                                                                        'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalProducts + ' products';
-                                                            }
-                                                        }
-                                                    }
+                                var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
+                                var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalRequests);
 
-                                                    // Render pagination buttons
-                                                    function renderPagination() {
-                                                        var urlParams = new URLSearchParams(window.location.search);
-                                                        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
-                                                        var pageNumbersDiv = document.getElementById('pageNumbers');
+                                var infoElement = document.getElementById('paginationInfo');
+                                if (infoElement) {
+                                    if (totalRequests === 0) {
+                                        infoElement.textContent = 'No requests to display';
+                                    } else {
+                                        infoElement.textContent =
+                                                'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalRequests + ' requests';
+                                    }
+                                }
+                            }
 
-                                                        if (!pageNumbersDiv)
-                                                            return;
+                            // Render pagination buttons
+                            function renderPagination() {
+                                var urlParams = new URLSearchParams(window.location.search);
+                                var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                var serverData = getServerData();
+                                var totalPages = serverData.totalPages;
+                                var pageNumbersDiv = document.getElementById('pageNumbers');
 
-                                                        pageNumbersDiv.innerHTML = '';
+                                if (!pageNumbersDiv)
+                                    return;
 
-                                                        // Determine which pages to show
-                                                        var startPage = Math.max(1, currentPageFromUrl - 2);
-                                                        var endPage = Math.min(totalPages, currentPageFromUrl + 2);
+                                pageNumbersDiv.innerHTML = '';
 
-                                                        // Adjust if near the beginning
-                                                        if (currentPageFromUrl <= 3) {
-                                                            endPage = Math.min(5, totalPages);
-                                                        }
+                                // Determine which pages to show
+                                var startPage = Math.max(1, currentPageFromUrl - 2);
+                                var endPage = Math.min(totalPages, currentPageFromUrl + 2);
 
-                                                        // Adjust if near the end
-                                                        if (currentPageFromUrl > totalPages - 3) {
-                                                            startPage = Math.max(1, totalPages - 4);
-                                                        }
+                                // Adjust if near the beginning
+                                if (currentPageFromUrl <= 3) {
+                                    endPage = Math.min(5, totalPages);
+                                }
 
-                                                        // Create page buttons
-                                                        for (var i = startPage; i <= endPage; i++) {
-                                                            var btn = document.createElement('button');
-                                                            btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
-                                                            btn.textContent = i;
-                                                            btn.onclick = (function (pageNum) {
-                                                                return function () {
-                                                                    goToPage(pageNum);
-                                                                };
-                                                            })(i);
-                                                            pageNumbersDiv.appendChild(btn);
-                                                        }
+                                // Adjust if near the end
+                                if (currentPageFromUrl > totalPages - 3) {
+                                    startPage = Math.max(1, totalPages - 4);
+                                }
 
-                                                        updatePaginationButtons();
-                                                    }
+                                // Create page buttons
+                                for (var i = startPage; i <= endPage; i++) {
+                                    var btn = document.createElement('button');
+                                    btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
+                                    btn.textContent = i;
+                                    btn.onclick = (function (pageNum) {
+                                        return function () {
+                                            goToPage(pageNum);
+                                        };
+                                    })(i);
+                                    pageNumbersDiv.appendChild(btn);
+                                }
 
-                                                    // Update pagination button states
-                                                    function updatePaginationButtons() {
-                                                        var urlParams = new URLSearchParams(window.location.search);
-                                                        var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
+                                updatePaginationButtons();
+                            }
 
-                                                        var firstBtn = document.getElementById('firstPageBtn');
-                                                        var prevBtn = document.getElementById('prevPageBtn');
-                                                        var nextBtn = document.getElementById('nextPageBtn');
-                                                        var lastBtn = document.getElementById('lastPageBtn');
+                            // Update pagination button states
+                            function updatePaginationButtons() {
+                                var urlParams = new URLSearchParams(window.location.search);
+                                var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                var serverData = getServerData();
+                                var totalPages = serverData.totalPages;
 
-                                                        if (firstBtn)
-                                                            firstBtn.disabled = currentPageFromUrl === 1;
-                                                        if (prevBtn)
-                                                            prevBtn.disabled = currentPageFromUrl === 1;
-                                                        if (nextBtn)
-                                                            nextBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
-                                                        if (lastBtn)
-                                                            lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
-                                                    }
+                                var firstBtn = document.getElementById('firstPageBtn');
+                                var prevBtn = document.getElementById('prevPageBtn');
+                                var nextBtn = document.getElementById('nextPageBtn');
+                                var lastBtn = document.getElementById('lastPageBtn');
 
-                                                    // Pagination navigation functions (with URL parameters preserved)
-                                                    window.goToPage = function (page) {
-                                                        var params = getUrlParams();
-                                                        params.page = page;
-                                                        window.location.href = buildUrlWithParams(params);
-                                                    };
+                                if (firstBtn)
+                                    firstBtn.disabled = currentPageFromUrl === 1;
+                                if (prevBtn)
+                                    prevBtn.disabled = currentPageFromUrl === 1;
+                                if (nextBtn)
+                                    nextBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                                if (lastBtn)
+                                    lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                            }
 
-                                                    window.goToFirstPage = function () {
-                                                        goToPage(1);
-                                                    };
+                            // Pagination navigation functions (with URL parameters preserved)
+                            window.goToPage = function (page) {
+                                var params = getUrlParams();
+                                params.page = page;
+                                window.location.href = buildUrlWithParams(params);
+                            };
 
-                                                    window.goToPrevPage = function () {
-                                                        var urlParams = new URLSearchParams(window.location.search);
-                                                        var currentPage = parseInt(urlParams.get('page')) || 1;
-                                                        if (currentPage > 1) {
-                                                            goToPage(currentPage - 1);
-                                                        }
-                                                    };
+                            window.goToFirstPage = function () {
+                                goToPage(1);
+                            };
 
-                                                    window.goToNextPage = function () {
-                                                        var urlParams = new URLSearchParams(window.location.search);
-                                                        var currentPage = parseInt(urlParams.get('page')) || 1;
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
-                                                        if (currentPage < totalPages) {
-                                                            goToPage(currentPage + 1);
-                                                        }
-                                                    };
+                            window.goToPrevPage = function () {
+                                var urlParams = new URLSearchParams(window.location.search);
+                                var currentPage = parseInt(urlParams.get('page')) || 1;
+                                if (currentPage > 1) {
+                                    goToPage(currentPage - 1);
+                                }
+                            };
 
-                                                    window.goToLastPage = function () {
-                                                        var totalPages = <%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1%>;
-                                                        goToPage(totalPages);
-                                                    };
+                            window.goToNextPage = function () {
+                                var urlParams = new URLSearchParams(window.location.search);
+                                var currentPage = parseInt(urlParams.get('page')) || 1;
+                                var serverData = getServerData();
+                                var totalPages = serverData.totalPages;
+                                if (currentPage < totalPages) {
+                                    goToPage(currentPage + 1);
+                                }
+                            };
 
-                                                    window.changePageSize = function () {
-                                                        var newPageSize = document.getElementById('pageSize').value;
-                                                        var params = getUrlParams();
-                                                        params.pageSize = newPageSize;
-                                                        params.page = 1; // Reset to first page when changing page size
-                                                        window.location.href = buildUrlWithParams(params);
-                                                    };
-                                              
-                                                    // Close modal on ESC key
-                                                    $(document).on('keydown', function (e) {
-                                                        if (e.key === 'Escape' && $('#deleteModal').hasClass('active')) {
-                                                            closeDeleteModal();
-                                                        }
-                                                    });
+                            window.goToLastPage = function () {
+                                var serverData = getServerData();
+                                var totalPages = serverData.totalPages;
+                                goToPage(totalPages);
+                            };
 
-                                                    
+                            window.changePageSize = function () {
+                                var newPageSize = document.getElementById('pageSize').value;
+                                var params = getUrlParams();
+                                params.pageSize = newPageSize;
+                                params.page = 1; // Reset to first page when changing page size
+                                window.location.href = buildUrlWithParams(params);
+                            };
 
-                                                    // Handle collapsible menu
-                                                    $('.treeview > a').click(function (e) {
-                                                        e.preventDefault();
-                                                        var target = $(this).attr('href');
-                                                        $(target).collapse('toggle');
-                                                    });
+                            // Handle collapsible menu
+                            $('.treeview > a').click(function (e) {
+                                e.preventDefault();
+                                var target = $(this).attr('href');
+                                $(target).collapse('toggle');
+                            });
 
-                                                    // Auto-expand Products menu since we're on view list product page
-                                                    $('#inventoryMenu').addClass('in');
+                            // Set page size from URL parameter
+                            var urlParams = new URLSearchParams(window.location.search);
+                            var pageSizeFromUrl = urlParams.get('pageSize');
+                            if (pageSizeFromUrl) {
+                                var pageSizeSelect = document.getElementById('pageSize');
+                                if (pageSizeSelect) {
+                                    pageSizeSelect.value = pageSizeFromUrl;
+                                }
+                            }
 
-                                                    // Set page size from URL parameter
-                                                    var urlParams = new URLSearchParams(window.location.search);
-                                                    var pageSizeFromUrl = urlParams.get('pageSize');
-                                                    if (pageSizeFromUrl) {
-                                                        var pageSizeSelect = document.getElementById('pageSize');
-                                                        if (pageSizeSelect) {
-                                                            pageSizeSelect.value = pageSizeFromUrl;
-                                                        }
-                                                    }
+                            // Initialize pagination on page load
+                            initPagination();
 
-                                                    // Initialize pagination on page load
-                                                    initPagination();
+                            // Auto-hide success and error messages after 3 seconds
+                            setTimeout(function () {
+                                $('.alert-success').fadeOut(500, function () {
+                                    $(this).remove();
+                                });
+                                $('.alert-danger').fadeOut(500, function () {
+                                    $(this).remove();
+                                });
+                            }, 3000);
 
-                                                    // Auto-hide success and error messages after 3 seconds
-                                                    setTimeout(function () {
-                                                        $('.alert-success').fadeOut(500, function () {
-                                                            $(this).remove();
-                                                        });
-                                                        $('.alert-danger').fadeOut(500, function () {
-                                                            $(this).remove();
-                                                        });
-                                                    }, 3000);
+                            // Apply filters function
+                            window.applyFilters = function () {
+                                var searchQuery = document.getElementById('searchInput').value;
+                                var type = document.getElementById('typeFilter').value;
+                                var status = document.getElementById('statusFilter').value;
 
-                                                    // Apply filters function
-                                                    window.applyFilters = function () {
-                                                        var searchQuery = document.getElementById('searchInput').value;
-                                                        var categoryId = document.getElementById('categoryFilter').value;
-                                                        var brandId = document.getElementById('brandFilter').value;
+                                // Build URL with parameters
+                                var url = window.location.pathname + '?';
+                                var params = [];
 
-                                                        // Build URL with parameters
-                                                        var url = window.location.pathname + '?';
-                                                        var params = [];
+                                if (searchQuery && searchQuery.trim() !== '') {
+                                    params.push('search=' + encodeURIComponent(searchQuery));
+                                }
+                                if (type && type !== 'ALL') {
+                                    params.push('type=' + type);
+                                }
+                                if (status && status !== 'ALL') {
+                                    params.push('status=' + status);
+                                }
 
-                                                        if (searchQuery && searchQuery.trim() !== '') {
-                                                            params.push('search=' + encodeURIComponent(searchQuery));
-                                                        }
-                                                        if (categoryId && categoryId !== '') {
-                                                            params.push('categoryId=' + categoryId);
-                                                        }
-                                                        if (brandId && brandId !== '') {
-                                                            params.push('brandId=' + brandId);
-                                                        }
+                                url += params.join('&');
 
-                                                        url += params.join('&');
+                                // Redirect to filtered URL
+                                window.location.href = url;
+                            };
 
-                                                        // Redirect to filtered URL
-                                                        window.location.href = url;
-                                                    };
+                            // Clear filters function
+                            window.clearFilters = function () {
+                                // Redirect to page without parameters
+                                window.location.href = window.location.pathname;
+                            };
 
-                                                    // Clear filters function
-                                                    window.clearFilters = function () {
-                                                        // Redirect to page without parameters
-                                                        window.location.href = window.location.pathname;
-                                                    };
-
-                                                    // Handle Enter key in search input
-                                                    $('#searchInput').on('keypress', function (e) {
-                                                        if (e.which === 13) { // Enter key
-                                                            applyFilters();
-                                                        }
-                                                    });
-
-                                                    // Handle change event for dropdowns
-                                                    $('#categoryFilter, #brandFilter').on('change', function () {
-                                                        applyFilters();
-                                                    });
-                                                });
+                            // Handle Enter key in search input
+                            $('#searchInput').on('keypress', function (e) {
+                                if (e.which === 13) { // Enter key
+                                    applyFilters();
+                                }
+                            });
+                        });
         </script>
     </body>
 </html>
