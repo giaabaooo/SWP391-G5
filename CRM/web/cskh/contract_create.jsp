@@ -38,12 +38,6 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Contract Code:</label>
-                                    <input type="text" name="contractCode" required class="form-control" placeholder="E.g. CT2025-001">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
                                     <label>Contract Date:</label>
                                     <input type="date" name="contractDate" required class="form-control">
                                 </div>

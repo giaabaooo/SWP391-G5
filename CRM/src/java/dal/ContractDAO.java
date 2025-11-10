@@ -10,6 +10,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -166,6 +168,8 @@ public class ContractDAO extends DBContext {
 
         try {
             connection.setAutoCommit(false);
+            String newContractCode = generateNextContractCode(connection);
+            contract.setContractCode(newContractCode);
 
             try (PreparedStatement ps = connection.prepareStatement(insertContractSql, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setInt(1, contract.getCustomerId());
@@ -227,20 +231,6 @@ public class ContractDAO extends DBContext {
             }
         }
         return -1;
-    }
-
-    public boolean isContractCodeExists(String contractCode) {
-        String sql = "SELECT COUNT(*) FROM Contract WHERE contract_code = ?";
-        try (PreparedStatement stm = connection.prepareStatement(sql)) {
-            stm.setString(1, contractCode);
-            ResultSet rs = stm.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     public void update(Contract c) {
@@ -529,4 +519,31 @@ public class ContractDAO extends DBContext {
     }
     return contracts;
 }
+    
+    private String generateNextContractCode(Connection conn) throws SQLException {
+        LocalDate now = LocalDate.now();
+        String year = String.valueOf(now.getYear());
+        String month = String.format("%02d", now.getMonthValue());
+        String prefix = "CT-" + year + "-" + month + "-";
+        String sql = "SELECT contract_code FROM Contract WHERE contract_code LIKE ? ORDER BY contract_code DESC LIMIT 1 FOR UPDATE";
+        
+        String lastCode = null;
+        try (PreparedStatement stm = conn.prepareStatement(sql)) {
+            stm.setString(1, prefix + "%"); 
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                lastCode = rs.getString("contract_code");
+            }
+        }
+
+        if (lastCode == null) {
+            return prefix + "001";
+        } else {
+            String seqStr = lastCode.substring(lastCode.length() - 3);
+            int seqNum = Integer.parseInt(seqStr);
+            seqNum++;
+            String nextSeqStr = String.format("%03d", seqNum);           
+            return prefix + nextSeqStr;
+        }
+    }
 }
