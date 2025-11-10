@@ -160,7 +160,7 @@
                             <h3><i class="fa fa-edit"></i> Product Information</h3>
                         </div>
                         <div class="card-body">
-                            <form method="post" action="../warestaff/editProduct" novalidate>
+                            <form method="post" action="../warestaff/editProduct" enctype="multipart/form-data" novalidate>
                                 <!-- Hidden field for product ID -->
                                 <input type="hidden" name="id" value="<%= product.getId() %>" />
                                 
@@ -236,13 +236,77 @@
                                     </div>
                                 </div>
 
-                                <!-- Row 4: Product Image URL and Status -->
+                                <!-- Row 3.5: Unit -->
                                 <div class="form-row">
                                     <div class="form-col">
                                         <div class="form-group">
-                                            <label class="control-label">Product Image URL</label>
-                                            <input type="url" name="image_url" class="form-control" placeholder="https://example.com/image.jpg" value="<%= product.getImageUrl() != null ? product.getImageUrl() : "" %>" />
-                                            <small class="help-block">Optional: Enter a URL for the product image</small>
+                                            <label class="control-label">Unit</label>
+                                            <select name="unit" class="form-control">
+                                                <option value="">-- Select Unit --</option>
+                                                <option value="Bộ" <%= (product.getUnit() != null && product.getUnit().equals("Bộ")) ? "selected" : "" %>>Bộ</option>
+                                                <option value="Cái" <%= (product.getUnit() != null && product.getUnit().equals("Cái")) ? "selected" : "" %>>Cái</option>
+                                                <option value="Chiếc" <%= (product.getUnit() != null && product.getUnit().equals("Chiếc")) ? "selected" : "" %>>Chiếc</option>
+                                                <option value="Mét" <%= (product.getUnit() != null && product.getUnit().equals("Mét")) ? "selected" : "" %>>Mét</option>
+                                                <option value="Kilogram" <%= (product.getUnit() != null && product.getUnit().equals("Kilogram")) ? "selected" : "" %>>Kilogram</option>
+                                                <option value="Lít" <%= (product.getUnit() != null && product.getUnit().equals("Lít")) ? "selected" : "" %>>Lít</option>
+                                                <option value="Thùng" <%= (product.getUnit() != null && product.getUnit().equals("Thùng")) ? "selected" : "" %>>Thùng</option>
+                                                <option value="Hộp" <%= (product.getUnit() != null && product.getUnit().equals("Hộp")) ? "selected" : "" %>>Hộp</option>
+                                            </select>
+                                            <small class="help-block">Unit of measurement for this product</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-col">
+                                        <!-- Empty column for layout -->
+                                    </div>
+                                </div>
+
+                                <!-- Row 4: Product Image and Status -->
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label class="control-label">Product Image</label>
+                                            <div class="image-upload-section">
+                                                <%
+                                                    String rawImageUrl = product.getImageUrl();
+                                                    boolean hasImage = rawImageUrl != null && !rawImageUrl.trim().isEmpty();
+                                                    String resolvedImageSrc = "";
+                                                    if (hasImage) {
+                                                        if (rawImageUrl.startsWith("http://") || rawImageUrl.startsWith("https://")) {
+                                                            resolvedImageSrc = rawImageUrl;
+                                                        } else {
+                                                            resolvedImageSrc = request.getContextPath() + "/" + rawImageUrl;
+                                                        }
+                                                    }
+                                                %>
+                                                <div class="image-preview-wrapper <%= hasImage ? "has-image" : "" %>" id="imagePreviewWrapper">
+                                                    <img
+                                                        id="imagePreview"
+                                                        src="<%= hasImage ? resolvedImageSrc : "#" %>"
+                                                        alt="Product preview"
+                                                        style="<%= hasImage ? "" : "display: none;" %>"
+                                                        data-original-src="<%= hasImage ? resolvedImageSrc : "" %>"
+                                                        data-has-initial="<%= hasImage %>"
+                                                    />
+                                                    <div class="image-preview-placeholder" id="imagePreviewPlaceholder" style="<%= hasImage ? "display: none;" : "" %>">
+                                                        <i class="fa fa-image"></i>
+                                                        <span>No image selected</span>
+                                                    </div>
+                                                </div>
+                                                <div class="image-upload-controls">
+                                                    <label class="upload-button" for="imageFile">
+                                                        <i class="fa fa-upload"></i> Upload Image
+                                                        <input type="file" name="image_file" id="imageFile" accept="image/*" />
+                                                    </label>
+                                                    <div class="image-url-input">
+                                                        <input type="url" name="image_url" id="imageUrl" class="form-control" placeholder="https://example.com/image.jpg" value="<%= product.getImageUrl() != null && !product.getImageUrl().startsWith("img/products/") ? product.getImageUrl() : "" %>" />
+                                                        <small class="image-help-text">Upload from device or provide an image URL. Supported formats: JPG, JPEG, PNG, GIF, SVG, WEBP (max 5 MB).</small>
+                                                    </div>
+                                                    <button type="button" class="image-reset" id="resetImage" style="<%= hasImage ? "" : "display: none;" %>">
+                                                        <i class="fa fa-undo"></i> Remove image
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="validation-error" id="imageError" style="display: none;">Image must be under 5 MB and in JPG, JPEG, PNG, GIF, SVG, or WEBP format</div>
                                         </div>
                                     </div>
                                     <div class="form-col">

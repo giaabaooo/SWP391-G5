@@ -19,6 +19,7 @@ public class Product {
     private String description;
     private BigDecimal purchasePrice;
     private BigDecimal sellingPrice;
+    private String unit;
     private boolean isActive;
 
     public Product() {
@@ -34,6 +35,20 @@ public class Product {
         this.description = description;
         this.purchasePrice = purchasePrice;
         this.sellingPrice = sellingPrice;
+        this.isActive = isActive;
+    }
+
+    public Product(int id, int categoryId, Integer brandId, String imageUrl, String name, 
+                   String description, BigDecimal purchasePrice, BigDecimal sellingPrice, String unit, boolean isActive) {
+        this.id = id;
+        this.categoryId = categoryId;
+        this.brandId = brandId;
+        this.imageUrl = imageUrl;
+        this.name = name;
+        this.description = description;
+        this.purchasePrice = purchasePrice;
+        this.sellingPrice = sellingPrice;
+        this.unit = unit;
         this.isActive = isActive;
     }
 
@@ -107,5 +122,13 @@ public class Product {
 
     public void setActive(boolean active) {
         this.isActive = active;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }

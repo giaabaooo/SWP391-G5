@@ -18,6 +18,15 @@ $(function() {
     window.scrollTo(0, 0);
     $('html, body').scrollTop(0);
     
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+    const imagePreview = $('#imagePreview');
+    const imagePreviewWrapper = $('#imagePreviewWrapper');
+    const imagePreviewPlaceholder = $('#imagePreviewPlaceholder');
+    const imageFileInput = $('#imageFile');
+    const imageUrlInput = $('#imageUrl');
+    const resetImageBtn = $('#resetImage');
+    let imageObjectURL = null;
+
     // Hide all validation errors on page load and set normal border
     $('.validation-error').removeClass('show');
     $('.form-control').removeClass('error');
@@ -109,6 +118,8 @@ $(function() {
             $('#sellingPrice').addClass('error');
         } else if (inputId === 'category') {
             $('#categoryId').addClass('error');
+        } else if (inputId === 'image') {
+            imagePreviewWrapper.addClass('error');
         }
     }
 
@@ -127,16 +138,77 @@ $(function() {
         } else if (inputId === 'category') {
             $('#categoryId').removeClass('error');
         }
+        if (inputId === 'image') {
+            imagePreviewWrapper.removeClass('error');
+        }
+    }
+
+    function setImagePreview(src) {
+        imagePreview.attr('src', src).show();
+        imagePreviewPlaceholder.hide();
+        imagePreviewWrapper.addClass('has-image').removeClass('error');
+        resetImageBtn.show();
+    }
+
+    function clearImagePreview() {
+        if (imageObjectURL) {
+            URL.revokeObjectURL(imageObjectURL);
+            imageObjectURL = null;
+        }
+        imagePreview.attr('src', '#').hide();
+        imagePreviewPlaceholder.show();
+        imagePreviewWrapper.removeClass('has-image error');
+        resetImageBtn.hide();
+    }
+
+    function validateImage() {
+        var file = imageFileInput.length ? imageFileInput[0].files[0] : null;
+        var urlValue = imageUrlInput.val() ? imageUrlInput.val().trim() : '';
+
+        if (!file && urlValue === '') {
+            hideError('imageError');
+            return true;
+        }
+
+        if (file) {
+            if (!file.type || !file.type.startsWith('image/')) {
+                showError('imageError', 'Please choose a valid image file');
+                return false;
+            }
+            if (file.size > MAX_IMAGE_SIZE) {
+                showError('imageError', 'Image must be smaller than 5 MB');
+                return false;
+            }
+        }
+
+        if (urlValue !== '') {
+            try {
+                var parsedUrl = new URL(urlValue);
+                var extension = parsedUrl.pathname.split('.').pop().toLowerCase();
+                var supported = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
+                if (!supported.includes(extension)) {
+                    showError('imageError', 'Image URL must end with PNG, JPG, JPEG, GIF, SVG, or WEBP');
+                    return false;
+                }
+            } catch (e) {
+                showError('imageError', 'Please enter a valid image URL');
+                return false;
+            }
+        }
+
+        hideError('imageError');
+        return true;
     }
 
     function validateAll() {
         var isValid = true;
-        
-        isValid &= validateProductName();
-        isValid &= validatePurchasePrice();
-        isValid &= validateSellingPrice();
-        isValid &= validateCategory();
-        
+
+        if (!validateProductName()) isValid = false;
+        if (!validatePurchasePrice()) isValid = false;
+        if (!validateSellingPrice()) isValid = false;
+        if (!validateCategory()) isValid = false;
+        if (!validateImage()) isValid = false;
+
         return isValid;
     }
 
@@ -145,11 +217,13 @@ $(function() {
         $('.validation-error').removeClass('show');
         $('.form-control').removeClass('error');
         $('.success-message').fadeOut();
+        clearImagePreview();
     }
 
     function clearValidationErrors() {
         $('.validation-error').removeClass('show');
         $('.form-control').removeClass('error');
+        imagePreviewWrapper.removeClass('error');
     }
 
     // Real-time border validation (without error messages)
@@ -184,6 +258,82 @@ $(function() {
             $('#categoryError').removeClass('show');
         }
     });
+
+    imageFileInput.on('change', function() {
+        hideError('imageError');
+        var file = this.files && this.files[0] ? this.files[0] : null;
+
+        if (!file) {
+            if (imageUrlInput.val().trim() === '') {
+                clearImagePreview();
+            }
+            return;
+        }
+
+        if (!file.type || !file.type.startsWith('image/')) {
+            showError('imageError', 'Please choose a valid image file');
+            this.value = '';
+            clearImagePreview();
+            return;
+        }
+
+        if (file.size > MAX_IMAGE_SIZE) {
+            showError('imageError', 'Image must be smaller than 5 MB');
+            this.value = '';
+            clearImagePreview();
+            return;
+        }
+
+        if (imageObjectURL) {
+            URL.revokeObjectURL(imageObjectURL);
+            imageObjectURL = null;
+        }
+
+        imageObjectURL = URL.createObjectURL(file);
+        setImagePreview(imageObjectURL);
+        imageUrlInput.val('');
+    });
+
+    imageUrlInput.on('input', function() {
+        hideError('imageError');
+        var urlValue = $(this).val().trim();
+
+        if (urlValue === '') {
+            if (!imageFileInput[0].files.length) {
+                clearImagePreview();
+            }
+            return;
+        }
+
+        if (imageObjectURL) {
+            URL.revokeObjectURL(imageObjectURL);
+            imageObjectURL = null;
+        }
+
+        imageFileInput.val('');
+        setImagePreview(urlValue);
+    });
+
+    imageUrlInput.on('blur', function() {
+        validateImage();
+    });
+
+    imagePreview.on('error', function() {
+        if (imageUrlInput.val().trim() !== '') {
+            showError('imageError', 'Unable to load image from the provided URL');
+            imageUrlInput.val('');
+        }
+        clearImagePreview();
+    });
+
+    resetImageBtn.on('click', function() {
+        imageFileInput.val('');
+        imageUrlInput.val('');
+        clearImagePreview();
+        hideError('imageError');
+    });
+
+    clearImagePreview();
 
     // Form submission
     $('form').on('submit', function(e) {

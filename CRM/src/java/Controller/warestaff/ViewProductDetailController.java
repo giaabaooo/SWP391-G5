@@ -41,29 +41,38 @@ public class ViewProductDetailController extends HttpServlet {
             }
             
             // Get product details
-            ProductDAO productDAO = new ProductDAO();
-            Product product = productDAO.getProductById(productId);
-            
-            if (product == null) {
-                request.setAttribute("error", "Product not found");
-                request.getRequestDispatcher("/warehouse/productList.jsp").forward(request, response);
-                return;
+            ProductDAO productDAO = null;
+            CategoryDAO categoryDAO = null;
+            BrandDAO brandDAO = null;
+            try {
+                productDAO = new ProductDAO();
+                categoryDAO = new CategoryDAO();
+                brandDAO = new BrandDAO();
+
+                Product product = productDAO.getProductById(productId);
+                
+                if (product == null) {
+                    request.setAttribute("error", "Product not found");
+                    request.getRequestDispatcher("/warehouse/productList.jsp").forward(request, response);
+                    return;
+                }
+                
+                // Get category and brand details
+                Category category = categoryDAO.getCategoryById(product.getCategoryId());
+                Brand brand = null;
+                if (product.getBrandId() != null) {
+                    brand = brandDAO.getBrandById(product.getBrandId());
+                }
+                
+                // Set attributes
+                request.setAttribute("product", product);
+                request.setAttribute("category", category);
+                request.setAttribute("brand", brand);
+            } finally {
+                if (productDAO != null) productDAO.close();
+                if (categoryDAO != null) categoryDAO.close();
+                if (brandDAO != null) brandDAO.close();
             }
-            
-            // Get category and brand details
-            CategoryDAO categoryDAO = new CategoryDAO();
-            BrandDAO brandDAO = new BrandDAO();
-            
-            Category category = categoryDAO.getCategoryById(product.getCategoryId());
-            Brand brand = null;
-            if (product.getBrandId() != null) {
-                brand = brandDAO.getBrandById(product.getBrandId());
-            }
-            
-            // Set attributes
-            request.setAttribute("product", product);
-            request.setAttribute("category", category);
-            request.setAttribute("brand", brand);
             
             // Forward to JSP
             request.getRequestDispatcher("/warehouse/productDetail.jsp").forward(request, response);

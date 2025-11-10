@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import data.Transaction;
+import data.InventoryTransactionItem;
 
 public class TransactionDAO extends DBContext {
     public Integer getCurrentInventoryQuantity(int productId) {
@@ -26,104 +28,190 @@ public class TransactionDAO extends DBContext {
     }
 
     public boolean createImportAndUpdateInventory(int productId, int quantity, Timestamp transactionDate, String supplier, String note) {
-        if (quantity <= 0) return false;
-        boolean originalAutoCommit;
+        InventoryTransactionItem item = new InventoryTransactionItem(productId, quantity, null, null);
+        return createImportBatchAndUpdateInventory(Collections.singletonList(item), transactionDate, supplier, note);
+    }
+
+    public boolean createImportBatchAndUpdateInventory(List<InventoryTransactionItem> items, Timestamp transactionDate, String supplier, String generalNote) {
+        if (items == null || items.isEmpty()) {
+            return false;
+        }
+
+        Connection conn = this.connection;
+        if (conn == null) {
+            return false;
+        }
+
+        boolean success = false;
+        boolean originalAutoCommit = true;
+        Timestamp effectiveDate = transactionDate != null ? transactionDate : new Timestamp(System.currentTimeMillis());
+
         try {
-            Connection conn = this.connection;
             originalAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
-            String updateSql = "UPDATE Inventory SET quantity = quantity + ? WHERE product_id = ? AND is_active = 1";
-            try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
-                ps.setInt(1, quantity);
-                ps.setInt(2, productId);
-                int updated = ps.executeUpdate();
-                if (updated == 0) {
-                    String insertInv = "INSERT INTO Inventory (product_id, quantity, is_active) VALUES (?, ?, 1)";
-                    try (PreparedStatement psi = conn.prepareStatement(insertInv)) {
-                        psi.setInt(1, productId);
-                        psi.setInt(2, quantity);
-                        psi.executeUpdate();
+            for (InventoryTransactionItem item : items) {
+                if (item == null) {
+                    continue;
+                }
+                if (item.getQuantity() <= 0) {
+                    throw new IllegalArgumentException("Quantity must be greater than zero for all items");
+                }
+
+                int productId = item.getProductId();
+                int quantity = item.getQuantity();
+
+                String updateSql = "UPDATE Inventory SET quantity = quantity + ? WHERE product_id = ? AND is_active = 1";
+                try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+                    ps.setInt(1, quantity);
+                    ps.setInt(2, productId);
+                    int updated = ps.executeUpdate();
+                    if (updated == 0) {
+                        String insertInv = "INSERT INTO Inventory (product_id, quantity, is_active) VALUES (?, ?, 1)";
+                        try (PreparedStatement psi = conn.prepareStatement(insertInv)) {
+                            psi.setInt(1, productId);
+                            psi.setInt(2, quantity);
+                            psi.executeUpdate();
+                        }
                     }
+                }
+
+                String txSql = "INSERT INTO `Transaction` (product_id, contract_id, type, quantity, transaction_date, note, is_active) VALUES (?, NULL, 'IMPORT', ?, ?, ?, 1)";
+                try (PreparedStatement pst = conn.prepareStatement(txSql)) {
+                    pst.setInt(1, productId);
+                    pst.setInt(2, quantity);
+                    pst.setTimestamp(3, effectiveDate);
+                    pst.setString(4, buildImportNote(supplier, generalNote, item));
+                    pst.executeUpdate();
                 }
             }
 
-            String finalNote = note != null ? note.trim() : "";
-            if (supplier != null && !supplier.trim().isEmpty()) {
-                String supplierText = "Supplier: " + supplier.trim();
-                finalNote = finalNote.isEmpty() ? supplierText : (supplierText + " | " + finalNote);
-            }
-
-            String txSql = "INSERT INTO `Transaction` (product_id, contract_id, type, quantity, transaction_date, note, is_active) VALUES (?, NULL, 'IMPORT', ?, ?, ?, 1)";
-            try (PreparedStatement pst = conn.prepareStatement(txSql)) {
-                pst.setInt(1, productId);
-                pst.setInt(2, quantity);
-                pst.setTimestamp(3, transactionDate != null ? transactionDate : new Timestamp(System.currentTimeMillis()));
-                pst.setString(4, finalNote.isEmpty() ? null : finalNote);
-                pst.executeUpdate();
-            }
-
             conn.commit();
-            conn.setAutoCommit(originalAutoCommit);
-            return true;
-        } catch (SQLException e) {
-            try { this.connection.rollback(); } catch (SQLException ignored) {}
-            try { this.connection.setAutoCommit(true); } catch (SQLException ignored) {}
-            System.err.println("Error creating import transaction: " + e.getMessage());
-            return false;
+            success = true;
+        } catch (SQLException | RuntimeException ex) {
+            try { conn.rollback(); } catch (SQLException ignored) {}
+            System.err.println("Error creating import batch: " + ex.getMessage());
+        } finally {
+            try { conn.setAutoCommit(originalAutoCommit); } catch (SQLException ignored) {}
         }
+
+        return success;
+    }
+
+    private String buildImportNote(String supplier, String generalNote, InventoryTransactionItem item) {
+        List<String> parts = new ArrayList<>();
+        if (item.getUnit() != null && !item.getUnit().trim().isEmpty()) {
+            parts.add("Unit: " + item.getUnit().trim());
+        }
+        if (item.getItemNote() != null && !item.getItemNote().trim().isEmpty()) {
+            parts.add(item.getItemNote().trim());
+        }
+        if (supplier != null && !supplier.trim().isEmpty()) {
+            parts.add("Supplier: " + supplier.trim());
+        }
+        if (generalNote != null && !generalNote.trim().isEmpty()) {
+            parts.add(generalNote.trim());
+        }
+        if (parts.isEmpty()) {
+            return null;
+        }
+        return String.join(" | ", parts);
     }
 
     public boolean createExportAndUpdateInventory(int productId, int quantity, Timestamp transactionDate, String note) {
-        if (quantity <= 0) return false;
-        boolean originalAutoCommit;
+        InventoryTransactionItem item = new InventoryTransactionItem(productId, quantity, null, null);
+        return createExportBatchAndUpdateInventory(Collections.singletonList(item), transactionDate, note);
+    }
+
+    public boolean createExportBatchAndUpdateInventory(List<InventoryTransactionItem> items, Timestamp transactionDate, String generalNote) {
+        if (items == null || items.isEmpty()) {
+            return false;
+        }
+
+        Connection conn = this.connection;
+        if (conn == null) {
+            return false;
+        }
+
+        boolean success = false;
+        boolean originalAutoCommit = true;
+        Timestamp effectiveDate = transactionDate != null ? transactionDate : new Timestamp(System.currentTimeMillis());
+
         try {
-            Connection conn = this.connection;
             originalAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
-            int currentQty = 0;
-            String sel = "SELECT quantity FROM Inventory WHERE product_id = ? AND is_active = 1";
-            try (PreparedStatement ps = conn.prepareStatement(sel)) {
-                ps.setInt(1, productId);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) currentQty = rs.getInt(1);
+            for (InventoryTransactionItem item : items) {
+                if (item == null) {
+                    continue;
                 }
-            }
-            if (currentQty < quantity) {
-                conn.setAutoCommit(originalAutoCommit);
-                return false;
-            }
-
-            String updateSql = "UPDATE Inventory SET quantity = quantity - ? WHERE product_id = ? AND is_active = 1";
-            try (PreparedStatement psu = conn.prepareStatement(updateSql)) {
-                psu.setInt(1, quantity);
-                psu.setInt(2, productId);
-                int updated = psu.executeUpdate();
-                if (updated == 0) {
-                    conn.setAutoCommit(originalAutoCommit);
-                    return false;
+                if (item.getQuantity() <= 0) {
+                    throw new IllegalArgumentException("Quantity must be greater than zero for all items");
                 }
-            }
 
-            String txSql = "INSERT INTO `Transaction` (product_id, contract_id, type, quantity, transaction_date, note, is_active) VALUES (?, NULL, 'EXPORT', ?, ?, ?, 1)";
-            try (PreparedStatement pst = conn.prepareStatement(txSql)) {
-                pst.setInt(1, productId);
-                pst.setInt(2, quantity);
-                pst.setTimestamp(3, transactionDate != null ? transactionDate : new Timestamp(System.currentTimeMillis()));
-                pst.setString(4, (note != null && !note.trim().isEmpty()) ? note.trim() : null);
-                pst.executeUpdate();
+                int productId = item.getProductId();
+                int quantity = item.getQuantity();
+
+                // Check available stock
+                int currentQty = 0;
+                String sel = "SELECT quantity FROM Inventory WHERE product_id = ? AND is_active = 1";
+                try (PreparedStatement ps = conn.prepareStatement(sel)) {
+                    ps.setInt(1, productId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) currentQty = rs.getInt(1);
+                    }
+                }
+                if (currentQty < quantity) {
+                    throw new IllegalArgumentException("Export quantity (" + quantity + ") exceeds available stock (" + currentQty + ") for product ID " + productId);
+                }
+
+                String updateSql = "UPDATE Inventory SET quantity = quantity - ? WHERE product_id = ? AND is_active = 1";
+                try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+                    ps.setInt(1, quantity);
+                    ps.setInt(2, productId);
+                    int updated = ps.executeUpdate();
+                    if (updated == 0) {
+                        throw new IllegalArgumentException("No inventory record found for product ID " + productId);
+                    }
+                }
+
+                String txSql = "INSERT INTO `Transaction` (product_id, contract_id, type, quantity, transaction_date, note, is_active) VALUES (?, NULL, 'EXPORT', ?, ?, ?, 1)";
+                try (PreparedStatement pst = conn.prepareStatement(txSql)) {
+                    pst.setInt(1, productId);
+                    pst.setInt(2, quantity);
+                    pst.setTimestamp(3, effectiveDate);
+                    pst.setString(4, buildExportNote(generalNote, item));
+                    pst.executeUpdate();
+                }
             }
 
             conn.commit();
-            conn.setAutoCommit(originalAutoCommit);
-            return true;
-        } catch (SQLException e) {
-            try { this.connection.rollback(); } catch (SQLException ignored) {}
-            try { this.connection.setAutoCommit(true); } catch (SQLException ignored) {}
-            System.err.println("Error creating export transaction: " + e.getMessage());
-            return false;
+            success = true;
+        } catch (SQLException | RuntimeException ex) {
+            try { conn.rollback(); } catch (SQLException ignored) {}
+            System.err.println("Error creating export batch: " + ex.getMessage());
+        } finally {
+            try { conn.setAutoCommit(originalAutoCommit); } catch (SQLException ignored) {}
         }
+
+        return success;
+    }
+
+    private String buildExportNote(String generalNote, InventoryTransactionItem item) {
+        List<String> parts = new ArrayList<>();
+        if (item.getUnit() != null && !item.getUnit().trim().isEmpty()) {
+            parts.add("Unit: " + item.getUnit().trim());
+        }
+        if (item.getItemNote() != null && !item.getItemNote().trim().isEmpty()) {
+            parts.add(item.getItemNote().trim());
+        }
+        if (generalNote != null && !generalNote.trim().isEmpty()) {
+            parts.add(generalNote.trim());
+        }
+        if (parts.isEmpty()) {
+            return null;
+        }
+        return String.join(" | ", parts);
     }
 
     public int getTotalTransactions(String typeFilter, String searchNote) {
