@@ -80,7 +80,7 @@
                 
                 <!-- Products -->
                 <li class="treeview">
-                    <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#inventoryMenu" aria-expanded="false">
                         <i class="fa fa-cubes"></i> <span>Products</span>
                     </a>
                     <ul class="collapse" id="inventoryMenu">
@@ -91,7 +91,7 @@
                 
                 <!-- Categories -->
                 <li class="treeview">
-                    <a href="#categoryMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#categoryMenu" aria-expanded="false">
                         <i class="fa fa-tags"></i> <span>Categories</span>
                     </a>
                     <ul class="collapse" id="categoryMenu">
@@ -102,7 +102,7 @@
                 
                 <!-- Brands -->
                 <li class="treeview">
-                    <a href="#brandMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#brandMenu" aria-expanded="false">
                         <i class="fa fa-bookmark"></i> <span>Brands</span>
                     </a>
                     <ul class="collapse" id="brandMenu">
@@ -113,7 +113,7 @@
                 
                 <!-- Transactions -->
                 <li class="treeview">
-                    <a href="#transactionMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#transactionMenu" aria-expanded="false">
                         <i class="fa fa-exchange"></i> <span>Transactions</span>
                     </a>
                     <ul class="collapse" id="transactionMenu">

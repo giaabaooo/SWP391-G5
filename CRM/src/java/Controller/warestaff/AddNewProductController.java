@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import jakarta.servlet.ServletException;
@@ -33,7 +32,7 @@ import data.Product;
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 5 * 1024 * 1024, maxRequestSize = 6 * 1024 * 1024)
 public class AddNewProductController extends HttpServlet {
-   
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -69,16 +68,20 @@ public class AddNewProductController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        String successMessage = request.getParameter("success");
-        if (successMessage != null && !successMessage.isEmpty()) {
-            request.setAttribute("success", successMessage);
+        try {
+            // Load dropdown data from session cache if available
+            loadDropdownData(request);
+
+            request.getRequestDispatcher("/warehouse/addProduct.jsp").forward(request, response);
+
+        } catch (Exception e) {
+            System.err.println("Error loading brands and categories: " + e.getMessage());
+            e.printStackTrace();
+
+            request.setAttribute("error", "Unable to load brand and category list. Please try again later.");
+
+            request.getRequestDispatcher("/warehouse/addProduct.jsp").forward(request, response);
         }
-        String errorMessage = request.getParameter("error");
-        if (errorMessage != null && !errorMessage.isEmpty()) {
-            request.setAttribute("error", errorMessage);
-        }
-        populateDropdownData(request);
-        request.getRequestDispatcher("/warehouse/addProduct.jsp").forward(request, response);
     } 
 
     /** 
@@ -232,56 +235,81 @@ public class AddNewProductController extends HttpServlet {
                 }
             }
 
-            populateDropdownData(request);
+			loadDropdownData(request);
             request.getRequestDispatcher("/warehouse/addProduct.jsp").forward(request, response);
             
         } catch (IllegalArgumentException e) {
             request.setAttribute("error", "Validation error: " + e.getMessage());
-            populateDropdownData(request);
+			loadDropdownData(request);
             request.getRequestDispatcher("/warehouse/addProduct.jsp").forward(request, response);
             
         } catch (Exception e) {
             System.err.println("Error adding product: " + e.getMessage());
             e.printStackTrace();
-            
+
             request.setAttribute("error", "An unexpected error occurred. Please try again later.");
-            populateDropdownData(request);
+			loadDropdownData(request);
             request.getRequestDispatcher("/warehouse/addProduct.jsp").forward(request, response);
         }
     }
 
-    private void populateDropdownData(HttpServletRequest request) {
+    /**
+     * Helper method to load dropdown data (brands and categories) with session caching
+     * This prevents redundant database calls on every request
+     */
+    private void loadDropdownData(HttpServletRequest request) {
         BrandDAO brandDAO = null;
         CategoryDAO categoryDAO = null;
+
         try {
-            brandDAO = new BrandDAO();
-            categoryDAO = new CategoryDAO();
-            request.setAttribute("brands", brandDAO.getAllActiveBrands());
-            request.setAttribute("categories", categoryDAO.getAllActiveCategories());
-        } catch (IllegalStateException ex) {
-            System.err.println("Database connection unavailable: " + ex.getMessage());
-            request.setAttribute("brands", Collections.emptyList());
-            request.setAttribute("categories", Collections.emptyList());
-            if (request.getAttribute("dropdownError") == null) {
-                request.setAttribute("dropdownError", "Unable to load brand and category list right now. Please try again later.");
+            List<Brand> brands = null;
+            List<Category> categories = null;
+
+            // Check if data exists in session
+            if (request.getSession().getAttribute("cachedBrands") != null &&
+                request.getSession().getAttribute("cachedCategories") != null) {
+                // Use cached data from session
+                brands = (List<Brand>) request.getSession().getAttribute("cachedBrands");
+                categories = (List<Category>) request.getSession().getAttribute("cachedCategories");
+            } else {
+                // Load from database and cache in session
+                brandDAO = new BrandDAO();
+                categoryDAO = new CategoryDAO();
+
+                brands = brandDAO.getAllActiveBrands();
+                categories = categoryDAO.getAllActiveCategories();
+
+                // Store in session for future requests
+                request.getSession().setAttribute("cachedBrands", brands);
+                request.getSession().setAttribute("cachedCategories", categories);
             }
-        } catch (Exception ex) {
-            System.err.println("Unexpected error loading dropdown data: " + ex.getMessage());
-            ex.printStackTrace();
-            request.setAttribute("brands", Collections.emptyList());
-            request.setAttribute("categories", Collections.emptyList());
-            if (request.getAttribute("dropdownError") == null) {
-                request.setAttribute("dropdownError", "An unexpected error occurred while loading dropdown data.");
-            }
+
+            // Set as request attributes for the JSP to use
+            request.setAttribute("brands", brands);
+            request.setAttribute("categories", categories);
+
+        } catch (Exception e) {
+            System.err.println("Error loading dropdown data: " + e.getMessage());
+            request.setAttribute("dropdownError", "Unable to refresh brand/category options.");
         } finally {
+            // IMPORTANT: Always close DAO connections to prevent memory leaks and connection pool exhaustion
             if (brandDAO != null) {
-                brandDAO.close();
+                try {
+                    brandDAO.close();
+                } catch (Exception e) {
+                    System.err.println("Error closing BrandDAO: " + e.getMessage());
+                }
             }
             if (categoryDAO != null) {
-                categoryDAO.close();
+                try {
+                    categoryDAO.close();
+                } catch (Exception e) {
+                    System.err.println("Error closing CategoryDAO: " + e.getMessage());
+                }
             }
         }
     }
+
 
     /** 
      * Returns a short description of the servlet.

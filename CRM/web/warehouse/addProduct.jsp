@@ -79,7 +79,7 @@
 
                 <!-- Products -->
                 <li class="treeview">
-                    <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#inventoryMenu" aria-expanded="false">
                         <i class="fa fa-cubes"></i> <span>Products</span>
                     </a>
                     <ul class="collapse" id="inventoryMenu">
@@ -90,7 +90,7 @@
 
                 <!-- Categories -->
                 <li class="treeview">
-                    <a href="#categoryMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#categoryMenu" aria-expanded="false">
                         <i class="fa fa-tags"></i> <span>Categories</span>
                     </a>
                     <ul class="collapse" id="categoryMenu">
@@ -101,7 +101,7 @@
 
                 <!-- Brands -->
                 <li class="treeview">
-                    <a href="#brandMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#brandMenu" aria-expanded="false">
                         <i class="fa fa-bookmark"></i> <span>Brands</span>
                     </a>
                     <ul class="collapse" id="brandMenu">
@@ -112,7 +112,7 @@
 
                 <!-- Transactions -->
                 <li class="treeview">
-                    <a href="#transactionMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#transactionMenu" aria-expanded="false">
                         <i class="fa fa-exchange"></i> <span>Transactions</span>
                     </a>
                     <ul class="collapse" id="transactionMenu">
@@ -263,7 +263,7 @@
                                             <label class="control-label">Product Image</label>
                                             <div class="image-upload-section">
                                                 <div class="image-preview-wrapper" id="imagePreviewWrapper">
-                                                    <img id="imagePreview" src="#" alt="Product preview" style="display: none;" />
+                                                    <img id="imagePreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Product preview" style="display: none;" />
                                                     <div class="image-preview-placeholder" id="imagePreviewPlaceholder">
                                                         <i class="fa fa-image"></i>
                                                         <span>No image selected</span>
@@ -330,14 +330,7 @@
 
 <!-- SCRIPTS -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/daterangepicker.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/chart.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/icheck.min.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/fullcalendar.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/warehouse/addProduct.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/warehouse/warehouse-responsive.js" type="text/javascript"></script>
 
