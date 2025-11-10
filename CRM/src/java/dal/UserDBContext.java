@@ -425,13 +425,13 @@ public class UserDBContext extends DBContext {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             message.setSubject("CRM Account Created Successfully");
 
-            String body = "Xin chào " + username + ",\n\n"
-                    + "Tài khoản CRM của bạn đã được tạo thành công.\n"
-                    + "Dưới đây là thông tin đăng nhập :\n\n"
+            String body = "Xin chao " + username + ",\n\n"
+                    + "Tai khoan CRM cua ban da duoc tao thanh cong.\n"
+                    + "Duoi day la thong tin dang nhap :\n\n"
                     + "Username: " + username + "\n"
                     + "Password: " + password + "\n\n"
-                    + "Vui lòng đăng nhập và đổi mật khẩu ngay lần đầu tiên.\n\n"
-                    + "Trân trọng,\nCRM Admin Team";
+                    + "Vui long dang nhap va doi mat khau.\n\n"
+                    + "Tran trong,\nCRM Admin Team";
 
             message.setText(body);
 
