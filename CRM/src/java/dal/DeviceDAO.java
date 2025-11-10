@@ -140,9 +140,10 @@ public class DeviceDAO extends DBContext {
 
         return total;
     }
+
     public List<String> getContractCodesByUserId(int userId) {
         List<String> codes = new ArrayList<>();
-        
+
         String sql = "SELECT DISTINCT contract_code FROM Contract WHERE customer_id = ? AND is_active = 1 ORDER BY contract_code";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -336,7 +337,7 @@ public class DeviceDAO extends DBContext {
     }
 
     public boolean isSerialNumberExists(String serialNumber) {
-        String sql = "SELECT COUNT(*) FROM Device WHERE serial_number = ?";
+        String sql = "SELECT COUNT(*) FROM Device WHERE serial_number = ? AND is_active = true";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, serialNumber);
             ResultSet rs = stm.executeQuery();
@@ -356,6 +357,7 @@ public class DeviceDAO extends DBContext {
         JOIN ContractItem ci ON d.contract_item_id = ci.id
         WHERE d.serial_number = ? 
         AND ci.contract_id != ?
+        AND d.is_active = true
     """;
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {

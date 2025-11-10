@@ -51,26 +51,14 @@ public class ContractCreateController extends HttpServlet {
             request.setCharacterEncoding("UTF-8");
 
             int customerId = Integer.parseInt(request.getParameter("customerId"));
-            String contractCode = request.getParameter("contractCode");
             String contractDateStr = request.getParameter("contractDate");
             String description = request.getParameter("description");
-
-            if (contractCode == null || contractCode.isEmpty() || contractDateStr == null) {
-                throw new IllegalArgumentException("Contract code or date missing!");
-            }
 
             ContractDAO contractDAO = new ContractDAO();
             DeviceDAO deviceDAO = new DeviceDAO();
 
-            if (contractDAO.isContractCodeExists(contractCode)) {
-                request.setAttribute("error", "Contract code already exists! Please choose another one.");
-                reloadFormData(request);
-                request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
-                return;
-            }   
-            
             String[] serialNumbers = request.getParameterValues("serialNumber");
-            
+
             if (serialNumbers != null) {
                 java.util.Set<String> serialSet = new java.util.HashSet<>();
                 for (String serial : serialNumbers) {
@@ -80,9 +68,9 @@ public class ContractCreateController extends HttpServlet {
                         request.getRequestDispatcher("/cskh/contract_create.jsp").forward(request, response);
                         return;
                     }
-                    
-                    String trimmedSerial = serial.trim();                   
-                   
+
+                    String trimmedSerial = serial.trim();
+
                     if (!serialSet.add(trimmedSerial)) {
                         request.setAttribute("error", "Duplicate serial number entered: " + trimmedSerial);
                         reloadFormData(request);
@@ -98,12 +86,11 @@ public class ContractCreateController extends HttpServlet {
                     }
                 }
             }
-            
+
             Date contractDate = Date.valueOf(contractDateStr);
 
             Contract contract = new Contract();
             contract.setCustomerId(customerId);
-            contract.setContractCode(contractCode);
             contract.setContractDate(contractDate);
             contract.setDescription(description);
 
@@ -113,7 +100,7 @@ public class ContractCreateController extends HttpServlet {
             String[] warrantyMonths = request.getParameterValues("warrantyMonths");
             String[] maintenanceMonths = request.getParameterValues("maintenanceMonths");
             String[] maintenanceFreq = request.getParameterValues("maintenanceFrequencyMonths");
-            
+
             List<ContractItem> items = new ArrayList<>();
             double calculatedTotalAmount = 0.0;
 
@@ -125,11 +112,15 @@ public class ContractCreateController extends HttpServlet {
             }
 
             for (int i = 0; i < productIds.length; i++) {
-                if (productIds[i] == null || productIds[i].isEmpty()) continue;
+                if (productIds[i] == null || productIds[i].isEmpty()) {
+                    continue;
+                }
 
                 int qty = Integer.parseInt(quantities[i]);
                 double price = Double.parseDouble(prices[i]);
-                if (qty <= 0) continue;
+                if (qty <= 0) {
+                    continue;
+                }
 
                 ContractItem item = new ContractItem();
                 item.setProductId(Integer.parseInt(productIds[i]));

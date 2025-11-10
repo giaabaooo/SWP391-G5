@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import utils.Validation; 
+import utils.Validation;
 
 @WebServlet("/user/profile")
 public class ProfileController extends HttpServlet {
@@ -27,14 +27,27 @@ public class ProfileController extends HttpServlet {
         }
 
         User user = userDAO.get(sessionUser.getId());
+        String fullAddress = user.getAddress();
+        String street = "";
+        String ward = "";
+        String district = "";
+        String province = "";
 
-        if (user.getAddress() != null && !user.getAddress().trim().isEmpty()) {
-            String[] parts = user.getAddress().split(",", 2); 
-            req.setAttribute("streetDetail", parts[0].trim());
-        } else {
-            req.setAttribute("streetDetail", "");
+        if (fullAddress != null && !fullAddress.trim().isEmpty()) {
+            String[] parts = fullAddress.split(",", 4);
+            if (parts.length == 4) {
+                street = parts[0].trim();
+                ward = parts[1].trim();
+                district = parts[2].trim();
+                province = parts[3].trim();
+            } else {
+                street = fullAddress;
+            }
         }
-        
+        req.setAttribute("streetDetail", street);
+        req.setAttribute("wardDetail", ward);
+        req.setAttribute("districtDetail", district);
+        req.setAttribute("provinceDetail", province);
         req.setAttribute("user", user);
 
         String action = req.getParameter("action");
@@ -62,7 +75,7 @@ public class ProfileController extends HttpServlet {
             if ("updateInfo".equals(action)) {
                 String fullName = req.getParameter("fullName");
                 String phone = req.getParameter("phone");
-                
+
                 String street = req.getParameter("street");
                 String ward = req.getParameter("wardName");
                 String district = req.getParameter("districtName");
@@ -70,10 +83,10 @@ public class ProfileController extends HttpServlet {
 
                 if (fullName == null || fullName.trim().isEmpty() || phone == null || phone.trim().isEmpty()) {
                     req.setAttribute("errorInfo", "Full name and phone must not be empty.");
-                } else if (street == null || street.trim().isEmpty() || 
-                           ward == null || ward.trim().isEmpty() || 
-                           district == null || district.trim().isEmpty() || 
-                           province == null || province.trim().isEmpty()) {
+                } else if (street == null || street.trim().isEmpty()
+                        || ward == null || ward.trim().isEmpty()
+                        || district == null || district.trim().isEmpty()
+                        || province == null || province.trim().isEmpty()) {
                     req.setAttribute("errorInfo", "All address fields (Province, District, Ward, Street) are required.");
                 } else if (fullName.length() < 4 || fullName.length() > 30) {
                     req.setAttribute("errorInfo", "Full name must be between 4 and 30 characters.");
@@ -82,11 +95,11 @@ public class ProfileController extends HttpServlet {
                 } else {
 
                     String fullAddress = street + ", " + ward + ", " + district + ", " + province;
-                    
+
                     String normalizedPhone = Validation.normalizeVietnamesePhone(phone.trim());
 
                     userDAO.updateUserProfile(sessionUser.getId(), fullName, normalizedPhone, fullAddress);
-                    
+
                     sessionUser.setFullName(fullName);
                     sessionUser.setPhone(normalizedPhone);
                     sessionUser.setAddress(fullAddress);
@@ -102,8 +115,8 @@ public class ProfileController extends HttpServlet {
 
                 if (!newPass.equals(confirmPass)) {
                     req.setAttribute("errorPass", "New password and confirmation do not match.");
-                } else if (!Validation.checkPassWord(newPass)) { 
-                     req.setAttribute("errorPass", "Password not strong. Must be 8+ chars, include uppercase, lowercase, number, and special character.");
+                } else if (!Validation.checkPassWord(newPass)) {
+                    req.setAttribute("errorPass", "Password not strong. Must be 8+ chars, include uppercase, lowercase, number, and special character.");
                 } else {
                     String hashedCurrentPass = userDAO.hashPassword(currentPass);
                     String dbPass = sessionUser.getPassword();
@@ -113,7 +126,7 @@ public class ProfileController extends HttpServlet {
                     } else {
                         String hashedNewPass = userDAO.hashPassword(newPass);
                         userDAO.changePassword(sessionUser.getId(), hashedNewPass);
-                        
+
                         sessionUser.setPassword(hashedNewPass);
                         session.setAttribute("user", sessionUser);
 
@@ -121,7 +134,7 @@ public class ProfileController extends HttpServlet {
                     }
                 }
             }
-            
+
             if (redirectUrl.contains("?action=edit")) {
                 User user = userDAO.get(sessionUser.getId());
 
@@ -131,7 +144,7 @@ public class ProfileController extends HttpServlet {
                 } else {
                     req.setAttribute("streetDetail", "");
                 }
-        
+
                 req.setAttribute("user", user);
                 req.getRequestDispatcher("/edit_profile.jsp").forward(req, resp);
             } else {
@@ -142,7 +155,7 @@ public class ProfileController extends HttpServlet {
             e.printStackTrace();
             req.setAttribute("errorInfo", "An error occurred: " + e.getMessage());
             User user = userDAO.get(sessionUser.getId());
-            
+
             if (user.getAddress() != null && !user.getAddress().trim().isEmpty()) {
                 String[] parts = user.getAddress().split(",", 2);
                 req.setAttribute("streetDetail", parts[0].trim());

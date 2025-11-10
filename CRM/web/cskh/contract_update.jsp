@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ include file="/jsp/layout/header2.jsp" %>
-<%@ include file="/jsp/layout/sidebar2.jsp" %>
+<%@ include file="/cskh/layout/header.jsp" %>
+<%@ include file="/cskh/layout/sidebar.jsp" %>
 
 <div class="content-wrapper">
     <section class="content-header">
@@ -412,4 +412,4 @@
     });
 </script>
 
-<%@ include file="/jsp/layout/footer2.jsp" %>
+<%@ include file="/cskh/layout/footer.jsp" %>

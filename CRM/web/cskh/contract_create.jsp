@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ include file="/jsp/layout/header2.jsp" %>
-<%@ include file="/jsp/layout/sidebar2.jsp" %>
+<%@ include file="/cskh/layout/header.jsp" %>
+<%@ include file="/cskh/layout/sidebar.jsp" %>
 
 <div class="content-wrapper">
     <section class="content p-4">
@@ -36,12 +36,6 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Contract Code:</label>
-                                    <input type="text" name="contractCode" required class="form-control" placeholder="E.g. CT2025-001">
-                                </div>
-                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Contract Date:</label>
@@ -356,4 +350,4 @@
 </script>
 
 
-<%@ include file="/jsp/layout/footer2.jsp" %>
+<%@ include file="/cskh/layout/footer2.jsp" %>

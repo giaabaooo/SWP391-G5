@@ -97,13 +97,27 @@ public class AdminController extends HttpServlet {
 
                 User user = userDb.get(Integer.parseInt(id));
 
-                if (user.getAddress() != null && !user.getAddress().trim().isEmpty()) {
-                    String[] parts = user.getAddress().split(",", 2);
-                    req.setAttribute("streetDetail", parts[0].trim());
-                } else {
-                    req.setAttribute("streetDetail", "");
-                }
+                String fullAddress = user.getAddress();
+                String street = "";
+                String ward = "";
+                String district = "";
+                String province = "";
 
+                if (fullAddress != null && !fullAddress.trim().isEmpty()) {
+                    String[] parts = fullAddress.split(",", 4);
+                    if (parts.length == 4) {
+                        street = parts[0].trim();
+                        ward = parts[1].trim();
+                        district = parts[2].trim();
+                        province = parts[3].trim();
+                    } else {
+                        street = fullAddress;
+                    }
+                }
+                req.setAttribute("streetDetail", street);
+                req.setAttribute("wardDetail", ward);
+                req.setAttribute("districtDetail", district);
+                req.setAttribute("provinceDetail", province);
                 req.setAttribute("roleList", userDb.getAllRoles());
                 req.setAttribute("user", userDb.get(Integer.parseInt(id)));
                 req.getRequestDispatcher("/admin/edit_user.jsp").forward(req, resp);

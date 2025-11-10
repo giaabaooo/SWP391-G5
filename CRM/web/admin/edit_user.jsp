@@ -290,7 +290,11 @@
                                         <i class="fa fa-plus-circle" style="color: #667eea;"></i> Edit Account
                                     </h4>
 
-                                    <form method="post" action="${pageContext.request.contextPath}/admin/user?action=edit">
+                                    <form method="post" action="${pageContext.request.contextPath}/admin/user?action=edit"
+                                          id="editForm"
+                                          data-province="${provinceDetail}"
+                                          data-district="${districtDetail}"
+                                          data-ward="${wardDetail}">
                                         <input type="hidden" name="id" value="${user.id}" /> 
                                         <div class="info-row" style="margin-bottom: 1rem;">
                                             <div class="info-label">
@@ -420,25 +424,22 @@
                     var target = $(this).attr('href');
                     $(target).collapse('toggle');
                 });
-
                 $('#inventoryMenu').addClass('in');
             });
 
 
-        </script>
-
-        <script>
             document.addEventListener("DOMContentLoaded", function () {
                 const provinceSelect = document.getElementById("province");
                 const districtSelect = document.getElementById("district");
                 const wardSelect = document.getElementById("ward");
-
                 const provinceNameInput = document.getElementById("provinceName");
                 const districtNameInput = document.getElementById("districtName");
                 const wardNameInput = document.getElementById("wardName");
-
                 const apiHost = "https://provinces.open-api.vn/api/";
-
+                const form = document.getElementById("editForm");
+                const currentProvinceName = form.dataset.province;
+                const currentDistrictName = form.dataset.district;
+                const currentWardName = form.dataset.ward;
                 fetch(apiHost + "?depth=1")
                         .then(response => response.json())
                         .then(provinces => {
@@ -446,18 +447,22 @@
                                 const option = new Option(province.name, province.code);
                                 provinceSelect.add(option);
                             });
+                            if (currentProvinceName) {
+                                const provOption = Array.from(provinceSelect.options).find(o => o.text === currentProvinceName);
+                                if (provOption) {
+                                    provinceSelect.value = provOption.value;
+                                    provinceSelect.dispatchEvent(new Event('change'));
+                                }
+                            }
                         });
-
                 provinceSelect.addEventListener("change", function () {
                     const selectedCode = this.value;
-                    const selectedName = this.options[this.selectedIndex].text;
+                    const selectedName = this.options[this.selectedIndex] ? this.options[this.selectedIndex].text : "";
                     provinceNameInput.value = (selectedCode) ? selectedName : "";
-
                     districtSelect.innerHTML = '<option value="">-- Select District --</option>';
                     wardSelect.innerHTML = '<option value="">-- Select Ward/Commune --</option>';
                     districtNameInput.value = "";
                     wardNameInput.value = "";
-
                     if (selectedCode) {
                         fetch(apiHost + "p/" + selectedCode + "?depth=2")
                                 .then(response => response.json())
@@ -466,18 +471,22 @@
                                         const option = new Option(district.name, district.code);
                                         districtSelect.add(option);
                                     });
+                                    if (currentDistrictName) {
+                                        const distOption = Array.from(districtSelect.options).find(o => o.text === currentDistrictName);
+                                        if (distOption) {
+                                            districtSelect.value = distOption.value;
+                                            districtSelect.dispatchEvent(new Event('change'));
+                                        }
+                                    }
                                 });
                     }
                 });
-
                 districtSelect.addEventListener("change", function () {
                     const selectedCode = this.value;
-                    const selectedName = this.options[this.selectedIndex].text;
+                    const selectedName = this.options[this.selectedIndex] ? this.options[this.selectedIndex].text : "";
                     districtNameInput.value = (selectedCode) ? selectedName : "";
-
                     wardSelect.innerHTML = '<option value="">-- Select Ward/Commune --</option>';
                     wardNameInput.value = "";
-
                     if (selectedCode) {
                         fetch(apiHost + "d/" + selectedCode + "?depth=2")
                                 .then(response => response.json())
@@ -486,13 +495,19 @@
                                         const option = new Option(ward.name, ward.code);
                                         wardSelect.add(option);
                                     });
+                                    if (currentWardName) {
+                                        const wardOption = Array.from(wardSelect.options).find(o => o.text === currentWardName);
+                                        if (wardOption) {
+                                            wardSelect.value = wardOption.value;
+                                            wardSelect.dispatchEvent(new Event('change'));
+                                        }
+                                    }
                                 });
                     }
                 });
-
                 wardSelect.addEventListener("change", function () {
                     const selectedCode = this.value;
-                    const selectedName = this.options[this.selectedIndex].text;
+                    const selectedName = this.options[this.selectedIndex] ? this.options[this.selectedIndex].text : "";
                     wardNameInput.value = (selectedCode) ? selectedName : "";
                 });
             });
