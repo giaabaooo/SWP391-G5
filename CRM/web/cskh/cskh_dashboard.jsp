@@ -3,8 +3,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%@ include file="/jsp/layout/header2.jsp" %>
-<%@ include file="/jsp/layout/sidebar2.jsp" %>
+<%@ include file="/cskh/layout/header.jsp" %>
+<%@ include file="/cskh/layout/sidebar.jsp" %>
 
 <div class="content-wrapper" style="background: #ffffff;">
     <section class="content-header">
@@ -199,4 +199,4 @@
     });
         </script>
 
-<%@ include file="/jsp/layout/footer2.jsp" %>
+<%@ include file="/cskh/layout/footer.jsp" %>

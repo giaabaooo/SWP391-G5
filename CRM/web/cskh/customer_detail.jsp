@@ -2,8 +2,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%@ include file="/jsp/layout/header2.jsp" %>
-<%@ include file="/jsp/layout/sidebar2.jsp" %>
+<%@ include file="/cskh/layout/header.jsp" %>
+<%@ include file="/cskh/layout/sidebar.jsp" %>
 
 <section class="content-header">
     <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Customer Details</h1>
@@ -96,4 +96,4 @@
     </div>
 
 </section>
-<%@ include file="/jsp/layout/footer2.jsp" %>
+<%@ include file="/cskh/layout/footer.jsp" %>

@@ -468,8 +468,15 @@ public class ContractDAO extends DBContext {
     public boolean updateContractAndRecreateItems(Contract contract, List<ContractItem> items) {
         String updateContractSql = "UPDATE Contract SET customer_id=?, contract_code=?, contract_date=?, total_amount=?, description=? WHERE id=?";
 
-        String deactivateDevicesSql = "UPDATE Device SET is_active = false "
-                + "WHERE contract_item_id IN (SELECT id FROM ContractItem WHERE contract_id = ? AND is_active = true)";
+        String deactivateDevicesSql = """
+        UPDATE Device 
+        SET 
+            is_active = false, 
+            serial_number = CONCAT(serial_number, '_DEACTIVATED_', id) 
+        WHERE contract_item_id IN (
+            SELECT id FROM ContractItem WHERE contract_id = ? AND is_active = true
+        )
+    """;
 
         String deactivateItemsSql = "UPDATE ContractItem SET is_active = false WHERE contract_id = ? AND is_active = true";
 
