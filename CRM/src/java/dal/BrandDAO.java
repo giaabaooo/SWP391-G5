@@ -23,6 +23,10 @@ public class BrandDAO extends DBContext {
         List<Brand> brands = new ArrayList<>();
         String sql = "SELECT id, name, description, is_active FROM Brand WHERE is_active = 1 ORDER BY name";
         
+        if (connection == null) {
+            throw new IllegalStateException("Database connection is unavailable");
+        }
+
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet rs = statement.executeQuery();
@@ -54,6 +58,10 @@ public class BrandDAO extends DBContext {
         List<Brand> brands = new ArrayList<>();
         String sql = "SELECT id, name, description, is_active FROM Brand ORDER BY name";
         
+        if (connection == null) {
+            throw new IllegalStateException("Database connection is unavailable");
+        }
+
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet rs = statement.executeQuery();
@@ -86,6 +94,10 @@ public class BrandDAO extends DBContext {
         String sql = "SELECT id, name, description, is_active FROM Brand WHERE id = ?";
         Brand brand = null;
         
+        if (connection == null) {
+            throw new IllegalStateException("Database connection is unavailable");
+        }
+
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, id);
