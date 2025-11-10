@@ -41,6 +41,8 @@ public class TaskController extends HttpServlet {
                 String error = req.getParameter("error");
                 if ("pastDate".equals(error)) {
                     req.setAttribute("error", "Date can not in the part.");
+                } else if ("totalCost".equals(error)) {
+                    req.setAttribute("error", "Total cost can not < 0.");
                 }
 
                 if (req.getParameter("id") != null) {
@@ -133,10 +135,10 @@ public class TaskController extends HttpServlet {
                 String success = req.getParameter("success");
                 if ("processing".equals(success)) {
                     req.setAttribute("success", "This task's status has been changed to processing.");
-                }else if("complete".equals(success)){
+                } else if ("complete".equals(success)) {
                     req.setAttribute("success", "This task has been completed.");
                 }
-                
+
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
                 int size = req.getParameter("pageSize") == null ? 10 : Integer.parseInt(req.getParameter("pageSize"));
 
@@ -204,15 +206,18 @@ public class TaskController extends HttpServlet {
         double totalCost = Double.parseDouble(req.getParameter("totalCost"));
         String assignDate = req.getParameter("assignDate");
 
-        
+        if (totalCost < 0) {
+            resp.sendRedirect(req.getContextPath() + "/technician/task?action=createBill&id=" + taskId + "&error=totalCost");
+            return;
+        }
+
         LocalDate assDate = LocalDate.parse(assignDate);
         LocalDate today = LocalDate.now();
-                    if (assDate.isBefore(today)) {
-                        resp.sendRedirect(req.getContextPath() + "/technician/task?action=createBill&id="
-                                + taskId + "&error=pastDate");
-                        return;
-                    }
-        
+        if (assDate.isBefore(today)) {
+            resp.sendRedirect(req.getContextPath() + "/technician/task?action=createBill&id=" + taskId + "&error=pastDate");
+            return;
+        }
+
         CustomerRequestMeta bill = new CustomerRequestMeta();
         bill.setRequest_id(taskId);
         bill.setTotal_cost(totalCost);
