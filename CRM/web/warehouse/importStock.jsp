@@ -177,9 +177,48 @@
                                     }
                                 }
                                 java.util.List<String> unitOptions = (java.util.List<String>) request.getAttribute("unitOptions");
-                                if (unitOptions == null) {
-                                    unitOptions = java.util.Arrays.asList("Bộ", "Cái", "Chiếc", "Mét", "Kilogram", "Lít", "Thùng", "Hộp");
+                                java.util.Map<String, String> unitTranslations = new java.util.LinkedHashMap<>();
+                                unitTranslations.put("Bộ", "Set");
+                                unitTranslations.put("Cái", "Piece");
+                                unitTranslations.put("Chiếc", "Item");
+                                unitTranslations.put("Mét", "Meter");
+                                unitTranslations.put("Kilogram", "Kilogram");
+                                unitTranslations.put("Kg", "Kilogram");
+                                unitTranslations.put("Lít", "Liter");
+                                unitTranslations.put("Litre", "Liter");
+                                unitTranslations.put("Thùng", "Crate");
+                                unitTranslations.put("Hộp", "Box");
+                                unitTranslations.put("Set", "Set");
+                                unitTranslations.put("Piece", "Piece");
+                                unitTranslations.put("Item", "Item");
+                                unitTranslations.put("Unit", "Unit");
+                                unitTranslations.put("Meter", "Meter");
+                                unitTranslations.put("Liter", "Liter");
+                                unitTranslations.put("Crate", "Crate");
+                                unitTranslations.put("Box", "Box");
+
+                                java.util.LinkedHashSet<String> englishUnits = new java.util.LinkedHashSet<>();
+                                if (unitOptions != null) {
+                                    for (String unit : unitOptions) {
+                                        if (unit == null) { continue; }
+                                        String trimmed = unit.trim();
+                                        if (trimmed.isEmpty()) { continue; }
+                                        String translated = unitTranslations.get(trimmed);
+                                        englishUnits.add(translated != null ? translated : trimmed);
+                                    }
                                 }
+                                if (englishUnits.isEmpty()) {
+                                    englishUnits.add("Set");
+                                    englishUnits.add("Piece");
+                                    englishUnits.add("Item");
+                                    englishUnits.add("Unit");
+                                    englishUnits.add("Meter");
+                                    englishUnits.add("Kilogram");
+                                    englishUnits.add("Liter");
+                                    englishUnits.add("Crate");
+                                    englishUnits.add("Box");
+                                }
+                                unitOptions = new java.util.ArrayList<>(englishUnits);
                                 String[] submittedProductIds = (String[]) request.getAttribute("submittedProductIds");
                                 String[] submittedQuantities = (String[]) request.getAttribute("submittedQuantities");
                                 String[] submittedUnits = (String[]) request.getAttribute("submittedUnits");

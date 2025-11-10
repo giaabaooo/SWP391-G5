@@ -238,14 +238,15 @@
                                             <label class="control-label">Unit</label>
                                             <select name="unit" class="form-control">
                                                 <option value="">-- Select Unit --</option>
-                                                <option value="Bộ">Bộ</option>
-                                                <option value="Cái">Cái</option>
-                                                <option value="Chiếc">Chiếc</option>
-                                                <option value="Mét">Mét</option>
+                                                <option value="Set">Set</option>
+                                                <option value="Piece">Piece</option>
+                                                <option value="Item">Item</option>
+                                                <option value="Unit">Unit</option>
+                                                <option value="Meter">Meter</option>
                                                 <option value="Kilogram">Kilogram</option>
-                                                <option value="Lít">Lít</option>
-                                                <option value="Thùng">Thùng</option>
-                                                <option value="Hộp">Hộp</option>
+                                                <option value="Liter">Liter</option>
+                                                <option value="Crate">Crate</option>
+                                                <option value="Box">Box</option>
                                             </select>
                                             <small class="help-block">Unit of measurement for this product</small>
                                         </div>
