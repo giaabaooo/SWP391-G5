@@ -79,7 +79,7 @@
 
                 <!-- Products -->
                 <li class="treeview">
-                    <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#inventoryMenu" aria-expanded="false">
                         <i class="fa fa-cubes"></i> <span>Products</span>
                     </a>
                     <ul class="collapse" id="inventoryMenu">
@@ -90,7 +90,7 @@
 
                 <!-- Categories -->
                 <li class="treeview">
-                    <a href="#categoryMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#categoryMenu" aria-expanded="false">
                         <i class="fa fa-tags"></i> <span>Categories</span>
                     </a>
                     <ul class="collapse" id="categoryMenu">
@@ -101,7 +101,7 @@
 
                 <!-- Brands -->
                 <li class="treeview">
-                    <a href="#brandMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#brandMenu" aria-expanded="false">
                         <i class="fa fa-bookmark"></i> <span>Brands</span>
                     </a>
                     <ul class="collapse" id="brandMenu">
@@ -112,7 +112,7 @@
 
                 <!-- Transactions -->
                 <li class="treeview">
-                    <a href="#transactionMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#transactionMenu" aria-expanded="false">
                         <i class="fa fa-exchange"></i> <span>Transactions</span>
                     </a>
                     <ul class="collapse" id="transactionMenu">
@@ -142,6 +142,11 @@
                             <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
                         </div>
                     <% } %>
+                    <% if (request.getAttribute("dropdownError") != null) { %>
+                        <div class="alert alert-warning" style="background-color: #fefcbf; border: 1px solid #faf089; color: #744210; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <i class="fa fa-info-circle"></i> <%= request.getAttribute("dropdownError") %>
+                        </div>
+                    <% } %>
                 </div>
             </div>
 
@@ -153,7 +158,7 @@
                             <h3><i class="fa fa-plus"></i> Product Information</h3>
                         </div>
                         <div class="card-body">
-                            <form method="post" action="../warestaff/addNewProduct" novalidate>
+                            <form method="post" action="../warestaff/addNewProduct" enctype="multipart/form-data" novalidate>
                                 <!-- Row 1: Product Name and Purchase Price -->
                                 <div class="form-row">
                                     <div class="form-col">
@@ -226,13 +231,59 @@
                                     </div>
                                 </div>
 
-                                <!-- Row 4: Product Image URL and Status -->
+                                <!-- Row 3.5: Unit -->
                                 <div class="form-row">
                                     <div class="form-col">
                                         <div class="form-group">
-                                            <label class="control-label">Product Image URL</label>
-                                            <input type="url" name="image_url" class="form-control" placeholder="https://example.com/image.jpg" />
-                                            <small class="help-block">Optional: Enter a URL for the product image</small>
+                                            <label class="control-label">Unit</label>
+                                            <select name="unit" class="form-control">
+                                                <option value="">-- Select Unit --</option>
+                                                <option value="Set">Set</option>
+                                                <option value="Piece">Piece</option>
+                                                <option value="Item">Item</option>
+                                                <option value="Unit">Unit</option>
+                                                <option value="Meter">Meter</option>
+                                                <option value="Kilogram">Kilogram</option>
+                                                <option value="Liter">Liter</option>
+                                                <option value="Crate">Crate</option>
+                                                <option value="Box">Box</option>
+                                            </select>
+                                            <small class="help-block">Unit of measurement for this product</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-col">
+                                        <!-- Empty column for layout -->
+                                    </div>
+                                </div>
+
+                                <!-- Row 4: Product Image and Status -->
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label class="control-label">Product Image</label>
+                                            <div class="image-upload-section">
+                                                <div class="image-preview-wrapper" id="imagePreviewWrapper">
+                                                    <img id="imagePreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Product preview" style="display: none;" />
+                                                    <div class="image-preview-placeholder" id="imagePreviewPlaceholder">
+                                                        <i class="fa fa-image"></i>
+                                                        <span>No image selected</span>
+                                                    </div>
+                                                </div>
+                                                <div class="image-upload-controls">
+                                                    <label class="upload-button" for="imageFile">
+                                                        <i class="fa fa-upload"></i> Upload Image
+                                                        <input type="file" name="image_file" id="imageFile" accept="image/*" />
+                                                    </label>
+                                                    <div class="image-url-input">
+                                                        <input type="url" name="image_url" id="imageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                                                        <small class="image-help-text">Upload from device or provide an image URL. Supported formats: JPG, JPEG, PNG, GIF, SVG, WEBP (max 5 MB).</small>
+                                                    </div>
+                                                    <button type="button" class="image-reset" id="resetImage" style="display: none;">
+                                                        <i class="fa fa-undo"></i> Remove image
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="validation-error" id="imageError" style="display: none;">Image must be under 5 MB and in JPG, JPEG, PNG, GIF, SVG, or WEBP format</div>
                                         </div>
                                     </div>
                                     <div class="form-col">
@@ -279,14 +330,7 @@
 
 <!-- SCRIPTS -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/daterangepicker.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/chart.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/icheck.min.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/fullcalendar.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/app.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/warehouse/addProduct.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/warehouse/warehouse-responsive.js" type="text/javascript"></script>
 

@@ -163,8 +163,14 @@
                             <!-- Product Image -->
                             <div class="product-image-container">
                                 <% if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) { %>
-                                    <img src="<%= product.getImageUrl() %>" alt="<%= product.getName() %>" class="product-image" 
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                                    <% String imageUrl = product.getImageUrl(); %>
+                                    <% if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) { %>
+                                        <img src="<%= imageUrl %>" alt="<%= product.getName() %>" class="product-image" 
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                                    <% } else { %>
+                                        <img src="${pageContext.request.contextPath}/<%= imageUrl %>" alt="<%= product.getName() %>" class="product-image" 
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                                    <% } %>
                                     <div class="no-image" style="display: none;">
                                         <i class="fa fa-cube"></i>
                                     </div>
@@ -246,6 +252,17 @@
                                     <% } else { %>
                                         <em style="color: #a0aec0;">Not set</em>
                                     <% } %>
+                                </div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fa fa-ruler"></i> Unit
+                                </div>
+                                <div class="info-value">
+                                    <%= product.getUnit() != null && !product.getUnit().isEmpty() 
+                                        ? product.getUnit() 
+                                        : "<em style='color: #a0aec0;'>Not set</em>" %>
                                 </div>
                             </div>
 

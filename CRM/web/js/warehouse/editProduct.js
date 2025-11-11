@@ -1,6 +1,6 @@
 /**
  * Edit Product Page - JavaScript
- * Handles form validation, dropdown scrolling, and form submission
+ * Handles form validation, image preview, dropdown scrolling, and form submission
  */
 
 // Prevent browser from restoring scroll position on reload
@@ -22,6 +22,24 @@ $(function() {
     $('.validation-error').removeClass('show');
     $('.form-control').removeClass('error');
     
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+    const imagePreview = $('#imagePreview');
+    const imagePreviewWrapper = $('#imagePreviewWrapper');
+    const imagePreviewPlaceholder = $('#imagePreviewPlaceholder');
+    const imageFileInput = $('#imageFile');
+    const imageUrlInput = $('#imageUrl');
+    const resetImageBtn = $('#resetImage');
+    let imageObjectURL = null;
+    const originalImageSrc = imagePreview.data('original-src') || '';
+    const hasInitialImage = imagePreview.data('has-initial') === true || imagePreview.data('has-initial') === 'true';
+
+    if (hasInitialImage) {
+        imagePreview.show();
+        imagePreviewWrapper.addClass('has-image');
+        imagePreviewPlaceholder.hide();
+        resetImageBtn.show();
+    }
+
     // Real-time validation functions
     function validateProductName() {
         var name = $('#productName').val().trim();
@@ -88,7 +106,6 @@ $(function() {
     }
 
     function showError(errorId, message) {
-        // Show error message
         $('#' + errorId)
             .text(message)
             .addClass('show')
@@ -99,7 +116,6 @@ $(function() {
                 'font-weight': '500'
             });
         
-        // Add error class to corresponding input field
         var inputId = errorId.replace('Error', '');
         if (inputId === 'name') {
             $('#productName').addClass('error');
@@ -109,14 +125,14 @@ $(function() {
             $('#sellingPrice').addClass('error');
         } else if (inputId === 'category') {
             $('#categoryId').addClass('error');
+        } else if (inputId === 'image') {
+            imagePreviewWrapper.addClass('error');
         }
     }
 
     function hideError(errorId) {
-        // Hide error message
         $('#' + errorId).removeClass('show');
         
-        // Remove error class from corresponding input field
         var inputId = errorId.replace('Error', '');
         if (inputId === 'name') {
             $('#productName').removeClass('error');
@@ -126,30 +142,114 @@ $(function() {
             $('#sellingPrice').removeClass('error');
         } else if (inputId === 'category') {
             $('#categoryId').removeClass('error');
+        } else if (inputId === 'image') {
+            imagePreviewWrapper.removeClass('error');
         }
+    }
+
+    function setImagePreview(src) {
+        if (!src) {
+            clearImagePreview();
+            return;
+        }
+        imagePreview.attr('src', src).show();
+        imagePreviewPlaceholder.hide();
+        imagePreviewWrapper.addClass('has-image').removeClass('error');
+        resetImageBtn.show();
+        hideError('imageError');
+    }
+
+    function clearImagePreview() {
+        if (imageObjectURL) {
+            URL.revokeObjectURL(imageObjectURL);
+            imageObjectURL = null;
+        }
+        imagePreview.attr('src', '#').hide();
+        imagePreviewWrapper.removeClass('has-image error');
+        imagePreviewPlaceholder.show();
+        resetImageBtn.hide();
+    }
+
+    function restoreOriginalImage() {
+        if (originalImageSrc) {
+            imagePreview.attr('src', originalImageSrc).show();
+            imagePreviewPlaceholder.hide();
+            imagePreviewWrapper.addClass('has-image').removeClass('error');
+            resetImageBtn.show();
+        } else {
+            clearImagePreview();
+        }
+    }
+
+    function validateImage() {
+        var file = imageFileInput.length ? imageFileInput[0].files[0] : null;
+        var urlValue = imageUrlInput.val() ? imageUrlInput.val().trim() : '';
+
+        if (!file && urlValue === '') {
+            hideError('imageError');
+            return true;
+        }
+
+        if (file) {
+            if (!file.type || !file.type.startsWith('image/')) {
+                showError('imageError', 'Please choose a valid image file');
+                return false;
+            }
+            if (file.size > MAX_IMAGE_SIZE) {
+                showError('imageError', 'Image must be smaller than 5 MB');
+                return false;
+            }
+        }
+
+        if (urlValue !== '') {
+            try {
+                var parsedUrl = new URL(urlValue);
+                var extension = parsedUrl.pathname.split('.').pop().toLowerCase();
+                var supported = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
+                if (!supported.includes(extension)) {
+                    showError('imageError', 'Image URL must end with PNG, JPG, JPEG, GIF, SVG, or WEBP');
+                    return false;
+                }
+            } catch (e) {
+                showError('imageError', 'Please enter a valid image URL');
+                return false;
+            }
+        }
+
+        hideError('imageError');
+        return true;
     }
 
     function validateAll() {
         var isValid = true;
-        
-        isValid &= validateProductName();
-        isValid &= validatePurchasePrice();
-        isValid &= validateSellingPrice();
-        isValid &= validateCategory();
-        
+
+        if (!validateProductName()) isValid = false;
+        if (!validatePurchasePrice()) isValid = false;
+        if (!validateSellingPrice()) isValid = false;
+        if (!validateCategory()) isValid = false;
+        if (!validateImage()) isValid = false;
+
         return isValid;
     }
 
     function clearForm() {
-        $('form')[0].reset();
+        var form = $('form')[0];
+        if (form) {
+            form.reset();
+        }
         $('.validation-error').removeClass('show');
         $('.form-control').removeClass('error');
         $('.success-message').fadeOut();
+        imageFileInput.val('');
+        imageUrlInput.val('');
+        restoreOriginalImage();
+        hideError('imageError');
     }
 
     function clearValidationErrors() {
         $('.validation-error').removeClass('show');
         $('.form-control').removeClass('error');
+        hideError('imageError');
     }
 
     // Real-time border validation (without error messages)
@@ -185,16 +285,130 @@ $(function() {
         }
     });
 
+    imageFileInput.on('change', function() {
+        hideError('imageError');
+        var file = this.files && this.files[0] ? this.files[0] : null;
+
+        if (!file) {
+            if (imageUrlInput.val().trim() === '') {
+                if (originalImageSrc) {
+                    restoreOriginalImage();
+                } else {
+                    clearImagePreview();
+                }
+            }
+            return;
+        }
+
+        if (!file.type || !file.type.startsWith('image/')) {
+            showError('imageError', 'Please choose a valid image file');
+            this.value = '';
+            if (originalImageSrc) {
+                restoreOriginalImage();
+            } else {
+                clearImagePreview();
+            }
+            return;
+        }
+
+        if (file.size > MAX_IMAGE_SIZE) {
+            showError('imageError', 'Image must be smaller than 5 MB');
+            this.value = '';
+            if (originalImageSrc) {
+                restoreOriginalImage();
+            } else {
+                clearImagePreview();
+            }
+            return;
+        }
+
+        if (imageObjectURL) {
+            URL.revokeObjectURL(imageObjectURL);
+            imageObjectURL = null;
+        }
+
+        imageObjectURL = URL.createObjectURL(file);
+        setImagePreview(imageObjectURL);
+        imageUrlInput.val('');
+    });
+
+    imageUrlInput.on('input', function() {
+        hideError('imageError');
+        var urlValue = $(this).val().trim();
+
+        if (urlValue === '') {
+            if (!imageFileInput[0].files.length) {
+                if (originalImageSrc) {
+                    restoreOriginalImage();
+                } else {
+                    clearImagePreview();
+                }
+            }
+            return;
+        }
+
+        if (imageObjectURL) {
+            URL.revokeObjectURL(imageObjectURL);
+            imageObjectURL = null;
+        }
+
+        imageFileInput.val('');
+        setImagePreview(urlValue);
+    });
+
+    imageUrlInput.on('blur', function() {
+        validateImage();
+    });
+
+    imagePreview.on('error', function() {
+        var currentSrc = imagePreview.attr('src');
+        if (imageUrlInput.val().trim() !== '') {
+            showError('imageError', 'Unable to load image from the provided URL');
+            imageUrlInput.val('');
+            if (originalImageSrc) {
+                restoreOriginalImage();
+            } else {
+                clearImagePreview();
+            }
+            return;
+        }
+
+        if (imageObjectURL && currentSrc === imageObjectURL) {
+            showError('imageError', 'Unable to preview the selected image file');
+            imageFileInput.val('');
+            if (originalImageSrc) {
+                restoreOriginalImage();
+            } else {
+                clearImagePreview();
+            }
+            return;
+        }
+
+        if (originalImageSrc && currentSrc !== originalImageSrc) {
+            restoreOriginalImage();
+        } else {
+            clearImagePreview();
+        }
+    });
+
+    resetImageBtn.on('click', function() {
+        imageFileInput.val('');
+        imageUrlInput.val('');
+        if (originalImageSrc) {
+            restoreOriginalImage();
+        } else {
+            clearImagePreview();
+        }
+        hideError('imageError');
+    });
+
     // Form submission
     $('form').on('submit', function(e) {
-        // Clear previous validation states
         clearValidationErrors();
         
-        // Run validation
         if (!validateAll()) {
             e.preventDefault();
             
-            // Scroll to first error
             var firstError = $('.validation-error.show').first();
             if (firstError.length) {
                 $('html, body').animate({
@@ -204,11 +418,9 @@ $(function() {
             return false;
         }
 
-        // Show loading state
         var submitBtn = $(this).find('button[type="submit"]');
         submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
 
-        // Re-enable button after 5 seconds in case of server issues
         setTimeout(function() {
             submitBtn.prop('disabled', false).html('<i class="fa fa-save"></i> Update Product');
         }, 5000);
@@ -235,20 +447,17 @@ $(function() {
         const categorySelect = $('#categoryId');
         const brandSelect = $('select[name="brand_id"]');
         
-        // Create custom dropdown wrappers
         [categorySelect, brandSelect].forEach(function(selectElement) {
             if (selectElement.length === 0) return;
             
             const options = selectElement.find('option');
-            if (options.length > 6) { // 1 placeholder + 5 items
-                // Add custom class for styling
+            if (options.length > 6) {
                 selectElement.addClass('scrollable-dropdown');
                 
-                // Handle click to show dropdown
                 selectElement.on('mousedown', function(e) {
                     const self = $(this);
                     if (!self.hasClass('expanded')) {
-                        self.attr('size', Math.min(6, options.length)); // Show max 6 (including placeholder)
+                        self.attr('size', Math.min(6, options.length));
                         self.addClass('expanded');
                         e.preventDefault();
                         setTimeout(function() {
@@ -257,7 +466,6 @@ $(function() {
                     }
                 });
                 
-                // Handle selection
                 selectElement.on('change blur', function() {
                     const self = $(this);
                     if (self.hasClass('expanded')) {
@@ -266,7 +474,6 @@ $(function() {
                     }
                 });
                 
-                // Close on outside click
                 $(document).on('click', function(e) {
                     if (!$(e.target).closest('.scrollable-dropdown').length) {
                         $('.scrollable-dropdown.expanded').each(function() {

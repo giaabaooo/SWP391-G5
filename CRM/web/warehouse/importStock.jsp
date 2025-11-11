@@ -161,53 +161,234 @@
                         </div>
                         <div class="card-body" style="padding:1.25rem;">
                             <%
-                                Product product = (Product) request.getAttribute("product");
                                 List<Product> products = (List<Product>) request.getAttribute("products");
+                                List<data.Category> categories = (List<data.Category>) request.getAttribute("categories");
+                                java.util.Map<Integer, String> categoryMap = new java.util.HashMap<>();
+                                if (categories != null) {
+                                    for (data.Category c : categories) {
+                                        categoryMap.put(c.getId(), c.getName());
+                                    }
+                                }
+                                java.util.Map<Integer, String> productCategoryMap = new java.util.HashMap<>();
+                                if (products != null) {
+                                    for (Product p : products) {
+                                        String catName = categoryMap.get(p.getCategoryId());
+                                        productCategoryMap.put(p.getId(), catName != null ? catName : "—");
+                                    }
+                                }
+                                java.util.List<String> unitOptions = (java.util.List<String>) request.getAttribute("unitOptions");
+                                java.util.Map<String, String> unitTranslations = new java.util.LinkedHashMap<>();
+                                unitTranslations.put("Bộ", "Set");
+                                unitTranslations.put("Cái", "Piece");
+                                unitTranslations.put("Chiếc", "Item");
+                                unitTranslations.put("Mét", "Meter");
+                                unitTranslations.put("Kilogram", "Kilogram");
+                                unitTranslations.put("Kg", "Kilogram");
+                                unitTranslations.put("Lít", "Liter");
+                                unitTranslations.put("Litre", "Liter");
+                                unitTranslations.put("Thùng", "Crate");
+                                unitTranslations.put("Hộp", "Box");
+                                unitTranslations.put("Set", "Set");
+                                unitTranslations.put("Piece", "Piece");
+                                unitTranslations.put("Item", "Item");
+                                unitTranslations.put("Unit", "Unit");
+                                unitTranslations.put("Meter", "Meter");
+                                unitTranslations.put("Liter", "Liter");
+                                unitTranslations.put("Crate", "Crate");
+                                unitTranslations.put("Box", "Box");
+
+                                java.util.LinkedHashSet<String> englishUnits = new java.util.LinkedHashSet<>();
+                                if (unitOptions != null) {
+                                    for (String unit : unitOptions) {
+                                        if (unit == null) { continue; }
+                                        String trimmed = unit.trim();
+                                        if (trimmed.isEmpty()) { continue; }
+                                        String translated = unitTranslations.get(trimmed);
+                                        englishUnits.add(translated != null ? translated : trimmed);
+                                    }
+                                }
+                                if (englishUnits.isEmpty()) {
+                                    englishUnits.add("Set");
+                                    englishUnits.add("Piece");
+                                    englishUnits.add("Item");
+                                    englishUnits.add("Unit");
+                                    englishUnits.add("Meter");
+                                    englishUnits.add("Kilogram");
+                                    englishUnits.add("Liter");
+                                    englishUnits.add("Crate");
+                                    englishUnits.add("Box");
+                                }
+                                unitOptions = new java.util.ArrayList<>(englishUnits);
+                                String[] submittedProductIds = (String[]) request.getAttribute("submittedProductIds");
+                                String[] submittedQuantities = (String[]) request.getAttribute("submittedQuantities");
+                                String[] submittedUnits = (String[]) request.getAttribute("submittedUnits");
+                                String[] submittedItemNotes = (String[]) request.getAttribute("submittedItemNotes");
+                                String prefillProductId = (String) request.getAttribute("prefillProductId");
+                                if ((submittedProductIds == null || submittedProductIds.length == 0) && prefillProductId != null) {
+                                    submittedProductIds = new String[]{prefillProductId};
+                                    submittedQuantities = new String[]{""};
+                                    submittedUnits = new String[]{""};
+                                    submittedItemNotes = new String[]{""};
+                                }
+                                int rowCount = (submittedProductIds != null && submittedProductIds.length > 0) ? submittedProductIds.length : 1;
+                                String submittedDate = (String) request.getAttribute("submittedDate");
+                                if (submittedDate == null || submittedDate.isEmpty()) {
+                                    submittedDate = request.getParameter("transactionDate");
+                                }
+                                String transactionDateValue = (submittedDate != null && !submittedDate.isEmpty())
+                                        ? submittedDate
+                                        : new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(new java.util.Date());
+                                String supplierValue = (String) request.getAttribute("submittedSupplier");
+                                if (supplierValue == null) {
+                                    supplierValue = request.getParameter("supplier");
+                                }
+                                if (supplierValue == null) {
+                                    supplierValue = "";
+                                }
+                                String noteValue = (String) request.getAttribute("submittedNote");
+                                if (noteValue == null) {
+                                    noteValue = request.getParameter("note");
+                                }
+                                if (noteValue == null) {
+                                    noteValue = "";
+                                }
                             %>
                             <form method="post" action="<%= request.getContextPath() %>/warestaff/addImportTransaction" id="stockInForm" novalidate>
-                                <% if (product != null) { %>
-                                <input type="hidden" name="productId" value="<%= product.getId() %>"/>
                                 <div class="form-group">
-                                    <label class="control-label">Product</label>
-                                    <input type="text" class="form-control" value="<%= product.getName() %>" disabled />
-                                </div>
-                                <% } else { %>
-                                <div class="form-group">
-                                    <label class="control-label">Select product<span style="color:red">*</span></label>
-                                    <select name="productId" id="productId" class="form-control" required>
-                                        <option value="">-- Select --</option>
-                                        <% if (products != null) {
-                                               for (Product p : products) { %>
-                                            <option value="<%= p.getId() %>"><%= p.getName() %></option>
-                                        <%   }
-                                           } %>
-                                    </select>
-                                    <div class="validation-error" id="productError">Please select a product</div>
-                                </div>
-                                <% } %>
-
-                                <div class="form-group">
-                                    <label class="control-label">Quantity<span style="color:red">*</span></label>
-                                    <input type="number" name="quantity" id="quantity" class="form-control" min="1" placeholder="Quantity" required />
-                                    <div class="validation-error" id="quantityError">Quantity must be a positive number</div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="control-label">Transaction time</label>
-                                    <input type="datetime-local" name="transactionDate" class="form-control" value="<%= new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(new java.util.Date()) %>" />
+                                    <label class="control-label">Transaction time<span style="color:red">*</span></label>
+                                    <input type="datetime-local" name="transactionDate" class="form-control" required value="<%= transactionDateValue %>" />
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Supplier (optional)</label>
-                                    <input type="text" name="supplier" id="supplier" class="form-control" placeholder="Supplier name" />
+                                    <input type="text" name="supplier" id="supplier" class="form-control" placeholder="Supplier name" value="<%= supplierValue %>" />
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">Note (optional)</label>
-                                    <textarea name="note" class="form-control" rows="3" placeholder="Additional notes"></textarea>
+                                    <label class="control-label">General note (optional)</label>
+                                    <textarea name="note" class="form-control" rows="3" placeholder="Additional notes"><%= noteValue %></textarea>
                                 </div>
-                                <div class="form-group" style="margin-top:1rem;">
+
+                                <div class="form-group">
+                                    <label class="control-label">Import items<span style="color:red">*</span></label>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="importItemsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:50px;">#</th>
+                                                    <th style="min-width:220px;">Product<span style="color:red">*</span></th>
+                                                    <th style="min-width:140px;">Category</th>
+                                                    <th style="min-width:140px;">Unit</th>
+                                                    <th style="min-width:140px;">Quantity<span style="color:red">*</span></th>
+                                                    <th style="min-width:200px;">Item note</th>
+                                                    <th style="width:60px;" class="text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            <%
+                                                for (int i = 0; i < rowCount; i++) {
+                                                    String selectedProductId = (submittedProductIds != null && i < submittedProductIds.length && submittedProductIds[i] != null) ? submittedProductIds[i] : "";
+                                                    String quantityValue = (submittedQuantities != null && i < submittedQuantities.length && submittedQuantities[i] != null) ? submittedQuantities[i] : "";
+                                                    String unitValue = (submittedUnits != null && i < submittedUnits.length && submittedUnits[i] != null) ? submittedUnits[i] : "";
+                                                    String itemNoteValue = (submittedItemNotes != null && i < submittedItemNotes.length && submittedItemNotes[i] != null) ? submittedItemNotes[i] : "";
+                                                    String categoryText = "—";
+                                                    if (selectedProductId != null && !selectedProductId.isEmpty()) {
+                                                        try {
+                                                            int pid = Integer.parseInt(selectedProductId);
+                                                            String catName = productCategoryMap.get(pid);
+                                                            if (catName != null && !catName.trim().isEmpty()) {
+                                                                categoryText = catName;
+                                                            }
+                                                        } catch (NumberFormatException ignored) {}
+                                                    }
+                                            %>
+                                                <tr class="import-item-row">
+                                                    <td class="row-index text-center"><%= i + 1 %></td>
+                                                    <td>
+                                                        <select name="productId" class="form-control product-select" required>
+                                                            <option value="">-- Select --</option>
+                                                            <% if (products != null) {
+                                                                   for (Product p : products) {
+                                                                       String catName = productCategoryMap.get(p.getId());
+                                                                       String selectedAttr = (selectedProductId != null && selectedProductId.equals(String.valueOf(p.getId()))) ? "selected" : "";
+                                                            %>
+                                                            <option value="<%= p.getId() %>" data-category="<%= catName != null ? catName : "" %>" <%= selectedAttr %>><%= p.getName() %></option>
+                                                            <%     }
+                                                               } %>
+                                                        </select>
+                                                        <div class="validation-error product-error">Please select a product</div>
+                                                    </td>
+                                                    <td><span class="category-label"><%= categoryText %></span></td>
+                                                    <td>
+                                                        <select name="unit" class="form-control unit-select">
+                                                            <option value="">-- Unit --</option>
+                                                            <% for (String unit : unitOptions) { %>
+                                                            <option value="<%= unit %>" <%= unit.equals(unitValue) ? "selected" : "" %>><%= unit %></option>
+                                                            <% } %>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="quantity" class="form-control quantity-input" min="1" required value="<%= quantityValue %>" />
+                                                        <div class="validation-error quantity-error">Quantity must be a positive number</div>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="itemNote" class="form-control" placeholder="Optional note" value="<%= itemNoteValue %>" />
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-default remove-row-btn" title="Remove item"><i class="fa fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                            <%
+                                                }
+                                            %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="validation-error" id="itemListError">Please add at least one product line.</div>
+                                    <button type="button" class="btn btn-default" id="addRowBtn" style="margin-top:0.75rem;"><i class="fa fa-plus"></i> Add product line</button>
+                                </div>
+
+                                <div class="form-group" style="margin-top:1.5rem;">
                                     <button type="submit" class="btn btn-primary" id="submitBtn"><i class="fa fa-upload"></i> Save</button>
                                     <a href="<%= request.getContextPath() %>/warestaff/viewListProduct" class="btn btn-default">Cancel</a>
                                 </div>
                             </form>
+
+                            <template id="importRowTemplate">
+                                <tr class="import-item-row">
+                                    <td class="row-index text-center">1</td>
+                                    <td>
+                                        <select name="productId" class="form-control product-select" required>
+                                            <option value="">-- Select --</option>
+                                            <% if (products != null) {
+                                                   for (Product p : products) {
+                                                       String catName = productCategoryMap.get(p.getId());
+                                            %>
+                                            <option value="<%= p.getId() %>" data-category="<%= catName != null ? catName : "" %>"><%= p.getName() %></option>
+                                            <%     }
+                                               } %>
+                                        </select>
+                                        <div class="validation-error product-error">Please select a product</div>
+                                    </td>
+                                    <td><span class="category-label">—</span></td>
+                                    <td>
+                                        <select name="unit" class="form-control unit-select">
+                                            <option value="">-- Unit --</option>
+                                            <% for (String unit : unitOptions) { %>
+                                            <option value="<%= unit %>"><%= unit %></option>
+                                            <% } %>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="quantity" class="form-control quantity-input" min="1" required />
+                                        <div class="validation-error quantity-error">Quantity must be a positive number</div>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="itemNote" class="form-control" placeholder="Optional note" />
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-default remove-row-btn" title="Remove item"><i class="fa fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -232,55 +413,157 @@
         var left = document.querySelector('.left-side');
         if(left){ left.classList.toggle('show'); }
     }
-    // Simple validation similar to addProduct.js style
     (function(){
-        function showError(id, message){
-            var el = document.getElementById(id);
-            if(el){
-                el.textContent = message;
-                el.classList.add('show');
+        var form = document.getElementById('stockInForm');
+        if (!form) { return; }
+
+        var tableBody = document.querySelector('#importItemsTable tbody');
+        var addRowBtn = document.getElementById('addRowBtn');
+        var itemListError = document.getElementById('itemListError');
+        var template = document.getElementById('importRowTemplate');
+
+        function updateCategory(select){
+            if (!select) return;
+            var row = select.closest('.import-item-row');
+            if (!row) return;
+            var categoryLabel = row.querySelector('.category-label');
+            if (!categoryLabel) return;
+            var option = select.options[select.selectedIndex];
+            var category = option && option.getAttribute('data-category') ? option.getAttribute('data-category').trim() : '';
+            categoryLabel.textContent = category !== '' ? category : '—';
+        }
+
+        function showRowError(row, type, message){
+            if (!row) return;
+            var errorEl = row.querySelector('.' + type + '-error');
+            if (errorEl) {
+                if (message) { errorEl.textContent = message; }
+                errorEl.classList.add('show');
+            }
+            var field = type === 'product' ? row.querySelector('.product-select') : row.querySelector('.quantity-input');
+            if (field) { field.classList.add('error'); }
+        }
+
+        function clearRowError(row, type){
+            if (!row) return;
+            var errorEl = row.querySelector('.' + type + '-error');
+            if (errorEl) { errorEl.classList.remove('show'); }
+            var field = type === 'product' ? row.querySelector('.product-select') : row.querySelector('.quantity-input');
+            if (field) { field.classList.remove('error'); }
+        }
+
+        function reindexRows(){
+            var rows = tableBody.querySelectorAll('.import-item-row');
+            rows.forEach(function(row, idx){
+                var indexCell = row.querySelector('.row-index');
+                if (indexCell) {
+                    indexCell.textContent = idx + 1;
+                }
+                var removeBtn = row.querySelector('.remove-row-btn');
+                if (removeBtn) {
+                    var disable = rows.length === 1;
+                    removeBtn.disabled = disable;
+                    removeBtn.classList.toggle('disabled', disable);
+                }
+            });
+        }
+
+        function attachRowHandlers(row){
+            if (!row) return;
+            row.querySelectorAll('.form-control').forEach(function(ctrl){ ctrl.classList.remove('error'); });
+            row.querySelectorAll('.validation-error').forEach(function(err){ err.classList.remove('show'); });
+
+            var productSelect = row.querySelector('.product-select');
+            if (productSelect) {
+                productSelect.addEventListener('change', function(){
+                    updateCategory(productSelect);
+                    clearRowError(row, 'product');
+                });
+                updateCategory(productSelect);
+            }
+
+            var quantityInput = row.querySelector('.quantity-input');
+            if (quantityInput) {
+                quantityInput.addEventListener('input', function(){
+                    var value = parseInt(quantityInput.value, 10);
+                    if (!isNaN(value) && value > 0) {
+                        clearRowError(row, 'quantity');
+                    }
+                });
+            }
+
+            var removeBtn = row.querySelector('.remove-row-btn');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(){
+                    var rows = tableBody.querySelectorAll('.import-item-row');
+                    if (rows.length > 1) {
+                        row.remove();
+                        reindexRows();
+                        if (itemListError) { itemListError.classList.remove('show'); }
+                    }
+                });
             }
         }
-        function hideError(id){
-            var el = document.getElementById(id);
-            if(el){ el.classList.remove('show'); }
+
+        function addRow(){
+            if (!template) return;
+            var clone = template.content.firstElementChild.cloneNode(true);
+            tableBody.appendChild(clone);
+            attachRowHandlers(clone);
+            reindexRows();
+            if (itemListError) { itemListError.classList.remove('show'); }
         }
-        function clearErrors(){
-            document.getElementById('quantity').classList.remove('error');
-            hideError('quantityError');
-            var pid = document.getElementById('productId');
-            if(pid){ pid.classList.remove('error'); }
-            hideError('productError');
+
+        tableBody.querySelectorAll('.import-item-row').forEach(function(row){ attachRowHandlers(row); });
+        reindexRows();
+
+        if (addRowBtn) {
+            addRowBtn.addEventListener('click', function(){ addRow(); });
         }
-        document.getElementById('stockInForm').addEventListener('submit', function(e){
-            clearErrors();
-            var pid = document.getElementById('productId');
-            var qty = document.getElementById('quantity');
+
+        form.addEventListener('submit', function(e){
             var valid = true;
-            if (pid && (pid.value === '' || pid.value === null)) {
+            var rows = Array.prototype.slice.call(tableBody.querySelectorAll('.import-item-row'));
+
+            if (rows.length === 0) {
                 valid = false;
-                pid.classList.add('error');
-                showError('productError', 'Please select a product');
+                if (itemListError) { itemListError.classList.add('show'); }
+            } else if (itemListError) {
+                itemListError.classList.remove('show');
             }
-            var q = parseInt(qty.value, 10);
-            if (isNaN(q) || q <= 0) {
-                valid = false;
-                qty.classList.add('error');
-                showError('quantityError', 'Quantity must be a positive number');
-            }
+
+            rows.forEach(function(row){
+                var productSelect = row.querySelector('.product-select');
+                var quantityInput = row.querySelector('.quantity-input');
+                var productValue = productSelect ? productSelect.value.trim() : '';
+                var quantityValue = quantityInput ? parseInt(quantityInput.value, 10) : NaN;
+
+                if (productValue === '') {
+                    showRowError(row, 'product', 'Please select a product');
+                    valid = false;
+                } else {
+                    clearRowError(row, 'product');
+                }
+
+                if (isNaN(quantityValue) || quantityValue <= 0) {
+                    showRowError(row, 'quantity', 'Quantity must be a positive number');
+                    valid = false;
+                } else {
+                    clearRowError(row, 'quantity');
+                }
+            });
+
             if (!valid) {
                 e.preventDefault();
                 return false;
             }
-            var btn = document.getElementById('submitBtn');
-            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...'; }
-            setTimeout(function(){ if(btn){ btn.disabled = false; btn.innerHTML = '<i class="fa fa-upload"></i> Save'; } }, 5000);
+
+            var submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+            }
         });
-        // Live clear
-        var pidSel = document.getElementById('productId');
-        if(pidSel){ pidSel.addEventListener('change', function(){ if(this.value){ this.classList.remove('error'); hideError('productError'); } }); }
-        var qtyInp = document.getElementById('quantity');
-        if(qtyInp){ qtyInp.addEventListener('input', function(){ var v = parseInt(this.value,10); if(!isNaN(v) && v>0){ this.classList.remove('error'); hideError('quantityError'); } }); }
     })();
 </script>
 </body>

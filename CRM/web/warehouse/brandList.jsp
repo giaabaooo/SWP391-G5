@@ -68,7 +68,7 @@
             <ul class="sidebar-menu">
                 <li><a href="${pageContext.request.contextPath}/warestaff/dashboard"><i class="fa fa-dashboard"></i> Dashboard</a></li>
                 <li class="treeview">
-                    <a href="#inventoryMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#inventoryMenu" aria-expanded="false">
                         <i class="fa fa-cubes"></i> <span>Products</span>
                     </a>
                     <ul class="collapse" id="inventoryMenu">
@@ -77,7 +77,7 @@
                     </ul>
                 </li>
                 <li class="treeview">
-                    <a href="#categoryMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#categoryMenu" aria-expanded="false">
                         <i class="fa fa-tags"></i> <span>Categories</span>
                     </a>
                     <ul class="collapse" id="categoryMenu">
@@ -86,7 +86,7 @@
                     </ul>
                 </li>
                 <li class="treeview">
-                    <a href="#brandMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#brandMenu" aria-expanded="false">
                         <i class="fa fa-bookmark"></i> <span>Brands</span>
                     </a>
                     <ul class="collapse" id="brandMenu">
@@ -96,7 +96,7 @@
                 </li>
                 <!-- Transactions -->
                 <li class="treeview">
-                    <a href="#transactionMenu" data-toggle="collapse" aria-expanded="false">
+                    <a href="javascript:void(0)" data-toggle="collapse" data-target="#transactionMenu" aria-expanded="false">
                         <i class="fa fa-exchange"></i> <span>Transactions</span>
                     </a>
                     <ul class="collapse" id="transactionMenu">

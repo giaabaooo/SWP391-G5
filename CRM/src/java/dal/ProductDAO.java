@@ -23,7 +23,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getAllActiveProducts() {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active FROM Product WHERE is_active = 1 ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE is_active = 1 ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -39,6 +39,7 @@ public class ProductDAO extends DBContext {
                         rs.getString("description"),
                         rs.getBigDecimal("purchase_price"),
                         rs.getBigDecimal("selling_price"),
+                        rs.getString("unit"),
                         rs.getBoolean("is_active")
                 );
                 products.add(product);
@@ -60,7 +61,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active FROM Product ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -76,6 +77,7 @@ public class ProductDAO extends DBContext {
                         rs.getString("description"),
                         rs.getBigDecimal("purchase_price"),
                         rs.getBigDecimal("selling_price"),
+                        rs.getString("unit"),
                         rs.getBoolean("is_active")
                 );
                 products.add(product);
@@ -97,7 +99,7 @@ public class ProductDAO extends DBContext {
      * @return Product object or null if not found
      */
     public Product getProductById(int id) {
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active FROM Product WHERE id = ?";
+        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE id = ?";
         Product product = null;
 
         try {
@@ -115,6 +117,7 @@ public class ProductDAO extends DBContext {
                         rs.getString("description"),
                         rs.getBigDecimal("purchase_price"),
                         rs.getBigDecimal("selling_price"),
+                        rs.getString("unit"),
                         rs.getBoolean("is_active")
                 );
             }
@@ -135,7 +138,7 @@ public class ProductDAO extends DBContext {
      * @return Generated ID of the new product
      */
     public int addProduct(Product product) {
-        String sql = "INSERT INTO Product (category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Product (category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int generatedId = -1;
 
         try {
@@ -147,7 +150,8 @@ public class ProductDAO extends DBContext {
             statement.setString(5, product.getDescription());
             statement.setBigDecimal(6, product.getPurchasePrice());
             statement.setBigDecimal(7, product.getSellingPrice());
-            statement.setBoolean(8, product.isActive());
+            statement.setString(8, product.getUnit());
+            statement.setBoolean(9, product.isActive());
 
             int rowsAffected = statement.executeUpdate();
 
@@ -175,7 +179,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getProductsByCategory(int categoryId) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active FROM Product WHERE category_id = ? AND is_active = 1 ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE category_id = ? AND is_active = 1 ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -192,6 +196,7 @@ public class ProductDAO extends DBContext {
                         rs.getString("description"),
                         rs.getBigDecimal("purchase_price"),
                         rs.getBigDecimal("selling_price"),
+                        rs.getString("unit"),
                         rs.getBoolean("is_active")
                 );
                 products.add(product);
@@ -214,7 +219,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getProductsByBrand(int brandId) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active FROM Product WHERE brand_id = ? AND is_active = 1 ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE brand_id = ? AND is_active = 1 ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -231,6 +236,7 @@ public class ProductDAO extends DBContext {
                         rs.getString("description"),
                         rs.getBigDecimal("purchase_price"),
                         rs.getBigDecimal("selling_price"),
+                        rs.getString("unit"),
                         rs.getBoolean("is_active")
                 );
                 products.add(product);
@@ -253,7 +259,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getProductsByCategoryId(int categoryId) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active FROM Product WHERE category_id = ? ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE category_id = ? ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -270,6 +276,7 @@ public class ProductDAO extends DBContext {
                         rs.getString("description"),
                         rs.getBigDecimal("purchase_price"),
                         rs.getBigDecimal("selling_price"),
+                        rs.getString("unit"),
                         rs.getBoolean("is_active")
                 );
                 products.add(product);
@@ -846,7 +853,7 @@ public class ProductDAO extends DBContext {
      * @return true if update was successful, false otherwise
      */
     public boolean updateProduct(Product product) {
-        String sql = "UPDATE Product SET category_id = ?, brand_id = ?, image_url = ?, name = ?, description = ?, purchase_price = ?, selling_price = ?, is_active = ? WHERE id = ?";
+        String sql = "UPDATE Product SET category_id = ?, brand_id = ?, image_url = ?, name = ?, description = ?, purchase_price = ?, selling_price = ?, unit = ?, is_active = ? WHERE id = ?";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -857,8 +864,9 @@ public class ProductDAO extends DBContext {
             statement.setString(5, product.getDescription());
             statement.setBigDecimal(6, product.getPurchasePrice());
             statement.setBigDecimal(7, product.getSellingPrice());
-            statement.setBoolean(8, product.isActive());
-            statement.setInt(9, product.getId());
+            statement.setString(8, product.getUnit());
+            statement.setBoolean(9, product.isActive());
+            statement.setInt(10, product.getId());
 
             int rowsAffected = statement.executeUpdate();
             statement.close();

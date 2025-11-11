@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class DBContext {
+public abstract class DBContext implements AutoCloseable {
     protected Connection connection;
 
     public DBContext() {
@@ -19,7 +19,6 @@ public abstract class DBContext {
 
             // Tạo connection
             connection = DriverManager.getConnection(url, user, pass);
-            System.out.println("Connected to MySQL successfully.");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, "MySQL Driver not found.", ex);
         } catch (SQLException ex) {
@@ -27,5 +26,16 @@ public abstract class DBContext {
         }
     }
     
-    
+    @Override
+    public void close() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, "Error closing connection.", ex);
+            } finally {
+                connection = null;
+            }
+        }
+    }
 }
