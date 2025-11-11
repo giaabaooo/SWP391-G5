@@ -2,8 +2,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%@ include file="/cskh/layout/header.jsp" %>
-<%@ include file="/cskh/layout/sidebar.jsp" %>
+<%@ include file="/customer/layout/header.jsp" %>
+<%@ include file="/customer/layout/sidebar.jsp" %>
 
 <style>
     .form-label {
@@ -258,4 +258,4 @@
     });
 </script>
 
-<%@ include file="/cskh/layout/footer.jsp" %>
+<%@ include file="/customer/layout/footer.jsp" %>
