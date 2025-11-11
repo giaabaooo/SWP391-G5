@@ -49,9 +49,9 @@ public class TaskController extends HttpServlet {
                     req.setAttribute("taskSelected", Integer.valueOf(req.getParameter("id")));
                 }
                 ArrayList<CustomerRequestAssignment> task1 = new ArrayList<>();
-                ArrayList<CustomerRequest> requestList = new ArrayList<CustomerRequest>();
+                ArrayList<CustomerRequest> requestList = new ArrayList<>();
 
-                for (var i : db.getListTask(1, Integer.MAX_VALUE, "", "", "", "", "")) {
+                for (var i : db.getListTask(1, Integer.MAX_VALUE, "", "", "", "1", "")) {
                     CustomerRequestAssignment tech = db.getTaskById(i.getRequest_id());
                     for (var j : tech.getTechnician()) {
                         if (j.getId() == account.getId()) {
@@ -95,7 +95,7 @@ public class TaskController extends HttpServlet {
             case "inProgress":
                 int idInProgress = Integer.parseInt(req.getParameter("id"));
 
-                var a2 = db.getListTask(1, Integer.MAX_VALUE, "", "", "", "", "");
+                var a2 = db.getListTask(1, Integer.MAX_VALUE, "", "", "", "1", "");
                 ArrayList<CustomerRequestAssignment> task2 = new ArrayList<>();
 
                 for (var i : a2) {
@@ -178,7 +178,7 @@ public class TaskController extends HttpServlet {
                     return;
                 }
 
-                var a = db.getListTask(page, size, keyword, fromDate, toDate, "", requestType);
+                var a = db.getListTask(page, size, keyword, fromDate, toDate, "1", requestType);
                 ArrayList<CustomerRequestAssignment> task = new ArrayList<>();
 
                 for (var i : a) {

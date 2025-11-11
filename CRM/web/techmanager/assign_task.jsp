@@ -376,7 +376,80 @@
                         </div>
                     </div>
 
+                    <!-- TASK SCHEDULE -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card product-detail-card" style="margin-top: 2rem;">
+                                <div class="card-body">
 
+                                    <h4 style="color:#2d3748; font-weight:600; margin-bottom:1rem;">
+                                        <i class="fa fa-calendar"></i> Task Schedule
+                                    </h4>
+
+                                    <!-- FILTER BAR -->
+                                    <form method="get" action="${pageContext.request.contextPath}/techmanager/request">
+                                        <input type="hidden" name="action" value="assignTask">
+
+                                        <label><b>Select any date in week</b></label>
+                                        <input type="date" name="selectedDate" class="form-control" value="${param.selectedDate}" required />
+
+                                        <button type="submit" class="btn btn-primary" style="margin-top:10px;margin-bottom:10px;">
+                                            View Week
+                                        </button>
+                                    </form>
+
+
+                                    <!-- SCHEDULE TABLE -->
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Technician</th>
+
+                                                    <c:forEach var="d" items="${weekDays}">
+                                                        <th>
+                                                            ${d.dayOfWeek.name().substring(0,3)} <br/>
+                                                            ${d}
+                                                        </th>
+                                                    </c:forEach>
+
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                            
+                                                <c:forEach var="tech" items="${technicianList}">
+                                                    <tr>
+                                                        <td>${tech.fullName}</td>
+
+                                                        <c:forEach var="d" items="${weekDays}">
+                                                            <td style="min-width:140px;">
+                                                                <c:forEach var="a" items="${weekSchedule}">
+
+                                                                    <c:if test="${a.assigned_date != null 
+                                                                                  and a.technician_id == tech.id 
+                                                                                  and a.assigned_date.toString() == d.toString()}">
+                                                                          Task #${a.request_id} <br/>
+                                                                          Hours: ${a.estimated_hours}
+                                                                          <hr/>
+                                                                    </c:if>
+                                                                </c:forEach>
+                                                            </td>
+                                                        </c:forEach>
+
+                                                    </tr>
+                                                </c:forEach>
+                                            </tbody>
+
+
+
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>                        
 
                 </section>
                 <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>
