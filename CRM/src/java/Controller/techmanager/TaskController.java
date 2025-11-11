@@ -55,7 +55,7 @@ public class TaskController extends HttpServlet {
 
                 int leaderId = 0;
                 var a = db.getTaskById(id2);
-                var b = db.getListTask(1, Integer.MAX_VALUE, "", "", "", "", "");
+                var b = db.getListTask(1, Integer.MAX_VALUE, "", "", "", "1", "");
                 for (var i : b) {
                     if (i.getId() == a.getId()) {
                         leaderId = i.getTechnician_id();
@@ -109,10 +109,10 @@ public class TaskController extends HttpServlet {
                     return;
                 }
 
-                var re = db.getListTask(1, Integer.MAX_VALUE, "", "", "", "", "");
+                var re = db.getListTask(1, Integer.MAX_VALUE, "", "", "", "1", "");
                 int totalPages = (int) Math.ceil((double) re.size() / size);
 
-                req.setAttribute("task", db.getListTask(page, size, keyword, fromDate, toDate, "", requestType));
+                req.setAttribute("task", db.getListTask(page, size, keyword, fromDate, toDate, "1", requestType));
                 req.setAttribute("totalProducts", re.size());
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
