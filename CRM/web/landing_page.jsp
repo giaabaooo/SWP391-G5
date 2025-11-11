@@ -14,10 +14,13 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-        <link href="css/login/log/bootstrap.min.css" rel="stylesheet">
-        <link href="css/login/log/style.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/login/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/login/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+        <link href="${pageContext.request.contextPath}/css/login/log/bootstrap.min.css" rel="stylesheet">
+        <link href="${pageContext.request.contextPath}/css/login/log/style.css" rel="stylesheet">
 
         <style>
+            /* (Toàn bộ CSS cũ của bạn ở đây: .hero, .service-box, v.v...) */
             .hero {
                 background: linear-gradient(rgba(24, 29, 56, .8), rgba(24, 29, 56, .8)), url(https://via.placeholder.com/1920x800.png?text=Technician);
                 background-position: center center;
@@ -99,6 +102,46 @@
             }
             .footer a:hover {
                 text-decoration: underline;
+            }
+            /* CSS cho Form liên hệ */
+            .contact-form .form-control {
+                padding: 1rem;
+                height: auto;
+                border-radius: 5px;
+            }
+            .contact-form .form-label {
+                font-weight: 600;
+                color: #555;
+            }
+            .contact-form .validation-error {
+                display: none;
+                color: #dc3545;
+                font-size: 0.9em;
+                margin-top: 5px;
+            }
+            .contact-form .form-group.has-error .form-control {
+                border-color: #dc3545;
+            }
+            .contact-form .form-group.has-error .validation-error {
+                display: block;
+            }
+            /* CSS cho Thông báo (Alert) */
+            .contact-alert {
+                display: none; /* Ẩn mặc định */
+                padding: 1rem 1.5rem;
+                border-radius: 5px;
+                margin-bottom: 1.5rem;
+                font-size: 1.1rem;
+            }
+            .contact-alert.success {
+                background-color: #d4edda;
+                border-color: #c3e6cb;
+                color: #155724;
+            }
+            .contact-alert.error {
+                background-color: #f8d7da;
+                border-color: #f5c6cb;
+                color: #721c24;
             }
         </style>
     </head>
@@ -233,10 +276,57 @@
                     </div>
                 </section>
 
-                <section class="container section-padding text-center">
-                    <h2>Need Technical Support Today?</h2>
-                    <p class="lead my-4">Don't let broken equipment interrupt your workflow. Let us handle it.</p>
-                    <a href="#services" class="btn btn-primary btn-lg py-3 px-5">Create a Request Now</a>
+                <section id="contact" class="container section-padding">
+                    <h2 class="section-title text-center">Contact Us for Support</h2>
+                    <p class="lead text-center" style="margin-top: -2rem; margin-bottom: 3rem;">Have questions? Fill out the form below and we will get back to you.</p>
+
+                    <div class="row">
+                        <div class="col-md-8 offset-md-2">
+                            <% if (request.getAttribute("error") != null) { %>
+                            <div class="contact-alert error" style="display:block;"> 
+                                <i class="fa fa-exclamation-triangle"></i> <%= request.getAttribute("error") %>
+                            </div>
+                            <% } %>
+                            <% if (request.getAttribute("success") != null) { %>
+                            <div class="contact-alert success" style="display:block;"> 
+                                <i class="fa fa-check-circle"></i> <%= request.getAttribute("success") %>
+                            </div>
+                            <% } %>
+
+                            <form id="guestContactForm" action="${pageContext.request.contextPath}/guestcontact" method="POST" class="contact-form" onsubmit="return validateContactForm();">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3" id="fullNameGroup">
+                                            <label class="form-label" for="fullName">Full Name <span style="color:red">*</span></label>
+                                            <input type="text" id="fullName" name="fullName" class="form-control" placeholder="Your Name">
+                                            <div class="validation-error">Full Name is required.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3" id="emailGroup">
+                                            <label class="form-label" for="email">Email <span style="color:red">*</span></label>
+                                            <input type="email" id="email" name="email" class="form-control" placeholder="your.email@example.com">
+                                            <div class="validation-error">A valid email is required.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3" style="margin-top: 15px;" id="phoneGroup">
+                                    <label class="form-label" for="phone">Phone <span style="color:red">*</span></label>
+                                    <input type="tel" id="phone" name="phone" class="form-control" placeholder="Your Phone Number">
+                                    <div class="validation-error">Invalid phone number. Only numbers, +, - are allowed.</div>
+                                </div>
+                                <div class="form-group mb-3" style="margin-top: 15px;" id="messageGroup">
+                                    <label class="form-label" for="message">Message <span style="color:red">*</span></label>
+                                    <textarea id="message" name="message" class="form-control" rows="5" placeholder="How can we help you?"></textarea>
+                                    <div class="validation-error">Message cannot be empty.</div>
+                                </div>
+
+                                <div class="text-center" style="margin-top: 25px;">
+                                    <button type="submit" class="btn btn-primary btn-lg py-3 px-5">Send Message</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </section>
 
                 <footer class="footer">
@@ -271,13 +361,49 @@
         <script src="js/main.js"></script>
 
         <script>
-            $(document).ready(function () {
-                $('#spinner').removeClass('show');
-                var scrollSpy = new bootstrap.ScrollSpy(document.body, {
-                    target: '#navbarCollapse',
-                    offset: 70
-                });
-            });
+                                function validateContactForm() {
+                                    var isValid = true;
+                                    $('.form-group.has-error').removeClass('has-error');
+                                    $('.contact-alert').hide();
+
+
+                                    var fullName = $('#fullName').val().trim();
+                                    var email = $('#email').val().trim();
+                                    var message = $('#message').val().trim();
+                                    var phone = $('#phone').val().trim(); 
+
+
+                                    if (fullName === '') {
+                                        $('#fullNameGroup').addClass('has-error');
+                                        isValid = false;
+                                    }
+                                    if (email === '' || email.indexOf('@') === -1 || email.indexOf('.') === -1) {
+                                        $('#emailGroup').addClass('has-error');
+                                        isValid = false;
+                                    }
+                                    if (message === '') {
+                                        $('#messageGroup').addClass('has-error');
+                                        isValid = false;
+                                    }
+
+                                    if (phone !== '') {
+                                        var phoneRegex = /^[0-9+\-\s]+$/;
+                                        if (!phoneRegex.test(phone)) {
+                                            $('#phoneGroup').addClass('has-error'); 
+                                            isValid = false;
+                                        }
+                                    }
+
+                                    if (!isValid) {
+                                        $('html, body').animate({
+                                            scrollTop: $(".has-error").first().offset().top - 100
+                                        }, 500);
+                                    } else {
+                                        var submitBtn = $('#contactSubmitBtn');
+                                        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Sending...');
+                                    }
+                                    return isValid; 
+                                }
         </script>
     </body>
 </html>
