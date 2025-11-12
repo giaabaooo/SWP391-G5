@@ -21,6 +21,18 @@ public class Contract {
     private String brandName;
     private String categoryName;
     private boolean isActive;
+    private String totalAmountString;
+   
+
+    public String getTotalAmountString() {
+        return totalAmountString;
+    }
+
+    public void setTotalAmountString(String totalAmountString) {
+        this.totalAmountString = totalAmountString;
+    }
+    
+    
 
     // Getter & Setter
     public int getId() {
