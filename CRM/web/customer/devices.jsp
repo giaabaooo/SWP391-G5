@@ -5,6 +5,8 @@
 <%@ page import="data.Product" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.Calendar" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -117,7 +119,7 @@
                          data-total-devices="<%= request.getAttribute("totalDevices") != null ? request.getAttribute("totalDevices") : 0 %>"
                          data-total-pages="<%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>">
                     </div>
-                    
+
                     <form method="get" action="${pageContext.request.contextPath}/customer/devices" class="form-inline mb-3">
                         <!-- Page Header -->
                         <div class="row">
@@ -205,6 +207,7 @@
                                                     <tr>
                                                         <th>ID</th>
                                                         <th>Name</th>
+                                                        <th>Serial</th>
                                                         <th>Category</th>
                                                         <th>Brand</th>                                                       
                                                         <th>Status</th>
@@ -216,26 +219,69 @@
                                                     <% 
                                                         List<data.Device> devices = (List<data.Device>) request.getAttribute("devices");
                                                         if (devices != null) {
-                                                            for (data.Device d : devices) {                                                          
+                                                        Date currentDate = new Date(); 
+                                                        Calendar cal = Calendar.getInstance();
+                                                            for (data.Device d : devices) {  
+                                                        
                                                     %>
                                                     <tr>
                                                         <td><%= d.getId() %></td>
                                                         <td><%= d.getProductName() %></td>
+                                                         <td><%= d.getSerialNumber() %></td>
                                                         <td><%= d.getCategoryName() %></td>
                                                         <td><%= d.getBrandName() %></td>
                                                         <td><%= d.getStatus() %></td>
+                                                        
                                                         <td>
                                                             <a href="detailDevice?id=<%= d.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
                                                                 <i class="fa fa-eye"></i> Detail
                                                             </a>
-                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=Warranty" class="btn btn-action btn-edit" style="text-decoration: none;">
-                                                                <i class="fa fa-edit"></i> Warranty
+                                                            <%
+                                                                boolean isWarrantyValid = false;
+                                                                Date warrantyExp = d.getWarrantyExpiration(); 
+                
+                                                                
+                                                                if (warrantyExp != null && warrantyExp.after(currentDate)) {
+                                                                    isWarrantyValid = true;
+                                                                }
+                
+                                                                if (isWarrantyValid) {
+                                                            %>
+                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=WARRANTY" class="btn btn-action btn-success" style="text-decoration: none; margin-left: 5px;">
+                                                                <i class="fa fa-shield"></i> Warranty
                                                             </a>
-                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=Maintenance" class="btn btn-action btn-edit" style="text-decoration: none;">
-                                                                <i class="fa fa-edit"></i> Maintenance
+                                                            <%
+                                                                } 
+                                                            %>
+
+                                                          
+                                                            <%
+                                                                boolean isMaintenanceValid = false;
+                                                                Date contractDate = d.getContractDate(); 
+                                                                int maintenanceMonths = d.getMaintenanceMonths(); 
+
+                                                                if (contractDate != null && maintenanceMonths > 0) {
+                                                                    cal.setTime(contractDate);
+                                                                    cal.add(Calendar.MONTH, maintenanceMonths); 
+                                                                    Date maintenanceExp = cal.getTime(); 
+                    
+                                                                    if (maintenanceExp.after(currentDate)) {
+                                                                        isMaintenanceValid = true;
+                                                                    }
+                                                                }
+                
+                                                                if (isMaintenanceValid) {
+                                                            %>
+                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=MAINTENANCE" class="btn btn-action btn-info" style="text-decoration: none; margin-left: 5px;">
+                                                                <i class="fa fa-wrench"></i> Maintenance
                                                             </a>
-                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=Repair" class="btn btn-action btn-edit" style="text-decoration: none;">
-                                                                <i class="fa fa-edit"></i> Repair
+                                                            <%
+                                                                } // Đóng if (isMaintenanceValid)
+                                                            %>
+
+                                                            <%-- 3. Nút Repair (Sửa chữa) - Luôn hiển thị --%>
+                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=REPAIR" class="btn btn-action btn-danger" style="text-decoration: none; margin-left: 5px;">
+                                                                <i class="fa fa-exclamation-triangle"></i> Repair
                                                             </a>
                                                         </td>
                                                     </tr>
@@ -320,283 +366,290 @@
         <script src="${pageContext.request.contextPath}/js/dashboard.js" type="text/javascript"></script>
         <!--<script src="${pageContext.request.contextPath}/js/warehouse/productList.js" type="text/javascript"></script>-->
         <script>
-            $(function() {
-                // Pagination variables
-                let currentPage = 1;
-                let pageSize = 10;
-                let allRows = [];
-                let filteredRows = [];
-                
-                // Get server data from data attributes
-                function getServerData() {
-                    var paginationData = document.getElementById('paginationData');
-                    if (paginationData) {
-                        return {
-                            totalDevices: parseInt(paginationData.dataset.totalDevices) || 0,
-                            totalPages: parseInt(paginationData.dataset.totalPages) || 1
-                        };
-                    }
-                    return { totalDevices: 0, totalPages: 1 };
-                }
-                
-                // Helper function to get current URL parameters
-                function getUrlParams() {
-                    var params = new URLSearchParams(window.location.search);
-                    var urlParams = {};
-                    
-                    if (params.get('search')) {
-                        urlParams.search = params.get('search');
-                    }
-                    if (params.get('category')) {
-                        urlParams.category = params.get('category');
-                    }
-                    if (params.get('brand')) {
-                        urlParams.brand = params.get('brand');
-                    }
-                    if (params.get('status')) {
-                        urlParams.status = params.get('status');
-                    }
-                    if (params.get('pageSize')) {
-                        urlParams.pageSize = params.get('pageSize');
-                    }
-                    // Always preserve pageSize if not set, use default
-                    if (!urlParams.pageSize) {
-                        urlParams.pageSize = '10';
-                    }
-                    
-                    return urlParams;
-                }
-                
-                // Helper function to build URL with parameters
-                function buildUrlWithParams(params) {
-                    var url = window.location.pathname;
-                    var paramArray = [];
-                    
-                    for (var key in params) {
-                        var value = params[key];
-                        if (value !== null && value !== undefined && value !== '') {
-                            paramArray.push(key + '=' + encodeURIComponent(String(value)));
-                        }
-                    }
-                    
-                    if (paramArray.length > 0) {
-                        url += '?' + paramArray.join('&');
-                    }
-                    
-                    return url;
-                }
-                
-                // Pagination navigation functions (with URL parameters preserved) - Define first
-                window.goToPage = function(page) {
-                    var params = getUrlParams();
-                    params.page = String(page);
-                    var newUrl = buildUrlWithParams(params);
-                    window.location.href = newUrl;
-                };
-                
-                // Initialize pagination (server-side)
-                function initPagination() {
-                    renderPagination();
-                    updatePaginationInfo();
-                }
-                
-                // Update pagination info text (from server data)
-                function updatePaginationInfo() {
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                    var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
-                    var serverData = getServerData();
-                    var totalDevices = serverData.totalDevices;
-                    
-                    var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
-                    var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalDevices);
-                    
-                    var infoElement = document.getElementById('paginationInfo');
-                    if (infoElement) {
-                        if (totalDevices === 0) {
-                            infoElement.textContent = 'No devices to display';
-                        } else {
-                            infoElement.textContent = 
-                                'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalDevices + ' devices';
-                        }
-                    }
-                }
-                
-                // Render pagination buttons
-                function renderPagination() {
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                    var serverData = getServerData();
-                    var totalPages = serverData.totalPages;
-                    var pageNumbersDiv = document.getElementById('pageNumbers');
-                    
-                    if (!pageNumbersDiv) return;
-                    
-                    pageNumbersDiv.innerHTML = '';
-                    
-                    // Determine which pages to show
-                    var startPage = Math.max(1, currentPageFromUrl - 2);
-                    var endPage = Math.min(totalPages, currentPageFromUrl + 2);
-                    
-                    // Adjust if near the beginning
-                    if (currentPageFromUrl <= 3) {
-                        endPage = Math.min(5, totalPages);
-                    }
-                    
-                    // Adjust if near the end
-                    if (currentPageFromUrl > totalPages - 3) {
-                        startPage = Math.max(1, totalPages - 4);
-                    }
-                    
-                    // Create page buttons
-                    for (var i = startPage; i <= endPage; i++) {
-                        var btn = document.createElement('button');
-                        btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
-                        btn.textContent = i;
-                        btn.setAttribute('type', 'button');
-                        btn.onclick = (function(pageNum) {
-                            return function() { window.goToPage(pageNum); };
-                        })(i);
-                        pageNumbersDiv.appendChild(btn);
-                    }
-                    
-                    updatePaginationButtons();
-                }
-                
-                // Update pagination button states
-                function updatePaginationButtons() {
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
-                    var serverData = getServerData();
-                    var totalPages = serverData.totalPages;
-                    
-                    var firstBtn = document.getElementById('firstPageBtn');
-                    var prevBtn = document.getElementById('prevPageBtn');
-                    var nextBtn = document.getElementById('nextPageBtn');
-                    var lastBtn = document.getElementById('lastPageBtn');
-                    
-                    if (firstBtn) firstBtn.disabled = currentPageFromUrl === 1;
-                    if (prevBtn) prevBtn.disabled = currentPageFromUrl === 1;
-                    if (nextBtn) nextBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
-                    if (lastBtn) lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
-                }
-                
-                window.goToFirstPage = function() {
-                    window.goToPage(1);
-                };
-                
-                window.goToPrevPage = function() {
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var currentPage = parseInt(urlParams.get('page')) || 1;
-                    if (currentPage > 1) {
-                        window.goToPage(currentPage - 1);
-                    }
-                };
-                
-                window.goToNextPage = function() {
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var currentPage = parseInt(urlParams.get('page')) || 1;
-                    var serverData = getServerData();
-                    var totalPages = serverData.totalPages;
-                    if (currentPage < totalPages) {
-                        window.goToPage(currentPage + 1);
-                    }
-                };
-                
-                window.goToLastPage = function() {
-                    var serverData = getServerData();
-                    var totalPages = serverData.totalPages;
-                    window.goToPage(totalPages);
-                };
-                
-                window.changePageSize = function() {
-                    var newPageSize = document.getElementById('pageSize').value;
-                    var params = getUrlParams();
-                    params.pageSize = newPageSize;
-                    params.page = 1; // Reset to first page when changing page size
-                    window.location.href = buildUrlWithParams(params);
-                };
-                
-                // Handle collapsible menu
-                $('.treeview > a').click(function(e) {
-                    e.preventDefault();
-                    var target = $(this).attr('href');
-                    $(target).collapse('toggle');
-                });
-                
-                // Set page size from URL parameter
-                var urlParams = new URLSearchParams(window.location.search);
-                var pageSizeFromUrl = urlParams.get('pageSize');
-                if (pageSizeFromUrl) {
-                    var pageSizeSelect = document.getElementById('pageSize');
-                    if (pageSizeSelect) {
-                        pageSizeSelect.value = pageSizeFromUrl;
-                    }
-                }
-                
-                // Initialize pagination on page load
-                initPagination();
-                
-                // Auto-hide success and error messages after 3 seconds
-                setTimeout(function() {
-                    $('.alert-success').fadeOut(500, function() {
-                        $(this).remove();
-                    });
-                    $('.alert-danger').fadeOut(500, function() {
-                        $(this).remove();
-                    });
-                }, 3000);
-                
-                // Apply filters function
-                window.applyFilters = function() {
-                    var searchQuery = document.getElementById('searchInput').value;
-                    var category = document.getElementById('categoryFilter').value;
-                    var brand = document.getElementById('brandFilter').value;
-                    var status = document.getElementById('statusFilter').value;
-                    
-                    // Get current pageSize to preserve it
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var currentPageSize = urlParams.get('pageSize');
-                    
-                    // Build URL with parameters
-                    var url = window.location.pathname + '?';
-                    var params = [];
-                    
-                    if (searchQuery && searchQuery.trim() !== '') {
-                        params.push('search=' + encodeURIComponent(searchQuery));
-                    }
-                    if (category && category !== 'ALL') {
-                        params.push('category=' + category);
-                    }
-                    if (brand && brand !== 'ALL') {
-                        params.push('brand=' + brand);
-                    }
-                    if (status && status !== '' && status !== 'ALL') {
-                        params.push('status=' + encodeURIComponent(status));
-                    }
-                    if (currentPageSize) {
-                        params.push('pageSize=' + currentPageSize);
-                    }
-                    
-                    url += params.join('&');
-                    
-                    // Redirect to filtered URL
-                    window.location.href = url;
-                };
-                
-                // Clear filters function
-                window.clearFilters = function() {
-                    // Redirect to page without parameters
-                    window.location.href = window.location.pathname;
-                };
-                
-                // Handle Enter key in search input
-                $('#searchInput').on('keypress', function(e) {
-                    if (e.which === 13) { // Enter key
-                        applyFilters();
-                    }
-                });
-            });
+                                                    $(function () {
+                                                        // Pagination variables
+                                                        let currentPage = 1;
+                                                        let pageSize = 10;
+                                                        let allRows = [];
+                                                        let filteredRows = [];
+
+                                                        // Get server data from data attributes
+                                                        function getServerData() {
+                                                            var paginationData = document.getElementById('paginationData');
+                                                            if (paginationData) {
+                                                                return {
+                                                                    totalDevices: parseInt(paginationData.dataset.totalDevices) || 0,
+                                                                    totalPages: parseInt(paginationData.dataset.totalPages) || 1
+                                                                };
+                                                            }
+                                                            return {totalDevices: 0, totalPages: 1};
+                                                        }
+
+                                                        // Helper function to get current URL parameters
+                                                        function getUrlParams() {
+                                                            var params = new URLSearchParams(window.location.search);
+                                                            var urlParams = {};
+
+                                                            if (params.get('search')) {
+                                                                urlParams.search = params.get('search');
+                                                            }
+                                                            if (params.get('category')) {
+                                                                urlParams.category = params.get('category');
+                                                            }
+                                                            if (params.get('brand')) {
+                                                                urlParams.brand = params.get('brand');
+                                                            }
+                                                            if (params.get('status')) {
+                                                                urlParams.status = params.get('status');
+                                                            }
+                                                            if (params.get('pageSize')) {
+                                                                urlParams.pageSize = params.get('pageSize');
+                                                            }
+                                                            // Always preserve pageSize if not set, use default
+                                                            if (!urlParams.pageSize) {
+                                                                urlParams.pageSize = '10';
+                                                            }
+
+                                                            return urlParams;
+                                                        }
+
+                                                        // Helper function to build URL with parameters
+                                                        function buildUrlWithParams(params) {
+                                                            var url = window.location.pathname;
+                                                            var paramArray = [];
+
+                                                            for (var key in params) {
+                                                                var value = params[key];
+                                                                if (value !== null && value !== undefined && value !== '') {
+                                                                    paramArray.push(key + '=' + encodeURIComponent(String(value)));
+                                                                }
+                                                            }
+
+                                                            if (paramArray.length > 0) {
+                                                                url += '?' + paramArray.join('&');
+                                                            }
+
+                                                            return url;
+                                                        }
+
+                                                        // Pagination navigation functions (with URL parameters preserved) - Define first
+                                                        window.goToPage = function (page) {
+                                                            var params = getUrlParams();
+                                                            params.page = String(page);
+                                                            var newUrl = buildUrlWithParams(params);
+                                                            window.location.href = newUrl;
+                                                        };
+
+                                                        // Initialize pagination (server-side)
+                                                        function initPagination() {
+                                                            renderPagination();
+                                                            updatePaginationInfo();
+                                                        }
+
+                                                        // Update pagination info text (from server data)
+                                                        function updatePaginationInfo() {
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                            var pageSizeFromUrl = parseInt(urlParams.get('pageSize')) || 10;
+                                                            var serverData = getServerData();
+                                                            var totalDevices = serverData.totalDevices;
+
+                                                            var startIndex = (currentPageFromUrl - 1) * pageSizeFromUrl + 1;
+                                                            var endIndex = Math.min(currentPageFromUrl * pageSizeFromUrl, totalDevices);
+
+                                                            var infoElement = document.getElementById('paginationInfo');
+                                                            if (infoElement) {
+                                                                if (totalDevices === 0) {
+                                                                    infoElement.textContent = 'No devices to display';
+                                                                } else {
+                                                                    infoElement.textContent =
+                                                                            'Showing ' + startIndex + ' to ' + endIndex + ' of ' + totalDevices + ' devices';
+                                                                }
+                                                            }
+                                                        }
+
+                                                        // Render pagination buttons
+                                                        function renderPagination() {
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                            var serverData = getServerData();
+                                                            var totalPages = serverData.totalPages;
+                                                            var pageNumbersDiv = document.getElementById('pageNumbers');
+
+                                                            if (!pageNumbersDiv)
+                                                                return;
+
+                                                            pageNumbersDiv.innerHTML = '';
+
+                                                            // Determine which pages to show
+                                                            var startPage = Math.max(1, currentPageFromUrl - 2);
+                                                            var endPage = Math.min(totalPages, currentPageFromUrl + 2);
+
+                                                            // Adjust if near the beginning
+                                                            if (currentPageFromUrl <= 3) {
+                                                                endPage = Math.min(5, totalPages);
+                                                            }
+
+                                                            // Adjust if near the end
+                                                            if (currentPageFromUrl > totalPages - 3) {
+                                                                startPage = Math.max(1, totalPages - 4);
+                                                            }
+
+                                                            // Create page buttons
+                                                            for (var i = startPage; i <= endPage; i++) {
+                                                                var btn = document.createElement('button');
+                                                                btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
+                                                                btn.textContent = i;
+                                                                btn.setAttribute('type', 'button');
+                                                                btn.onclick = (function (pageNum) {
+                                                                    return function () {
+                                                                        window.goToPage(pageNum);
+                                                                    };
+                                                                })(i);
+                                                                pageNumbersDiv.appendChild(btn);
+                                                            }
+
+                                                            updatePaginationButtons();
+                                                        }
+
+                                                        // Update pagination button states
+                                                        function updatePaginationButtons() {
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPageFromUrl = parseInt(urlParams.get('page')) || 1;
+                                                            var serverData = getServerData();
+                                                            var totalPages = serverData.totalPages;
+
+                                                            var firstBtn = document.getElementById('firstPageBtn');
+                                                            var prevBtn = document.getElementById('prevPageBtn');
+                                                            var nextBtn = document.getElementById('nextPageBtn');
+                                                            var lastBtn = document.getElementById('lastPageBtn');
+
+                                                            if (firstBtn)
+                                                                firstBtn.disabled = currentPageFromUrl === 1;
+                                                            if (prevBtn)
+                                                                prevBtn.disabled = currentPageFromUrl === 1;
+                                                            if (nextBtn)
+                                                                nextBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                                                            if (lastBtn)
+                                                                lastBtn.disabled = currentPageFromUrl === totalPages || totalPages === 0;
+                                                        }
+
+                                                        window.goToFirstPage = function () {
+                                                            window.goToPage(1);
+                                                        };
+
+                                                        window.goToPrevPage = function () {
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPage = parseInt(urlParams.get('page')) || 1;
+                                                            if (currentPage > 1) {
+                                                                window.goToPage(currentPage - 1);
+                                                            }
+                                                        };
+
+                                                        window.goToNextPage = function () {
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPage = parseInt(urlParams.get('page')) || 1;
+                                                            var serverData = getServerData();
+                                                            var totalPages = serverData.totalPages;
+                                                            if (currentPage < totalPages) {
+                                                                window.goToPage(currentPage + 1);
+                                                            }
+                                                        };
+
+                                                        window.goToLastPage = function () {
+                                                            var serverData = getServerData();
+                                                            var totalPages = serverData.totalPages;
+                                                            window.goToPage(totalPages);
+                                                        };
+
+                                                        window.changePageSize = function () {
+                                                            var newPageSize = document.getElementById('pageSize').value;
+                                                            var params = getUrlParams();
+                                                            params.pageSize = newPageSize;
+                                                            params.page = 1; // Reset to first page when changing page size
+                                                            window.location.href = buildUrlWithParams(params);
+                                                        };
+
+                                                        // Handle collapsible menu
+                                                        $('.treeview > a').click(function (e) {
+                                                            e.preventDefault();
+                                                            var target = $(this).attr('href');
+                                                            $(target).collapse('toggle');
+                                                        });
+
+                                                        // Set page size from URL parameter
+                                                        var urlParams = new URLSearchParams(window.location.search);
+                                                        var pageSizeFromUrl = urlParams.get('pageSize');
+                                                        if (pageSizeFromUrl) {
+                                                            var pageSizeSelect = document.getElementById('pageSize');
+                                                            if (pageSizeSelect) {
+                                                                pageSizeSelect.value = pageSizeFromUrl;
+                                                            }
+                                                        }
+
+                                                        // Initialize pagination on page load
+                                                        initPagination();
+
+                                                        // Auto-hide success and error messages after 3 seconds
+                                                        setTimeout(function () {
+                                                            $('.alert-success').fadeOut(500, function () {
+                                                                $(this).remove();
+                                                            });
+                                                            $('.alert-danger').fadeOut(500, function () {
+                                                                $(this).remove();
+                                                            });
+                                                        }, 3000);
+
+                                                        // Apply filters function
+                                                        window.applyFilters = function () {
+                                                            var searchQuery = document.getElementById('searchInput').value;
+                                                            var category = document.getElementById('categoryFilter').value;
+                                                            var brand = document.getElementById('brandFilter').value;
+                                                            var status = document.getElementById('statusFilter').value;
+
+                                                            // Get current pageSize to preserve it
+                                                            var urlParams = new URLSearchParams(window.location.search);
+                                                            var currentPageSize = urlParams.get('pageSize');
+
+                                                            // Build URL with parameters
+                                                            var url = window.location.pathname + '?';
+                                                            var params = [];
+
+                                                            if (searchQuery && searchQuery.trim() !== '') {
+                                                                params.push('search=' + encodeURIComponent(searchQuery));
+                                                            }
+                                                            if (category && category !== 'ALL') {
+                                                                params.push('category=' + category);
+                                                            }
+                                                            if (brand && brand !== 'ALL') {
+                                                                params.push('brand=' + brand);
+                                                            }
+                                                            if (status && status !== '' && status !== 'ALL') {
+                                                                params.push('status=' + encodeURIComponent(status));
+                                                            }
+                                                            if (currentPageSize) {
+                                                                params.push('pageSize=' + currentPageSize);
+                                                            }
+
+                                                            url += params.join('&');
+
+                                                            // Redirect to filtered URL
+                                                            window.location.href = url;
+                                                        };
+
+                                                        // Clear filters function
+                                                        window.clearFilters = function () {
+                                                            // Redirect to page without parameters
+                                                            window.location.href = window.location.pathname;
+                                                        };
+
+                                                        // Handle Enter key in search input
+                                                        $('#searchInput').on('keypress', function (e) {
+                                                            if (e.which === 13) { // Enter key
+                                                                applyFilters();
+                                                            }
+                                                        });
+                                                    });
 
         </script>   
     </body>
