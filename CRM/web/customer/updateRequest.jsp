@@ -179,7 +179,7 @@
 
                                     <div class="form-group">
                                         <label>Issue Description</label>
-                                        <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..."><%= requestData.getDescription() != null ? requestData.getDescription() : "" %></textarea>
+                                        <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..." minlength="10" maxlength="1000"><%= requestData.getDescription() != null ? requestData.getDescription() : "" %></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label>Desired Completion Date (Optional)</label>

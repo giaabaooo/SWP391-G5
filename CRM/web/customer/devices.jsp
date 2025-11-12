@@ -7,6 +7,8 @@
 <%@ page import="java.util.Calendar" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="java.util.HashSet" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -202,99 +204,142 @@
                                     <div class="card-body">
 
                                         <div class="table-responsive">
-                                            <table class="inventory-table">
+                                
+            <table class="inventory-table">
                                                 <thead>
-                                                    <tr>
+                                       
+             <tr>
                                                         <th>ID</th>
-                                                        <th>Name</th>
+                               
+                         <th>Name</th>
                                                         <th>Serial</th>
-                                                        <th>Category</th>
-                                                        <th>Brand</th>                                                       
-                                                        <th>Status</th>
+                   
+                                     <th>Category</th>
+                                                        <th>Brand</th>       
+                                                
+                                                    
+    <th>Status</th>
                                                         <th>Actions</th>
-                                                    </tr>
+                                        
+            </tr>
                                                 </thead>
 
-                                                <tbody>
-                                                    <% 
-                                                        List<data.Device> devices = (List<data.Device>) request.getAttribute("devices");
-                                                        if (devices != null) {
-                                                        Date currentDate = new Date(); 
-                                                        Calendar cal = Calendar.getInstance();
-                                                            for (data.Device d : devices) {  
-                                                        
-                                                    %>
-                                                    <tr>
-                                                        <td><%= d.getId() %></td>
-                                                        <td><%= d.getProductName() %></td>
-                                                         <td><%= d.getSerialNumber() %></td>
-                                                        <td><%= d.getCategoryName() %></td>
-                                                        <td><%= d.getBrandName() %></td>
-                                                        <td><%= d.getStatus() %></td>
-                                                        
-                                                        <td>
-                                                            <a href="detailDevice?id=<%= d.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
-                                                                <i class="fa fa-eye"></i> Detail
-                                                            </a>
-                                                            <%
-                                                                boolean isWarrantyValid = false;
-                                                                Date warrantyExp = d.getWarrantyExpiration(); 
-                
-                                                                
-                                                                if (warrantyExp != null && warrantyExp.after(currentDate)) {
-                                                                    isWarrantyValid = true;
-                                                                }
-                
-                                                                if (isWarrantyValid) {
-                                                            %>
-                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=WARRANTY" class="btn btn-action btn-success" style="text-decoration: none; margin-left: 5px;">
-                                                                <i class="fa fa-shield"></i> Warranty
-                                                            </a>
-                                                            <%
-                                                                } 
-                                                            %>
+                                        
+<tbody>
+    <% 
+        List<data.Device> devices = (List<data.Device>) request.getAttribute("devices");
+        
+        // (MỚI) Lấy Set các request đang hoạt động
+        Set<String> activeKeys = (Set<String>) request.getAttribute("activeRequestKeys");
+        if (activeKeys == null) {
+            activeKeys = new HashSet<String>();
+        }
 
-                                                          
-                                                            <%
-                                                                boolean isMaintenanceValid = false;
-                                                                Date contractDate = d.getContractDate(); 
-                                                                int maintenanceMonths = d.getMaintenanceMonths(); 
+        if (devices != null && !devices.isEmpty()) {
+            Date currentDate = new Date();
+            Calendar cal = Calendar.getInstance();
+            
+            for (data.Device d : devices) {  
+                // (MỚI) Tạo các khóa cho thiết bị này
+                String warrantyKey = d.getId() + "_WARRANTY";
+                String maintKey = d.getId() + "_MAINTENANCE";
+                String repairKey = d.getId() + "_REPAIR";
 
-                                                                if (contractDate != null && maintenanceMonths > 0) {
-                                                                    cal.setTime(contractDate);
-                                                                    cal.add(Calendar.MONTH, maintenanceMonths); 
-                                                                    Date maintenanceExp = cal.getTime(); 
-                    
-                                                                    if (maintenanceExp.after(currentDate)) {
-                                                                        isMaintenanceValid = true;
-                                                                    }
-                                                                }
-                
-                                                                if (isMaintenanceValid) {
-                                                            %>
-                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=MAINTENANCE" class="btn btn-action btn-info" style="text-decoration: none; margin-left: 5px;">
-                                                                <i class="fa fa-wrench"></i> Maintenance
-                                                            </a>
-                                                            <%
-                                                                } // Đóng if (isMaintenanceValid)
-                                                            %>
+                // (MỚI) Kiểm tra xem có request đang hoạt động không
+                boolean hasActiveWarranty = activeKeys.contains(warrantyKey);
+                boolean hasActiveMaintenance = activeKeys.contains(maintKey);
+                boolean hasActiveRepair = activeKeys.contains(repairKey);
+    %>
+    <tr>
+        <td><%= d.getId() %></td>
+        <td><%= d.getProductName() %></td>
+        <td><%= d.getSerialNumber() %></td>
+        <td><%= d.getCategoryName() %></td>
+        <td><%= d.getBrandName() %></td>
+        <td><%= d.getStatus() %></td>
+        
+        <td>
+            <a href="detailDevice?id=<%= d.getId() %>" class="btn btn-action btn-view" style="text-decoration: none;">
+                <i class="fa fa-eye"></i> Detail
+            </a>
 
-                                                            <%-- 3. Nút Repair (Sửa chữa) - Luôn hiển thị --%>
-                                                            <a href="createRequest?deviceId=<%= d.getId() %>&type=REPAIR" class="btn btn-action btn-danger" style="text-decoration: none; margin-left: 5px;">
-                                                                <i class="fa fa-exclamation-triangle"></i> Repair
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                    <%
-                                                            }
-                                                        } else {
-                                                    %>
-                                                    <tr>
-                                                        <td colspan="8">No devices found.</td>
-                                                    </tr>
-                                                    <% } %>
+            <%
+                boolean isWarrantyValid = false;
+                Date warrantyExp = d.getWarrantyExpiration(); 
+                if (warrantyExp != null && warrantyExp.after(currentDate)) {
+                    isWarrantyValid = true;
+                }
 
-                                                </tbody>
+                if (isWarrantyValid) {
+                    if (hasActiveWarranty) {
+            %>
+                <button class="btn btn-action btn-success" style="margin-left: 5px;" disabled 
+                        title="An active warranty request already exists for this device.">
+                    <i class="fa fa-shield"></i> Warranty
+                </button>
+            <%      } else { %>
+                <a href="createRequest?deviceId=<%= d.getId() %>&type=WARRANTY" class="btn btn-action btn-success" style="text-decoration: none; margin-left: 5px;">
+                    <i class="fa fa-shield"></i> Warranty
+                </a>
+            <%
+                    } 
+                } // Đóng if (isWarrantyValid)
+            %>
+
+            <%
+                boolean isMaintenanceValid = false;
+                Date contractDate = d.getContractDate(); 
+                int maintenanceMonths = d.getMaintenanceMonths();
+                if (contractDate != null && maintenanceMonths > 0) {
+                    cal.setTime(contractDate);
+                    cal.add(Calendar.MONTH, maintenanceMonths); 
+                    Date maintenanceExp = cal.getTime(); 
+                    if (maintenanceExp.after(currentDate)) {
+                        isMaintenanceValid = true;
+                    }
+                }
+            
+                if (isMaintenanceValid) {
+                    if (hasActiveMaintenance) {
+            %>
+                <button class="btn btn-action btn-info" style="margin-left: 5px;" disabled 
+                        title="An active maintenance request already exists for this device.">
+                    <i class="fa fa-wrench"></i> Maintenance
+                </button>
+            <%      } else { %>
+                <a href="createRequest?deviceId=<%= d.getId() %>&type=MAINTENANCE" class="btn btn-action btn-info" style="text-decoration: none; margin-left: 5px;">
+                    <i class="fa fa-wrench"></i> Maintenance
+                </a>
+            <%
+                    }
+                } // Đóng if (isMaintenanceValid)
+            %>
+
+            <%
+                if (hasActiveRepair) {
+            %>
+                <button class="btn btn-action btn-danger" style="margin-left: 5px;" disabled 
+                        title="An active repair request already exists for this device.">
+                    <i class="fa fa-exclamation-triangle"></i> Repair
+                </button>
+            <%  } else { %>
+                <a href="createRequest?deviceId=<%= d.getId() %>&type=REPAIR" class="btn btn-action btn-danger" style="text-decoration: none; margin-left: 5px;">
+                    <i class="fa fa-exclamation-triangle"></i> Repair
+                </a>
+            <%
+                } // Đóng if (hasActiveRepair)
+            %>
+        </td>
+    </tr>
+    <%
+            } // Đóng vòng lặp for
+        } else {
+    %>
+    <tr>
+        <td colspan="8">No devices found.</td>
+    </tr>
+    <% } %>
+</tbody>
                                             </table>
                                         </div>
 

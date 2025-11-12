@@ -219,7 +219,7 @@
 
                                         <div class="form-group" id="commentGroup">
                                             <label>Your Feedback<span style="color:red">*</span></label>
-                                            <textarea id="comment" name="comment" class="form-control" rows="4" placeholder="Tell us about your experience..." required></textarea>
+                                            <textarea id="comment" name="comment" class="form-control" rows="4" placeholder="Tell us about your experience..." minlength="10" maxlength="1000" required></textarea>
                                             <div class="validation-error">Please provide your feedback.</div>
                                         </div>
 

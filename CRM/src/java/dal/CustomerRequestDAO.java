@@ -1274,4 +1274,61 @@ public class CustomerRequestDAO extends DBContext {
         }
         return list;
     }
+    public boolean hasActiveRequest(int deviceId, String requestType) {
+        String sql = """
+                     SELECT COUNT(*) FROM customerrequest 
+                     WHERE device_id = ? 
+                     AND request_type = ? 
+                     AND status NOT IN ( 'CLOSED', 'CANCELLED')
+                     AND is_active = 1
+                     """;
+        
+        // Hãy thay thế 'connection' bằng phương thức getConnection() của bạn
+        // ví dụ: try (Connection conn = new DBContext().getConnection(); 
+        //             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            
+            ps.setInt(1, deviceId);
+            ps.setString(2, requestType);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // true nếu đếm > 0
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error checking for active request: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false; // Mặc định trả về false nếu có lỗi
+    }
+    
+    public java.util.Set<String> getActiveRequestKeysByUserId(int customerId) {
+        java.util.Set<String> activeKeys = new java.util.HashSet<>();
+        
+        String sql = """
+                     SELECT device_id, request_type FROM customerrequest 
+                     WHERE customer_id = ? 
+                     AND status NOT IN ('COMPLETED', 'CLOSED', 'CANCELLED')
+                     AND is_active = 1
+                     """;
+
+        // Hãy thay thế 'new DBContext().getConnection()' bằng phương thức của bạn
+        try ( 
+             java.sql.PreparedStatement ps = connection.prepareStatement(sql)) {
+            
+            ps.setInt(1, customerId);
+            
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String key = rs.getInt("device_id") + "_" + rs.getString("request_type");
+                    activeKeys.add(key);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching active request keys: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return activeKeys;
+    }
 }
