@@ -26,7 +26,74 @@
         <link href="${pageContext.request.contextPath}/css/iCheck/all.css" rel="stylesheet" type="text/css" />
         <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
         <link href="${pageContext.request.contextPath}/css/admin/style.css" rel="stylesheet" type="text/css" />
+        <link href="${pageContext.request.contextPath}/css/warehouse/productList.css" rel="stylesheet" type="text/css" />     
+
         <link href="${pageContext.request.contextPath}/css/warehouse/productList.css" rel="stylesheet" type="text/css" />
+
+        <style>
+           .inventory-table {
+                width: 100%;
+                border-collapse: collapse; /* Gộp border, rất quan trọng */
+            }
+
+            /* (MỚI) TẮT border-bottom của tất cả CELL (cả th và td) */
+            .inventory-table th,
+            .inventory-table td {
+                padding: 12px 15px;
+                border-bottom: none; /* Tắt border của cell */
+            }
+            
+            /* (MỚI) CHỈ ÁP DỤNG border-bottom cho HÀNG (tr) */
+            .inventory-table thead tr {
+                border-bottom: 2px solid #e2e8f0; /* Gạch ngang của Header */
+            }
+            
+            .inventory-table tbody tr {
+                border-bottom: 1px solid #e2e8f0; /* Gạch ngang của mỗi hàng data */
+            }
+            
+            /* * 2. Sửa lỗi LỔM CHỔM (Căn giữa)
+             */
+            .inventory-table td, 
+            .inventory-table th {
+                vertical-align: middle; /* (MỚI) Căn giữa mọi thứ theo chiều dọc */
+                text-align: left; /* Căn trái mặc định */
+            }
+
+            /* * 3. Giữ nguyên logic CẮT BỚT CHỮ
+             */
+            .feedback-col {
+                max-width: 400px;
+                min-width: 200px;
+                width: 30%;
+            }
+            
+            .feedback-content-clamp {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                word-break: break-word;
+            }
+        
+            /* * 4. Tinh chỉnh các cột khác
+             */
+            .inventory-table .action-col,
+            .inventory-table .date-col,
+            .inventory-table .rating-col,
+            .inventory-table .type-col {
+                width: 1%;
+                white-space: nowrap;
+                vertical-align: middle; /* Đảm bảo căn giữa */
+            }
+            
+            /* (MỚI) Căn giữa cột Rating và Action cho đẹp */
+            .inventory-table .rating-col,
+            .inventory-table .action-col {
+                 text-align: center;
+            }
+        </style>
     </head>
     <body class="skin-black">
 
@@ -120,7 +187,7 @@
                          data-total-feedbacks="<%= request.getAttribute("totalProducts") != null ? request.getAttribute("totalProducts") : 0 %>"
                          data-total-pages="<%= request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1 %>">
                     </div>
-                    
+
                     <form method="get" action="${pageContext.request.contextPath}/customer/listFeedback" class="form-inline mb-3">
                         <!-- Page Header -->
                         <div class="row">
@@ -202,13 +269,13 @@
                                                     <tr>
                                                         <th>ID</th>
                                                         <th>Title</th>
-                                                        <th>Type</th>
+                                                        <th class="type-col">Type</th>
                                                         <th>Device</th>
                                                         <th>Issue Description</th>
-                                                        <th>Rating</th>
-                                                        <th>Feedback</th>
-                                                        <th>Date</th>
-                                                        <th>Action</th>
+                                                        <th class="rating-col">Rating</th>
+                                                        <th class="feedback-col">Feedback</th>
+                                                        <th class="date-col">Date</th>
+                                                        <th class="action-col">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -228,17 +295,23 @@
                                                     <tr>
                                                         <td><%= no++ %></td>
                                                         <td><%= f.getTitle() %></td>
-                                                        <td><%= f.getRequestType() %></td>
+                                                        <td class="type-col"><%= f.getRequestType() %></td>
                                                         <td><%= f.getProductName() %></td>
                                                         <td><%= f.getDescription() %></td>
-                                                        <td>
+                                                        <td class="rating-col">
                                                             <% for (int i = 1; i <= 5; i++) { %>
                                                             <i class="fa <%= i <= f.getRating() ? "fa-star text-warning" : "fa-star-o text-muted" %>"></i>
                                                             <% } %>
                                                         </td>
-                                                        <td><%= f.getComment() %></td>
-                                                        <td><%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(f.getRequestDate()) %></td>
-                                                        <td>
+                                                        <td class="feedback-col" >
+                                                            <div class="feedback-content-clamp">
+                                                                <%= f.getComment() %>
+                                                            </div>
+                                                           
+                                                        </td>
+                                                       
+                                                        <td class="date-col"><%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(f.getRequestDate()) %></td>
+                                                        <td class="action-col">
 
                                                             <a href="${pageContext.request.contextPath}/customer/updateFeedback?id=<%= f.getRequestId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                                 <i class="fa fa-edit"></i> Update
@@ -338,7 +411,7 @@
                                                                     totalPages: parseInt(paginationData.dataset.totalPages) || 1
                                                                 };
                                                             }
-                                                            return { totalFeedbacks: 0, totalPages: 1 };
+                                                            return {totalFeedbacks: 0, totalPages: 1};
                                                         }
 
                                                         // Helper function to get current URL parameters
@@ -370,7 +443,7 @@
                                                         function buildUrlWithParams(params) {
                                                             var url = window.location.pathname;
                                                             var paramArray = [];
-                                                            
+
                                                             for (var key in params) {
                                                                 var value = params[key];
                                                                 // Xử lý đúng các tham số số (như page, pageSize)
@@ -387,11 +460,11 @@
                                                                     }
                                                                 }
                                                             }
-                                                            
+
                                                             if (paramArray.length > 0) {
                                                                 url += '?' + paramArray.join('&');
                                                             }
-                                                            
+
                                                             return url;
                                                         }
 
@@ -446,8 +519,10 @@
                                                                 btn.className = 'pagination-btn' + (i === currentPageFromUrl ? ' active' : '');
                                                                 btn.textContent = i;
                                                                 btn.setAttribute('type', 'button');
-                                                                btn.onclick = (function(pageNum) {
-                                                                    return function() { window.goToPage(pageNum); };
+                                                                btn.onclick = (function (pageNum) {
+                                                                    return function () {
+                                                                        window.goToPage(pageNum);
+                                                                    };
                                                                 })(i);
                                                                 pageNumbersDiv.appendChild(btn);
                                                             }
@@ -477,26 +552,26 @@
                                                         }
 
                                                         // Pagination navigation functions (with URL parameters preserved) - Define first
-                                                        window.goToPage = function(page) {
+                                                        window.goToPage = function (page) {
                                                             var params = getUrlParams();
                                                             params.page = String(page);
                                                             var newUrl = buildUrlWithParams(params);
                                                             window.location.href = newUrl;
                                                         };
-                                                        
-                                                        window.goToFirstPage = function() {
+
+                                                        window.goToFirstPage = function () {
                                                             window.goToPage(1);
                                                         };
-                                                        
-                                                        window.goToPrevPage = function() {
+
+                                                        window.goToPrevPage = function () {
                                                             var urlParams = new URLSearchParams(window.location.search);
                                                             var currentPage = parseInt(urlParams.get('page')) || 1;
                                                             if (currentPage > 1) {
                                                                 window.goToPage(currentPage - 1);
                                                             }
                                                         };
-                                                        
-                                                        window.goToNextPage = function() {
+
+                                                        window.goToNextPage = function () {
                                                             var urlParams = new URLSearchParams(window.location.search);
                                                             var currentPage = parseInt(urlParams.get('page')) || 1;
                                                             var serverData = getServerData();
@@ -505,14 +580,14 @@
                                                                 window.goToPage(currentPage + 1);
                                                             }
                                                         };
-                                                        
-                                                        window.goToLastPage = function() {
+
+                                                        window.goToLastPage = function () {
                                                             var serverData = getServerData();
                                                             var totalPages = serverData.totalPages;
                                                             window.goToPage(totalPages);
                                                         };
 
-                                                        window.changePageSize = function() {
+                                                        window.changePageSize = function () {
                                                             var newPageSize = document.getElementById('pageSize').value;
                                                             var params = getUrlParams();
                                                             params.pageSize = newPageSize;
@@ -549,7 +624,7 @@
 
                                                         // Initialize pagination on page load
                                                         initPagination();
-                                                        
+
                                                         // Auto-hide success and error messages after 3 seconds
                                                         setTimeout(function () {
                                                             $('.alert-success').fadeOut(500, function () {
@@ -565,7 +640,7 @@
                                                             var searchQuery = document.getElementById('searchInput').value;
                                                             var type = document.getElementById('typeFilter').value;
                                                             var rating = document.getElementById('ratingFilter').value;
-                                                            
+
                                                             // Get current pageSize to preserve it
                                                             var urlParams = new URLSearchParams(window.location.search);
                                                             var currentPageSize = urlParams.get('pageSize');
