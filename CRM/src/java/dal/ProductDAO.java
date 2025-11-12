@@ -980,4 +980,24 @@ public class ProductDAO extends DBContext {
         }
         return 0;
     }
+
+    /**
+     * Get product ID by SKU
+     * @param sku The product SKU
+     * @return Product ID or null if not found
+     */
+    public Integer getProductIdBySku(String sku) {
+        String sql = "SELECT id FROM Product WHERE sku = ? AND is_active = 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, sku);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting product ID by SKU: " + e.getMessage());
+        }
+        return null;
+    }
 }

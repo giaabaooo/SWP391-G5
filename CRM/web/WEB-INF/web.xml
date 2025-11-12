@@ -82,6 +82,14 @@
         <servlet-class>Controller.warestaff.AddExportTransactionController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ImportWithSerialsController</servlet-name>
+        <servlet-class>Controller.warestaff.ImportWithSerialsController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ExportWithSerialsController</servlet-name>
+        <servlet-class>Controller.warestaff.ExportWithSerialsController</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>ContractController</servlet-name>
         <servlet-class>Controller.customer.ContractController</servlet-class>
     </servlet>
@@ -389,5 +397,13 @@
     <servlet-mapping>
         <servlet-name>AddExportTransactionController</servlet-name>
         <url-pattern>/warestaff/addExportTransaction</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ImportWithSerialsController</servlet-name>
+        <url-pattern>/warestaff/importWithSerials</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ExportWithSerialsController</servlet-name>
+        <url-pattern>/warestaff/exportWithSerials</url-pattern>
     </servlet-mapping>
 </web-app>
