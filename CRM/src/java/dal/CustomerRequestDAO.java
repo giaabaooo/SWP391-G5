@@ -216,7 +216,7 @@ public class CustomerRequestDAO extends DBContext {
                 req.setRequest_type(rs.getString("request_type"));
                 req.setRequest_date(rs.getTimestamp("request_date"));
                 req.setStatus(rs.getString("status"));
-                req.setPaymentStatus(rs.getString("payment_status"));
+                req.setPayment_status(rs.getString("payment_status"));
                 req.setDesired_completion_date(rs.getDate("desired_completion_date"));
                 list.add(req);
             }
