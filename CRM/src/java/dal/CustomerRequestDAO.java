@@ -630,7 +630,8 @@ public class CustomerRequestDAO extends DBContext {
         }
     }
 
-    public List<CustomerRequest> getCustomerRequestsByCSKH(int offset, int pageSize, String type, String status, String priority, String paymentStatus) {
+    public List<CustomerRequest> getCustomerRequestsByCSKH(int offset, int pageSize, 
+            String type, String status, String priority, String paymentStatus) {
         List<CustomerRequest> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
         SELECT cr.id, cr.customer_id, cr.device_id, cr.request_type, cr.title,
@@ -700,10 +701,9 @@ public class CustomerRequestDAO extends DBContext {
                 d.setProductName(rs.getString("product_name"));
                 c.setDevice(d);
 
-                c.setPriority(rs.getString("priority"));
-                c.setPayment_status(rs.getString("payment_status"));
-
                 CustomerRequestMeta meta = new CustomerRequestMeta();
+                meta.setPriority(rs.getString("priority"));
+                meta.setPayment_status(rs.getString("payment_status"));
                 meta.setTotal_cost(rs.getDouble("total_cost"));
                 c.setRequestMeta(meta);
 
@@ -863,7 +863,6 @@ public class CustomerRequestDAO extends DBContext {
             b.name AS brand_name, 
             cat.name AS category_name,
             
-            -- THÊM 2 CỘT TỪ META
             meta.desired_completion_date,
             meta.priority
             

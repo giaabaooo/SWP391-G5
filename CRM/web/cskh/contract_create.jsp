@@ -350,4 +350,4 @@
 </script>
 
 
-<%@ include file="/cskh/layout/footer2.jsp" %>
+<%@ include file="/cskh/layout/footer.jsp" %>

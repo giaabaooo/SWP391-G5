@@ -102,14 +102,7 @@ public class CustomerRequestDetailController extends HttpServlet {
         try {
             switch (action) {
                 case "transfer":
-                    String priority = req.getParameter("priority");
-
-                    requestDAO.transferToTechManager(requestId); //
-
-                    if (priority != null && !priority.isEmpty()) {
-                        requestDAO.updatePriority(requestId, priority);
-                    }
-
+                    requestDAO.transferToTechManager(requestId);
                     redirectUrl += "&message=transferred";
                     break;
 

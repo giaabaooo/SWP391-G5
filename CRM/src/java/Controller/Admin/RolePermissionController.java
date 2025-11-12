@@ -26,6 +26,7 @@ public class RolePermissionController extends HttpServlet {
             ArrayList<Permission> allPermissions = userDb.getAllPermissions();
             Set<String> matrix = userDb.getRolePermissionMatrix();
 
+            allRoles.removeIf(role -> role.getName().equalsIgnoreCase("ADMIN"));
             req.setAttribute("allRoles", allRoles);
             req.setAttribute("allPermissions", allPermissions);
             req.setAttribute("matrix", matrix);
