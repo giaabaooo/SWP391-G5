@@ -326,10 +326,8 @@ public class CustomerRequestDAO extends DBContext {
 
         if (is_main != null && !is_main.trim().isEmpty()) {
             sql += " where ca.is_main = ?";
-            params.add("%" + is_main + "%");
-        } else {
-            sql += "where ca.is_main = 1";
-        }
+            params.add( is_main );
+        } 
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql += " AND (u.full_name LIKE ? OR p.name LIKE ?)";
@@ -379,6 +377,7 @@ public class CustomerRequestDAO extends DBContext {
                 ca.setTechnician_id(rs.getInt("technician_id"));
                 ca.setIs_main(rs.getInt("is_main"));
                 ca.setAssigned_date(rs.getDate("assigned_date"));
+                ca.setEstimated_hours(rs.getInt("estimated_hours"));
 
                 ca.setTechnician(listTech);
                 ca.setCustomerRequest(cusRe);

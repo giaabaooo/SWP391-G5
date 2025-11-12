@@ -51,6 +51,7 @@ public class AddExportTransactionController extends HttpServlet {
         String[] quantities = request.getParameterValues("quantity");
         String[] units = request.getParameterValues("unit");
         String[] itemNotes = request.getParameterValues("itemNote");
+        String[] serialNumbers = request.getParameterValues("serialNumber");
         String dateParam = request.getParameter("transactionDate");
         String note = request.getParameter("note");
 
@@ -79,80 +80,112 @@ public class AddExportTransactionController extends HttpServlet {
             return;
         }
 
-        TransactionDAO stockDao = null;
-        try {
-            stockDao = new TransactionDAO();
-            List<InventoryTransactionItem> items = new ArrayList<>();
+        if (serialNumbers == null || serialNumbers.length == 0) {
+            request.setAttribute("error", "Serial numbers are required. Please enter quantity to generate serial number fields.");
+            storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
+            doGet(request, response);
+            return;
+        }
 
-            for (int i = 0; i < productIds.length; i++) {
-                String productIdStr = productIds[i];
-                String quantityStr = i < quantities.length ? quantities[i] : null;
-                String unit = (units != null && i < units.length) ? units[i] : null;
-                String itemNote = (itemNotes != null && i < itemNotes.length) ? itemNotes[i] : null;
+        // Build list of product IDs and serial numbers for manual entry
+        List<Integer> productIdList = new ArrayList<>();
+        List<String> serialNumberList = new ArrayList<>();
 
-                boolean hasProduct = productIdStr != null && !productIdStr.trim().isEmpty();
-                boolean hasQuantity = quantityStr != null && !quantityStr.trim().isEmpty();
+        int serialIndex = 0;
 
-                if (!hasProduct && !hasQuantity) {
-                    continue; // skip completely empty rows
-                }
+        for (int i = 0; i < productIds.length; i++) {
+            String productIdStr = productIds[i];
+            String quantityStr = i < quantities.length ? quantities[i] : null;
 
-                if (!hasProduct || !hasQuantity) {
-                    request.setAttribute("error", "Each product line must include both a product and a quantity (row " + (i + 1) + ").");
-                    storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
-                    doGet(request, response);
-                    return;
-                }
+            boolean hasProduct = productIdStr != null && !productIdStr.trim().isEmpty();
+            boolean hasQuantity = quantityStr != null && !quantityStr.trim().isEmpty();
 
-                int productId;
-                int quantity;
-                try {
-                    productId = Integer.parseInt(productIdStr);
-                    quantity = Integer.parseInt(quantityStr);
-                } catch (NumberFormatException ex) {
-                    request.setAttribute("error", "Invalid number format on row " + (i + 1) + ".");
-                    storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
-                    doGet(request, response);
-                    return;
-                }
-
-                if (quantity <= 0) {
-                    request.setAttribute("error", "Quantity must be greater than zero (row " + (i + 1) + ").");
-                    storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
-                    doGet(request, response);
-                    return;
-                }
-
-                // Pre-check available stock
-                Integer available = stockDao.getCurrentInventoryQuantity(productId);
-                int availableQty = available != null ? available : 0;
-                if (quantity > availableQty) {
-                    request.setAttribute("error", "Export quantity (" + quantity + ") exceeds available stock (" + availableQty + ") for product on row " + (i + 1) + ".");
-                    storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
-                    doGet(request, response);
-                    return;
-                }
-
-                items.add(new InventoryTransactionItem(productId, quantity, unit != null ? unit.trim() : null, itemNote != null ? itemNote.trim() : null));
+            if (!hasProduct && !hasQuantity) {
+                continue; // skip completely empty rows
             }
 
-            if (items.isEmpty()) {
-                request.setAttribute("error", "Please add at least one product line to the export slip.");
+            if (!hasProduct || !hasQuantity) {
+                request.setAttribute("error", "Each product line must include both a product and a quantity (row " + (i + 1) + ").");
                 storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
                 doGet(request, response);
                 return;
             }
 
-            boolean ok = stockDao.createExportBatchAndUpdateInventory(items, txTime, note);
-            if (ok) {
-                response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success=Export%20recorded%20successfully");
+            int productId;
+            int quantity;
+            try {
+                productId = Integer.parseInt(productIdStr);
+                quantity = Integer.parseInt(quantityStr);
+            } catch (NumberFormatException ex) {
+                request.setAttribute("error", "Invalid number format on row " + (i + 1) + ".");
+                storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
+                doGet(request, response);
+                return;
+            }
+
+            if (quantity <= 0) {
+                request.setAttribute("error", "Quantity must be greater than zero (row " + (i + 1) + ").");
+                storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
+                doGet(request, response);
+                return;
+            }
+
+            // Collect serial numbers for this product
+            for (int j = 0; j < quantity; j++) {
+                if (serialIndex >= serialNumbers.length) {
+                    request.setAttribute("error", "Missing serial numbers for row " + (i + 1) + ".");
+                    storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
+                    doGet(request, response);
+                    return;
+                }
+
+                String serial = serialNumbers[serialIndex].trim();
+                if (serial.isEmpty()) {
+                    request.setAttribute("error", "Serial number cannot be empty (row " + (i + 1) + ", serial " + (j + 1) + ").");
+                    storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
+                    doGet(request, response);
+                    return;
+                }
+
+                productIdList.add(productId);
+                serialNumberList.add(serial);
+                serialIndex++;
+            }
+        }
+
+        if (productIdList.isEmpty()) {
+            request.setAttribute("error", "Please add at least one product line to the export slip.");
+            storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
+            doGet(request, response);
+            return;
+        }
+
+        // Use exportWithSerialsManual for manual entry (uses product_id instead of SKU)
+        TransactionDAO transactionDAO = null;
+        try {
+            transactionDAO = new TransactionDAO();
+            java.util.Map<String, Object> result = transactionDAO.exportWithSerialsManual(productIdList, serialNumberList, txTime, note);
+
+            Boolean success = (Boolean) result.get("success");
+            if (success != null && success) {
+                String message = (String) result.get("message");
+                response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success=" +
+                    java.net.URLEncoder.encode(message != null ? message : "Export recorded successfully", "UTF-8"));
             } else {
-                request.setAttribute("error", "Failed to record export. Please check values and try again.");
+                @SuppressWarnings("unchecked")
+                List<String> errors = (List<String>) result.get("errors");
+                StringBuilder errorMsg = new StringBuilder("Export failed:<br>");
+                if (errors != null) {
+                    for (String error : errors) {
+                        errorMsg.append("- ").append(error).append("<br>");
+                    }
+                }
+                request.setAttribute("error", errorMsg.toString());
                 storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
                 doGet(request, response);
             }
         } finally {
-            if (stockDao != null) stockDao.close();
+            if (transactionDAO != null) transactionDAO.close();
         }
     }
 

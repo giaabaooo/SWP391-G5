@@ -3,6 +3,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="data.Product" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.Calendar" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -214,7 +216,7 @@
                                                     <% 
                                                         List<data.Device> devices = (List<data.Device>) request.getAttribute("devices");
                                                         if (devices != null) {
-                                                            for (data.Device d : devices) {
+                                                            for (data.Device d : devices) {                                                          
                                                     %>
                                                     <tr>
                                                         <td><%= d.getId() %></td>
