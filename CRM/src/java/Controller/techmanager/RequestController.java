@@ -55,6 +55,8 @@ public class RequestController extends HttpServlet {
 
                 if ("tooMuchTask".equals(error)) {
                     req.setAttribute("error", techName + " has had a lot of task on that day");
+                } else if ("pastDate".equals(error)) {
+                    req.setAttribute("error","Date can not in the part");
                 }
 
                 if (req.getParameter("id") != null) {
@@ -65,7 +67,7 @@ public class RequestController extends HttpServlet {
                 LocalDate selectedDate;
 
                 if (selectedDateStr == null || selectedDateStr.isEmpty()) {
-                    selectedDate = LocalDate.now(); // default: today
+                    selectedDate = LocalDate.now(); 
                 } else {
                     selectedDate = LocalDate.parse(selectedDateStr);
                 }
