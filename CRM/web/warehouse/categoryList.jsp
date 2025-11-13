@@ -117,9 +117,9 @@
                         <i class="fa fa-exchange"></i> <span>Transactions</span>
                     </a>
                     <ul class="collapse" id="transactionMenu">
-                        <li><a href="transactions.jsp"><i class="fa fa-list"></i> View Transactions</a></li>
-                        <li><a href="spareParts.jsp"><i class="fa fa-cogs"></i> Manage Spare Parts</a></li>
-                        <li><a href="importExport.jsp"><i class="fa fa-upload"></i> Import/Export</a></li>
+                        <li><a href="../warestaff/transactions"><i class="fa fa-list"></i> View Transactions</a></li>
+                        <li><a href="../warestaff/addImportTransaction"><i class="fa fa-plus"></i> Add Stock In</a></li>
+                        <li><a href="../warestaff/addExportTransaction"><i class="fa fa-minus"></i> Add Stock Out</a></li>
                     </ul>
                 </li>
                 
@@ -237,9 +237,15 @@
                                                 <a href="../warestaff/editCategory?id=<%= category.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                     <i class="fa fa-edit"></i> Edit
                                                 </a>
-                                                <button class="btn btn-action btn-delete" data-category-id="<%= category.getId() %>" data-category-name="<%= category.getName() %>">
-                                                    <i class="fa fa-trash"></i> Delete
-                                                </button>
+                                                <% if (category.isActive()) { %>
+                                                    <button class="btn btn-action btn-delete" data-category-id="<%= category.getId() %>" data-category-name="<%= category.getName() %>" data-action="deactivate">
+                                                        <i class="fa fa-ban"></i> Deactivate
+                                                    </button>
+                                                <% } else { %>
+                                                    <button class="btn btn-action btn-edit" data-category-id="<%= category.getId() %>" data-category-name="<%= category.getName() %>" data-action="activate" style="background:#16a34a; border-color:#16a34a;">
+                                                        <i class="fa fa-check"></i> Activate
+                                                    </button>
+                                                <% } %>
                                             </td>
                                         </tr>
                                         <% } %>
@@ -303,21 +309,21 @@
     </aside>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Status Change Confirmation Modal -->
 <div id="deleteModal" class="modal-overlay">
     <div class="delete-modal" style="max-width:380px;width:80%">
         <div class="modal-header-custom" style="background:#f8f9fa;border-bottom:1px solid #f1f3f4;">
             <div class="modal-icon">
-                <i class="fa fa-trash"></i>
+                <i class="fa fa-exchange" id="modalIcon"></i>
             </div>
-            <h3>Delete Category</h3>
+            <h3 id="modalTitle">Change Category Status</h3>
         </div>
         <div class="modal-body-custom">
-            <p class="warning-text">Are you sure you want to delete this category?</p>
+            <p class="warning-text" id="modalMessage">Are you sure you want to change the status of this category?</p>
             <div class="category-name-display" id="modalCategoryName">Category Name</div>
-            <p class="warning-text">This will permanently remove the category from your system.</p>
+            <p class="warning-text" id="modalDescription">This will update the category status.</p>
             <span class="warning-badge">
-                <i class="fa fa-exclamation-triangle"></i> This action cannot be undone!
+                <i class="fa fa-exclamation-triangle"></i> <span id="modalWarning">This action can be undone!</span>
             </span>
         </div>
         <div class="modal-footer-custom">
@@ -325,7 +331,7 @@
                 <i class="fa fa-times"></i> Cancel
             </button>
             <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn">
-                <i class="fa fa-trash"></i> Delete Category
+                <i class="fa fa-check" id="confirmIcon"></i> <span id="confirmText">Confirm</span>
             </button>
         </div>
     </div>

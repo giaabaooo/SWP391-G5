@@ -183,66 +183,99 @@ $(function() {
         window.location.href = buildUrlWithParams(params);
     };
     
-    // Delete category button click handler
+    // Status change button click handler
     var currentDeleteCategoryId = null;
-    
-    $('.btn-delete').on('click', function() {
-        var categoryId = $(this).data('category-id');
-        var categoryName = $(this).data('category-name');
-        
+    var currentAction = null;
+
+    // Handle both activate and deactivate buttons
+    $(document).on('click', '.btn-delete, .btn-action[data-action]', function() {
+        var $btn = $(this);
+        var categoryId = $btn.data('category-id');
+        var categoryName = $btn.data('category-name');
+        var action = $btn.data('action');
+
         // Store category info
         currentDeleteCategoryId = categoryId;
-        
-        // Update modal content
+        currentAction = action;
+
+        // Update modal content based on action
         $('#modalCategoryName').text(categoryName);
-        
+
+        if (action === 'deactivate') {
+            $('#modalTitle').text('Deactivate Category');
+            $('#modalMessage').text('Are you sure you want to deactivate this category?');
+            $('#modalDescription').text('This will mark the category as inactive.');
+            $('#modalWarning').parent().hide();
+            $('#modalIcon').removeClass('fa-check').addClass('fa-ban');
+            $('#confirmIcon').removeClass('fa-check').addClass('fa-ban');
+            $('#confirmText').text('Deactivate');
+            $('#confirmDeleteBtn').removeClass('modal-btn-activate').addClass('modal-btn-delete');
+            $('#deleteModal').removeClass('activate-mode');
+        } else if (action === 'activate') {
+            $('#modalTitle').text('Activate Category');
+            $('#modalMessage').text('Are you sure you want to activate this category?');
+            $('#modalDescription').text('This will mark the category as active.');
+            $('#modalWarning').parent().hide();
+            $('#modalIcon').removeClass('fa-ban').addClass('fa-check');
+            $('#confirmIcon').removeClass('fa-ban').addClass('fa-check');
+            $('#confirmText').text('Activate');
+            $('#confirmDeleteBtn').removeClass('modal-btn-delete').addClass('modal-btn-activate');
+            $('#deleteModal').addClass('activate-mode');
+        }
+
         // Show modal
         $('#deleteModal').addClass('active');
     });
-    
+
     // Close modal function
     window.closeDeleteModal = function() {
         $('#deleteModal').removeClass('active');
         currentDeleteCategoryId = null;
+        currentAction = null;
     };
-    
+
     // Close modal when clicking outside
     $('#deleteModal').on('click', function(e) {
         if ($(e.target).is('#deleteModal')) {
             closeDeleteModal();
         }
     });
-    
+
     // Close modal on ESC key
     $(document).on('keydown', function(e) {
         if (e.key === 'Escape' && $('#deleteModal').hasClass('active')) {
             closeDeleteModal();
         }
     });
-    
-    // Confirm delete button
+
+    // Confirm status change button
     $('#confirmDeleteBtn').on('click', function() {
-        if (currentDeleteCategoryId) {
+        if (currentDeleteCategoryId && currentAction) {
+            var actionUrl = currentAction === 'activate' ? '../warestaff/activateCategory' : '../warestaff/deleteCategory';
+
             // Create and submit form
             var form = $('<form>', {
                 'method': 'POST',
-                'action': '../warestaff/deleteCategory'
+                'action': actionUrl
             });
-            
+
             var input = $('<input>', {
                 'type': 'hidden',
                 'name': 'id',
                 'value': currentDeleteCategoryId
             });
-            
-            var modeInput = $('<input>', {
-                'type': 'hidden',
-                'name': 'mode',
-                'value': 'soft'
-            });
-            
+
             form.append(input);
-            form.append(modeInput);
+
+            if (currentAction === 'deactivate') {
+                var modeInput = $('<input>', {
+                    'type': 'hidden',
+                    'name': 'mode',
+                    'value': 'soft'
+                });
+                form.append(modeInput);
+            }
+
             $('body').append(form);
             form.submit();
         }

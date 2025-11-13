@@ -26,6 +26,10 @@
         <servlet-class>Controller.warestaff.DeleteProductController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ActivateProductController</servlet-name>
+        <servlet-class>Controller.warestaff.ActivateProductController</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>EditProductController</servlet-name>
         <servlet-class>Controller.warestaff.EditProductController</servlet-class>
     </servlet>
@@ -46,6 +50,10 @@
         <servlet-class>Controller.warestaff.DeleteCategoryController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ActivateCategoryController</servlet-name>
+        <servlet-class>Controller.warestaff.ActivateCategoryController</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>ViewCategoryDetailController</servlet-name>
         <servlet-class>Controller.warestaff.ViewCategoryDetailController</servlet-class>
     </servlet>
@@ -64,6 +72,10 @@
     <servlet>
         <servlet-name>DeleteBrandController</servlet-name>
         <servlet-class>Controller.warestaff.DeleteBrandController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ActivateBrandController</servlet-name>
+        <servlet-class>Controller.warestaff.ActivateBrandController</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ViewBrandDetailController</servlet-name>
@@ -379,6 +391,10 @@
         <url-pattern>/warestaff/deleteProduct</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>ActivateProductController</servlet-name>
+        <url-pattern>/warestaff/activateProduct</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>EditProductController</servlet-name>
         <url-pattern>/warestaff/editProduct</url-pattern>
     </servlet-mapping>
@@ -399,6 +415,10 @@
         <url-pattern>/warestaff/deleteCategory</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>ActivateCategoryController</servlet-name>
+        <url-pattern>/warestaff/activateCategory</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>ViewCategoryDetailController</servlet-name>
         <url-pattern>/warestaff/viewCategoryDetail</url-pattern>
     </servlet-mapping>
@@ -417,6 +437,10 @@
     <servlet-mapping>
         <servlet-name>DeleteBrandController</servlet-name>
         <url-pattern>/warestaff/deleteBrand</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ActivateBrandController</servlet-name>
+        <url-pattern>/warestaff/activateBrand</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ViewBrandDetailController</servlet-name>

@@ -8,18 +8,6 @@ CREATE DATABASE crm_device_management
 USE crm_device_management;
 -- Server version	8.0.43
 
-<<<<<<< Updated upstream
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-=======
 CREATE TABLE Role (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
@@ -506,7 +494,6 @@ INSERT INTO Transaction (product_id, contract_id, type, quantity, transaction_da
 -- Additional import for restocking
 (8, NULL, 'IMPORT', 5, '2024-04-01 08:00:00', 'Restocking Komatsu press machines', 1),
 (23, NULL, 'IMPORT', 8, '2024-04-05 09:00:00', 'Restocking Siemens conveyor systems', 1);
->>>>>>> Stashed changes
 
 --
 -- Table structure for table `brand`

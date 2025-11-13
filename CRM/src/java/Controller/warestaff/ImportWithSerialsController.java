@@ -1,6 +1,10 @@
 package Controller.warestaff;
 
+import dal.CategoryDAO;
+import dal.ProductDAO;
 import dal.TransactionDAO;
+import data.Category;
+import data.Product;
 import data.SerialItem;
 import util.ExcelSerialParser;
 import jakarta.servlet.ServletException;
@@ -15,6 +19,7 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -31,8 +36,30 @@ public class ImportWithSerialsController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Redirect to the main import stock page (which now has tabs)
-        response.sendRedirect(request.getContextPath() + "/warestaff/addImportTransaction");
+        // Load products and categories data for the form
+        ProductDAO productDAO = null;
+        try {
+            productDAO = new ProductDAO();
+            List<Product> products = productDAO.getAllActiveProducts();
+            request.setAttribute("products", products);
+        } finally {
+            if (productDAO != null) productDAO.close();
+        }
+
+        CategoryDAO categoryDAO = null;
+        try {
+            categoryDAO = new CategoryDAO();
+            List<Category> categories = categoryDAO.getAllActiveCategories();
+            request.setAttribute("categories", categories);
+        } finally {
+            if (categoryDAO != null) categoryDAO.close();
+        }
+
+        // Set default unit options
+        request.setAttribute("unitOptions", Arrays.asList("Piece", "Box", "Set", "Kg", "Liter", "Meter"));
+
+        // Forward to JSP
+        request.getRequestDispatcher("/warehouse/importStock.jsp").forward(request, response);
     }
 
     @Override

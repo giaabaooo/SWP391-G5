@@ -1,39 +1,32 @@
 package Controller.warestaff;
 
-import dal.BrandDAO;
+import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import dal.BrandDAO;
 
 /**
- * Delete or deactivate brand
+ * Controller for activating brands
  */
-public class DeleteBrandController extends HttpServlet {
+public class ActivateBrandController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            String mode = request.getParameter("mode"); // soft|hard
             BrandDAO dao = new BrandDAO();
-            boolean ok;
-            if ("hard".equalsIgnoreCase(mode)) {
-                ok = dao.deleteBrand(id);
-            } else {
-                ok = dao.deactivateBrand(id);
-            }
+            boolean ok = dao.activateBrand(id);
             if (ok) {
-                response.sendRedirect(request.getContextPath() + "/warestaff/brandList?success=Brand%20deactivated%20successfully");
+                response.sendRedirect(request.getContextPath() + "/warestaff/brandList?success=Brand%20activated");
             } else {
-                response.sendRedirect(request.getContextPath() + "/warestaff/brandList?error=Failed%20to%20deactivate%20brand");
+                response.sendRedirect(request.getContextPath() + "/warestaff/brandList?error=Activation%20failed");
             }
         } catch (Exception ex) {
             response.sendRedirect(request.getContextPath() + "/warestaff/brandList?error=Invalid%20request");
         }
     }
 }
-
 

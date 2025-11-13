@@ -187,6 +187,23 @@ public class CategoryDAO extends DBContext {
     }
 
     /**
+     * Activate a category (set is_active = 1)
+     */
+    public boolean activateCategory(int id) {
+        String sql = "UPDATE Category SET is_active = 1 WHERE id = ?";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, id);
+            int rows = statement.executeUpdate();
+            statement.close();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error activating category: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Hard delete a category
      */
     public boolean deleteCategory(int id) {

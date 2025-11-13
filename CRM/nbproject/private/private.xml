@@ -5,6 +5,9 @@
         <group>
             <file>file:/D:/FPT%20SE/SWP%20391_2/Project/SWP391-G5/CRM/web/cskh/customer_request_detail.jsp</file>
             <file>file:/D:/FPT%20SE/SWP%20391_2/Project/SWP391-G5/CRM/web/cskh/customer_request_list.jsp</file>
+            <file>file:/C:/Users/lengo/Documents/Sp/VuThanhTrung/SWP391-G5/CRM/src/java/dal/DBContext.java</file>
+            <file>file:/C:/Users/lengo/Documents/Sp/VuThanhTrung/SWP391-G5/CRM/src/java/dal/TransactionDAO.java</file>
+            <file>file:/C:/Users/lengo/Documents/Sp/VuThanhTrung/SWP391-G5/CRM/src/java/dal/UserDBContext.java</file>
         </group>
     </open-files>
 </project-private>

@@ -1,39 +1,32 @@
 package Controller.warestaff;
 
-import dal.CategoryDAO;
+import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import dal.CategoryDAO;
 
 /**
- * Delete or deactivate category
+ * Controller for activating categories
  */
-public class DeleteCategoryController extends HttpServlet {
+public class ActivateCategoryController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            String mode = request.getParameter("mode"); // soft|hard
             CategoryDAO dao = new CategoryDAO();
-            boolean ok;
-            if ("hard".equalsIgnoreCase(mode)) {
-                ok = dao.deleteCategory(id);
-            } else {
-                ok = dao.deactivateCategory(id);
-            }
+            boolean ok = dao.activateCategory(id);
             if (ok) {
-                response.sendRedirect(request.getContextPath() + "/warestaff/categoryList?success=Category%20deactivated%20successfully");
+                response.sendRedirect(request.getContextPath() + "/warestaff/categoryList?success=Category%20activated");
             } else {
-                response.sendRedirect(request.getContextPath() + "/warestaff/categoryList?error=Failed%20to%20deactivate%20category");
+                response.sendRedirect(request.getContextPath() + "/warestaff/categoryList?error=Activation%20failed");
             }
         } catch (Exception ex) {
             response.sendRedirect(request.getContextPath() + "/warestaff/categoryList?error=Invalid%20request");
         }
     }
 }
-
 
