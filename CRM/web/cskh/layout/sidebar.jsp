@@ -33,7 +33,7 @@
 
                 <li>
                     <a href="${pageContext.request.contextPath}/cskh/devices">
-                        <i class="fa fa.laptop"></i> <span>Device Management</span>
+                        <i class="fa fa-laptop"></i> <span>Device Management</span>
                     </a>
                 </li>
 

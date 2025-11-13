@@ -385,8 +385,9 @@ public class DeviceDAO extends DBContext {
             JOIN Brand b ON p.brand_id = b.id
             JOIN Contract con ON ci.contract_id = con.id
             JOIN User u ON con.customer_id = u.id 
-            WHERE 1=1
+            WHERE d.is_active = true AND ci.is_active = true AND con.is_active = true
         """);
+        
         List<Object> params = new ArrayList<>();
         addCskhFilterClauses(sql, params, keyword, brand, category, status, customerKeyword);
 
@@ -423,8 +424,9 @@ public class DeviceDAO extends DBContext {
             JOIN Brand b ON p.brand_id = b.id
             JOIN Contract con ON ci.contract_id = con.id
             JOIN User u ON con.customer_id = u.id 
-            WHERE 1=1
+            WHERE d.is_active = true AND ci.is_active = true AND con.is_active = true
         """);
+        
         List<Object> params = new ArrayList<>();
         addCskhFilterClauses(sql, params, keyword, brand, category, status, customerKeyword);
         sql.append(" ORDER BY d.id DESC LIMIT ? OFFSET ?");
