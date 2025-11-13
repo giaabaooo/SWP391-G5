@@ -12,6 +12,13 @@ $(function() {
     console.log("jQuery ready");
 
     const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+    const imagePreview = $('#imagePreview');
+    const imagePreviewWrapper = $('#imagePreviewWrapper');
+    const imagePreviewPlaceholder = $('#imagePreviewPlaceholder');
+    const imageFileInput = $('#imageFile');
+    const imageUrlInput = $('#imageUrl');
+    const resetImageBtn = $('#resetImage');
+    let imageObjectURL = null;
 
     // Validation helper functions
     function showError(errorId, message) {
@@ -27,6 +34,30 @@ $(function() {
 
     function hideError(errorId) {
         $('#' + errorId).removeClass('show').css('display', 'none');
+    }
+
+    // Image preview functions
+    function setImagePreview(src) {
+        if (!src) {
+            clearImagePreview();
+            return;
+        }
+        imagePreview.attr('src', src).show();
+        imagePreviewPlaceholder.hide();
+        imagePreviewWrapper.addClass('has-image');
+        resetImageBtn.show();
+        hideError('imageError');
+    }
+
+    function clearImagePreview() {
+        if (imageObjectURL) {
+            URL.revokeObjectURL(imageObjectURL);
+            imageObjectURL = null;
+        }
+        imagePreview.attr('src', 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=').hide();
+        imagePreviewWrapper.removeClass('has-image');
+        imagePreviewPlaceholder.show();
+        resetImageBtn.hide();
     }
 
     // Real-time validation
@@ -57,44 +88,82 @@ $(function() {
         }
     });
 
-    // Safe image file handling - NO error event listener to avoid reload loop
-    $('#imageFile').on('change', function() {
+    // Image file handling with preview
+    imageFileInput.on('change', function() {
         hideError('imageError');
         var file = this.files && this.files[0] ? this.files[0] : null;
 
-        if (!file) return;
+        if (!file) {
+            clearImagePreview();
+            return;
+        }
 
         if (!file.type || !file.type.startsWith('image/')) {
             showError('imageError', 'Please choose a valid image file');
             this.value = '';
+            clearImagePreview();
             return;
         }
 
         if (file.size > MAX_IMAGE_SIZE) {
             showError('imageError', 'Image must be smaller than 5 MB');
             this.value = '';
+            clearImagePreview();
             return;
         }
 
+        // Create preview
+        if (imageObjectURL) {
+            URL.revokeObjectURL(imageObjectURL);
+            imageObjectURL = null;
+        }
+        imageObjectURL = URL.createObjectURL(file);
+        setImagePreview(imageObjectURL);
+
         // Clear imageUrl when file is selected
-        $('#imageUrl').val('');
+        imageUrlInput.val('');
     });
 
-    // Safe image URL handling
-    $('#imageUrl').on('input', function() {
+    // Image URL handling with preview
+    imageUrlInput.on('input', function() {
         hideError('imageError');
         var urlValue = $(this).val().trim();
 
-        if (urlValue !== '') {
-            // Clear file input when URL is entered
-            $('#imageFile').val('');
+        if (urlValue === '') {
+            if (!imageFileInput[0].files.length) {
+                clearImagePreview();
+            }
+            return;
+        }
+
+        // Clear file input and set preview
+        if (imageObjectURL) {
+            URL.revokeObjectURL(imageObjectURL);
+            imageObjectURL = null;
+        }
+        imageFileInput.val('');
+        setImagePreview(urlValue);
+    });
+
+    // Handle image load errors
+    imagePreview.on('error', function() {
+        var currentSrc = imagePreview.attr('src');
+        if (imageUrlInput.val().trim() !== '') {
+            showError('imageError', 'Unable to load image from the provided URL');
+            imageUrlInput.val('');
+            clearImagePreview();
+        } else if (imageObjectURL && currentSrc === imageObjectURL) {
+            showError('imageError', 'Unable to preview the selected image file');
+            imageFileInput.val('');
+            clearImagePreview();
         }
     });
 
     // Reset image button
-    $('#resetImage').on('click', function() {
-        $('#imageFile').val('');
-        $('#imageUrl').val('');
+    resetImageBtn.on('click', function() {
+        imageFileInput.val('');
+        imageUrlInput.val('');
+        clearImagePreview();
         hideError('imageError');
     });
 

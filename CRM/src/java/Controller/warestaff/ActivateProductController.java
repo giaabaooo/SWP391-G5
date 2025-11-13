@@ -8,10 +8,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import dal.ProductDAO;
 
 /**
- * Controller for deleting products
+ * Controller for activating products
  * @author vttrung
  */
-public class DeleteProductController extends HttpServlet {
+public class ActivateProductController extends HttpServlet {
    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -33,20 +33,20 @@ public class DeleteProductController extends HttpServlet {
                 return;
             }
             
-            // Deactivate product (soft delete) instead of hard delete to preserve referential integrity
+            // Activate product
             ProductDAO productDAO = new ProductDAO();
-            boolean isDeleted = productDAO.deactivateProduct(productId);
-
-            if (isDeleted) {
-                response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success=Product deactivated successfully");
+            boolean isActivated = productDAO.activateProduct(productId);
+            
+            if (isActivated) {
+                response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success=Product activated successfully");
             } else {
-                response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?error=Failed to deactivate product");
+                response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?error=Failed to activate product");
             }
             
         } catch (Exception e) {
-            System.err.println("Error deactivating product: " + e.getMessage());
+            System.err.println("Error activating product: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?error=An error occurred while deactivating the product");
+            response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?error=An error occurred while activating the product");
         }
     }
 
@@ -59,7 +59,7 @@ public class DeleteProductController extends HttpServlet {
 
     @Override
     public String getServletInfo() {
-        return "Delete Product Controller";
+        return "Activate Product Controller";
     }
 }
 

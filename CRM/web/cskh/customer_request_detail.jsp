@@ -241,7 +241,7 @@
     </section>
 
     <div id="cancelModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 500px;">
             <form action="" method="POST">
                 <div class="modal-header" style="background-color: #d9534f;"> <h2 style="margin: 0; font-size: 1.25rem; color: white;">Cancel Request</h2>
                 </div>
@@ -259,7 +259,29 @@
         </div>
     </div>
 </div>
+<style>
+    .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%; 
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
 
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 0;
+        border: 1px solid #ddd;
+        max-width: 500px;
+        border-radius: 6px;
+        box-shadow: 0 4px 10px 0 rgba(0,0,0,0.2);
+        overflow: hidden;
+    }
+</style>
 <script>
     var modal = document.getElementById('cancelModal');
 

@@ -132,7 +132,17 @@ public class AuthorizationFilter implements Filter {
         if (path.equals("/cskh/feedback")) {
             return "FEEDBACK_VIEW_LIST";
         }
-
+        //view devices
+        if (path.equals("/cskh/devices")) {
+            return "DEVICE_VIEW_LIST_CSKH";
+        }
+        //view contacts
+        if (path.equals("/cskh/contacts")) {
+            if ("POST".equalsIgnoreCase(method)) {
+                return "GUEST_CONTACT_MANAGE_STATUS";
+            }
+            return "GUEST_CONTACT_VIEW_LIST";
+        }
         //CUSTOMER
         if (path.startsWith("/customer/")) {
 

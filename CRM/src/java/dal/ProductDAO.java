@@ -23,7 +23,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getAllActiveProducts() {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE is_active = 1 ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, sku, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE is_active = 1 ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -34,6 +34,7 @@ public class ProductDAO extends DBContext {
                         rs.getInt("id"),
                         rs.getInt("category_id"),
                         rs.getObject("brand_id", Integer.class),
+                        rs.getString("sku"),
                         rs.getString("image_url"),
                         rs.getString("name"),
                         rs.getString("description"),
@@ -61,7 +62,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, sku, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -72,6 +73,7 @@ public class ProductDAO extends DBContext {
                         rs.getInt("id"),
                         rs.getInt("category_id"),
                         rs.getObject("brand_id", Integer.class),
+                        rs.getString("sku"),
                         rs.getString("image_url"),
                         rs.getString("name"),
                         rs.getString("description"),
@@ -99,7 +101,7 @@ public class ProductDAO extends DBContext {
      * @return Product object or null if not found
      */
     public Product getProductById(int id) {
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE id = ?";
+        String sql = "SELECT id, category_id, brand_id, sku, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE id = ?";
         Product product = null;
 
         try {
@@ -112,6 +114,7 @@ public class ProductDAO extends DBContext {
                         rs.getInt("id"),
                         rs.getInt("category_id"),
                         rs.getObject("brand_id", Integer.class),
+                        rs.getString("sku"),
                         rs.getString("image_url"),
                         rs.getString("name"),
                         rs.getString("description"),
@@ -132,26 +135,58 @@ public class ProductDAO extends DBContext {
     }
 
     /**
+     * Generate next available SKU
+     *
+     * @return Next SKU in format "SKU-{number}"
+     */
+    private String generateNextSku() {
+        String sql = "SELECT MAX(CAST(SUBSTRING(sku, 5) AS UNSIGNED)) as max_num FROM Product WHERE sku LIKE 'SKU-%'";
+        int maxNum = 0;
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery();
+
+            if (rs.next()) {
+                maxNum = rs.getInt("max_num");
+            }
+
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            System.err.println("Error generating SKU: " + e.getMessage());
+        }
+
+        return "SKU-" + (maxNum + 1);
+    }
+
+    /**
      * Add a new product
      *
      * @param product Product object
      * @return Generated ID of the new product
      */
     public int addProduct(Product product) {
-        String sql = "INSERT INTO Product (category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // Generate SKU if not provided
+        if (product.getSku() == null || product.getSku().trim().isEmpty()) {
+            product.setSku(generateNextSku());
+        }
+
+        String sql = "INSERT INTO Product (category_id, brand_id, sku, image_url, name, description, purchase_price, selling_price, unit, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int generatedId = -1;
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             statement.setInt(1, product.getCategoryId());
             statement.setObject(2, product.getBrandId());
-            statement.setString(3, product.getImageUrl());
-            statement.setString(4, product.getName());
-            statement.setString(5, product.getDescription());
-            statement.setBigDecimal(6, product.getPurchasePrice());
-            statement.setBigDecimal(7, product.getSellingPrice());
-            statement.setString(8, product.getUnit());
-            statement.setBoolean(9, product.isActive());
+            statement.setString(3, product.getSku());
+            statement.setString(4, product.getImageUrl());
+            statement.setString(5, product.getName());
+            statement.setString(6, product.getDescription());
+            statement.setBigDecimal(7, product.getPurchasePrice());
+            statement.setBigDecimal(8, product.getSellingPrice());
+            statement.setString(9, product.getUnit());
+            statement.setBoolean(10, product.isActive());
 
             int rowsAffected = statement.executeUpdate();
 
@@ -166,6 +201,7 @@ public class ProductDAO extends DBContext {
             statement.close();
         } catch (SQLException e) {
             System.err.println("Error adding product: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return generatedId;
@@ -179,7 +215,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getProductsByCategory(int categoryId) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE category_id = ? AND is_active = 1 ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, sku, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE category_id = ? AND is_active = 1 ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -191,6 +227,7 @@ public class ProductDAO extends DBContext {
                         rs.getInt("id"),
                         rs.getInt("category_id"),
                         rs.getObject("brand_id", Integer.class),
+                        rs.getString("sku"),
                         rs.getString("image_url"),
                         rs.getString("name"),
                         rs.getString("description"),
@@ -219,7 +256,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getProductsByBrand(int brandId) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE brand_id = ? AND is_active = 1 ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, sku, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE brand_id = ? AND is_active = 1 ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -231,6 +268,7 @@ public class ProductDAO extends DBContext {
                         rs.getInt("id"),
                         rs.getInt("category_id"),
                         rs.getObject("brand_id", Integer.class),
+                        rs.getString("sku"),
                         rs.getString("image_url"),
                         rs.getString("name"),
                         rs.getString("description"),
@@ -259,7 +297,7 @@ public class ProductDAO extends DBContext {
      */
     public List<Product> getProductsByCategoryId(int categoryId) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE category_id = ? ORDER BY name";
+        String sql = "SELECT id, category_id, brand_id, sku, image_url, name, description, purchase_price, selling_price, unit, is_active FROM Product WHERE category_id = ? ORDER BY name";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -271,6 +309,7 @@ public class ProductDAO extends DBContext {
                         rs.getInt("id"),
                         rs.getInt("category_id"),
                         rs.getObject("brand_id", Integer.class),
+                        rs.getString("sku"),
                         rs.getString("image_url"),
                         rs.getString("name"),
                         rs.getString("description"),
@@ -706,10 +745,11 @@ public class ProductDAO extends DBContext {
      * @param searchQuery Search term (can be null)
      * @param categoryId Category ID (can be null)
      * @param brandId Brand ID (can be null)
+     * @param status Status filter (can be null, 0 for inactive, 1 for active)
      * @return Total number of matching products
      */
-    public int getTotalProductsWithFilters(String searchQuery, Integer categoryId, Integer brandId) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) as total FROM Product WHERE is_active = 1");
+    public int getTotalProductsWithFilters(String searchQuery, Integer categoryId, Integer brandId, Integer status) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) as total FROM Product WHERE 1=1");
 
         // Add Full-Text Search condition if search query exists
         boolean hasSearch = (searchQuery != null && !searchQuery.trim().isEmpty());
@@ -722,6 +762,9 @@ public class ProductDAO extends DBContext {
         }
         if (brandId != null && brandId > 0) {
             sql.append(" AND brand_id = ?");
+        }
+        if (status != null) {
+            sql.append(" AND is_active = ?");
         }
 
         int total = 0;
@@ -745,6 +788,9 @@ public class ProductDAO extends DBContext {
             }
             if (brandId != null && brandId > 0) {
                 statement.setInt(paramIndex++, brandId);
+            }
+            if (status != null) {
+                statement.setInt(paramIndex++, status);
             }
 
             ResultSet rs = statement.executeQuery();
@@ -770,15 +816,16 @@ public class ProductDAO extends DBContext {
      * @param searchQuery Search term (can be null)
      * @param categoryId Category ID (can be null)
      * @param brandId Brand ID (can be null)
+     * @param status Status filter (can be null, 0 for inactive, 1 for active)
      * @return List of products matching filters for the specified page
      */
-    public List<Product> getProductsWithFilters(int page, int pageSize, String searchQuery, Integer categoryId, Integer brandId) {
+    public List<Product> getProductsWithFilters(int page, int pageSize, String searchQuery, Integer categoryId, Integer brandId, Integer status) {
         List<Product> products = new ArrayList<>();
         int offset = (page - 1) * pageSize;
 
         StringBuilder sql = new StringBuilder(
-                "SELECT id, category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active "
-                + "FROM Product WHERE is_active = 1"
+                "SELECT id, category_id, brand_id, sku, image_url, name, description, purchase_price, selling_price, unit, is_active "
+                + "FROM Product WHERE 1=1"
         );
 
         // Add Full-Text Search condition if search query exists
@@ -793,8 +840,11 @@ public class ProductDAO extends DBContext {
         if (brandId != null && brandId > 0) {
             sql.append(" AND brand_id = ?");
         }
+        if (status != null) {
+            sql.append(" AND is_active = ?");
+        }
 
-        sql.append(" LIMIT ? OFFSET ?");
+        sql.append(" ORDER BY id ASC LIMIT ? OFFSET ?");
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql.toString());
@@ -816,6 +866,9 @@ public class ProductDAO extends DBContext {
             if (brandId != null && brandId > 0) {
                 statement.setInt(paramIndex++, brandId);
             }
+            if (status != null) {
+                statement.setInt(paramIndex++, status);
+            }
 
             statement.setInt(paramIndex++, pageSize);
             statement.setInt(paramIndex++, offset);
@@ -827,11 +880,13 @@ public class ProductDAO extends DBContext {
                         rs.getInt("id"),
                         rs.getInt("category_id"),
                         rs.getObject("brand_id", Integer.class),
+                        rs.getString("sku"),
                         rs.getString("image_url"),
                         rs.getString("name"),
                         rs.getString("description"),
                         rs.getBigDecimal("purchase_price"),
                         rs.getBigDecimal("selling_price"),
+                        rs.getString("unit"),
                         rs.getBoolean("is_active")
                 );
                 products.add(product);
@@ -920,6 +975,29 @@ public class ProductDAO extends DBContext {
             return rowsAffected > 0;
         } catch (SQLException e) {
             System.err.println("Error deactivating product: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Activate a product (set is_active to true)
+     *
+     * @param productId Product ID to activate
+     * @return true if activation was successful, false otherwise
+     */
+    public boolean activateProduct(int productId) {
+        String sql = "UPDATE Product SET is_active = 1 WHERE id = ?";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, productId);
+
+            int rowsAffected = statement.executeUpdate();
+            statement.close();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error activating product: " + e.getMessage());
             return false;
         }
     }

@@ -181,12 +181,12 @@
 
                         <!-- Filter Bar -->
                         <div class="filter-bar">
-                            <input type="text" id="searchInput" class="search-input" placeholder="Search by product name..." 
+                            <input type="text" id="searchInput" class="search-input" placeholder="Search by product name..."
                                    value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>">
-                            
+
                             <select id="categoryFilter" class="search-input" style="min-width: 150px;">
                                 <option value="">All Categories</option>
-                                <% 
+                                <%
                                     java.util.List<data.Category> categories = (java.util.List<data.Category>) request.getAttribute("categories");
                                     Integer selectedCategoryId = (Integer) request.getAttribute("selectedCategoryId");
                                     if (categories != null) {
@@ -194,15 +194,15 @@
                                             String selected = (selectedCategoryId != null && selectedCategoryId.equals(category.getId())) ? "selected" : "";
                                 %>
                                     <option value="<%= category.getId() %>" <%= selected %>><%= category.getName() %></option>
-                                <% 
+                                <%
                                         }
                                     }
                                 %>
                             </select>
-                            
+
                             <select id="brandFilter" class="search-input" style="min-width: 150px;">
                                 <option value="">All Brands</option>
-                                <% 
+                                <%
                                     java.util.List<data.Brand> brands = (java.util.List<data.Brand>) request.getAttribute("brands");
                                     Integer selectedBrandId = (Integer) request.getAttribute("selectedBrandId");
                                     if (brands != null) {
@@ -210,12 +210,23 @@
                                             String selected = (selectedBrandId != null && selectedBrandId.equals(brand.getId())) ? "selected" : "";
                                 %>
                                     <option value="<%= brand.getId() %>" <%= selected %>><%= brand.getName() %></option>
-                                <% 
+                                <%
                                         }
                                     }
                                 %>
                             </select>
-                            
+
+                            <select id="statusFilter" class="search-input" style="min-width: 120px;">
+                                <option value="">All Status</option>
+                                <%
+                                    String selectedStatus = (String) request.getAttribute("selectedStatus");
+                                    String activeSelected = "1".equals(selectedStatus) ? "selected" : "";
+                                    String inactiveSelected = "0".equals(selectedStatus) ? "selected" : "";
+                                %>
+                                <option value="1" <%= activeSelected %>>Active</option>
+                                <option value="0" <%= inactiveSelected %>>Inactive</option>
+                            </select>
+
                             <button class="btn btn-primary" onclick="applyFilters()">
                                 <i class="fa fa-filter"></i> Filter
                             </button>
@@ -293,10 +304,16 @@
                                                 <a href="../warestaff/editProduct?id=<%= product.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                     <i class="fa fa-edit"></i> Edit
                                                 </a>
-                                                <button class="btn btn-action btn-delete" data-product-id="<%= product.getId() %>" data-product-name="<%= product.getName() %>">
-                                                    <i class="fa fa-trash"></i> Delete
-                                                </button>
-                                                <% if (quantity < 5) { %>
+                                                <% if (product.isActive()) { %>
+                                                    <button class="btn btn-action btn-delete" data-product-id="<%= product.getId() %>" data-product-name="<%= product.getName() %>" data-action="deactivate">
+                                                        <i class="fa fa-ban"></i> Deactivate
+                                                    </button>
+                                                <% } else { %>
+                                                    <button class="btn btn-action btn-edit" data-product-id="<%= product.getId() %>" data-product-name="<%= product.getName() %>" data-action="activate" style="background:#16a34a; border-color:#16a34a;">
+                                                        <i class="fa fa-check"></i> Activate
+                                                    </button>
+                                                <% } %>
+                                                <% if (quantity < 5 && product.isActive()) { %>
                                                 <a href="<%= request.getContextPath() %>/warestaff/addImportTransaction?productId=<%= product.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none; background:#16a34a; border-color:#16a34a; color:#fff;">
                                                     <i class="fa fa-upload"></i> Stock In
                                                 </a>
@@ -364,21 +381,21 @@
     </aside>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Status Change Confirmation Modal -->
 <div id="deleteModal" class="modal-overlay">
     <div class="delete-modal" style="max-width:380px;width:80%">
         <div class="modal-header-custom" style="background:#f8f9fa;border-bottom:1px solid #f1f3f4;">
             <div class="modal-icon">
-                <i class="fa fa-trash"></i>
+                <i class="fa fa-exchange" id="modalIcon"></i>
             </div>
-            <h3>Delete Product</h3>
+            <h3 id="modalTitle">Change Product Status</h3>
         </div>
         <div class="modal-body-custom">
-            <p class="warning-text">Are you sure you want to delete this product?</p>
+            <p class="warning-text" id="modalMessage">Are you sure you want to change the status of this product?</p>
             <div class="product-name-display" id="modalProductName">Product Name</div>
-            <p class="warning-text">This will permanently remove the product from your inventory.</p>
+            <p class="warning-text" id="modalDescription">This will update the product status.</p>
             <span class="warning-badge">
-                <i class="fa fa-exclamation-triangle"></i> This action cannot be undone!
+                <i class="fa fa-exclamation-triangle"></i> <span id="modalWarning">This action can be undone!</span>
             </span>
         </div>
         <div class="modal-footer-custom">
@@ -386,7 +403,7 @@
                 <i class="fa fa-times"></i> Cancel
             </button>
             <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn">
-                <i class="fa fa-trash"></i> Delete Product
+                <i class="fa fa-check" id="confirmIcon"></i> <span id="confirmText">Confirm</span>
             </button>
         </div>
     </div>
