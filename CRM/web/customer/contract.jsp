@@ -154,7 +154,7 @@
                                     </div>
 
                                     <!-- Filter Bar -->
-                                    <div class="filter-bar">
+<!--                                    <div class="filter-bar">
                                         <input type="text" id="searchInput" class="search-input" placeholder="Search by device name..." 
                                                value="${search != null ? search : ''}">
 
@@ -182,7 +182,7 @@
                                         <button class="btn btn-primary" onclick="clearFilters()" style="background: #6c757d; border-color: #6c757d;">
                                             <i class="fa fa-times"></i> Clear
                                         </button>
-                                    </div>
+                                    </div>-->
 
                                     <div class="card-body">
 
@@ -193,9 +193,8 @@
                                                         <th>No</th>
                                                         <th>Contract Code</th>
                                                         <th>Date</th>
-                                                        <th>Device</th>
-                                                        <th>Category</th>
-                                                        <th>Brand</th>
+                                                        <th>Price</th>
+                                                        <th>Description</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
@@ -211,9 +210,8 @@
                                                         <td><%= ct.getId()  %></td>
                                                         <td><%= ct.getContractCode()  %></td>
                                                         <td><%= ct.getContractDate()  %></td>
-                                                        <td><%= ct.getProductName()  %></td>
-                                                        <td><%= ct.getCategoryName() %></td>
-                                                        <td><%= ct.getBrandName()  %></td>
+                                                        <td><%= ct.getTotalAmountString()  %></td>
+                                                        <td><%= ct.getDescription() %></td>                                                      
                                                         <td>
                                                             <a href="detailContract?id=<%= ct.getId() %>" 
                                                                class="btn btn-action btn-view" 

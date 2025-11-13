@@ -4,6 +4,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="data.Product" %>
 <%@ page import="data.CustomerRequest" %>
+<%@ page import="data.CustomerRequestMeta" %>
 
 <!DOCTYPE html>
 <html>
@@ -248,14 +249,10 @@
                                                             <i class="fa fa-trash"></i> Cancel 
                                                         </button>
                                                         <%
-                                                            } 
-                                                        %>
-
-                                                        <%-- SỬA LẠI LOGIC NÚT "PAY" / "PAID" --%>
-                                                        <%             
-                                                          String paymentStatus = req.getPaymentStatus();        
-                                                         if ("AWAITING_PAYMENT".equals(reqStatus) && 
-                                                         (paymentStatus != null && ("UNPAID".equals(paymentStatus) || "PARTIALLY_PAID".equals(paymentStatus)))) {
+                                                            }  
+                                                          
+                                                          String paymentStatus = req.getPayment_status();      
+                                                         if ("AWAITING_PAYMENT".equals(req.getStatus())) {
                                                         %>
                                                         <%-- Nếu đúng -> Hiển thị nút "Pay Now" --%>
                                                         <a href="${pageContext.request.contextPath}/customer/payment?id=<%= req.getId() %>" 
@@ -264,7 +261,7 @@
                                                             <i class="fa fa-credit-card"></i> Pay Now
                                                         </a>
                                                         <% 
-                                                            } else if ("PAID".equals(paymentStatus) || "PAID".equals(reqStatus)) {
+                                                            } else if ("PAID".equals(paymentStatus)) {
                                                         %>
                                                         <%-- Nếu đã trả tiền -> Hiển thị nút "Paid" --%>
                                                         <a href="${pageContext.request.contextPath}/customer/payment?id=<%= req.getId() %>" 

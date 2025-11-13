@@ -27,6 +27,29 @@ public class Device {
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
+    private Date contractDate;
+    private int maintenanceMonths;
+
+    public Device(Date contractDate, int maintenanceMonths) {
+        this.contractDate = contractDate;
+        this.maintenanceMonths = maintenanceMonths;
+    }
+
+    public Date getContractDate() {
+        return contractDate;
+    }
+
+    public void setContractDate(Date contractDate) {
+        this.contractDate = contractDate;
+    }
+
+    public int getMaintenanceMonths() {
+        return maintenanceMonths;
+    }
+
+    public void setMaintenanceMonths(int maintenanceMonths) {
+        this.maintenanceMonths = maintenanceMonths;
+    }
 
     public boolean isIsActive() {
         return isActive;

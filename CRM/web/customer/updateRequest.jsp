@@ -146,7 +146,7 @@
                                     <div class="form-group" id="titleGroup">
                                         <label>Title<span style="color:red">*</span></label>
                                         <input type="text" id="title" name="title" class="form-control" placeholder="Enter issue title" 
-                                               value="<%= requestData.getTitle() != null ? requestData.getTitle() : "" %>" required>
+                                               value="<%= requestData.getTitle() != null ? requestData.getTitle() : "" %>"  minlength="10" maxlength="100" required>
                                         <div class="validation-error">Title is required.</div>
                                     </div>
 
@@ -179,7 +179,7 @@
 
                                     <div class="form-group">
                                         <label>Issue Description</label>
-                                        <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..."><%= requestData.getDescription() != null ? requestData.getDescription() : "" %></textarea>
+                                        <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue..." minlength="10" maxlength="1000"><%= requestData.getDescription() != null ? requestData.getDescription() : "" %></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label>Desired Completion Date (Optional)</label>

@@ -45,8 +45,13 @@ public class CustomerRequestDAO extends DBContext {
         }
 
         if (status != null && !status.trim().isEmpty()) {
-            sql += " AND (cr.status LIKE ? )";
-            params.add("%" + status + "%");
+            if (status.equalsIgnoreCase("not_pending")) {
+                sql += " AND cr.status <> ?";
+                params.add("pending");
+            } else {
+                sql += " AND cr.status LIKE ?";
+                params.add("%" + status + "%");
+            }
         }
 
         // Bị lặp logic keyword, đã xóa 1 khối
@@ -216,7 +221,7 @@ public class CustomerRequestDAO extends DBContext {
                 req.setRequest_type(rs.getString("request_type"));
                 req.setRequest_date(rs.getTimestamp("request_date"));
                 req.setStatus(rs.getString("status"));
-                req.setPaymentStatus(rs.getString("payment_status"));
+                req.setPayment_status(rs.getString("payment_status"));
                 req.setDesired_completion_date(rs.getDate("desired_completion_date"));
                 list.add(req);
             }
@@ -319,17 +324,21 @@ public class CustomerRequestDAO extends DBContext {
         ArrayList<CustomerRequestAssignment> listTask = new ArrayList<>();
 
         String sql = "SELECT ca.* FROM customerrequest_assignment ca\n"
-                + "JOIN customerrequest cr on cr.id = ca.request_id \n"
-                + "JOIN user tech on tech.id = ca.technician_id\n";
+                + "JOIN customerrequest cr on cr.id = ca.request_id\n"
+                + "JOIN user tech on tech.id = ca.technician_id\n"
+                + "JOIN user u on u.id = cr.customer_id\n"
+                + "join device d on d.id = cr.device_id\n"
+                + "JOIN ContractItem ci ON d.contract_item_id = ci.id\n"
+                + "JOIN Product p ON ci.product_id = p.id";
 
         ArrayList<Object> params = new ArrayList<>();
 
         if (is_main != null && !is_main.trim().isEmpty()) {
             sql += " where ca.is_main = ?";
-            params.add( is_main );
-        } 
+            params.add(is_main);
+        }
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
+        if (keyword != null && !keyword.isEmpty()) {
             sql += " AND (u.full_name LIKE ? OR p.name LIKE ?)";
             params.add("%" + keyword + "%");
             params.add("%" + keyword + "%");
@@ -354,13 +363,12 @@ public class CustomerRequestDAO extends DBContext {
         params.add(pageSize);
         params.add((page - 1) * pageSize);
 
+        UserDBContext db = new UserDBContext();
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             for (int i = 0; i < params.size(); i++) {
                 stm.setObject(i + 1, params.get(i));
             }
             ResultSet rs = stm.executeQuery();
-
-            UserDBContext db = new UserDBContext();
 
             while (rs.next()) {
 
@@ -384,6 +392,10 @@ public class CustomerRequestDAO extends DBContext {
 
                 listTask.add(ca);
             }
+            db.close();
+            rs.close();
+            stm.close();
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -532,6 +544,25 @@ public class CustomerRequestDAO extends DBContext {
         }
     }
 
+    public void updateCusRequestMeta(CustomerRequestMeta ca, int requestId) {
+        String sql = "UPDATE customerrequestmeta "
+                + "SET total_cost = ?,"
+                + "payment_status = ?,"
+                + "payment_due_date = ?"
+                + " WHERE request_id = ? ";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setDouble(1, ca.getTotal_cost());
+            stm.setString(2, ca.getPayment_status());
+            java.util.Date utilDate = ca.getPayment_due_date();
+            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            stm.setDate(3, sqlDate);
+            stm.setInt(4, requestId);
+            stm.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public CustomerRequestMeta getCusRequestMetaById(int requestId) {
         String sql = "SELECT * FROM customerrequestmeta WHERE request_id = ?";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -554,6 +585,8 @@ public class CustomerRequestDAO extends DBContext {
                     if (sqlDate != null) {
                         meta.setPayment_due_date(new java.util.Date(sqlDate.getTime()));
                     }
+
+                    meta.setDesired_completion_date(rs.getDate("desired_completion_date"));
 
                     meta.setCustomer_comment(rs.getString("customer_comment"));
                     meta.setCustomer_service_response(rs.getString("customer_service_response"));
@@ -581,20 +614,20 @@ public class CustomerRequestDAO extends DBContext {
     public int createRequest(CustomerRequest req) {
         String sql = "INSERT INTO customerrequest (customer_id, device_id, title, description, request_type, status, request_date) "
                 + "VALUES (?, ?, ?, ?, ?, ?, NOW())";
-        try (PreparedStatement ps = connection.prepareStatement(sql,java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, req.getCustomer_id());
             ps.setInt(2, req.getDevice_id());
             ps.setString(3, req.getTitle());
             ps.setString(4, req.getDescription());
             ps.setString(5, req.getRequest_type());
             ps.setString(6, req.getStatus());
-            
+
             int rowsAffected = ps.executeUpdate();
-            
-           if (rowsAffected > 0) {
+
+            if (rowsAffected > 0) {
                 try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        return generatedKeys.getInt(1); 
+                        return generatedKeys.getInt(1);
                     }
                 }
             }
@@ -603,11 +636,11 @@ public class CustomerRequestDAO extends DBContext {
         }
         return -1;
     }
-    
+
     public boolean insertRequestMeta(int requestId, java.util.Date desiredDate, String priority) {
- 
+
         String sql = "INSERT INTO customerrequestmeta (request_id, desired_completion_date,priority) VALUES (?, ?, ?)";
-        
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, requestId);
 
@@ -621,7 +654,7 @@ public class CustomerRequestDAO extends DBContext {
             } else {
                 ps.setString(3, "MEDIUM"); // Đặt MEDIUM làm mặc định
             }
-            
+
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -771,10 +804,10 @@ public class CustomerRequestDAO extends DBContext {
     }
 
     public CustomerRequest getCusRequestById(int requestId) {
-        String sql = "SELECT cr.*, meta.desired_completion_date, meta.priority \n" +
-"            FROM customerrequest cr\n" +
-"            LEFT JOIN customerrequestmeta meta ON cr.id = meta.request_id\n" +
-"            WHERE cr.id = ?";
+        String sql = "SELECT cr.*, meta.desired_completion_date, meta.priority \n"
+                + "            FROM customerrequest cr\n"
+                + "            LEFT JOIN customerrequestmeta meta ON cr.id = meta.request_id\n"
+                + "            WHERE cr.id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, requestId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -814,15 +847,16 @@ public class CustomerRequestDAO extends DBContext {
         }
         return false;
     }
+
     public boolean updateRequestMeta(int requestId, java.util.Date desiredDate, String priority) {
-        
+
         String sql = """
             INSERT INTO customerrequestmeta (request_id, desired_completion_date, priority) 
             VALUES (?, ?, ?)
             ON DUPLICATE KEY UPDATE 
             desired_completion_date = ?, priority = ?
         """;
-        
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, requestId);
 
@@ -834,7 +868,7 @@ public class CustomerRequestDAO extends DBContext {
                 ps.setNull(2, java.sql.Types.DATE);
                 ps.setNull(4, java.sql.Types.DATE); // Cho phần UPDATE
             }
-            
+
             // Xử lý Priority
             if (priority != null && !priority.isEmpty()) {
                 ps.setString(3, priority);
@@ -843,7 +877,7 @@ public class CustomerRequestDAO extends DBContext {
                 ps.setString(3, "MEDIUM"); // Mặc định
                 ps.setString(5, "MEDIUM"); // Mặc định
             }
-            
+
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -876,7 +910,7 @@ public class CustomerRequestDAO extends DBContext {
         LEFT JOIN customerrequestmeta meta ON cr.id = meta.request_id
                
         WHERE cr.id = ? AND cr.is_active = 1
-    """; 
+    """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, requestId);
@@ -902,7 +936,7 @@ public class CustomerRequestDAO extends DBContext {
                 device.setBrandName(rs.getString("brand_name"));
                 device.setCategoryName(rs.getString("category_name"));
                 req.setDevice(device);
-                              
+
                 req.setDesired_completion_date(rs.getDate("desired_completion_date"));
                 req.setPriority(rs.getString("priority"));
             }
@@ -1272,5 +1306,62 @@ public class CustomerRequestDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+    public boolean hasActiveRequest(int deviceId, String requestType) {
+        String sql = """
+                     SELECT COUNT(*) FROM customerrequest 
+                     WHERE device_id = ? 
+                     AND request_type = ? 
+                     AND status NOT IN ( 'CLOSED', 'CANCELLED')
+                     AND is_active = 1
+                     """;
+        
+        // Hãy thay thế 'connection' bằng phương thức getConnection() của bạn
+        // ví dụ: try (Connection conn = new DBContext().getConnection(); 
+        //             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            
+            ps.setInt(1, deviceId);
+            ps.setString(2, requestType);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // true nếu đếm > 0
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error checking for active request: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false; // Mặc định trả về false nếu có lỗi
+    }
+    
+    public java.util.Set<String> getActiveRequestKeysByUserId(int customerId) {
+        java.util.Set<String> activeKeys = new java.util.HashSet<>();
+        
+        String sql = """
+                     SELECT device_id, request_type FROM customerrequest 
+                     WHERE customer_id = ? 
+                     AND status NOT IN ('COMPLETED', 'CLOSED', 'CANCELLED')
+                     AND is_active = 1
+                     """;
+
+        // Hãy thay thế 'new DBContext().getConnection()' bằng phương thức của bạn
+        try ( 
+             java.sql.PreparedStatement ps = connection.prepareStatement(sql)) {
+            
+            ps.setInt(1, customerId);
+            
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String key = rs.getInt("device_id") + "_" + rs.getString("request_type");
+                    activeKeys.add(key);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching active request keys: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return activeKeys;
     }
 }

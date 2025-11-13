@@ -302,16 +302,24 @@
                                                     <option value="">-- Select Task --</option>
                                                     <c:forEach var="task" items="${requestList}">
                                                         <c:if test="${task.status == 'IN_PROGRESS'}">
-                                                            
                                                             <option value="${task.id}"
                                                                     <c:if test="${task.id == taskSelected}">selected</c:if>>
                                                                 ${task.request_type} - ${task.device.productName} (${task.customer.fullName})
                                                             </option>
-                                                            
-                                                        
                                                         </c:if>
                                                     </c:forEach>
                                                 </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Priority -->
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                                            <div class="info-label">
+                                                <i class="fa fa-exclamation-triangle"></i> Priority
+                                            </div>
+                                            <div class="info-value">
+                                                <input type="text" id="priority" name="priority" class="form-control"
+                                                       value="${requestMetaSelected.priority}" required readonly>
                                             </div>
                                         </div>
 
@@ -321,36 +329,23 @@
                                                 <i class="fa fa-money-bill"></i> Total Cost
                                             </div>
                                             <div class="info-value">
-                                                <input type="number" name="totalCost" class="form-control" placeholder="Enter total cost" required min="0">
-                                            </div>
-                                        </div>
-<!--
-                                         Payment Status 
-                                        <div class="info-row" style="margin-bottom: 1.5rem;">
-                                            <div class="info-label">
-                                                <i class="fa fa-credit-card"></i> Payment Status
-                                            </div>
-                                            <div class="info-value">
-                                                <select name="paymentStatus" class="form-control" required>
-                                                    <option value="">-- Select Status --</option>
-                                                    <option value="UNPAID">UNPAID</option>
-                                                    <option value="PARTIALLY_PAID">PARTIALLY PAID</option>
-                                                    <option value="PAID">PAID</option>
-                                                </select>
+                                                <input type="number" id="totalCost"  class="form-control"
+                                                       placeholder="Enter total cost" required min="0">
                                             </div>
                                         </div>
 
-                                         Paid Amount 
+                                        <!-- Final Cost -->
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
-                                                <i class="fa fa-coins"></i> Paid Amount
+                                                <i class="fa fa-calculator"></i>Final Cost (+5% if URGENT)
                                             </div>
                                             <div class="info-value">
-                                                <input type="number" name="paidAmount" class="form-control" placeholder="Enter paid amount" required min="0">
+                                                <input type="text" id="finalCost" name="totalCost" class="form-control" readonly
+                                                       placeholder="Calculated automatically">
                                             </div>
-                                        </div>-->
+                                        </div>
 
-                                        <!-- Assign Date -->
+                                        <!-- Payment Due Date -->
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-calendar"></i> Payment Due Date
@@ -371,7 +366,6 @@
                                         </div>
 
                                     </form>
-
                                 </div>
                             </div>
                         </div>
@@ -462,6 +456,25 @@
                     }
                 });
             });
+
+            const totalCostInput = document.getElementById("totalCost");
+            const finalCostInput = document.getElementById("finalCost");
+            const priorityInput = document.getElementById("priority");
+
+            function calculateFinalCost() {
+                const total = parseFloat(totalCostInput.value) || 0;
+                const priority = priorityInput.value?.trim().toUpperCase();
+                let finalCost = total;
+
+                if (priority === "URGENT") {
+                    finalCost += total * 0.05;
+                }
+
+                finalCostInput.value = finalCost.toFixed(2);
+            }
+
+            totalCostInput.addEventListener("input", calculateFinalCost);
+            document.addEventListener("DOMContentLoaded", calculateFinalCost);
         </script>
     </body>
 </html>

@@ -7,6 +7,7 @@ package Controller.techmanager;
 import dal.CustomerRequestDAO;
 import dal.UserDBContext;
 import data.CustomerRequestAssignment;
+import data.User;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,7 +17,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -37,7 +41,7 @@ public class RequestController extends HttpServlet {
         }
 
         switch (action) {
-            
+
             case "detail":
                 int id = Integer.parseInt(req.getParameter("id"));
                 req.setAttribute("requests", db.getRequestById(id));
@@ -56,18 +60,23 @@ public class RequestController extends HttpServlet {
                 if ("tooMuchTask".equals(error)) {
                     req.setAttribute("error", techName + " has had a lot of task on that day");
                 } else if ("pastDate".equals(error)) {
-                    req.setAttribute("error","Date can not in the part");
+                    req.setAttribute("error", "Date can not in the part");
+                } else if ("tooLate".equals(error)) {
+                    req.setAttribute("error", "This request has urgent priority. Date cannot over desired completion date");
                 }
 
                 if (req.getParameter("id") != null) {
                     req.setAttribute("requestSelected", Integer.valueOf(req.getParameter("id")));
+                    var a = db.getCusRequestMetaById(Integer.parseInt(req.getParameter("id")));
+                    req.setAttribute("requestMetaSelected", a);
+                    
                 }
 
                 String selectedDateStr = req.getParameter("selectedDate");
                 LocalDate selectedDate;
 
                 if (selectedDateStr == null || selectedDateStr.isEmpty()) {
-                    selectedDate = LocalDate.now(); 
+                    selectedDate = LocalDate.now();
                 } else {
                     selectedDate = LocalDate.parse(selectedDateStr);
                 }
@@ -84,19 +93,42 @@ public class RequestController extends HttpServlet {
                 }
                 req.setAttribute("weekDays", weekDays);
 
-                List<CustomerRequestAssignment> schedule
-                        = db.getListTask(1, Integer.MAX_VALUE, "", monday.toString(), sunday.toString(), "", "");
+                List<User> allTechs = userDb.list(1, Integer.MAX_VALUE, "", "TECHNICIAN", "active");
+                req.setAttribute("technicianList", allTechs); // luôn hiển thị đủ danh sách trong dropdown
 
-                if (schedule == null) {
-                    schedule = new ArrayList<>();
+                String[] techIds = req.getParameterValues("techIds");
+                req.setAttribute("selectedTechIds", techIds); // để JSP đánh dấu đã chọn
+
+                List<User> filteredTechs = new ArrayList<>();
+
+                if (techIds != null && techIds.length > 0) {
+                    Set<Integer> selectedIds = Arrays.stream(techIds)
+                            .map(Integer::valueOf)
+                            .collect(Collectors.toSet());
+
+                    filteredTechs = allTechs.stream()
+                            .filter(t -> selectedIds.contains(t.getId()))
+                            .collect(Collectors.toList());
+                }
+
+                req.setAttribute("filteredTechList", filteredTechs);
+
+                List<CustomerRequestAssignment> schedule = new ArrayList<>();
+                if (techIds != null && techIds.length > 0) {
+                    schedule = db.getListTask(1, Integer.MAX_VALUE, "", monday.toString(), sunday.toString(), "", "");
+                    if (schedule == null) {
+                        schedule = new ArrayList<>();
+                    }
                 }
                 req.setAttribute("weekSchedule", schedule);
 
+                
+                
                 req.setAttribute("requestList",db.getListRequest(1, Integer.MAX_VALUE, "", "", "", "", "", "active"));
-                req.setAttribute("technicianList",userDb.list(1, Integer.MAX_VALUE, "", "TECHNICIAN", "active"));
 
                 req.getRequestDispatcher("/techmanager/assign_task.jsp").forward(req, resp);
                 break;
+
             case "list":
             default:
                 int page = req.getParameter("page") == null ? 1 : Integer.parseInt(req.getParameter("page"));
@@ -140,10 +172,10 @@ public class RequestController extends HttpServlet {
                     return;
                 }
 
-                var re = db.getListRequest(1, Integer.MAX_VALUE, "", "", "", "", "", "");
+                var re = db.getListRequest(1, Integer.MAX_VALUE, "", "not_pending", "", "", "", "");
                 int totalPages = (int) Math.ceil((double) re.size() / size);
-                
-                req.setAttribute("requests", db.getListRequest(page, size, keyword, status, fromDate, toDate, requestType, isActive));
+
+                req.setAttribute("requests", db.getListRequest(page, size, keyword, "not_pending", fromDate, toDate, requestType, isActive));
                 req.setAttribute("totalProducts", re.size());
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
@@ -164,13 +196,13 @@ public class RequestController extends HttpServlet {
             req.setAttribute("error", "Reject reason is required!");
             req.getRequestDispatcher("/techmanager/requestdetail.jsp").forward(req, resp);
             return;
-        }else if(reason.length()>=300){
+        } else if (reason.length() >= 300) {
             req.setAttribute("error", "Reject reason is too long!");
             req.getRequestDispatcher("/techmanager/requestdetail.jsp").forward(req, resp);
             return;
         }
 
-        db.updateRequest("CANCELLED",0,Integer.parseInt(id));
+        db.updateRequest("CANCELLED", 0, Integer.parseInt(id));
         db.insertRejectReason(Integer.parseInt(id), reason);
 
         resp.sendRedirect("request");

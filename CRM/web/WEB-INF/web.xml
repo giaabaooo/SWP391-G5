@@ -200,6 +200,8 @@
     <servlet>
         <servlet-name>DeleteContractController</servlet-name>
         <servlet-class>Controller.cskh.DeleteContractController</servlet-class>
+        <servlet-name>DetailFeedback</servlet-name>
+        <servlet-class>Controller.customer.DetailFeedback</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
@@ -354,6 +356,8 @@
     <servlet-mapping>
         <servlet-name>DeleteContractController</servlet-name>
         <url-pattern>/DeleteContractController</url-pattern>
+        <servlet-name>DetailFeedback</servlet-name>
+        <url-pattern>/customer/detailFeedback</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>landing_page.jsp</welcome-file>
