@@ -73,7 +73,7 @@ public class CreateRequestController extends HttpServlet {
             CustomerRequestDAO dao = new CustomerRequestDAO();
             DeviceDAO deviceDAO = new DeviceDAO();
             User user = (User) request.getSession().getAttribute("user");
-            List<Device> devices = null;
+            
             if (user == null) {
                 response.sendRedirect(request.getContextPath() + "/login.jsp");
                 return;
@@ -98,8 +98,9 @@ public class CreateRequestController extends HttpServlet {
         
 
         if (dao.hasActiveRequest(deviceId, requestType)) {
+            
                 request.setAttribute("error", "An active request of type '" + requestType + "' already exists for this device.");
-                
+                List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
                 // Tải lại danh sách thiết bị cho dropdown
                 request.setAttribute("devices", devices);
                 
@@ -121,6 +122,7 @@ public class CreateRequestController extends HttpServlet {
                             .toLocalDate();
 
                     if (selectedDate.isBefore(today.plusDays(1))) {
+                        List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
                         request.setAttribute("error", "The desired completion date must be tomorrow or later.");
                         request.setAttribute("devices", devices);
                         request.getRequestDispatcher("/customer/createRequest.jsp").forward(request, response);
@@ -128,7 +130,7 @@ public class CreateRequestController extends HttpServlet {
                     }
                     req.setDesired_completion_date(utilDate);
                 } catch (Exception e) {
-                    System.err.println("Error parsing desired_date: " + e.getMessage());
+                    List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
                     request.setAttribute("error", "Invalid date format.");
                     request.setAttribute("devices", devices);
                     request.getRequestDispatcher("/customer/createRequest.jsp").forward(request, response);
@@ -159,6 +161,8 @@ public class CreateRequestController extends HttpServlet {
                 }
             }
             request.setAttribute("selectedDeviceId", selectedDeviceId);
+            List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
+            
 
             request.setAttribute("devices", devices);
 
