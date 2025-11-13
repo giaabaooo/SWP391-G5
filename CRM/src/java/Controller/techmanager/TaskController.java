@@ -7,13 +7,20 @@ package Controller.techmanager;
 import dal.CustomerRequestDAO;
 import dal.UserDBContext;
 import data.CustomerRequestAssignment;
+import data.User;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -49,9 +56,14 @@ public class TaskController extends HttpServlet {
                     req.setAttribute("error", "Estimated hours must be between 1 and 200");
                 } else if ("pastDate".equals(error)) {
                     req.setAttribute("error", "Date can not in the part");
+                } else if ("tooLate".equals(error)) {
+                    req.setAttribute("error", "This request has urgent priority. Date cannot over desired completion date");
                 }
 
                 int id2 = Integer.parseInt(req.getParameter("id"));
+
+                var cusMeta = db.getCusRequestMetaById(Integer.parseInt(req.getParameter("id")));
+                req.setAttribute("requestMetaSelected", cusMeta);
 
                 int leaderId = 0;
                 var a = db.getTaskById(id2);
@@ -61,6 +73,56 @@ public class TaskController extends HttpServlet {
                         leaderId = i.getTechnician_id();
                     }
                 }
+
+                String selectedDateStr = req.getParameter("selectedDate");
+                LocalDate selectedDate;
+
+                if (selectedDateStr == null || selectedDateStr.isEmpty()) {
+                    selectedDate = LocalDate.now();
+                } else {
+                    selectedDate = LocalDate.parse(selectedDateStr);
+                }
+
+                LocalDate monday = selectedDate.with(DayOfWeek.MONDAY);
+                LocalDate sunday = selectedDate.with(DayOfWeek.SUNDAY);
+
+                req.setAttribute("weekStart", monday.toString());
+                req.setAttribute("weekEnd", sunday.toString());
+
+                LocalDate[] weekDays = new LocalDate[7];
+                for (int i = 0; i < 7; i++) {
+                    weekDays[i] = monday.plusDays(i);
+                }
+                req.setAttribute("weekDays", weekDays);
+
+                List<User> allTechs = userDb.list(1, Integer.MAX_VALUE, "", "TECHNICIAN", "active");
+                req.setAttribute("technicianList", allTechs);
+
+                String[] techIds = req.getParameterValues("techIds");
+                req.setAttribute("selectedTechIds", techIds);
+
+                List<User> filteredTechs = new ArrayList<>();
+
+                if (techIds != null && techIds.length > 0) {
+                    Set<Integer> selectedIds = Arrays.stream(techIds)
+                            .map(Integer::valueOf)
+                            .collect(Collectors.toSet());
+
+                    filteredTechs = allTechs.stream()
+                            .filter(t -> selectedIds.contains(t.getId()))
+                            .collect(Collectors.toList());
+                }
+
+                req.setAttribute("filteredTechList", filteredTechs);
+
+                List<CustomerRequestAssignment> schedule = new ArrayList<>();
+                if (techIds != null && techIds.length > 0) {
+                    schedule = db.getListTask(1, Integer.MAX_VALUE, "", monday.toString(), sunday.toString(), "", "");
+                    if (schedule == null) {
+                        schedule = new ArrayList<>();
+                    }
+                }
+                req.setAttribute("weekSchedule", schedule);
 
                 req.setAttribute("tasks", a);
                 req.setAttribute("leaderId", leaderId);
@@ -77,6 +139,13 @@ public class TaskController extends HttpServlet {
                 String requestType = req.getParameter("requestType");
                 String fromDate = req.getParameter("fromDate");
                 String toDate = req.getParameter("toDate");
+
+                
+                if (keyword != null && keyword.length() > 100 ) {
+                    req.setAttribute("error", "Keyword is too long (max 100 characters)!");
+                    req.getRequestDispatcher("/techmanager/task_list.jsp").forward(req, resp);
+                    return;
+                }
 
                 java.sql.Date from = null,
                  to = null;
@@ -153,6 +222,15 @@ public class TaskController extends HttpServlet {
                     if (startDate.isBefore(today)) {
                         resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=assignTask&id=" + requestId + "&error=pastDate");
                         return;
+                    }
+
+                    var cusMeta = db.getCusRequestMetaById(requestId);
+                    if (cusMeta != null && cusMeta.getDesired_completion_date() != null && cusMeta.getPriority() != null) {
+                        if (startDate.isAfter(LocalDate.parse(cusMeta.getDesired_completion_date().toString())) && cusMeta.getPriority().contains("URGENT")
+                                || startDate.isAfter(LocalDate.parse(cusMeta.getDesired_completion_date().toString())) && cusMeta.getPriority().contains("HIGH")) {
+                            resp.sendRedirect(req.getContextPath() + "/techmanager/request?action=assignTask&id=" + requestId + "&error=tooLate");
+                            return;
+                        }
                     }
 
                     int remainingHours = estimatedHours;
@@ -244,7 +322,14 @@ public class TaskController extends HttpServlet {
                     resp.sendRedirect(req.getContextPath() + "/techmanager/task?action=edit&id=" + requestId + "&error=pastDate");
                     return;
                 }
-
+                var cusMeta = db.getCusRequestMetaById(requestId);
+                if (cusMeta != null && cusMeta.getDesired_completion_date() != null && cusMeta.getPriority() != null) {
+                    if (startDate.isAfter(LocalDate.parse(cusMeta.getDesired_completion_date().toString())) && cusMeta.getPriority().contains("URGENT")
+                            || startDate.isAfter(LocalDate.parse(cusMeta.getDesired_completion_date().toString())) && cusMeta.getPriority().contains("HIGH")) {
+                        resp.sendRedirect(req.getContextPath() + "/techmanager/task?action=edit&id=" + requestId + "&error=tooLate");
+                        return;
+                    }
+                }
                 for (String techIdStr : technicianIds) {
                     if (techIdStr == null || techIdStr.isEmpty()) {
                         continue;

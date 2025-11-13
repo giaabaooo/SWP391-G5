@@ -42,11 +42,13 @@ public class TaskController extends HttpServlet {
                 if ("pastDate".equals(error)) {
                     req.setAttribute("error", "Date can not in the part.");
                 } else if ("totalCost".equals(error)) {
-                    req.setAttribute("error", "Total cost can not < 0.");
+                    req.setAttribute("error", "Total cost can not < 0 and > 1000000000.");
                 }
 
                 if (req.getParameter("id") != null) {
                     req.setAttribute("taskSelected", Integer.valueOf(req.getParameter("id")));
+                    var cusMeta = db.getCusRequestMetaById(Integer.parseInt(req.getParameter("id")));
+                    req.setAttribute("requestMetaSelected", cusMeta);
                 }
                 ArrayList<CustomerRequestAssignment> task1 = new ArrayList<>();
                 ArrayList<CustomerRequest> requestList = new ArrayList<>();
@@ -84,7 +86,8 @@ public class TaskController extends HttpServlet {
                 bill.setPayment_status("PAID");
                 bill.setPayment_due_date(java.sql.Date.valueOf(LocalDate.now()));
 
-                db.insertCusRequestMeta(bill);
+                db.updateCusRequestMeta(bill, idComplete);
+                //db.insertCusRequestMeta(bill);
                 //db.deleteByRequestId(idComplete);
 
                 //req.setAttribute("success", "This task has been completed");
@@ -190,10 +193,14 @@ public class TaskController extends HttpServlet {
                     }
                 }
 
+                var re = db.getListTask(1, Integer.MAX_VALUE, "", "", "", "1", "");
+                int totalPages = (int) Math.ceil((double) re.size() / size);
+
                 req.setAttribute("task", task);
-                //req.setAttribute("total", total);
+                req.setAttribute("totalProducts", re.size());
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);
+                req.setAttribute("totalPages", totalPages);
 
                 req.getRequestDispatcher("/technician/task_list.jsp").forward(req, resp);
 
@@ -206,7 +213,7 @@ public class TaskController extends HttpServlet {
         double totalCost = Double.parseDouble(req.getParameter("totalCost"));
         String assignDate = req.getParameter("assignDate");
 
-        if (totalCost < 0) {
+        if (totalCost <= 0|| totalCost > 1000000000) {
             resp.sendRedirect(req.getContextPath() + "/technician/task?action=createBill&id=" + taskId + "&error=totalCost");
             return;
         }
@@ -221,10 +228,12 @@ public class TaskController extends HttpServlet {
         CustomerRequestMeta bill = new CustomerRequestMeta();
         bill.setRequest_id(taskId);
         bill.setTotal_cost(totalCost);
+        bill.setPayment_status("UNPAID");
         bill.setPayment_due_date(java.sql.Date.valueOf(assignDate));
 
         db.updateRequest("AWAITING_PAYMENT", 1, taskId);
-        db.insertCusRequestMeta(bill);
+        db.updateCusRequestMeta(bill, taskId);
+        //db.insertCusRequestMeta(bill);
 
         resp.sendRedirect("task");
     }

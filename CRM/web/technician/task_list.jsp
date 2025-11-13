@@ -607,9 +607,9 @@
                                 <div class="card-header">
                                     <h3><i class="fa fa-list"></i> Task List</h3>
 
-                                    <a href="${pageContext.request.contextPath}/technician/task?action=createBill" class="btn btn-primary">
+<!--                                    <a href="${pageContext.request.contextPath}/technician/task?action=createBill" class="btn btn-primary">
                                         <i class="fa fa-plus"></i> Create Bill
-                                    </a>
+                                    </a>-->
 
                                 </div>
 
