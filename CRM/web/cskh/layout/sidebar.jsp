@@ -42,6 +42,12 @@
                         <i class="fa fa-comments-o"></i> <span>Feedback Inbox</span>
                     </a>
                 </li>
+                
+                <li>
+                    <a href="${pageContext.request.contextPath}/cskh/contacts">
+                        <i class="fa fa-inbox"></i> <span>Guest Contacts</span>
+                    </a>
+                </li>
             </ul>
         </section>
     </aside>
