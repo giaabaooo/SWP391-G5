@@ -138,10 +138,11 @@ public class AdminController extends HttpServlet {
                 String keyword = req.getParameter("keyword");
                 String role = req.getParameter("role");
 
-                var re = userDb.list(1, Integer.MAX_VALUE, "", "", "active");
+                String status = req.getParameter("status");
+                var re = userDb.list(1, Integer.MAX_VALUE, "", "", "");
                 int totalPages = (int) Math.ceil((double) re.size() / size);
 
-                req.setAttribute("users", userDb.list(page, size, keyword, role, "active"));
+                req.setAttribute("users", userDb.list(page, size, keyword, role, status));
                 req.setAttribute("totalProducts", re.size());
                 req.setAttribute("page", page);
                 req.setAttribute("pageSize", size);

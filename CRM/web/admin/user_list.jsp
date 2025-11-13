@@ -629,6 +629,11 @@
                                             <option value="CUSTOMER" ${param.role=="CUSTOMER"?"selected":""}>CUSTOMER</option>
                                         </select>
 
+                                        <select name="status" class="search-input" style="min-width: 150px;">
+                                            <option value="">--Status--</option>
+                                            <option value="active" ${param.status=="active"?"selected":""}>Active</option>
+                                            <option value="inactive" ${param.status=="inactive"?"selected":""}>Inactive</option>
+                                        </select>
 
                                         <button class="btn btn-primary" type="submit" >
                                             <i class="fa fa-filter"></i> Filter
@@ -648,6 +653,7 @@
                                                     <th>Full Name</th>
                                                     <th>Email</th>
                                                     <th>Phone</th>
+                                                    <th>Status</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -661,7 +667,11 @@
                                                         <td>${u.fullName}</td>
                                                         <td>${u.email}</td>
                                                         <td>${u.phone}</td>
-
+                                                        <td>
+                                                            <span class="label ${u.isActive?'label-success':'label-danger'}">
+                                                                ${u.isActive?'Active':'Inactive'}
+                                                            </span>
+                                                        </td>
                                                         <td>
 
                                                             <a href="${pageContext.request.contextPath}/admin/user?action=edit&id=${u.id}" class="btn btn-action btn-edit">

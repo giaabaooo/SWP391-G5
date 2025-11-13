@@ -642,11 +642,11 @@
                                         <input type="text" name="keyword" class="search-input" placeholder="Search..." 
                                                value="${param.keyword}">
 
-<!--                                        <select name="status" class="search-input" style="min-width: 150px;">
+                                        <select name="status" class="search-input" style="min-width: 150px;">
                                             <option value="">--Status--</option>
                                             <option value="active" ${param.status=="active"?"selected":""}>Active</option>
                                             <option value="inactive" ${param.status=="inactive"?"selected":""}>Inactive</option>
-                                        </select>-->
+                                        </select>
 
                                         <button class="btn btn-primary" type="submit" >
                                             <i class="fa fa-filter"></i> Filter
@@ -666,7 +666,7 @@
                                                     <th>Email</th>
                                                     <th>Phone</th>
                                                     <!--                        <th>Role</th>-->
-                                                    <!--<th>Status</th>-->
+                                                    <th>Status</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -679,11 +679,11 @@
                                                         <td>${u.email}</td>
                                                         <td>${u.phone}</td>
                             <!--                            <td>${u.role.name}</td>-->
-<!--                                                        <td>
+                                                        <td>
                                                             <span class="label ${u.isActive?'label-success':'label-danger'}">
                                                                 ${u.isActive?'Active':'Inactive'}
                                                             </span>
-                                                        </td>-->
+                                                        </td>
                                                         <td>
                                                             <a href="${pageContext.request.contextPath}/techmanager/technician?action=detail&id=${u.id}" class="btn btn-action btn-view">
                                                                 <i class="fa fa-eye"></i> Detail
