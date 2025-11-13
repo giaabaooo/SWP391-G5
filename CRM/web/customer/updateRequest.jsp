@@ -146,7 +146,7 @@
                                     <div class="form-group" id="titleGroup">
                                         <label>Title<span style="color:red">*</span></label>
                                         <input type="text" id="title" name="title" class="form-control" placeholder="Enter issue title" 
-                                               value="<%= requestData.getTitle() != null ? requestData.getTitle() : "" %>" required>
+                                               value="<%= requestData.getTitle() != null ? requestData.getTitle() : "" %>"  minlength="10" maxlength="100" required>
                                         <div class="validation-error">Title is required.</div>
                                     </div>
 

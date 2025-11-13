@@ -31,7 +31,7 @@
         <link href="${pageContext.request.contextPath}/css/warehouse/productList.css" rel="stylesheet" type="text/css" />
 
         <style>
-           .inventory-table {
+            .inventory-table {
                 width: 100%;
                 border-collapse: collapse; /* Gộp border, rất quan trọng */
             }
@@ -42,32 +42,32 @@
                 padding: 12px 15px;
                 border-bottom: none; /* Tắt border của cell */
             }
-            
+
             /* (MỚI) CHỈ ÁP DỤNG border-bottom cho HÀNG (tr) */
             .inventory-table thead tr {
                 border-bottom: 2px solid #e2e8f0; /* Gạch ngang của Header */
             }
-            
+
             .inventory-table tbody tr {
                 border-bottom: 1px solid #e2e8f0; /* Gạch ngang của mỗi hàng data */
             }
-            
+
             /* * 2. Sửa lỗi LỔM CHỔM (Căn giữa)
-             */
-            .inventory-table td, 
+            */
+            .inventory-table td,
             .inventory-table th {
                 vertical-align: middle; /* (MỚI) Căn giữa mọi thứ theo chiều dọc */
-                text-align: left; /* Căn trái mặc định */
+                text-align: center; /* Căn trái mặc định */
             }
 
             /* * 3. Giữ nguyên logic CẮT BỚT CHỮ
-             */
+            */
             .feedback-col {
-                max-width: 400px;
+                max-width: 300px;
                 min-width: 200px;
                 width: 30%;
             }
-            
+
             .feedback-content-clamp {
                 display: -webkit-box;
                 -webkit-box-orient: vertical;
@@ -76,9 +76,9 @@
                 text-overflow: ellipsis;
                 word-break: break-word;
             }
-        
+
             /* * 4. Tinh chỉnh các cột khác
-             */
+            */
             .inventory-table .action-col,
             .inventory-table .date-col,
             .inventory-table .rating-col,
@@ -87,11 +87,11 @@
                 white-space: nowrap;
                 vertical-align: middle; /* Đảm bảo căn giữa */
             }
-            
+
             /* (MỚI) Căn giữa cột Rating và Action cho đẹp */
             .inventory-table .rating-col,
             .inventory-table .action-col {
-                 text-align: center;
+                text-align: center;
             }
         </style>
     </head>
@@ -233,7 +233,7 @@
                                     <!-- Filter Bar -->
                                     <div class="filter-bar">
                                         <input type="text" id="searchInput" class="search-input" placeholder="Search by device name..." 
-                                               value="<%= request.getAttribute("search") != null ? request.getAttribute("search") : "" %>">
+                                               value="<%= request.getAttribute("search") != null ? request.getAttribute("search") : "" %>" minlength="10" maxlength="80">
 
                                         <select id="typeFilter" name="type" class="search-input" style="min-width: 150px;">
                                             <option value="ALL" ${empty param.type || param.type == 'ALL' ? 'selected' : ''}>All Types</option>
@@ -307,11 +307,15 @@
                                                             <div class="feedback-content-clamp">
                                                                 <%= f.getComment() %>
                                                             </div>
-                                                           
+
                                                         </td>
-                                                       
+
                                                         <td class="date-col"><%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(f.getRequestDate()) %></td>
                                                         <td class="action-col">
+
+                                                            <a href="${pageContext.request.contextPath}/customer/detailFeedback?id=<%= f.getRequestId() %>" class="btn btn-action btn-view" style="text-decoration: none; margin-left: 5px;">
+                                                                <i class="fa fa-eye"></i> Detail
+                                                            </a>
 
                                                             <a href="${pageContext.request.contextPath}/customer/updateFeedback?id=<%= f.getRequestId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                                 <i class="fa fa-edit"></i> Update

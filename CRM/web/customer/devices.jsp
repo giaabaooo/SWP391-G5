@@ -167,7 +167,7 @@
                                     <!-- Filter Bar -->
                                     <div class="filter-bar">
                                         <input type="text" id="searchInput" class="search-input" placeholder="Search by device name..." 
-                                               value="<%= request.getAttribute("search") != null ? request.getAttribute("search") : "" %>">
+                                               value="<%= request.getAttribute("search") != null ? request.getAttribute("search") : "" %>" minlength="10" maxlength="80">
 
                                         <select id="categoryFilter" class="search-input" style="min-width: 150px;">
 
