@@ -122,6 +122,16 @@ public class TaskController extends HttpServlet {
                         schedule = new ArrayList<>();
                     }
                 }
+                
+                schedule.removeIf(test -> {
+                    var i = db.getRequestById(test.getRequest_id());
+                    return i.getStatus().contains("COMPLETED")
+                            || i.getStatus().contains("AWAITING_PAYMENT")
+                            || i.getStatus().contains("PAID")
+                            || i.getStatus().contains("CANCELLED")
+                            || i.getStatus().contains("CLOSED");
+                });
+
                 req.setAttribute("weekSchedule", schedule);
 
                 req.setAttribute("tasks", a);
