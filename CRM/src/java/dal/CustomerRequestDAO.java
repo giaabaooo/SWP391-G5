@@ -967,8 +967,14 @@ public class CustomerRequestDAO extends DBContext {
     public int getTotalEstimatedHoursByTechnicianAndDate(int technicianId, String date) throws SQLException {
         String sql = """
         SELECT assigned_date, estimated_hours
-        FROM customerrequest_assignment
+        FROM customerrequest_assignment ca
+        join customerrequest cr on cr.id = ca.request_id
         WHERE technician_id = ?
+        and cr.status != 'CLOSED'
+        and cr.status != 'COMPLETED'
+        and cr.status != 'AWAITING_PAYMENT'
+        and cr.status != 'PAID'
+        and cr.status != 'CANCELLED'
     """;
         LocalDate targetDate = LocalDate.parse(date);
         int totalHoursForDate = 0;

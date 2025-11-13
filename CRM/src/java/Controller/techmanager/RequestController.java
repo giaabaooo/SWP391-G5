@@ -69,7 +69,7 @@ public class RequestController extends HttpServlet {
                     req.setAttribute("requestSelected", Integer.valueOf(req.getParameter("id")));
                     var a = db.getCusRequestMetaById(Integer.parseInt(req.getParameter("id")));
                     req.setAttribute("requestMetaSelected", a);
-                    
+
                 }
 
                 String selectedDateStr = req.getParameter("selectedDate");
@@ -120,11 +120,19 @@ public class RequestController extends HttpServlet {
                         schedule = new ArrayList<>();
                     }
                 }
+
+                schedule.removeIf(a -> {
+                    var i = db.getRequestById(a.getRequest_id());
+                    return i.getStatus().contains("COMPLETED")
+                            || i.getStatus().contains("AWAITING_PAYMENT")
+                            || i.getStatus().contains("PAID")
+                            || i.getStatus().contains("CANCELLED")
+                            || i.getStatus().contains("CLOSED");
+                });
+
                 req.setAttribute("weekSchedule", schedule);
 
-                
-                
-                req.setAttribute("requestList",db.getListRequest(1, Integer.MAX_VALUE, "", "", "", "", "", "active"));
+                req.setAttribute("requestList", db.getListRequest(1, Integer.MAX_VALUE, "", "", "", "", "", "active"));
 
                 req.getRequestDispatcher("/techmanager/assign_task.jsp").forward(req, resp);
                 break;
