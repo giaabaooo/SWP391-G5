@@ -26,7 +26,7 @@ $(function() {
     function getUrlParams() {
         var params = new URLSearchParams(window.location.search);
         var urlParams = {};
-        
+
         if (params.get('search')) {
             urlParams.search = params.get('search');
         }
@@ -36,10 +36,13 @@ $(function() {
         if (params.get('brandId')) {
             urlParams.brandId = params.get('brandId');
         }
+        if (params.get('status')) {
+            urlParams.status = params.get('status');
+        }
         if (params.get('pageSize')) {
             urlParams.pageSize = params.get('pageSize');
         }
-        
+
         return urlParams;
     }
     
@@ -186,58 +189,88 @@ $(function() {
         window.location.href = buildUrlWithParams(params);
     };
     
-    // Delete product button click handler
+    // Status change button click handler
     var currentDeleteProductId = null;
-    
-    $('.btn-delete').on('click', function() {
-        var productId = $(this).data('product-id');
-        var productName = $(this).closest('tr').find('td:eq(1) strong').text();
-        
+    var currentAction = null;
+
+    // Handle both activate and deactivate buttons
+    $(document).on('click', '.btn-delete, .btn-action[data-action]', function() {
+        var $btn = $(this);
+        var productId = $btn.data('product-id');
+        var productName = $btn.data('product-name');
+        var action = $btn.data('action');
+
         // Store product info
         currentDeleteProductId = productId;
-        
-        // Update modal content
+        currentAction = action;
+
+        // Update modal content based on action
         $('#modalProductName').text(productName);
-        
+
+        if (action === 'deactivate') {
+            $('#modalTitle').text('Deactivate Product');
+            $('#modalMessage').text('Are you sure you want to deactivate this product?');
+            $('#modalDescription').text('This will mark the product as inactive.');
+            $('#modalWarning').parent().hide();
+            $('#modalIcon').removeClass('fa-check').addClass('fa-ban');
+            $('#confirmIcon').removeClass('fa-check').addClass('fa-ban');
+            $('#confirmText').text('Deactivate');
+            $('#confirmDeleteBtn').removeClass('modal-btn-activate').addClass('modal-btn-delete');
+            $('#deleteModal').removeClass('activate-mode');
+        } else if (action === 'activate') {
+            $('#modalTitle').text('Activate Product');
+            $('#modalMessage').text('Are you sure you want to activate this product?');
+            $('#modalDescription').text('This will mark the product as active.');
+            $('#modalWarning').parent().hide();
+            $('#modalIcon').removeClass('fa-ban').addClass('fa-check');
+            $('#confirmIcon').removeClass('fa-ban').addClass('fa-check');
+            $('#confirmText').text('Activate');
+            $('#confirmDeleteBtn').removeClass('modal-btn-delete').addClass('modal-btn-activate');
+            $('#deleteModal').addClass('activate-mode');
+        }
+
         // Show modal
         $('#deleteModal').addClass('active');
     });
-    
+
     // Close modal function
     window.closeDeleteModal = function() {
         $('#deleteModal').removeClass('active');
         currentDeleteProductId = null;
+        currentAction = null;
     };
-    
+
     // Close modal when clicking outside
     $('#deleteModal').on('click', function(e) {
         if ($(e.target).is('#deleteModal')) {
             closeDeleteModal();
         }
     });
-    
+
     // Close modal on ESC key
     $(document).on('keydown', function(e) {
         if (e.key === 'Escape' && $('#deleteModal').hasClass('active')) {
             closeDeleteModal();
         }
     });
-    
-    // Confirm delete button
+
+    // Confirm status change button
     $('#confirmDeleteBtn').on('click', function() {
-        if (currentDeleteProductId) {
+        if (currentDeleteProductId && currentAction) {
+            var actionUrl = currentAction === 'activate' ? '../warestaff/activateProduct' : '../warestaff/deleteProduct';
+
             // Create and submit form
             var form = $('<form>', {
                 'method': 'POST',
-                'action': '../warestaff/deleteProduct'
+                'action': actionUrl
             });
-            
+
             var input = $('<input>', {
                 'type': 'hidden',
                 'name': 'id',
                 'value': currentDeleteProductId
             });
-            
+
             form.append(input);
             $('body').append(form);
             form.submit();
@@ -282,11 +315,12 @@ $(function() {
         var searchQuery = document.getElementById('searchInput').value;
         var categoryId = document.getElementById('categoryFilter').value;
         var brandId = document.getElementById('brandFilter').value;
-        
+        var status = document.getElementById('statusFilter').value;
+
         // Build URL with parameters
         var url = window.location.pathname + '?';
         var params = [];
-        
+
         if (searchQuery && searchQuery.trim() !== '') {
             params.push('search=' + encodeURIComponent(searchQuery));
         }
@@ -296,9 +330,12 @@ $(function() {
         if (brandId && brandId !== '') {
             params.push('brandId=' + brandId);
         }
-        
+        if (status && status !== '') {
+            params.push('status=' + status);
+        }
+
         url += params.join('&');
-        
+
         // Redirect to filtered URL
         window.location.href = url;
     };
@@ -317,7 +354,7 @@ $(function() {
     });
     
     // Handle change event for dropdowns
-    $('#categoryFilter, #brandFilter').on('change', function() {
+    $('#categoryFilter, #brandFilter, #statusFilter').on('change', function() {
         applyFilters();
     });
 });

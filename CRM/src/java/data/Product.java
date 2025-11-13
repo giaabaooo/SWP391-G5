@@ -14,6 +14,7 @@ public class Product {
     private int id;
     private int categoryId;
     private Integer brandId;
+    private String sku;
     private String imageUrl;
     private String name;
     private String description;
@@ -25,7 +26,7 @@ public class Product {
     public Product() {
     }
 
-    public Product(int id, int categoryId, Integer brandId, String imageUrl, String name, 
+    public Product(int id, int categoryId, Integer brandId, String imageUrl, String name,
                    String description, BigDecimal purchasePrice, BigDecimal sellingPrice, boolean isActive) {
         this.id = id;
         this.categoryId = categoryId;
@@ -38,11 +39,12 @@ public class Product {
         this.isActive = isActive;
     }
 
-    public Product(int id, int categoryId, Integer brandId, String imageUrl, String name, 
+    public Product(int id, int categoryId, Integer brandId, String sku, String imageUrl, String name,
                    String description, BigDecimal purchasePrice, BigDecimal sellingPrice, String unit, boolean isActive) {
         this.id = id;
         this.categoryId = categoryId;
         this.brandId = brandId;
+        this.sku = sku;
         this.imageUrl = imageUrl;
         this.name = name;
         this.description = description;
@@ -130,5 +132,13 @@ public class Product {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
     }
 }

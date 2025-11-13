@@ -100,9 +100,9 @@
                         <i class="fa fa-exchange"></i> <span>Transactions</span>
                     </a>
                     <ul class="collapse" id="transactionMenu">
-                        <li><a href="transactions.jsp"><i class="fa fa-list"></i> View Transactions</a></li>
-                        <li><a href="spareParts.jsp"><i class="fa fa-cogs"></i> Manage Spare Parts</a></li>
-                        <li><a href="importExport.jsp"><i class="fa fa-upload"></i> Import/Export</a></li>
+                        <li><a href="../warestaff/transactions"><i class="fa fa-list"></i> View Transactions</a></li>
+                        <li><a href="../warestaff/addImportTransaction"><i class="fa fa-plus"></i> Add Stock In</a></li>
+                        <li><a href="../warestaff/addExportTransaction"><i class="fa fa-minus"></i> Add Stock Out</a></li>
                     </ul>
                 </li>
                 
@@ -210,9 +210,15 @@
                                                 <a href="../warestaff/editBrand?id=<%= brand.getId() %>" class="btn btn-action btn-edit" style="text-decoration: none;">
                                                     <i class="fa fa-edit"></i> Edit
                                                 </a>
-                                                <button class="btn btn-action btn-delete" data-brand-id="<%= brand.getId() %>" data-brand-name="<%= brand.getName() %>">
-                                                    <i class="fa fa-trash"></i> Delete
-                                                </button>
+                                                <% if (brand.isActive()) { %>
+                                                    <button class="btn btn-action btn-delete" data-brand-id="<%= brand.getId() %>" data-brand-name="<%= brand.getName() %>" data-action="deactivate">
+                                                        <i class="fa fa-ban"></i> Deactivate
+                                                    </button>
+                                                <% } else { %>
+                                                    <button class="btn btn-action btn-edit" data-brand-id="<%= brand.getId() %>" data-brand-name="<%= brand.getName() %>" data-action="activate" style="background:#16a34a; border-color:#16a34a;">
+                                                        <i class="fa fa-check"></i> Activate
+                                                    </button>
+                                                <% } %>
                                             </td>
                                         </tr>
                                         <% } %>
@@ -275,16 +281,16 @@
     <div class="delete-modal" style="max-width:380px;width:80%">
         <div class="modal-header-custom" style="background:#f8f9fa;border-bottom:1px solid #f1f3f4;">
             <div class="modal-icon">
-                <i class="fa fa-trash"></i>
+                <i class="fa fa-exchange" id="modalIcon"></i>
             </div>
-            <h3>Delete Brand</h3>
+            <h3 id="modalTitle">Change Brand Status</h3>
         </div>
         <div class="modal-body-custom">
-            <p class="warning-text">Are you sure you want to delete this brand?</p>
+            <p class="warning-text" id="modalMessage">Are you sure you want to change the status of this brand?</p>
             <div class="category-name-display" id="modalBrandName">Brand Name</div>
-            <p class="warning-text">This will deactivate the brand in your system.</p>
+            <p class="warning-text" id="modalDescription">This will update the brand status.</p>
             <span class="warning-badge">
-                <i class="fa fa-exclamation-triangle"></i> This action can be undone by re-activating!
+                <i class="fa fa-exclamation-triangle"></i> <span id="modalWarning">This action can be undone!</span>
             </span>
         </div>
         <div class="modal-footer-custom">
@@ -292,7 +298,7 @@
                 <i class="fa fa-times"></i> Cancel
             </button>
             <button class="modal-btn modal-btn-delete" id="confirmDeleteBtn">
-                <i class="fa fa-trash"></i> Delete Brand
+                <i class="fa fa-check" id="confirmIcon"></i> <span id="confirmText">Confirm</span>
             </button>
         </div>
     </div>
@@ -328,23 +334,60 @@
   window.goToNextPage=function(){const cp=parseInt(getParam('page')||'1',10);const tp=parseInt(document.getElementById('paginationData').dataset.totalPages||'1',10);if(cp<tp)goPage(cp+1)}
   window.goToLastPage=function(){const tp=parseInt(document.getElementById('paginationData').dataset.totalPages||'1',10);goPage(tp)}
 
-  // delete modal
+  // status change modal
   const modal=document.getElementById('deleteModal');
   const nameEl=document.getElementById('modalBrandName');
   const confirmBtn=document.getElementById('confirmDeleteBtn');
+  const modalTitle=document.getElementById('modalTitle');
+  const modalMessage=document.getElementById('modalMessage');
+  const modalDescription=document.getElementById('modalDescription');
+  const modalWarning=document.getElementById('modalWarning');
+  const modalIcon=document.getElementById('modalIcon');
+  const confirmIcon=document.getElementById('confirmIcon');
+  const confirmText=document.getElementById('confirmText');
   let currentId=null;
-  function openDelete(id,name){currentId=id;nameEl.textContent=name;modal.classList.add('active')}
-  window.closeDeleteModal=function(){modal.classList.remove('active');currentId=null}
+  let currentAction=null;
+  function openStatusChange(id,name,action){
+    currentId=id;currentAction=action;nameEl.textContent=name;
+    if(action==='deactivate'){
+      modalTitle.textContent='Deactivate Brand';
+      modalMessage.textContent='Are you sure you want to deactivate this brand?';
+      modalDescription.textContent='This will mark the brand as inactive.';
+      modalWarning.parentElement.style.display='none';
+      modalIcon.className='fa fa-ban';
+      confirmIcon.className='fa fa-ban';
+      confirmText.textContent='Deactivate';
+      confirmBtn.className='modal-btn modal-btn-delete';
+      modal.classList.remove('activate-mode');
+    }else{
+      modalTitle.textContent='Activate Brand';
+      modalMessage.textContent='Are you sure you want to activate this brand?';
+      modalDescription.textContent='This will mark the brand as active.';
+      modalWarning.parentElement.style.display='none';
+      modalIcon.className='fa fa-check';
+      confirmIcon.className='fa fa-check';
+      confirmText.textContent='Activate';
+      confirmBtn.className='modal-btn modal-btn-activate';
+      modal.classList.add('activate-mode');
+    }
+    modal.classList.add('active');
+  }
+  window.closeDeleteModal=function(){modal.classList.remove('active');currentId=null;currentAction=null;}
   document.getElementById('brandTableBody') && document.getElementById('brandTableBody').addEventListener('click',function(e){
-    const btn=e.target.closest('.btn-delete');
-    if(!btn) return; openDelete(btn.getAttribute('data-brand-id'), btn.getAttribute('data-brand-name'));
+    const btn=e.target.closest('.btn-delete, .btn-action[data-action]');
+    if(!btn) return;
+    const action=btn.getAttribute('data-action');
+    openStatusChange(btn.getAttribute('data-brand-id'), btn.getAttribute('data-brand-name'), action);
   });
   confirmBtn && confirmBtn.addEventListener('click',function(){
-    if(!currentId) return;
+    if(!currentId||!currentAction) return;
+    const actionUrl=currentAction==='activate'?'${pageContext.request.contextPath}/warestaff/activateBrand':'${pageContext.request.contextPath}/warestaff/deleteBrand';
     const form=document.createElement('form');
-    form.method='POST'; form.action='${pageContext.request.contextPath}/warestaff/deleteBrand';
+    form.method='POST'; form.action=actionUrl;
     const idIn=document.createElement('input'); idIn.type='hidden'; idIn.name='id'; idIn.value=currentId; form.appendChild(idIn);
-    const mode=document.createElement('input'); mode.type='hidden'; mode.name='mode'; mode.value='soft'; form.appendChild(mode);
+    if(currentAction==='deactivate'){
+      const mode=document.createElement('input'); mode.type='hidden'; mode.name='mode'; mode.value='soft'; form.appendChild(mode);
+    }
     document.body.appendChild(form); form.submit();
   });
   // pagination helpers
