@@ -543,3 +543,40 @@ select.search-input:hover {
     border-color: #c82333;
 }
 
+/* Activate Modal Styles (Green Theme) */
+.modal-overlay.activate-mode .delete-modal .modal-header-custom {
+    background: #d1fae5 !important;
+}
+
+.modal-overlay.activate-mode .delete-modal .modal-icon {
+    background: rgba(22, 163, 74, 0.1) !important;
+}
+
+.modal-overlay.activate-mode .delete-modal .modal-icon i {
+    color: #16a34a !important;
+}
+
+.modal-overlay.activate-mode .product-name-display,
+.modal-overlay.activate-mode .category-name-display {
+    color: #16a34a !important;
+    background: #d1fae5 !important;
+    border-color: #86efac !important;
+}
+
+.modal-overlay.activate-mode .warning-badge {
+    background: #d1fae5;
+    color: #059669;
+    border-color: #86efac;
+}
+
+.modal-btn-activate {
+    background: #16a34a;
+    color: white;
+    border-color: #16a34a;
+}
+
+.modal-btn-activate:hover {
+    background: #15803d;
+    border-color: #15803d;
+}
+

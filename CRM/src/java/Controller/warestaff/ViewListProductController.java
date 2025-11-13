@@ -37,11 +37,13 @@ public class ViewListProductController extends HttpServlet {
             String searchQuery = request.getParameter("search");
             String categoryParam = request.getParameter("categoryId");
             String brandParam = request.getParameter("brandId");
-            
+            String statusParam = request.getParameter("status");
+
             int page = 1;
             int pageSize = 10; // Default page size
             Integer categoryId = null;
             Integer brandId = null;
+            Integer status = null;
             
             // Parse page number
             if (pageParam != null && !pageParam.isEmpty()) {
@@ -81,14 +83,26 @@ public class ViewListProductController extends HttpServlet {
                     brandId = null;
                 }
             }
-            
+
+            // Parse status
+            if (statusParam != null && !statusParam.isEmpty()) {
+                try {
+                    status = Integer.parseInt(statusParam);
+                    if (status != 0 && status != 1) {
+                        status = null; // Only accept 0 or 1
+                    }
+                } catch (NumberFormatException e) {
+                    status = null;
+                }
+            }
+
             // Get products with filters
             List<Product> products;
             int totalProducts;
-            
+
             // Use the new filter method
-            products = productDAO.getProductsWithFilters(page, pageSize, searchQuery, categoryId, brandId);
-            totalProducts = productDAO.getTotalProductsWithFilters(searchQuery, categoryId, brandId);
+            products = productDAO.getProductsWithFilters(page, pageSize, searchQuery, categoryId, brandId, status);
+            totalProducts = productDAO.getTotalProductsWithFilters(searchQuery, categoryId, brandId, status);
             
             // Calculate total pages
             int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
@@ -121,6 +135,7 @@ public class ViewListProductController extends HttpServlet {
             request.setAttribute("searchQuery", searchQuery);
             request.setAttribute("selectedCategoryId", categoryId);
             request.setAttribute("selectedBrandId", brandId);
+            request.setAttribute("selectedStatus", statusParam);
 
             // Build inventory map: productId -> quantity
             Map<Integer, Integer> inventoryMap = new HashMap<>();

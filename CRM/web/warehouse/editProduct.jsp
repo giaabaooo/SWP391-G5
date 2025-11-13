@@ -119,9 +119,9 @@
                         <i class="fa fa-exchange"></i> <span>Transactions</span>
                     </a>
                     <ul class="collapse" id="transactionMenu">
-                        <li><a href="transactions.jsp"><i class="fa fa-list"></i> View Transactions</a></li>
-                        <li><a href="spareParts.jsp"><i class="fa fa-cogs"></i> Manage Spare Parts</a></li>
-                        <li><a href="importExport.jsp"><i class="fa fa-upload"></i> Import/Export</a></li>
+                        <li><a href="../warestaff/transactions"><i class="fa fa-list"></i> View Transactions</a></li>
+                        <li><a href="../warestaff/addImportTransaction"><i class="fa fa-plus"></i> Add Stock In</a></li>
+                        <li><a href="../warestaff/addExportTransaction"><i class="fa fa-minus"></i> Add Stock Out</a></li>
                     </ul>
                 </li>
 
