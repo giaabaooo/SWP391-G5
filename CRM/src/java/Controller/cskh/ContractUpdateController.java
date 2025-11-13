@@ -36,12 +36,8 @@ public class ContractUpdateController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        try (ContractDAO contractDAO = new ContractDAO();
-             DeviceDAO deviceDAO = new DeviceDAO();
-             UserDBContext userDAO = new UserDBContext();
-             ProductDAO productDAO = new ProductDAO();
-             ProductSerialDAO psDAO = new ProductSerialDAO()) {
+
+        try (ContractDAO contractDAO = new ContractDAO(); DeviceDAO deviceDAO = new DeviceDAO(); UserDBContext userDAO = new UserDBContext(); ProductDAO productDAO = new ProductDAO(); ProductSerialDAO psDAO = new ProductSerialDAO()) {
 
             int contractId = Integer.parseInt(request.getParameter("id"));
 
@@ -51,8 +47,13 @@ public class ContractUpdateController extends HttpServlet {
             List<Product> products = productDAO.getAllActiveProducts();
             List<Device> allDevices = deviceDAO.getDevicesByContractId(contractId);
 
+            List<Product> allProducts = productDAO.getAllActiveProducts();
             Map<Integer, List<ProductSerial>> availableSerialsMap = psDAO.getAvailableSerialsForUpdate(contractId);
             String availableSerialsJson = new Gson().toJson(availableSerialsMap);
+            Set<Integer> productIdsWithStock = availableSerialsMap.keySet();
+            List<Product> availableProducts = allProducts.stream()
+                    .filter(p -> productIdsWithStock.contains(p.getId()))
+                    .collect(Collectors.toList());
 
             Map<Integer, List<String>> currentSerialsMap = new HashMap<>();
             for (Device d : allDevices) {
@@ -68,10 +69,10 @@ public class ContractUpdateController extends HttpServlet {
             request.setAttribute("contract", contract);
             request.setAttribute("items", items);
             request.setAttribute("customers", customers);
-            request.setAttribute("products", products);
-            
-            request.setAttribute("availableSerialsJson", availableSerialsJson); 
-            request.setAttribute("currentSerialsMap", currentSerialsMap); 
+            request.setAttribute("products", availableProducts);
+
+            request.setAttribute("availableSerialsJson", availableSerialsJson);
+            request.setAttribute("currentSerialsMap", currentSerialsMap);
 
             request.getRequestDispatcher("/cskh/contract_update.jsp").forward(request, response);
 
@@ -89,31 +90,31 @@ public class ContractUpdateController extends HttpServlet {
         ContractDAO contractDAO = new ContractDAO();
         DeviceDAO deviceDAO = new DeviceDAO();
         ProductSerialDAO psDAO = new ProductSerialDAO();
-        
+
         Connection conn = contractDAO.getConnection();
         deviceDAO.setConnection(conn);
         psDAO.setConnection(conn);
-        
-        int contractId = 0; 
+
+        int contractId = 0;
 
         try {
             request.setCharacterEncoding("UTF-8");
-            conn.setAutoCommit(false); 
+            conn.setAutoCommit(false);
 
             contractId = Integer.parseInt(request.getParameter("contractId"));
 
             int customerId = Integer.parseInt(request.getParameter("customerId"));
-            String contractCode = request.getParameter("contractCode"); 
+            String contractCode = request.getParameter("contractCode");
             String contractDateStr = request.getParameter("contractDate");
             String description = request.getParameter("description");
 
             String[] newSerialNumbers = request.getParameterValues("serialNumber");
             Set<String> newSerialsSet = new HashSet<>();
-            
+
             if (newSerialNumbers == null || newSerialNumbers.length == 0) {
-                 throw new Exception("Contract must have at least one item.");
+                throw new Exception("Contract must have at least one item.");
             }
-            
+
             for (String serial : newSerialNumbers) {
                 if (serial == null || serial.trim().isEmpty()) {
                     throw new Exception("A selected serial number is empty.");
@@ -125,20 +126,20 @@ public class ContractUpdateController extends HttpServlet {
 
             List<Device> oldDevices = deviceDAO.getDevicesByContractId(contractId);
             Set<String> oldSerialsSet = oldDevices.stream()
-                                                .map(Device::getSerialNumber)
-                                                .collect(Collectors.toSet());
+                    .map(Device::getSerialNumber)
+                    .collect(Collectors.toSet());
 
             Date contractDate = Date.valueOf(contractDateStr);
 
             Contract contract = new Contract();
             contract.setId(contractId);
             contract.setCustomerId(customerId);
-            contract.setContractCode(contractCode); // Lấy contract code từ form (dù đã readonly)
+            contract.setContractCode(contractCode);
             contract.setContractDate(contractDate);
             contract.setDescription(description);
 
             String[] productIds = request.getParameterValues("productId");
-            String[] quantities = request.getParameterValues("quantity"); 
+            String[] quantities = request.getParameterValues("quantity");
             String[] prices = request.getParameterValues("unitPrice");
             String[] warrantyMonths = request.getParameterValues("warrantyMonths");
             String[] maintenanceMonths = request.getParameterValues("maintenanceMonths");
@@ -146,9 +147,9 @@ public class ContractUpdateController extends HttpServlet {
 
             List<ContractItem> items = new ArrayList<>();
             double calculatedTotalAmount = 0.0;
-            
+
             if (productIds == null || productIds.length != newSerialNumbers.length) {
-                 throw new Exception("Mismatch between item count and serial count.");
+                throw new Exception("Mismatch between item count and serial count.");
             }
 
             for (int i = 0; i < productIds.length; i++) {
@@ -171,16 +172,16 @@ public class ContractUpdateController extends HttpServlet {
 
             boolean success = contractDAO.updateContractAndRecreateItems(contract, items);
             if (!success) {
-                 throw new Exception("Failed to update contract items in DAO.");
+                throw new Exception("Failed to update contract items in DAO.");
             }
 
             int serialIndex = 0;
             for (ContractItem item : items) {
                 int contractItemId = contractDAO.getLastActiveContractItemId(contractId, item.getProductId());
-                if(contractItemId == -1) {
+                if (contractItemId == -1) {
                     throw new SQLException("Could not find new contract item ID.");
                 }
-                
+
                 String serial = newSerialNumbers[serialIndex].trim();
 
                 Device device = new Device();
@@ -190,40 +191,37 @@ public class ContractUpdateController extends HttpServlet {
                         LocalDate.now().plusMonths(item.getWarrantyMonths())));
                 device.setStatus("InWarranty");
 
-                deviceDAO.insert(device); 
+                deviceDAO.insert(device);
                 serialIndex++;
             }
 
             Set<String> serialsToRelease = new HashSet<>(oldSerialsSet);
-            serialsToRelease.removeAll(newSerialsSet); 
+            serialsToRelease.removeAll(newSerialsSet);
 
             Set<String> serialsToReserve = new HashSet<>(newSerialsSet);
-            serialsToReserve.removeAll(oldSerialsSet); 
-            
+            serialsToReserve.removeAll(oldSerialsSet);
+
             for (String serial : serialsToRelease) {
                 psDAO.releaseSerial(serial);
             }
-            
-            // SỬA: XÓA VÒNG LẶP GÂY LỖI -1 TẠI ĐÂY
-            
+
             Map<String, Integer> newSerialProductMap = new HashMap<>();
-            for(int i=0; i < newSerialNumbers.length; i++) {
+            for (int i = 0; i < newSerialNumbers.length; i++) {
                 newSerialProductMap.put(newSerialNumbers[i].trim(), Integer.parseInt(productIds[i]));
             }
 
-            // Chỉ chạy vòng lặp ĐÚNG
             for (String serial : serialsToReserve) {
                 int pId = newSerialProductMap.get(serial);
-                psDAO.reserveSerial(serial, pId); // Giờ đã có productId
+                psDAO.reserveSerial(serial, pId);
             }
 
-            conn.commit(); 
+            conn.commit();
             response.sendRedirect(request.getContextPath() + "/cskh/contract_detail?id=" + contractId + "&message=updated");
 
         } catch (Exception e) {
             e.printStackTrace();
             try {
-                conn.rollback(); 
+                conn.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -243,20 +241,20 @@ public class ContractUpdateController extends HttpServlet {
     }
 
     private void reloadFormData(HttpServletRequest request, int contractId) {
-        try (ContractDAO contractDAO = new ContractDAO();
-             DeviceDAO deviceDAO = new DeviceDAO();
-             UserDBContext userDAO = new UserDBContext();
-             ProductDAO productDAO = new ProductDAO();
-             ProductSerialDAO psDAO = new ProductSerialDAO()) {
-            
+        try (ContractDAO contractDAO = new ContractDAO(); DeviceDAO deviceDAO = new DeviceDAO(); UserDBContext userDAO = new UserDBContext(); ProductDAO productDAO = new ProductDAO(); ProductSerialDAO psDAO = new ProductSerialDAO()) {
+
             request.setAttribute("contract", contractDAO.getContractDetail(contractId));
             request.setAttribute("items", contractDAO.getContractItems(contractId));
             request.setAttribute("customers", userDAO.getAllActiveCustomers());
-            request.setAttribute("products", productDAO.getAllActiveProducts());
 
             Map<Integer, List<ProductSerial>> availableSerialsMap = psDAO.getAvailableSerialsForUpdate(contractId);
             String availableSerialsJson = new Gson().toJson(availableSerialsMap);
-
+            Set<Integer> productIdsWithStock = availableSerialsMap.keySet();
+            List<Product> allProducts = productDAO.getAllActiveProducts();
+            List<Product> availableProducts = allProducts.stream()
+                    .filter(p -> productIdsWithStock.contains(p.getId()))
+                    .collect(Collectors.toList());
+            request.setAttribute("products", availableProducts);
             List<Device> allDevices = deviceDAO.getDevicesByContractId(contractId);
             Map<Integer, List<String>> currentSerialsMap = new HashMap<>();
             for (Device d : allDevices) {
@@ -266,7 +264,7 @@ public class ContractUpdateController extends HttpServlet {
 
             request.setAttribute("availableSerialsJson", availableSerialsJson);
             request.setAttribute("currentSerialsMap", currentSerialsMap);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
