@@ -25,11 +25,12 @@ public class CustomerRequestMeta {
     private int rating;
     private CustomerRequest customerRequest;
     private CustomerRequest request;
+    private Date desired_completion_date;
 
     public CustomerRequestMeta() {
     }
 
-    public CustomerRequestMeta(int id, int request_id, String priority, String reject_reason, double total_cost, double paid_amount, String payment_status, Date payment_due_date, String customer_comment, String customer_service_response, int rating, CustomerRequest customerRequest) {
+    public CustomerRequestMeta(int id, int request_id, String priority, String reject_reason, double total_cost, double paid_amount, String payment_status, Date payment_due_date, String customer_comment, String customer_service_response, int rating, CustomerRequest customerRequest,Date desired_completion_date) {
         this.id = id;
         this.request_id = request_id;
         this.priority = priority;
@@ -42,8 +43,18 @@ public class CustomerRequestMeta {
         this.customer_service_response = customer_service_response;
         this.rating = rating;
         this.customerRequest = customerRequest;
+        this.desired_completion_date = desired_completion_date;
     }
 
+    public Date getDesired_completion_date() {
+        return desired_completion_date;
+    }
+
+    public void setDesired_completion_date(Date desired_completion_date) {
+        this.desired_completion_date = desired_completion_date;
+    }
+
+    
     public CustomerRequestMeta(CustomerRequest request) {
         this.request = request;
     }

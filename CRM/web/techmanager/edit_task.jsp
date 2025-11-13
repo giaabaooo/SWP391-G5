@@ -349,7 +349,7 @@
                                                        value="${tasks.assigned_date}" required>
                                             </div>
                                         </div>
-                                            
+
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-calendar"></i> Estimated Hours
@@ -357,6 +357,23 @@
                                             <div class="info-value">
                                                 <input type="number" name="estimatedHours" class="form-control" 
                                                        value="${tasks.estimated_hours}" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                                            <div class="info-label">
+                                                <i class="fa fa-calendar"></i> Priority
+                                            </div>
+                                            <div class="info-value">
+                                                <input type="text" name="priority" class="form-control" value="${requestMetaSelected.priority}" required disabled>
+                                            </div>
+                                        </div>
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                                            <div class="info-label">
+                                                <i class="fa fa-calendar"></i> Desired Completion Date
+                                            </div>
+                                            <div class="info-value">
+                                                <input type="text" name="desired_completion_date" class="form-control" value="${requestMetaSelected.desired_completion_date}" required disabled>
                                             </div>
                                         </div>
 
@@ -375,7 +392,101 @@
                         </div>
                     </div>
 
+                    <!-- TASK SCHEDULE -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card product-detail-card" style="margin-top: 2rem;">
+                                <div class="card-body">
 
+                                    <h4 style="color:#2d3748; font-weight:600; margin-bottom:1rem;">
+                                        <i class="fa fa-calendar"></i> Task Schedule
+                                    </h4>
+
+                                    <!-- FILTER BAR -->
+
+                                    <form method="get" action="${pageContext.request.contextPath}/techmanager/task">
+                                        <input type="hidden" name="action" value="edit">
+                                        <input type="hidden" name="id" value="${tasks.customerRequest.id}" />
+
+                                        <div class="form-group">
+                                            <label><b>Select any date in week</b></label>
+                                            <input type="date" name="selectedDate" class="form-control" value="${param.selectedDate}" required />
+                                        </div>
+
+                                        <div class="form-group" style="margin-top:10px;">
+                                            <label><b>Select Technicians (optional)</b></label>
+                                            <select name="techIds" multiple class="form-control" size="5">
+                                                <c:forEach var="t" items="${technicianList}">
+                                                    <option value="${t.id}" <c:forEach var="sid" items="${selectedTechIds}">
+                                                                <c:if test="${sid == t.id.toString()}">selected</c:if>
+                                                            </c:forEach>>
+
+                                                        ${t.fullName}
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                            <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</small>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary" style="margin-top:10px;margin-bottom:10px;">
+                                            View Week
+                                        </button>
+                                    </form>
+
+                                    <!-- SCHEDULE TABLE -->
+                                    <c:if test="${not empty filteredTechList}"> 
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Technician</th>
+
+                                                        <c:forEach var="d" items="${weekDays}">
+                                                            <th>
+                                                                ${d.dayOfWeek.name().substring(0,3)} <br/>
+                                                                ${d}
+                                                            </th>
+                                                        </c:forEach>
+
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+
+                                                    <c:forEach var="tech" items="${filteredTechList}">
+                                                        <tr>
+                                                            <td>${tech.fullName}</td>
+
+                                                            <c:forEach var="d" items="${weekDays}">
+                                                                <td style="min-width:140px;">
+                                                                    <c:forEach var="a" items="${weekSchedule}">
+
+                                                                        <c:if test="${a.assigned_date != null 
+                                                                                      and a.technician_id == tech.id 
+                                                                                      and a.assigned_date.toString() == d.toString()}">
+                                                                              Task #${a.request_id} <c:if test="${a.request_id == tasks.customerRequest.id }">(Current task)</c:if><br/>
+                                                                              Hours: ${a.estimated_hours}
+                                                                              <hr/>
+                                                                        </c:if>
+                                                                    </c:forEach>
+                                                                </td>
+                                                            </c:forEach>
+
+                                                        </tr>
+                                                    </c:forEach>
+                                                </tbody>
+
+
+
+                                            </table>
+                                        </div>
+                                    </c:if>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>                       
 
                 </section>
                 <div class="footer-main">Copyright &copy; Customer Management System, 2024</div>

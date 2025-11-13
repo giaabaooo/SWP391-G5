@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ include file="/techmanager/layout/header.jsp" %>
 <%@ include file="/techmanager/layout/sidebar.jsp" %>
 <!DOCTYPE html>
@@ -292,12 +292,15 @@
 
                                     <form method="post" action="${pageContext.request.contextPath}/techmanager/task?action=add">
 
+
+
                                         <div class="info-row" style="margin-bottom: 1rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-tasks"></i> Task
                                             </div>
                                             <div class="info-value">
-                                                <select name="taskId" class="form-control" required>
+                                                <input type="hidden" name="taskId" class="form-control" value="${requestSelected}" required >
+                                                <select name="taskId" class="form-control" required disabled="">
                                                     <option value="">-- Select Task --</option>
                                                     <c:forEach var="task" items="${requestList}">
                                                         <c:if test="${task.status == 'TRANSFERRED'}">
@@ -350,13 +353,30 @@
                                                 <input type="date" name="assignedDate" class="form-control" required>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="info-row" style="margin-bottom: 1.5rem;">
                                             <div class="info-label">
                                                 <i class="fa fa-calendar"></i> Estimated Hours
                                             </div>
                                             <div class="info-value">
                                                 <input type="number" name="estimatedHours" class="form-control" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                                            <div class="info-label">
+                                                <i class="fa fa-calendar"></i> Priority
+                                            </div>
+                                            <div class="info-value">
+                                                <input type="text" name="priority" class="form-control" value="${requestMetaSelected.priority}" required disabled >
+                                            </div>
+                                        </div>
+                                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                                            <div class="info-label">
+                                                <i class="fa fa-calendar"></i> Desired Completion Date
+                                            </div>
+                                            <div class="info-value">
+                                                <input type="text" name="desired_completion_date" class="form-control" value="${requestMetaSelected.desired_completion_date}" required disabled>
                                             </div>
                                         </div>
 
@@ -387,64 +407,84 @@
                                     </h4>
 
                                     <!-- FILTER BAR -->
+
                                     <form method="get" action="${pageContext.request.contextPath}/techmanager/request">
                                         <input type="hidden" name="action" value="assignTask">
+                                        <input type="hidden" name="id" value="${requestSelected}" />
+                                        <div class="form-group">
+                                            <label><b>Select any date in week</b></label>
+                                            <input type="date" name="selectedDate" class="form-control" value="${param.selectedDate}" required />
+                                        </div>
 
-                                        <label><b>Select any date in week</b></label>
-                                        <input type="date" name="selectedDate" class="form-control" value="${param.selectedDate}" required />
+                                        <div class="form-group" style="margin-top:10px;">
+                                            <label><b>Select Technicians (optional)</b></label>
+                                            <select name="techIds" multiple class="form-control" size="5">
+                                                <c:forEach var="t" items="${technicianList}">
+                                                    <option value="${t.id}" <c:forEach var="sid" items="${selectedTechIds}">
+                                                                <c:if test="${sid == t.id.toString()}">selected</c:if>
+                                                            </c:forEach>>
+
+                                                        ${t.fullName}
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                            <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</small>
+                                        </div>
 
                                         <button type="submit" class="btn btn-primary" style="margin-top:10px;margin-bottom:10px;">
                                             View Week
                                         </button>
                                     </form>
 
-
                                     <!-- SCHEDULE TABLE -->
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Technician</th>
-
-                                                    <c:forEach var="d" items="${weekDays}">
-                                                        <th>
-                                                            ${d.dayOfWeek.name().substring(0,3)} <br/>
-                                                            ${d}
-                                                        </th>
-                                                    </c:forEach>
-
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                            
-                                                <c:forEach var="tech" items="${technicianList}">
+                                    <c:if test="${not empty filteredTechList}"> 
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-striped">
+                                                <thead>
                                                     <tr>
-                                                        <td>${tech.fullName}</td>
+                                                        <th>Technician</th>
 
                                                         <c:forEach var="d" items="${weekDays}">
-                                                            <td style="min-width:140px;">
-                                                                <c:forEach var="a" items="${weekSchedule}">
-
-                                                                    <c:if test="${a.assigned_date != null 
-                                                                                  and a.technician_id == tech.id 
-                                                                                  and a.assigned_date.toString() == d.toString()}">
-                                                                          Task #${a.request_id} <br/>
-                                                                          Hours: ${a.estimated_hours}
-                                                                          <hr/>
-                                                                    </c:if>
-                                                                </c:forEach>
-                                                            </td>
+                                                            <th>
+                                                                ${d.dayOfWeek.name().substring(0,3)} <br/>
+                                                                ${d}
+                                                            </th>
                                                         </c:forEach>
 
                                                     </tr>
-                                                </c:forEach>
-                                            </tbody>
+                                                </thead>
+
+                                                <tbody>
+
+                                                    <c:forEach var="tech" items="${filteredTechList}">
+                                                        <tr>
+                                                            <td>${tech.fullName}</td>
+
+                                                            <c:forEach var="d" items="${weekDays}">
+                                                                <td style="min-width:140px;">
+                                                                    <c:forEach var="a" items="${weekSchedule}">
+
+                                                                        <c:if test="${a.assigned_date != null 
+                                                                                      and a.technician_id == tech.id 
+                                                                                      and a.assigned_date.toString() == d.toString()}">
+                                                                              Task #${a.request_id} <br/>
+                                                                              Hours: ${a.estimated_hours}
+                                                                              <hr/>
+                                                                        </c:if>
+                                                                    </c:forEach>
+                                                                </td>
+                                                            </c:forEach>
+
+                                                        </tr>
+                                                    </c:forEach>
+                                                </tbody>
 
 
 
-                                        </table>
-                                    </div>
+                                            </table>
+                                        </div>
+                                    </c:if>
+
 
                                 </div>
                             </div>

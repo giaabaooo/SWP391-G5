@@ -601,9 +601,9 @@
                             <div class="content-card">
                                 <div class="card-header">
                                     <h3><i class="fa fa-list"></i> Request List</h3>
-                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask" class="btn btn-primary">
+<!--                                    <a href="${pageContext.request.contextPath}/techmanager/request?action=assignTask" class="btn btn-primary">
                                         <i class="fa fa-plus"></i> Assign Task
-                                    </a>
+                                    </a>-->
                                 </div>
 
                                 <!-- Filter Bar -->
