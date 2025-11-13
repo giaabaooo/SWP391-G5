@@ -32,6 +32,61 @@
             border-color: #dc3545;
             box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 0 2px rgba(220,53,69,0.1);
         }
+
+        /* Compact table styling */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #importItemsTable {
+            font-size: 12px;
+        }
+
+        #importItemsTable thead th {
+            font-size: 11px;
+            padding: 6px 4px;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        #importItemsTable tbody td {
+            padding: 6px 4px;
+            vertical-align: middle;
+        }
+
+        #importItemsTable .form-control,
+        #importItemsTable .form-control select {
+            font-size: 12px;
+            padding: 4px 6px;
+            height: auto;
+        }
+
+        #importItemsTable .category-label {
+            font-size: 11px;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        #importItemsTable .serial-inputs-container {
+            max-width: 280px;
+        }
+
+        #importItemsTable .serial-inputs-container small {
+            font-size: 10px;
+        }
+
+        #importItemsTable .btn {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        #importItemsTable .row-index {
+            font-size: 11px;
+        }
     </style>
 </head>
 <body class="skin-black">
@@ -159,7 +214,26 @@
                         <div class="card-header">
                             <h3><i class="fa fa-upload"></i> Stock In Form</h3>
                         </div>
-                        <div class="card-body" style="padding:1.25rem;">
+
+                        <!-- Mode Selection Tabs -->
+                        <div style="padding: 1.25rem 1.25rem 0 1.25rem;">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="active">
+                                    <a href="#manualEntry" data-toggle="tab">
+                                        <i class="fa fa-edit"></i> Manual Entry
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#excelUpload" data-toggle="tab">
+                                        <i class="fa fa-file-excel-o"></i> Upload Excel with Serials
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="tab-content" style="padding:1.25rem;">
+                            <!-- Manual Entry Tab -->
+                            <div class="tab-pane active" id="manualEntry">
                             <%
                                 List<Product> products = (List<Product>) request.getAttribute("products");
                                 List<data.Category> categories = (List<data.Category>) request.getAttribute("categories");
@@ -273,13 +347,14 @@
                                         <table class="table table-bordered" id="importItemsTable">
                                             <thead>
                                                 <tr>
-                                                    <th style="width:50px;">#</th>
-                                                    <th style="min-width:220px;">Product<span style="color:red">*</span></th>
-                                                    <th style="min-width:140px;">Category</th>
-                                                    <th style="min-width:140px;">Unit</th>
-                                                    <th style="min-width:140px;">Quantity<span style="color:red">*</span></th>
-                                                    <th style="min-width:200px;">Item note</th>
-                                                    <th style="width:60px;" class="text-center">Action</th>
+                                                    <th style="width:40px;">#</th>
+                                                    <th style="min-width:180px;">Product<span style="color:red">*</span></th>
+                                                    <th style="min-width:100px;">Category</th>
+                                                    <th style="min-width:90px;">Unit</th>
+                                                    <th style="min-width:80px;">Quantity<span style="color:red">*</span></th>
+                                                    <th style="min-width:280px;">Serial Numbers<span style="color:red">*</span></th>
+                                                    <th style="min-width:150px;">Item note</th>
+                                                    <th style="width:50px;" class="text-center">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -328,6 +403,10 @@
                                                     <td>
                                                         <input type="number" name="quantity" class="form-control quantity-input" min="1" required value="<%= quantityValue %>" />
                                                         <div class="validation-error quantity-error">Quantity must be a positive number</div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="serial-inputs-container"></div>
+                                                        <small class="text-muted">Enter quantity first to generate serial number fields</small>
                                                     </td>
                                                     <td>
                                                         <input type="text" name="itemNote" class="form-control" placeholder="Optional note" value="<%= itemNoteValue %>" />
@@ -382,6 +461,10 @@
                                         <div class="validation-error quantity-error">Quantity must be a positive number</div>
                                     </td>
                                     <td>
+                                        <div class="serial-inputs-container"></div>
+                                        <small class="text-muted">Enter quantity first to generate serial number fields</small>
+                                    </td>
+                                    <td>
                                         <input type="text" name="itemNote" class="form-control" placeholder="Optional note" />
                                     </td>
                                     <td class="text-center">
@@ -389,6 +472,45 @@
                                     </td>
                                 </tr>
                             </template>
+                            </div>
+                            <!-- End Manual Entry Tab -->
+
+                            <!-- Excel Upload Tab -->
+                            <div class="tab-pane" id="excelUpload">
+                                <div class="alert alert-info" style="background-color: #e6f7ff; border: 1px solid #91d5ff; color: #0050b3; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                                    <i class="fa fa-info-circle"></i> <strong>Excel Format:</strong> Your Excel file must have 2 columns: <code>sku</code> and <code>serial_number</code>
+                                </div>
+
+                                <form method="post" action="<%= request.getContextPath() %>/warestaff/importWithSerials" enctype="multipart/form-data" id="excelImportForm">
+                                    <div class="form-group">
+                                        <label class="control-label">Excel File (.xlsx)<span style="color:red">*</span></label>
+                                        <input type="file" name="excelFile" class="form-control" accept=".xlsx" required />
+                                        <small class="help-block">Upload an Excel file with columns: sku, serial_number</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label">Transaction time<span style="color:red">*</span></label>
+                                        <input type="datetime-local" name="transactionDate" class="form-control" required id="excelTransactionDate" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label">Supplier (optional)</label>
+                                        <input type="text" name="supplier" class="form-control" placeholder="Supplier name" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="control-label">General note (optional)</label>
+                                        <textarea name="note" class="form-control" rows="3" placeholder="Additional notes"></textarea>
+                                    </div>
+
+                                    <div class="form-group" style="margin-top:1.5rem;">
+                                        <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Import with Serials</button>
+                                        <a href="<%= request.getContextPath() %>/warestaff/viewListProduct" class="btn btn-default">Cancel</a>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- End Excel Upload Tab -->
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -452,6 +574,46 @@
             if (field) { field.classList.remove('error'); }
         }
 
+        function generateSerialInputs(row, quantity){
+            if (!row) return;
+            var container = row.querySelector('.serial-inputs-container');
+            if (!container) return;
+
+            // Clear existing inputs
+            container.innerHTML = '';
+
+            if (quantity <= 0 || isNaN(quantity)) {
+                return;
+            }
+
+            // Create input fields for each serial number
+            for (var i = 0; i < quantity; i++) {
+                var inputGroup = document.createElement('div');
+                inputGroup.style.marginBottom = '5px';
+
+                var label = document.createElement('span');
+                label.textContent = 'Serial ' + (i + 1) + ': ';
+                label.style.display = 'inline-block';
+                label.style.width = '70px';
+                label.style.fontSize = '12px';
+
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.name = 'serialNumber';
+                input.className = 'form-control serial-input';
+                input.placeholder = 'Enter serial number';
+                input.required = true;
+                input.style.display = 'inline-block';
+                input.style.width = 'calc(100% - 75px)';
+                input.style.fontSize = '13px';
+                input.style.padding = '4px 8px';
+
+                inputGroup.appendChild(label);
+                inputGroup.appendChild(input);
+                container.appendChild(inputGroup);
+            }
+        }
+
         function reindexRows(){
             var rows = tableBody.querySelectorAll('.import-item-row');
             rows.forEach(function(row, idx){
@@ -488,8 +650,16 @@
                     var value = parseInt(quantityInput.value, 10);
                     if (!isNaN(value) && value > 0) {
                         clearRowError(row, 'quantity');
+                        generateSerialInputs(row, value);
+                    } else {
+                        generateSerialInputs(row, 0);
                     }
                 });
+                // Generate serial inputs on page load if quantity exists
+                var initialQty = parseInt(quantityInput.value, 10);
+                if (!isNaN(initialQty) && initialQty > 0) {
+                    generateSerialInputs(row, initialQty);
+                }
             }
 
             var removeBtn = row.querySelector('.remove-row-btn');
@@ -532,6 +702,8 @@
                 itemListError.classList.remove('show');
             }
 
+            var allSerials = [];
+
             rows.forEach(function(row){
                 var productSelect = row.querySelector('.product-select');
                 var quantityInput = row.querySelector('.quantity-input');
@@ -551,6 +723,32 @@
                 } else {
                     clearRowError(row, 'quantity');
                 }
+
+                // Validate serial numbers
+                var serialInputs = row.querySelectorAll('.serial-input');
+                if (serialInputs.length !== quantityValue) {
+                    alert('Please enter quantity first to generate serial number fields');
+                    valid = false;
+                    return;
+                }
+
+                serialInputs.forEach(function(input){
+                    var serialValue = input.value.trim();
+                    if (serialValue === '') {
+                        input.style.borderColor = 'red';
+                        valid = false;
+                    } else {
+                        input.style.borderColor = '';
+                        // Check for duplicates
+                        if (allSerials.indexOf(serialValue) !== -1) {
+                            alert('Duplicate serial number: ' + serialValue);
+                            input.style.borderColor = 'red';
+                            valid = false;
+                        } else {
+                            allSerials.push(serialValue);
+                        }
+                    }
+                });
             });
 
             if (!valid) {
@@ -564,6 +762,20 @@
                 submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
             }
         });
+    })();
+
+    // Set default datetime for Excel upload form
+    (function() {
+        var excelDateInput = document.getElementById('excelTransactionDate');
+        if (excelDateInput) {
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            excelDateInput.value = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+        }
     })();
 </script>
 </body>
