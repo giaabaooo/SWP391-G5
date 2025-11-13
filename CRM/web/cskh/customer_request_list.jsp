@@ -134,19 +134,19 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <c:choose>
-                                                    <c:when test="${not empty r.priority}">
+                                                <c:choose>                           
+                                                    <c:when test="${not empty r.requestMeta.priority}">
                                                         <span class="status-label
-                                                              ${r.priority eq 'URGENT' ? 'status-critical' :
-                                                                r.priority eq 'HIGH' ? 'status-warning' :
-                                                                r.priority eq 'MEDIUM' ? 'status-info' :
-                                                                r.priority eq 'LOW' ? 'status-success' : ''}">
-                                                                  ${r.priority}
+                                                               ${r.requestMeta.priority eq 'URGENT' ? 'status-critical' :
+                                                                r.requestMeta.priority eq 'HIGH' ? 'status-warning' :
+                                                                r.requestMeta.priority eq 'MEDIUM' ? 'status-info' :
+                                                                r.requestMeta.priority eq 'LOW' ? 'status-success' : ''}">
+                                                                  ${r.requestMeta.priority}
                                                               </span>
                                                         </c:when>
-                                                        <c:otherwise>N/A</c:otherwise>
-                                                    </c:choose>
-                                                </td>
+                                                    <c:otherwise>N/A</c:otherwise>
+                                                </c:choose>
+                                            </td>
                                                 <td>
                                                     <c:choose>
                                                         <c:when test="${r.status eq 'PENDING'}">

@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ include file="/cskh/layout/header.jsp" %>
@@ -41,7 +42,7 @@
                                 <div class="form-group">
                                     <label>Contract Code:</label>
                                     <input type="text" name="contractCode" required class="form-control" 
-                                           value="${contract.contractCode}">
+                                           value="${contract.contractCode}" readonly style="background-color: #eee;">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -71,7 +72,10 @@
 
                         <div id="itemContainer">
                             <c:forEach var="item" items="${items}">
-                                <div class="item-row" style="margin-bottom: 10px; padding: 15px; border: 1px solid #eee; border-radius: 5px; background: #fdfdfd;">
+                                <c:set var="currentItemSerial" value="${currentSerialsMap[item.id][0]}" />
+                                
+                                <div class="item-row" style="margin-bottom: 10px; padding: 15px; border: 1px solid #eee; border-radius: 5px; background: #fdfdfd;"
+                                     data-current-serial="${currentItemSerial}">
                                     
                                     <div class="row">
                                         <div class="col-xs-12">
@@ -88,7 +92,9 @@
                                                 <select name="productId" required class="form-control product-select">
                                                     <option value="">-- Select a Product --</option>
                                                     <c:forEach var="prod" items="${products}">
-                                                        <option value="${prod.id}" data-price="${prod.sellingPrice}" 
+                                                        <fmt:formatNumber value="${prod.sellingPrice}" pattern="0.00" var="formattedPrice" groupingUsed="false" />
+                                                        
+                                                        <option value="${prod.id}" data-price="${formattedPrice}" 
                                                                 ${prod.id == item.productId ? 'selected' : ''}>
                                                             ${prod.name}
                                                         </option>
@@ -107,7 +113,7 @@
                                             <div class="form-group">
                                                 <label>Qty:</label>
                                                 <input type="number" name="quantity" required class="form-control qty" 
-                                                       value="${item.quantity}" min="1">
+                                                       value="1" min="1" readonly style="background-color: #eee;">
                                             </div>
                                         </div>
                                     </div>
@@ -136,18 +142,9 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="serial-container" style="margin-top: 10px;">
-                                                <c:if test="${not empty serialsMap[item.id]}">
-                                                    <label style="display: block; margin-top: 5px; font-weight: 500;">Serial Numbers (Required):</label>
-                                                    <c:forEach var="serial" items="${serialsMap[item.id]}">
-                                                        <input type="text" name="serialNumber" class="form-control serial-input"
-                                                               style="margin-top: 5px; max-width: 350px;"
-                                                               value="${serial}" required>
-                                                    </c:forEach>
-                                                </c:if>
                                             </div>
                                         </div>
                                     </div>
-                                    
                                 </div>
                             </c:forEach>
                         </div>
@@ -171,31 +168,31 @@
     </section>
 </div>
 
+<%@ include file="/cskh/layout/footer.jsp" %>
+
 <script>
-    let itemTemplateHtml = '';
+    const rawJsonString = '${not empty availableSerialsJson ? availableSerialsJson : "{}"}';
+    const availableSerialsByProduct = JSON.parse(rawJsonString);
     
+    let itemTemplateHtml = '';
+
     function createItemTemplate() {
         const container = document.getElementById("itemContainer");
         if (container.children.length > 0) {
             const templateNode = container.firstElementChild.cloneNode(true);
-
             templateNode.querySelector(".serial-container").innerHTML = "";
             $(templateNode).find('.select2-container').remove();
             
             const productSelect = templateNode.querySelector(".product-select");
             productSelect.selectedIndex = 0;
-            templateNode.querySelector(".qty").value = "1";
             templateNode.querySelector(".price").value = "";
             templateNode.querySelector('input[name="warrantyMonths"]').value = "12";
             templateNode.querySelector('input[name="maintenanceMonths"]').value = "24";
             templateNode.querySelector('input[name="maintenanceFrequencyMonths"]').value = "6";
-            templateNode.querySelector(".qty").dataset.initialized = false;
-
-            templateNode.querySelectorAll('.serial-input').forEach(input => input.remove());
+            
+            templateNode.removeAttribute('data-current-serial');
             
             itemTemplateHtml = templateNode.innerHTML;
-        } else {
-            console.error("No items found to create a template.");
         }
     }
 
@@ -213,169 +210,159 @@
         
         container.appendChild(newItemRow);
 
-        const productSelect = newItemRow.querySelector(".product-select");
-        $(productSelect).select2({
+        $(newItemRow).find('.product-select').select2({
             placeholder: "-- Select a Product --",
             allowClear: true,
             width: '100%'
         });
-
-        attachAllListeners();
         
-        const newQtyInput = newItemRow.querySelector(".qty");
-        newQtyInput.dispatchEvent(new Event('input'));
-        newQtyInput.dataset.initialized = true;
+        attachRowListeners(newItemRow);
+        buildSerialDropdown(newItemRow, null); 
     });
-
-    function attachRemoveHandlers() {
-        document.querySelectorAll(".remove-item").forEach(btn => {
-            const newBtn = btn.cloneNode(true);
-            btn.parentNode.replaceChild(newBtn, btn);
-
-            newBtn.onclick = function () {
-                const rows = document.querySelectorAll(".item-row");
-                if (rows.length > 1) {
-                    this.closest(".item-row").remove();
-                    updateTotal();
-                } else {
-                    alert("At least one item is required.");
-                }
-            };
-        });
-    }
 
     function updateTotal() {
         let total = 0;
         document.querySelectorAll(".item-row").forEach(row => {
-            const qty = parseFloat(row.querySelector(".qty").value) || 0;
+            const qty = 1; 
             const price = parseFloat(row.querySelector(".price").value) || 0;
             total += qty * price;
         });
         document.getElementById("totalAmount").value = total.toFixed(2);
     }
-
-    function attachAutoSum() {
-        document.querySelectorAll(".qty, .price").forEach(input => {
-            input.oninput = updateTotal;
-        });
-
-        document.querySelectorAll(".qty").forEach(qtyInput => {
-            const handler = function () {
-                if (this.value < 1) {
-                    this.value = 1;
-                }
-                updateTotal();
-            };
-            qtyInput.removeEventListener('input', handler);
-            qtyInput.removeEventListener('change', handler);
-            qtyInput.addEventListener('input', handler);
-            qtyInput.addEventListener('change', handler);
-        });
-    }
-
-    function attachProductPriceChange() {
-        document.querySelectorAll(".product-select").forEach(select => {
-            $(select).off('change');
-            $(select).on('change', function () {
-                const selectedOption = this.options[this.selectedIndex];
-                const price = selectedOption.getAttribute('data-price') || 0;
-
-                const row = this.closest(".item-row");
-                const priceInput = row.querySelector(".price");
-
-                priceInput.value = parseFloat(price).toFixed(2);
-                updateTotal();
-            });
-        });
-    }
     
-    function attachSerialGenerator() {
-        document.querySelectorAll(".qty").forEach(qtyInput => {
-            
-            const triggerSerialUpdate = function () {
-                let qty = parseInt(this.value) || 0;
-                if (qty < 1) qty = 0;
-                
-                const row = this.closest(".item-row");
-                const serialContainer = row.querySelector(".serial-container");
-                
-                const existingSerials = Array.from(serialContainer.querySelectorAll('.serial-input')).map(input => input.value);
+    function validateAllSerials() {
+        const allSerialSelects = document.querySelectorAll('.serial-select');
+        const selectedValues = new Map(); 
+        let hasDuplicates = false;
 
-                serialContainer.innerHTML = "";
+        document.querySelectorAll('.serial-error').forEach(el => el.remove());
 
-                if (qty > 0) {
-                    const label = document.createElement('label');
-                    label.innerText = "Serial Numbers (Required):";
-                    label.style = "display: block; margin-top: 5px; font-weight: 500;";
-                    serialContainer.appendChild(label);
-                }
-
-                for (let i = 0; i < qty; i++) {
-                    const input = document.createElement("input");
-                    input.type = "text";
-                    input.name = "serialNumber";
-                    input.className = "form-control serial-input"; 
-                    input.placeholder = "Serial for Device #" + (i + 1);
-                    input.style = "margin-top: 5px; max-width: 350px;";
-                    input.required = true;
-                    if (existingSerials[i]) {
-                        input.value = existingSerials[i];
-                    }
-                    serialContainer.appendChild(input);
-                }
-                updateTotal();
-            };
-            
-            qtyInput.oninput = null;
-            qtyInput.onchange = null;
-            
-            qtyInput.oninput = triggerSerialUpdate;
-            qtyInput.onchange = triggerSerialUpdate;
+        allSerialSelects.forEach(select => {
+            const value = select.value;
+            if (value) { 
+                selectedValues.set(value, (selectedValues.get(value) || 0) + 1);
+            }
         });
+
+        allSerialSelects.forEach(select => {
+            const value = select.value;
+            if (value && selectedValues.get(value) > 1) {
+                hasDuplicates = true;
+                const errorEl = document.createElement('span');
+                errorEl.className = 'serial-error'; 
+                errorEl.style = "color: red; font-size: 0.85em; display: block;";
+                errorEl.textContent = 'This serial is already selected in another row.';
+                select.parentNode.insertBefore(errorEl, select.nextSibling);
+            }
+        });
+        return !hasDuplicates; 
     }
 
-    function attachAllListeners() {
-        attachRemoveHandlers();
-        attachAutoSum();
-        attachProductPriceChange();
-        attachSerialGenerator();
+    function buildSerialDropdown(row, currentSerialToSelect) {
+        const qty = 1; 
+        const serialContainer = row.querySelector(".serial-container");
+        const productId = row.querySelector(".product-select").value;
+
+        serialContainer.innerHTML = ""; 
+
+        if (!productId) {
+            serialContainer.innerHTML = "<p class='text-info'>Please select a product first.</p>";
+            return;
+        }
+
+        const availableSerials = availableSerialsByProduct[productId];
+
+        if (!availableSerials || availableSerials.length === 0) {
+            if(currentSerialToSelect) {
+                serialContainer.innerHTML = "<p class='text-danger'>Serial mismatch. Please re-select a serial for this (new) product.</p>";
+            } else {
+                serialContainer.innerHTML = "<p class='text-danger'>No serials in stock for this product.</p>";
+            }
+            return;
+        }
+
+        for (let i = 0; i < qty; i++) {
+            const selectElement = document.createElement('select');
+            selectElement.name = 'serialNumber';
+            selectElement.className = 'form-control serial-select';
+            selectElement.style = "margin-top: 5px; max-width: 350px;";
+            selectElement.required = true;
+
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.text = `-- Select Serial --`;
+            selectElement.appendChild(defaultOption);
+
+            availableSerials.forEach(function(serial) {
+                const option = document.createElement('option');
+                option.value = serial.serialNumber;
+                option.text = serial.serialNumber;
+                
+                if (serial.serialNumber === currentSerialToSelect) {
+                    option.selected = true;
+                }
+                
+                selectElement.appendChild(option);
+            });
+            
+            selectElement.addEventListener('change', validateAllSerials);
+            serialContainer.appendChild(selectElement);
+        }
+        updateTotal(); 
     }
+
+    function attachRowListeners(rowElement) {
+        $(rowElement).find('.product-select').select2({
+            placeholder: "-- Select a Product --",
+            allowClear: true,
+            width: '100%'
+        }).on('change', function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const price = selectedOption.getAttribute('data-price');
+            const row = this.closest(".item-row");
+            row.querySelector(".price").value = parseFloat(price).toFixed(2);
+            updateTotal();
+            
+            buildSerialDropdown(row, null); 
+            validateAllSerials();
+        });
+
+        $(rowElement).find(".remove-item").on('click', function () {
+            const rows = document.querySelectorAll(".item-row");
+            if (rows.length > 1) {
+                this.closest(".item-row").remove();
+                updateTotal();
+                validateAllSerials();
+            } else {
+                alert("At least one item is required.");
+            }
+        });
+        
+        $(rowElement).find(".price").on('input', updateTotal);
+    }
+
 
     $(document).ready(function () {
-        createItemTemplate();
-    
+        createItemTemplate(); 
+        
         $('#customerSelect').select2({
             placeholder: "-- Select a Customer --",
             allowClear: true,
             width: '100%'
         });
 
-        $('.product-select').select2({
-            placeholder: "-- Select a Product --",
-            allowClear: true,
-            width: '100%'
+        document.querySelectorAll(".item-row").forEach(row => {
+            attachRowListeners(row);
+            
+            const currentSerial = row.getAttribute('data-current-serial');
+            buildSerialDropdown(row, currentSerial); 
         });
-        
-        attachAllListeners();
-        
-        document.querySelectorAll(".qty").forEach(qtyInput => {
-            if (!qtyInput.dataset.initialized) {
-                const row = qtyInput.closest(".item-row");
-                const serialContainer = row.querySelector(".serial-container");
-                
-                if (serialContainer.children.length === 0) {
-                    qtyInput.dispatchEvent(new Event('input'));
-                }
-                
-                qtyInput.dataset.initialized = true;
-            }
-        });
-        
-        updateTotal();
 
         const dateInput = document.querySelector('input[name="contractDate"]');
         const today = new Date().toISOString().split('T')[0];
         dateInput.setAttribute('max', today);
+
+        updateTotal();
 
         $('form').on('submit', function (e) {
             let isValid = true;
@@ -383,26 +370,34 @@
 
             const selectedDate = new Date(dateInput.value);
             const now = new Date(today);
-            
             if (selectedDate > now) {
                 isValid = false;
                 errorMsg += "- Contract date cannot be in the future.\n";
             }
 
+            let totalQty = 0;
             document.querySelectorAll('.qty').forEach((qtyInput, index) => {
-                const qty = parseFloat(qtyInput.value);
-                if (isNaN(qty) || qty < 1) {
+                totalQty++;
+            });
+
+            let totalSerialSelects = 0;
+            document.querySelectorAll('.serial-select').forEach((serialSelect, index) => {
+                totalSerialSelects++;
+                if (!serialSelect.value.trim()) {
                     isValid = false;
-                    errorMsg += `- Item #${index + 1}: Quantity must be at least 1.\n`;
+                    errorMsg += `- Serial number is not selected (${serialSelect.options[0].text}).\n`;
                 }
             });
-            
-            document.querySelectorAll('.serial-input').forEach((serialInput, index) => {
-                if (!serialInput.value.trim()) {
-                    isValid = false;
-                    errorMsg += `- Serial number is required (${serialInput.placeholder}).\n`;
-                }
-            });
+
+            if (!validateAllSerials()) {
+                isValid = false;
+                errorMsg += "- Duplicate serial numbers are selected. Please check the red error messages.\n";
+            }
+
+            if (totalSerialSelects !== totalQty) {
+                isValid = false;
+                errorMsg += `- Mismatch: Total products are ${totalQty} but ${totalSerialSelects} serials are selected.\n`;
+            }
 
             if (!isValid) {
                 alert("Please fix the following errors:\n\n" + errorMsg);
@@ -411,5 +406,3 @@
         });
     });
 </script>
-
-<%@ include file="/cskh/layout/footer.jsp" %>

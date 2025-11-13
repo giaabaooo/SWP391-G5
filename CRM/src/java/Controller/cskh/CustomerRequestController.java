@@ -6,7 +6,6 @@ package Controller.cskh;
 
 import dal.CustomerRequestDAO;
 import data.CustomerRequest;
-import data.CustomerRequestMeta;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -92,10 +91,6 @@ public class CustomerRequestController extends HttpServlet {
 
             if ("transferToTechManager".equals(action)) {
                 dao.transferToTechManager(requestId);
-                CustomerRequestMeta meta = dao.getCusRequestMetaById(requestId);
-                if (meta == null || meta.getPriority() == null || meta.getPriority().isEmpty()) {
-                dao.updatePriority(requestId, "MEDIUM");
-            }
                 session.setAttribute("message", "Request #" + requestId + " transferred successfully!");
 
             } else if ("closeRequest".equals(action)) {

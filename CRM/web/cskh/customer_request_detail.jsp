@@ -221,15 +221,6 @@
 
                         <input type="hidden" name="action" value="transfer">
                         <input type="hidden" name="requestId" value="${requestDetail.id}">
-
-                        <div class="form-group">
-                            <label for="prioritySelect" style="margin-right: 5px;">Set Priority:</label>
-                            <select name="priority" id="prioritySelect" class="form-control" style="height: 38px;"> <option value="Medium">Medium (Default)</option>
-                                <option value="Low">Low</option>
-                                <option value="High">High</option>
-                                <option value="URGENT">URGENT</option>
-                            </select>
-                        </div>
                         <button type="submit" class="btn btn-success">
                             <i class="fa fa-share"></i> Transfer
                         </button>

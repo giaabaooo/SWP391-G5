@@ -33,6 +33,8 @@ public class UserPermissionController extends HttpServlet {
             ArrayList<User> filteredUsers = userDb.getFilteredActiveUsers(searchKeyword, filterRoleId);
             ArrayList<Permission> allPermissions = userDb.getAllPermissions();
 
+            allRoles.removeIf(role -> role.getName().equalsIgnoreCase("ADMIN"));
+            filteredUsers.removeIf(user -> user.getRole().getName().equalsIgnoreCase("ADMIN"));
             req.setAttribute("allRoles", allRoles);
             req.setAttribute("allUsers", filteredUsers);
             req.setAttribute("allPermissions", allPermissions);
@@ -76,6 +78,11 @@ public class UserPermissionController extends HttpServlet {
 
         try {
             int userId = Integer.parseInt(userIdParam);
+            
+            User userToEdit = userDb.get(userId);
+            if (userToEdit != null && userToEdit.getRole().getName().equalsIgnoreCase("ADMIN")) {
+                throw new Exception("Cannot modify permission overrides for an Admin user.");
+            }
             
             Map<Integer, Boolean> newOverrides = new HashMap<>();
 

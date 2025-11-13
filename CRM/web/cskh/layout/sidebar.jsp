@@ -32,6 +32,12 @@
                 </li>
 
                 <li>
+                    <a href="${pageContext.request.contextPath}/cskh/devices">
+                        <i class="fa fa.laptop"></i> <span>Device Management</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="${pageContext.request.contextPath}/cskh/customer-request">
                         <i class="fa fa-tasks"></i> <span>Customer Request Manager</span>
                     </a>
@@ -40,6 +46,12 @@
                 <li>
                     <a href="${pageContext.request.contextPath}/cskh/feedback">
                         <i class="fa fa-comments-o"></i> <span>Feedback Inbox</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="${pageContext.request.contextPath}/cskh/contacts">
+                        <i class="fa fa-inbox"></i> <span>Guest Contacts</span>
                     </a>
                 </li>
             </ul>

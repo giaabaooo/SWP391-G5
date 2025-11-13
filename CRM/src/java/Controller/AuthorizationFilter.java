@@ -52,6 +52,13 @@ public class AuthorizationFilter implements Filter {
         String method = req.getMethod();
 
         //ADMIN
+        if (path.equals("/admin/permissions")) {
+            return "MANAGE_ROLE_PERMISSIONS";
+        }
+        if (path.equals("/admin/user-permissions")) {
+            return "MANAGE_USER_PERMISSIONS";
+        }
+
         if (path.equals("/admin/user")) {
             if ("add".equals(action)) {
                 return "USER_CREATE";

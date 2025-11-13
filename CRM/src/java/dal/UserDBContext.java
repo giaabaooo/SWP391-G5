@@ -528,13 +528,20 @@ public class UserDBContext extends DBContext {
     }
 
     public boolean updateFullPermissionMatrix(String[] allCheckedPerms) {
-        String deleteSql = "DELETE FROM Role_Permission";
+        String deleteSql = "DELETE FROM Role_Permission WHERE role_id != ?";
         String insertSql = "INSERT INTO Role_Permission (role_id, permission_id) VALUES (?, ?)";
 
+        Role adminRole = getRoleByName("ADMIN");
+        if (adminRole == null) {
+            System.err.println("CRITICAL ERROR: 'Admin' role not found. Cannot update permissions.");
+            return false;
+        }
+        int adminRoleId = adminRole.getId();
         try {
             connection.setAutoCommit(false);
 
             try (PreparedStatement stmDelete = connection.prepareStatement(deleteSql)) {
+                stmDelete.setInt(1, adminRoleId);
                 stmDelete.executeUpdate();
             }
 
@@ -546,9 +553,11 @@ public class UserDBContext extends DBContext {
                             int roleId = Integer.parseInt(parts[0]);
                             int permId = Integer.parseInt(parts[1]);
 
-                            stmInsert.setInt(1, roleId);
-                            stmInsert.setInt(2, permId);
-                            stmInsert.addBatch();
+                            if (roleId != adminRoleId) { 
+                                stmInsert.setInt(1, roleId);
+                                stmInsert.setInt(2, permId);
+                                stmInsert.addBatch();
+                            }
                         }
                     }
                     stmInsert.executeBatch();
@@ -799,5 +808,22 @@ public class UserDBContext extends DBContext {
             e.printStackTrace();
             return false;
         }
+    }
+    
+    public Role getRoleByName(String name) {
+        String sql = "SELECT * FROM Role WHERE name = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, name);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                Role r = new Role();
+                r.setId(rs.getInt("id"));
+                r.setName(rs.getString("name"));
+                return r;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -373,4 +373,108 @@ public class DeviceDAO extends DBContext {
         }
         return false;
     }
+
+    public int countAllDevices(String keyword, String brand, String category, String status, String customerKeyword) {
+        int total = 0;
+        StringBuilder sql = new StringBuilder("""
+            SELECT COUNT(d.id) AS total
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Product p ON ci.product_id = p.id
+            JOIN Category c ON p.category_id = c.id
+            JOIN Brand b ON p.brand_id = b.id
+            JOIN Contract con ON ci.contract_id = con.id
+            JOIN User u ON con.customer_id = u.id 
+            WHERE 1=1
+        """);
+        List<Object> params = new ArrayList<>();
+        addCskhFilterClauses(sql, params, keyword, brand, category, status, customerKeyword);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return total;
+    }
+
+    public List<Device> getAllDevices(String keyword, String brand, String category, String status, String customerKeyword, int offset, int limit) {
+        List<Device> devices = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
+            SELECT 
+                d.id AS device_id,
+                d.serial_number,
+                d.status AS device_status,
+                p.name AS product_name,
+                c.name AS category_name,
+                b.name AS brand_name,
+                u.full_name AS customer_name
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            JOIN Product p ON ci.product_id = p.id
+            JOIN Category c ON p.category_id = c.id
+            JOIN Brand b ON p.brand_id = b.id
+            JOIN Contract con ON ci.contract_id = con.id
+            JOIN User u ON con.customer_id = u.id 
+            WHERE 1=1
+        """);
+        List<Object> params = new ArrayList<>();
+        addCskhFilterClauses(sql, params, keyword, brand, category, status, customerKeyword);
+        sql.append(" ORDER BY d.id DESC LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Device d = new Device();
+                d.setId(rs.getInt("device_id"));
+                d.setSerialNumber(rs.getString("serial_number"));
+                d.setProductName(rs.getString("product_name"));
+                d.setCategoryName(rs.getString("category_name"));
+                d.setBrandName(rs.getString("brand_name"));
+                d.setStatus(rs.getString("device_status"));
+                d.setCustomerName(rs.getString("customer_name"));
+                devices.add(d);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return devices;
+    }
+
+    private void addCskhFilterClauses(StringBuilder sql, List<Object> params, String keyword, String brand, String category, String status, String customerKeyword) {
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" AND p.name LIKE ? ");
+            params.add("%" + keyword + "%");
+        }
+        if (brand != null && !brand.equalsIgnoreCase("ALL") && !brand.isEmpty()) {
+            sql.append(" AND b.name = ? ");
+            params.add(brand);
+        }
+        if (category != null && !category.equalsIgnoreCase("ALL") && !category.isEmpty()) {
+            sql.append(" AND c.name = ? ");
+            params.add(category);
+        }
+        if (status != null && !status.equalsIgnoreCase("ALL") && !status.isEmpty()) {
+            sql.append(" AND d.status = ? ");
+            params.add(status);
+        }
+        if (customerKeyword != null && !customerKeyword.isEmpty()) {
+            sql.append(" AND (u.full_name LIKE ? OR u.email LIKE ?) ");
+            params.add("%" + customerKeyword + "%");
+            params.add("%" + customerKeyword + "%");
+        }
+    }
 }

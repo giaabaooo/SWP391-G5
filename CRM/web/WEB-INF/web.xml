@@ -186,6 +186,20 @@
         <servlet-class>Controller.ContactServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>java</servlet-name>
+        <servlet-class>GetProductSerialsServlet.java</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ContactsController</servlet-name>
+        <servlet-class>Controller.cskh.ContactsController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeviceController</servlet-name>
+        <servlet-class>Controller.cskh.DeviceController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteContractController</servlet-name>
+        <servlet-class>Controller.cskh.DeleteContractController</servlet-class>
         <servlet-name>DetailFeedback</servlet-name>
         <servlet-class>Controller.customer.DetailFeedback</servlet-class>
     </servlet>
@@ -328,6 +342,20 @@
         <url-pattern>/guestcontact</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>java</servlet-name>
+        <url-pattern>/java</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ContactsController</servlet-name>
+        <url-pattern>/ContactsController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeviceController</servlet-name>
+        <url-pattern>/DeviceController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteContractController</servlet-name>
+        <url-pattern>/DeleteContractController</url-pattern>
         <servlet-name>DetailFeedback</servlet-name>
         <url-pattern>/customer/detailFeedback</url-pattern>
     </servlet-mapping>

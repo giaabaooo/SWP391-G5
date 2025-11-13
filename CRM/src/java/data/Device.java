@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class Device {
+
     private int id;
     private int contractItemId;
     private int productId;
@@ -17,6 +18,15 @@ public class Device {
     private BigDecimal purchasePrice;
     private BigDecimal sellingPrice;
     private boolean isActive;
+    private String customerName;
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
     private Date contractDate;
     private int maintenanceMonths;
 
@@ -40,8 +50,6 @@ public class Device {
     public void setMaintenanceMonths(int maintenanceMonths) {
         this.maintenanceMonths = maintenanceMonths;
     }
-    
-    
 
     public boolean isIsActive() {
         return isActive;
@@ -51,11 +59,12 @@ public class Device {
         this.isActive = isActive;
     }
 
-    public Device() {}
+    public Device() {
+    }
 
     public Device(int id, int contractItemId, int productId, String productName,
-                  String brandName, String categoryName, String serialNumber,
-                  Date warrantyExpiration, String status, String imageUrl) {
+            String brandName, String categoryName, String serialNumber,
+            Date warrantyExpiration, String status, String imageUrl) {
         this.id = id;
         this.contractItemId = contractItemId;
         this.productId = productId;
@@ -68,13 +77,14 @@ public class Device {
         this.imageUrl = imageUrl;
         this.purchasePrice = purchasePrice;
         this.sellingPrice = sellingPrice;
-        
+
     }
 
     // Getter & Setter
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -82,6 +92,7 @@ public class Device {
     public int getContractItemId() {
         return contractItemId;
     }
+
     public void setContractItemId(int contractItemId) {
         this.contractItemId = contractItemId;
     }
@@ -89,6 +100,7 @@ public class Device {
     public int getProductId() {
         return productId;
     }
+
     public void setProductId(int productId) {
         this.productId = productId;
     }
@@ -96,6 +108,7 @@ public class Device {
     public String getProductName() {
         return productName;
     }
+
     public void setProductName(String productName) {
         this.productName = productName;
     }
@@ -103,6 +116,7 @@ public class Device {
     public String getBrandName() {
         return brandName;
     }
+
     public void setBrandName(String brandName) {
         this.brandName = brandName;
     }
@@ -110,6 +124,7 @@ public class Device {
     public String getCategoryName() {
         return categoryName;
     }
+
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
@@ -117,6 +132,7 @@ public class Device {
     public String getSerialNumber() {
         return serialNumber;
     }
+
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
     }
@@ -124,6 +140,7 @@ public class Device {
     public Date getWarrantyExpiration() {
         return warrantyExpiration;
     }
+
     public void setWarrantyExpiration(Date warrantyExpiration) {
         this.warrantyExpiration = warrantyExpiration;
     }
@@ -131,6 +148,7 @@ public class Device {
     public String getStatus() {
         return status;
     }
+
     public void setStatus(String status) {
         this.status = status;
     }
@@ -138,6 +156,7 @@ public class Device {
     public String getImageUrl() {
         return imageUrl;
     }
+
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
@@ -164,5 +183,5 @@ public class Device {
     public void setSellingPrice(BigDecimal sellingPrice) {
         this.sellingPrice = sellingPrice;
     }
-    
+
 }
