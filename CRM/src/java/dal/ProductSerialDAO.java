@@ -8,9 +8,10 @@ import data.ProductSerial;
  * DAO for managing ProductSerial table operations
  */
 public class ProductSerialDAO extends DBContext {
-    
+
     /**
      * Check if a serial number already exists in the database
+     *
      * @param serialNumber The serial number to check
      * @return true if exists, false otherwise
      */
@@ -26,9 +27,10 @@ public class ProductSerialDAO extends DBContext {
             return false;
         }
     }
-    
+
     /**
      * Insert a new serial number for a product
+     *
      * @param productId The product ID
      * @param serialNumber The serial number
      * @param status The status (IN_STOCK or SOLD)
@@ -46,9 +48,10 @@ public class ProductSerialDAO extends DBContext {
             return false;
         }
     }
-    
+
     /**
      * Batch insert serial numbers (used within a transaction)
+     *
      * @param conn The connection to use (for transaction control)
      * @param productId The product ID
      * @param serialNumbers List of serial numbers to insert
@@ -67,9 +70,10 @@ public class ProductSerialDAO extends DBContext {
             ps.executeBatch();
         }
     }
-    
+
     /**
      * Update serial number status to SOLD
+     *
      * @param serialNumber The serial number to update
      * @return true if successful, false otherwise
      */
@@ -83,9 +87,10 @@ public class ProductSerialDAO extends DBContext {
             return false;
         }
     }
-    
+
     /**
      * Update serial number status to SOLD (used within a transaction)
+     *
      * @param conn The connection to use
      * @param serialNumber The serial number to update
      * @throws SQLException if update fails
@@ -100,16 +105,17 @@ public class ProductSerialDAO extends DBContext {
             }
         }
     }
-    
+
     /**
      * Check if a serial number exists and is IN_STOCK for a specific product
+     *
      * @param productId The product ID
      * @param serialNumber The serial number
      * @return true if exists and in stock, false otherwise
      */
     public boolean isSerialInStock(int productId, String serialNumber) {
-        String sql = "SELECT 1 FROM ProductSerial ps " +
-                     "WHERE ps.product_id = ? AND ps.serial_number = ? AND ps.status = 'IN_STOCK'";
+        String sql = "SELECT 1 FROM ProductSerial ps "
+                + "WHERE ps.product_id = ? AND ps.serial_number = ? AND ps.status = 'IN_STOCK'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.setString(2, serialNumber);
@@ -121,9 +127,10 @@ public class ProductSerialDAO extends DBContext {
             return false;
         }
     }
-    
+
     /**
      * Get all serial numbers for a product with a specific status
+     *
      * @param productId The product ID
      * @param status The status to filter by
      * @return List of serial numbers
@@ -147,6 +154,7 @@ public class ProductSerialDAO extends DBContext {
 
     /**
      * Get a ProductSerial object by serial number
+     *
      * @param serialNumber The serial number to search for
      * @return ProductSerial object if found, null otherwise
      */
@@ -172,6 +180,7 @@ public class ProductSerialDAO extends DBContext {
 
     /**
      * Update the status of a serial number
+     *
      * @param serialNumber The serial number to update
      * @param newStatus The new status (IN_STOCK or SOLD)
      * @return true if successful, false otherwise
@@ -187,5 +196,90 @@ public class ProductSerialDAO extends DBContext {
             return false;
         }
     }
-}
 
+    public Map<Integer, List<ProductSerial>> getAvailableSerialsGroupedByProduct() {
+        Map<Integer, List<ProductSerial>> serialsMap = new HashMap<>();
+        String sql = "SELECT id, product_id, serial_number, status "
+                + "FROM ProductSerial WHERE status = 'IN_STOCK' ORDER BY product_id, serial_number";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                ProductSerial psObj = new ProductSerial();
+                psObj.setId(rs.getInt("id"));
+                psObj.setProductId(rs.getInt("product_id"));
+                psObj.setSerialNumber(rs.getString("serial_number"));
+                psObj.setStatus(rs.getString("status"));
+
+                serialsMap
+                        .computeIfAbsent(psObj.getProductId(), k -> new ArrayList<>())
+                        .add(psObj);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return serialsMap;
+    }
+
+    public void reserveSerial(String serialNumber, int productId) throws SQLException {
+        String sql = "UPDATE ProductSerial SET status = 'SOLD' "
+                + "WHERE serial_number = ? AND product_id = ? AND status = 'IN_STOCK'";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, serialNumber);
+            ps.setInt(2, productId);
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Serial number " + serialNumber
+                        + " is invalid, not in stock, or does not belong to product " + productId);
+            }
+        }
+    }
+
+    public void releaseSerial(String serialNumber) throws SQLException {
+        String sql = "UPDATE ProductSerial SET status = 'IN_STOCK' "
+                + "WHERE serial_number = ? AND status = 'SOLD'";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, serialNumber);
+            ps.executeUpdate();
+        }
+    }
+
+    public Map<Integer, List<ProductSerial>> getAvailableSerialsForUpdate(int contractId) {
+        Map<Integer, List<ProductSerial>> serialsMap = new HashMap<>();
+        String sql = """
+            (SELECT id, product_id, serial_number, status
+             FROM ProductSerial
+             WHERE status = 'IN_STOCK')
+            UNION
+            (SELECT ps.id, ps.product_id, ps.serial_number, ps.status
+             FROM ProductSerial ps
+             JOIN Device d ON ps.serial_number = d.serial_number
+             JOIN ContractItem ci ON d.contract_item_id = ci.id
+             WHERE ci.contract_id = ? AND ps.status = 'SOLD' AND d.is_active = true)
+            ORDER BY product_id, serial_number
+            """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, contractId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ProductSerial psObj = new ProductSerial();
+                    psObj.setId(rs.getInt("id"));
+                    psObj.setProductId(rs.getInt("product_id"));
+                    psObj.setSerialNumber(rs.getString("serial_number"));
+                    psObj.setStatus(rs.getString("status"));
+
+                    serialsMap
+                            .computeIfAbsent(psObj.getProductId(), k -> new ArrayList<>())
+                            .add(psObj);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return serialsMap;
+    }
+}

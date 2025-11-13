@@ -167,7 +167,6 @@ public class ContractDAO extends DBContext {
         int generatedContractId = -1;
 
         try {
-            connection.setAutoCommit(false);
             String newContractCode = generateNextContractCode(connection);
             contract.setContractCode(newContractCode);
 
@@ -200,20 +199,9 @@ public class ContractDAO extends DBContext {
                 psItem.executeBatch();
             }
 
-            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            throw new RuntimeException(e);
         }
 
         return generatedContractId;
@@ -425,6 +413,13 @@ public class ContractDAO extends DBContext {
     }
 
     public void deleteContractWithItems(int contractId) {
+        String selectSerialsSql = """
+            SELECT d.serial_number 
+            FROM Device d
+            JOIN ContractItem ci ON d.contract_item_id = ci.id
+            WHERE ci.contract_id = ? AND d.is_active = true
+            """;
+
         String updateDevicesSql = "UPDATE Device SET is_active = false "
                 + "WHERE contract_item_id IN (SELECT id FROM ContractItem WHERE contract_id = ?)";
 
@@ -432,8 +427,21 @@ public class ContractDAO extends DBContext {
 
         String updateContractSql = "UPDATE Contract SET is_active = false WHERE id = ?";
 
+        ProductSerialDAO psDAO = new ProductSerialDAO();
+        List<String> serialsToRelease = new ArrayList<>();
+
         try {
             connection.setAutoCommit(false);
+            psDAO.setConnection(connection);
+
+            try (PreparedStatement ps = connection.prepareStatement(selectSerialsSql)) {
+                ps.setInt(1, contractId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        serialsToRelease.add(rs.getString("serial_number"));
+                    }
+                }
+            }
 
             try (PreparedStatement psDevices = connection.prepareStatement(updateDevicesSql); PreparedStatement psItems = connection.prepareStatement(updateItemsSql); PreparedStatement psContract = connection.prepareStatement(updateContractSql)) {
 
@@ -445,9 +453,13 @@ public class ContractDAO extends DBContext {
 
                 psContract.setInt(1, contractId);
                 psContract.executeUpdate();
-
-                connection.commit();
             }
+
+            for (String serial : serialsToRelease) {
+                psDAO.releaseSerial(serial);
+            }
+
+            connection.commit();
 
         } catch (SQLException e) {
             try {
@@ -456,12 +468,14 @@ public class ContractDAO extends DBContext {
                 ex.printStackTrace();
             }
             e.printStackTrace();
+            throw new RuntimeException("Failed to delete contract", e);
         } finally {
             try {
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+            psDAO.close();
         }
     }
 
@@ -486,7 +500,6 @@ public class ContractDAO extends DBContext {
         """;
 
         try {
-            connection.setAutoCommit(false);
 
             try (PreparedStatement ps = connection.prepareStatement(deactivateDevicesSql)) {
                 ps.setInt(1, contract.getId());
@@ -521,65 +534,52 @@ public class ContractDAO extends DBContext {
                 }
                 psItem.executeBatch();
             }
-
-            connection.commit();
             return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            return false;
-        } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            throw new RuntimeException("Failed during DAO update", e);
         }
     }
-    
-    public ArrayList<Contract> getContractsByCustomerId(int customerId) {
-    ArrayList<Contract> contracts = new ArrayList<>();
-    String sql = "SELECT id, contract_code, contract_date, total_amount, description, is_active "
-            + "FROM Contract "
-            + "WHERE customer_id = ? AND is_active = true "
-            + "ORDER BY contract_date DESC";
 
-    try (PreparedStatement stm = connection.prepareStatement(sql)) {
-        stm.setInt(1, customerId);
-        ResultSet rs = stm.executeQuery();
-        while (rs.next()) {
-            Contract c = new Contract();
-            c.setId(rs.getInt("id"));
-            c.setContractCode(rs.getString("contract_code"));
-            c.setContractDate(rs.getDate("contract_date"));
-            c.setTotalAmount(rs.getDouble("total_amount"));
-            c.setDescription(rs.getString("description"));
-            c.setIsActive(rs.getBoolean("is_active"));
-            c.setCustomerId(customerId);
-            
-            contracts.add(c);
+    public ArrayList<Contract> getContractsByCustomerId(int customerId) {
+        ArrayList<Contract> contracts = new ArrayList<>();
+        String sql = "SELECT id, contract_code, contract_date, total_amount, description, is_active "
+                + "FROM Contract "
+                + "WHERE customer_id = ? AND is_active = true "
+                + "ORDER BY contract_date DESC";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, customerId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                Contract c = new Contract();
+                c.setId(rs.getInt("id"));
+                c.setContractCode(rs.getString("contract_code"));
+                c.setContractDate(rs.getDate("contract_date"));
+                c.setTotalAmount(rs.getDouble("total_amount"));
+                c.setDescription(rs.getString("description"));
+                c.setIsActive(rs.getBoolean("is_active"));
+                c.setCustomerId(customerId);
+
+                contracts.add(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return contracts;
     }
-    return contracts;
-}
-    
+
     private String generateNextContractCode(Connection conn) throws SQLException {
         LocalDate now = LocalDate.now();
         String year = String.valueOf(now.getYear());
         String month = String.format("%02d", now.getMonthValue());
         String prefix = "CT-" + year + "-" + month + "-";
         String sql = "SELECT contract_code FROM Contract WHERE contract_code LIKE ? ORDER BY contract_code DESC LIMIT 1 FOR UPDATE";
-        
+
         String lastCode = null;
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, prefix + "%"); 
+            stm.setString(1, prefix + "%");
             ResultSet rs = stm.executeQuery();
             if (rs.next()) {
                 lastCode = rs.getString("contract_code");
@@ -592,7 +592,7 @@ public class ContractDAO extends DBContext {
             String seqStr = lastCode.substring(lastCode.length() - 3);
             int seqNum = Integer.parseInt(seqStr);
             seqNum++;
-            String nextSeqStr = String.format("%03d", seqNum);           
+            String nextSeqStr = String.format("%03d", seqNum);
             return prefix + nextSeqStr;
         }
     }
