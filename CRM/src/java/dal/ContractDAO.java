@@ -10,6 +10,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Date;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -248,44 +250,21 @@ public class ContractDAO extends DBContext {
         }
     }
 
-    public int countContractsByUserId(int userId, String keyword, String brand, String category) {
+    public int countContractsByUserId(int userId) {
         StringBuilder sql = new StringBuilder("""
         SELECT COUNT(*)
         FROM 
-            Contract ct
-            JOIN ContractItem ci ON ci.contract_id = ct.id
-            JOIN Product p ON p.id = ci.product_id
-            JOIN Brand b ON p.brand_id = b.id
-            JOIN Category cg ON p.category_id = cg.id
+            Contract ct           
         WHERE 
             ct.customer_id = ?
             AND ct.is_active = true
-            AND ci.is_active = true                                
+                                            
         
         """);
-        if (keyword != null && !keyword.isEmpty()) {
-            sql.append(" AND p.name LIKE ? ");
-        }
-        if (brand != null && !brand.equalsIgnoreCase("ALL")) {
-            sql.append(" AND b.name = ? ");
-        }
-        if (category != null && !category.equalsIgnoreCase("ALL")) {
-            sql.append(" AND cg.name = ? ");
-        }
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int index = 1;
             ps.setInt(index++, userId);
-
-            if (keyword != null && !keyword.isEmpty()) {
-                ps.setString(index++, "%" + keyword + "%");
-            }
-            if (brand != null && !brand.equalsIgnoreCase("ALL")) {
-                ps.setString(index++, brand);
-            }
-            if (category != null && !category.equalsIgnoreCase("ALL")) {
-                ps.setString(index++, category);
-            }
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -297,52 +276,29 @@ public class ContractDAO extends DBContext {
         return 0;
     }
 
-    public List<Contract> getContractsByUserId(int userId, String keyword, String brand, String category, int offset, int limit) {
+    public List<Contract> getContractsByUserId(int userId, int offset, int limit) {
         List<Contract> contracts = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("""
-        SELECT 
-            ct.id AS contract_id,
-            ct.contract_code,
-            ct.contract_date,         
-            p.name AS product_name,
-            b.name AS brand_name,
-            cg.name AS category_name        
-        FROM 
-            Contract ct
-            JOIN ContractItem ci ON ci.contract_id = ct.id
-            JOIN Product p ON p.id = ci.product_id
-            JOIN Brand b ON p.brand_id = b.id
-            JOIN Category cg ON p.category_id = cg.id
-        WHERE 
-            ct.customer_id = ?
-            AND ct.is_active = true
-            AND ci.is_active = true                                
-        
-        """);
-        if (keyword != null && !keyword.isEmpty()) {
-            sql.append(" AND p.name LIKE ? ");
-        }
-        if (brand != null && !brand.equalsIgnoreCase("ALL")) {
-            sql.append(" AND b.name = ? ");
-        }
-        if (category != null && !category.equalsIgnoreCase("ALL")) {
-            sql.append(" AND cg.name = ? ");
-        }
+        StringBuilder sql = new StringBuilder(
+                """ 
+                SELECT        
+                        ct.id AS contract_id,
+                        ct.contract_code,
+                        ct.contract_date,        
+            		ct.total_amount,  
+            		ct.description	
+                    FROM 
+                        Contract ct           
+                    WHERE 
+                        ct.customer_id = ?
+                        AND ct.is_active = true                               
+               """);
+
         sql.append(" ORDER BY ct.contract_date DESC LIMIT ? OFFSET ?");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int index = 1;
             ps.setInt(index++, userId);
 
-            if (keyword != null && !keyword.isEmpty()) {
-                ps.setString(index++, "%" + keyword + "%");
-            }
-            if (brand != null && !brand.equalsIgnoreCase("ALL")) {
-                ps.setString(index++, brand);
-            }
-            if (category != null && !category.equalsIgnoreCase("ALL")) {
-                ps.setString(index++, category);
-            }
             ps.setInt(index++, limit);
             ps.setInt(index, offset);
 
@@ -352,9 +308,10 @@ public class ContractDAO extends DBContext {
                 ct.setId(rs.getInt("contract_id"));
                 ct.setContractCode(rs.getString("contract_code"));
                 ct.setContractDate(rs.getDate("contract_date"));
-                ct.setProductName(rs.getString("product_name"));
-                ct.setBrandName(rs.getString("brand_name"));
-                ct.setCategoryName(rs.getString("category_name"));
+                ct.setTotalAmount(rs.getDouble("total_amount"));
+                ct.setDescription(rs.getString("description"));
+                NumberFormat nf = new DecimalFormat("#,###");
+                ct.setTotalAmountString(nf.format(ct.getTotalAmount()));
                 contracts.add(ct);
             }
         } catch (SQLException e) {
@@ -541,45 +498,45 @@ public class ContractDAO extends DBContext {
             }
         }
     }
-    
-    public ArrayList<Contract> getContractsByCustomerId(int customerId) {
-    ArrayList<Contract> contracts = new ArrayList<>();
-    String sql = "SELECT id, contract_code, contract_date, total_amount, description, is_active "
-            + "FROM Contract "
-            + "WHERE customer_id = ? AND is_active = true "
-            + "ORDER BY contract_date DESC";
 
-    try (PreparedStatement stm = connection.prepareStatement(sql)) {
-        stm.setInt(1, customerId);
-        ResultSet rs = stm.executeQuery();
-        while (rs.next()) {
-            Contract c = new Contract();
-            c.setId(rs.getInt("id"));
-            c.setContractCode(rs.getString("contract_code"));
-            c.setContractDate(rs.getDate("contract_date"));
-            c.setTotalAmount(rs.getDouble("total_amount"));
-            c.setDescription(rs.getString("description"));
-            c.setIsActive(rs.getBoolean("is_active"));
-            c.setCustomerId(customerId);
-            
-            contracts.add(c);
+    public ArrayList<Contract> getContractsByCustomerId(int customerId) {
+        ArrayList<Contract> contracts = new ArrayList<>();
+        String sql = "SELECT id, contract_code, contract_date, total_amount, description, is_active "
+                + "FROM Contract "
+                + "WHERE customer_id = ? AND is_active = true "
+                + "ORDER BY contract_date DESC";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, customerId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                Contract c = new Contract();
+                c.setId(rs.getInt("id"));
+                c.setContractCode(rs.getString("contract_code"));
+                c.setContractDate(rs.getDate("contract_date"));
+                c.setTotalAmount(rs.getDouble("total_amount"));
+                c.setDescription(rs.getString("description"));
+                c.setIsActive(rs.getBoolean("is_active"));
+                c.setCustomerId(customerId);
+
+                contracts.add(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return contracts;
     }
-    return contracts;
-}
-    
+
     private String generateNextContractCode(Connection conn) throws SQLException {
         LocalDate now = LocalDate.now();
         String year = String.valueOf(now.getYear());
         String month = String.format("%02d", now.getMonthValue());
         String prefix = "CT-" + year + "-" + month + "-";
         String sql = "SELECT contract_code FROM Contract WHERE contract_code LIKE ? ORDER BY contract_code DESC LIMIT 1 FOR UPDATE";
-        
+
         String lastCode = null;
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, prefix + "%"); 
+            stm.setString(1, prefix + "%");
             ResultSet rs = stm.executeQuery();
             if (rs.next()) {
                 lastCode = rs.getString("contract_code");
@@ -592,7 +549,7 @@ public class ContractDAO extends DBContext {
             String seqStr = lastCode.substring(lastCode.length() - 3);
             int seqNum = Integer.parseInt(seqStr);
             seqNum++;
-            String nextSeqStr = String.format("%03d", seqNum);           
+            String nextSeqStr = String.format("%03d", seqNum);
             return prefix + nextSeqStr;
         }
     }

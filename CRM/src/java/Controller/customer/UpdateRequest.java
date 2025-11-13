@@ -124,12 +124,14 @@ public class UpdateRequest extends HttpServlet {
             } else {
                 throw new Exception("Failed to update request in database.");
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Failed to update request: " + e.getMessage());
             DeviceDAO deviceDAO = new DeviceDAO();
             List<Device> devices = deviceDAO.getDevicesByUserId(user.getId());
             request.setAttribute("devices", devices);
+            
 
             int requestId = Integer.parseInt(request.getParameter("id"));
             request.setAttribute("requestData", requestDAO.getCusRequestById(requestId)); 

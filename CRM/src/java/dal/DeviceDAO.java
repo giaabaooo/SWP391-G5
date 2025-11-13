@@ -13,20 +13,19 @@ public class DeviceDAO extends DBContext {
 
         StringBuilder sql = new StringBuilder("""
             SELECT 
-                d.id AS device_id,
-                d.status AS device_status,
-                p.name AS product_name,
-                c.name AS category_name,
-                b.name AS brand_name,
-                p.purchase_price,
-                p.selling_price
-            FROM Device d
-            JOIN ContractItem ci ON d.contract_item_id = ci.id
-            JOIN Product p ON ci.product_id = p.id
-            JOIN Category c ON p.category_id = c.id
-            JOIN Brand b ON p.brand_id = b.id
-            JOIN Contract con ON ci.contract_id = con.id
-            WHERE con.customer_id = ?
+                            d.id AS device_id,d.serial_number,  d.warranty_expiration, d.status AS device_status,
+                            p.name AS product_name,
+                            b.name AS brand_name,
+                            c.name AS category_name,                           
+                            ct.contract_date,       
+                            ci.maintenance_months  
+                        FROM Device d
+                        JOIN ContractItem ci ON d.contract_item_id = ci.id
+                        JOIN Product p ON ci.product_id = p.id
+                        JOIN Contract ct ON ci.contract_id = ct.id -- JOIN Contract
+                        LEFT JOIN Brand b ON p.brand_id = b.id
+                        LEFT JOIN Category c ON p.category_id = c.id
+                        WHERE ct.customer_id = ? AND d.is_active = 1 
         """);
 
         if (keyword != null && !keyword.isEmpty()) {
@@ -71,9 +70,11 @@ public class DeviceDAO extends DBContext {
                 d.setProductName(rs.getString("product_name"));
                 d.setCategoryName(rs.getString("category_name"));
                 d.setBrandName(rs.getString("brand_name"));
-                d.setStatus(rs.getString("device_status"));
-                d.setPurchasePrice(rs.getBigDecimal("purchase_price"));
-                d.setSellingPrice(rs.getBigDecimal("selling_price"));
+                d.setStatus(rs.getString("device_status"));               
+                d.setContractDate(rs.getDate("contract_date"));
+                d.setSerialNumber(rs.getString("serial_number"));
+                d.setWarrantyExpiration(rs.getDate("warranty_expiration"));
+                d.setMaintenanceMonths(rs.getInt("maintenance_months"));
                 devices.add(d);
             }
 

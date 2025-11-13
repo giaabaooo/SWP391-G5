@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -36,50 +38,48 @@ public class ContractController extends HttpServlet {
             return;
         }
         User user = (User) session.getAttribute("user");
-        String brand = request.getParameter("brand");
-        String category = request.getParameter("category");
         String pageParam = request.getParameter("page");
         String pageSizeParam = request.getParameter("pageSize");
-        String searchQuery = request.getParameter("search");
         
+
         int page = 1;
         int pageSize = LIMIT;
-        
+
         // Parse page number
         if (pageParam != null && !pageParam.isEmpty()) {
             try {
                 page = Integer.parseInt(pageParam);
-                if (page < 1) page = 1;
+                if (page < 1) {
+                    page = 1;
+                }
             } catch (NumberFormatException e) {
                 page = 1;
             }
         }
-        
+
         // Parse page size
         if (pageSizeParam != null && !pageSizeParam.isEmpty()) {
             try {
                 pageSize = Integer.parseInt(pageSizeParam);
-                if (pageSize < 1) pageSize = LIMIT;
-                if (pageSize > 100) pageSize = 100; // Max 100 items per page
+                if (pageSize < 1) {
+                    pageSize = LIMIT;
+                }
+                if (pageSize > 100) {
+                    pageSize = 100; // Max 100 items per page
+                }
             } catch (NumberFormatException e) {
                 pageSize = LIMIT;
             }
         }
-        
+
         int offset = (page - 1) * pageSize;
 
-        List<String> brands = deviceDAO.getBrandsByUserId(user.getId());
-        List<String> categories = deviceDAO.getCategoriesByUserId(user.getId());
-        List<Contract> contracts = contractDAO.getContractsByUserId(user.getId(), searchQuery, brand, category, offset, pageSize);
-        int totalContracts = contractDAO.countContractsByUserId(user.getId(), searchQuery, brand, category);
+        List<Contract> contracts = contractDAO.getContractsByUserId(user.getId(), offset, pageSize);
+        int totalContracts = contractDAO.countContractsByUserId(user.getId());
         int totalPages = (int) Math.ceil((double) totalContracts / (double) pageSize);
-        if (totalPages == 0) totalPages = 1; // At least 1 page even if no contracts
-
-        request.setAttribute("brands", brands);
-        request.setAttribute("categories", categories);
-        request.setAttribute("brand", brand);
-        request.setAttribute("category", category);
-        request.setAttribute("search", searchQuery);
+        if (totalPages == 0) {
+            totalPages = 1; // At least 1 page even if no contracts
+        }
         request.setAttribute("contracts", contracts);
         request.setAttribute("totalContracts", totalContracts);
         request.setAttribute("totalPages", totalPages);

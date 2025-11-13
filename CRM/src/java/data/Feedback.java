@@ -53,6 +53,10 @@ public class Feedback {
         this.requestDate = requestDate;
     }
 
+    public Feedback(String customerServiceResponse) {
+        this.customerServiceResponse = customerServiceResponse;
+    }
+
     // Getters and setters
     public int getRequestId() {
         return requestId;

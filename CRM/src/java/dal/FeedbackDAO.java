@@ -334,4 +334,41 @@ public class FeedbackDAO extends DBContext {
         }
         return list;
     }
+    
+    public Feedback getFeedbackDetailsById(int requestId) {
+        Feedback fb = null;
+        String sql = """
+            SELECT 
+                r.id AS request_id, r.title, r.request_type, p.name AS product_name,
+                r.description, m.customer_comment, m.rating,
+                m.customer_service_response
+            FROM CustomerRequest r
+            JOIN CustomerRequestMeta m ON r.id = m.request_id
+            JOIN User u ON r.customer_id = u.id
+            LEFT JOIN Device d ON r.device_id = d.id
+            LEFT JOIN ContractItem ci ON d.contract_item_id = ci.id
+            LEFT JOIN Product p ON ci.product_id = p.id
+            WHERE r.id = ? 
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, requestId);           
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                fb = new Feedback();
+                fb.setRequestId(rs.getInt("request_id"));
+                fb.setTitle(rs.getString("title"));
+                fb.setRequestType(rs.getString("request_type"));
+                fb.setProductName(rs.getString("product_name"));
+                fb.setDescription(rs.getString("description"));
+                fb.setComment(rs.getString("customer_comment"));
+                fb.setRating(rs.getInt("rating"));               
+                fb.setCustomerServiceResponse(rs.getString("customer_service_response"));               
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fb;
+    }
 }
