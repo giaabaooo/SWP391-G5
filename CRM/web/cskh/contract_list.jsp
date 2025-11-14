@@ -44,7 +44,7 @@
     <div class="content-card">
         <div class="filter-bar">
             <form method="get" action="${pageContext.request.contextPath}/cskh/contract">
-                
+
                 <label for="keywordFilter" style="font-weight: 500;">Search:</label>
                 <input type="text" name="keyword" id="keywordFilter" value="${param.keyword}" placeholder="Search by Contract code or Customer name" class="search-input" />
 

@@ -282,4 +282,48 @@ public class ProductSerialDAO extends DBContext {
         }
         return serialsMap;
     }
+
+    public int getTotalSerialCountByProductId(int productId) {
+        String sql = "SELECT COUNT(*) FROM ProductSerial WHERE product_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting serial count by product ID: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public List<ProductSerial> getSerialsByProductId(int productId, int page, int pageSize) {
+        List<ProductSerial> serials = new ArrayList<>();
+        String sql = "SELECT id, product_id, serial_number, status "
+                + "FROM ProductSerial "
+                + "WHERE product_id = ? "
+                + "ORDER BY status, serial_number "
+                + "LIMIT ?, ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ps.setInt(2, (page - 1) * pageSize);
+            ps.setInt(3, pageSize);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ProductSerial serial = new ProductSerial();
+                    serial.setId(rs.getInt("id"));
+                    serial.setProductId(rs.getInt("product_id"));
+                    serial.setSerialNumber(rs.getString("serial_number"));
+                    serial.setStatus(rs.getString("status"));
+                    serials.add(serial);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting paginated serials by product ID: " + e.getMessage());
+        }
+        return serials;
+    }
 }
