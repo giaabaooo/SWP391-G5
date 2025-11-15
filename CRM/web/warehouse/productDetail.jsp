@@ -27,6 +27,31 @@
         <link href="${pageContext.request.contextPath}/css/warehouse/responsive.css" rel="stylesheet" type="text/css" />
 
         <style>
+            .status-badge {
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                display: inline-block;
+            }
+            .status-badge.status-active {
+                background-color: #dcfce7;
+                color: #166534;
+            }
+            .status-badge.status-inactive,
+            .status-badge.status-sold {
+                background-color: #fee2e2;
+                color: #991b1b;
+            }
+            .status-badge.status-delivered {
+                background-color: #cffafe;
+                color: #0e7490;
+            }
+            .status-badge.status-writtenoff {
+                background-color: #e5e7eb;
+                color: #374151;
+            }
             .pagination-container {
                 display: flex;
                 align-items: center;
@@ -389,13 +414,26 @@
                                                 <td style="padding-left: 20px;"><%= count++%>.</td>
                                                 <td><strong><%= serial.getSerialNumber()%></strong></td>
                                                 <td>
-                                                    <% if ("IN_STOCK".equals(serial.getStatus())) { %>
-                                                    <span class="status-badge status-active">In Stock</span>
-                                                    <% } else if ("SOLD".equals(serial.getStatus())) { %>
-                                                    <span class="status-badge status-inactive">Sold</span>
-                                                    <% } else {%>
-                                                    <span class="status-badge"><%= serial.getStatus()%></span>
-                                                    <% } %>
+                                                    <%
+                                                        String status = serial.getStatus();
+                                                        String badgeClass = "";
+                                                        String statusText = status;
+
+                                                        if ("IN_STOCK".equals(status)) {
+                                                            badgeClass = "status-active";
+                                                            statusText = "In Stock";
+                                                        } else if ("SOLD".equals(status)) {
+                                                            badgeClass = "status-sold";
+                                                            statusText = "Sold";
+                                                        } else if ("DELIVERED".equals(status)) {
+                                                            badgeClass = "status-delivered";
+                                                            statusText = "Delivered";
+                                                        } else if ("WRITTEN_OFF".equals(status)) {
+                                                            badgeClass = "status-writtenoff";
+                                                            statusText = "Written Off";
+                                                        }
+                                                    %>
+                                                    <span class="status-badge <%= badgeClass%>"><%= statusText%></span>
                                                 </td>
                                             </tr>
                                             <% } %>

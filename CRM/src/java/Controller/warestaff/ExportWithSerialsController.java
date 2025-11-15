@@ -22,9 +22,9 @@ import java.util.Map;
  * Controller for exporting products with serial numbers via Excel file
  */
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
-    maxFileSize = 1024 * 1024 * 10,       // 10MB
-    maxRequestSize = 1024 * 1024 * 50     // 50MB
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50 // 50MB
 )
 public class ExportWithSerialsController extends HttpServlet {
 
@@ -38,25 +38,37 @@ public class ExportWithSerialsController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         // Get form parameters
         String dateParam = request.getParameter("transactionDate");
         String note = request.getParameter("note");
         Part filePart = request.getPart("excelFile");
-        
+        String exportType = request.getParameter("exportType");
+
         // Validate required fields
         if (dateParam == null || dateParam.trim().isEmpty()) {
             request.setAttribute("error", "Transaction date/time is required.");
             doGet(request, response);
             return;
         }
-        
+
+        if (exportType == null || exportType.trim().isEmpty()) {
+            request.setAttribute("error", "Export type is required.");
+            doGet(request, response);
+            return;
+        }
+        if (!"DELIVERED".equals(exportType) && !"WRITTEN_OFF".equals(exportType)) {
+            request.setAttribute("error", "Invalid export type specified.");
+            doGet(request, response);
+            return;
+        }
+
         if (filePart == null || filePart.getSize() == 0) {
             request.setAttribute("error", "Please select an Excel file to upload.");
             doGet(request, response);
             return;
         }
-        
+
         // Validate file type
         String fileName = getFileName(filePart);
         if (!fileName.toLowerCase().endsWith(".xlsx")) {
@@ -64,7 +76,7 @@ public class ExportWithSerialsController extends HttpServlet {
             doGet(request, response);
             return;
         }
-        
+
         // Parse transaction date
         Timestamp txTime;
         try {
@@ -75,7 +87,7 @@ public class ExportWithSerialsController extends HttpServlet {
             doGet(request, response);
             return;
         }
-        
+
         // Parse Excel file
         List<SerialItem> serialItems;
         try (InputStream fileContent = filePart.getInputStream()) {
@@ -89,18 +101,18 @@ public class ExportWithSerialsController extends HttpServlet {
             doGet(request, response);
             return;
         }
-        
+
         // Process export with serials
         TransactionDAO transactionDAO = null;
         try {
             transactionDAO = new TransactionDAO();
-            Map<String, Object> result = transactionDAO.exportWithSerials(serialItems, txTime, note);
-            
+            Map<String, Object> result = transactionDAO.exportWithSerials(serialItems, txTime, note, exportType);
+
             Boolean success = (Boolean) result.get("success");
             if (success != null && success) {
                 String message = (String) result.get("message");
-                response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success=" + 
-                    java.net.URLEncoder.encode(message, "UTF-8"));
+                response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success="
+                        + java.net.URLEncoder.encode(message, "UTF-8"));
             } else {
                 @SuppressWarnings("unchecked")
                 List<String> errors = (List<String>) result.get("errors");
@@ -112,10 +124,12 @@ public class ExportWithSerialsController extends HttpServlet {
                 doGet(request, response);
             }
         } finally {
-            if (transactionDAO != null) transactionDAO.close();
+            if (transactionDAO != null) {
+                transactionDAO.close();
+            }
         }
     }
-    
+
     /**
      * Extract file name from Part header
      */
@@ -129,4 +143,3 @@ public class ExportWithSerialsController extends HttpServlet {
         return "unknown";
     }
 }
-

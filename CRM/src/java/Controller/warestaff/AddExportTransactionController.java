@@ -54,6 +54,7 @@ public class AddExportTransactionController extends HttpServlet {
         String[] serialNumbers = request.getParameterValues("serialNumber");
         String dateParam = request.getParameter("transactionDate");
         String note = request.getParameter("note");
+        String exportType = request.getParameter("exportType");
 
         if (dateParam == null || dateParam.trim().isEmpty()) {
             request.setAttribute("error", "Transaction date/time is required.");
@@ -73,6 +74,19 @@ public class AddExportTransactionController extends HttpServlet {
             return;
         }
 
+        if (exportType == null || exportType.trim().isEmpty()) {
+            request.setAttribute("error", "Export type is required.");
+            storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
+            doGet(request, response);
+            return;
+        }
+        if (!"DELIVERED".equals(exportType) && !"WRITTEN_OFF".equals(exportType)) {
+            request.setAttribute("error", "Invalid export type specified.");
+            storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
+            doGet(request, response);
+            return;
+        }
+        
         if (productIds == null || quantities == null) {
             request.setAttribute("error", "Please add at least one product line to the export slip.");
             storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
@@ -164,7 +178,7 @@ public class AddExportTransactionController extends HttpServlet {
         TransactionDAO transactionDAO = null;
         try {
             transactionDAO = new TransactionDAO();
-            java.util.Map<String, Object> result = transactionDAO.exportWithSerialsManual(productIdList, serialNumberList, txTime, note);
+            java.util.Map<String, Object> result = transactionDAO.exportWithSerialsManual(productIdList, serialNumberList, txTime, note, exportType);
 
             Boolean success = (Boolean) result.get("success");
             if (success != null && success) {
