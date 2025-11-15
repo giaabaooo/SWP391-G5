@@ -16,6 +16,7 @@ import data.SerialItem;
 import data.ProductSerial;
 
 public class TransactionDAO extends DBContext {
+
     public Integer getCurrentInventoryQuantity(int productId) {
         String sql = "SELECT quantity FROM Inventory WHERE product_id = ? AND is_active = 1";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -93,10 +94,16 @@ public class TransactionDAO extends DBContext {
             conn.commit();
             success = true;
         } catch (SQLException | RuntimeException ex) {
-            try { conn.rollback(); } catch (SQLException ignored) {}
+            try {
+                conn.rollback();
+            } catch (SQLException ignored) {
+            }
             System.err.println("Error creating import batch: " + ex.getMessage());
         } finally {
-            try { conn.setAutoCommit(originalAutoCommit); } catch (SQLException ignored) {}
+            try {
+                conn.setAutoCommit(originalAutoCommit);
+            } catch (SQLException ignored) {
+            }
         }
 
         return success;
@@ -162,7 +169,9 @@ public class TransactionDAO extends DBContext {
                 try (PreparedStatement ps = conn.prepareStatement(sel)) {
                     ps.setInt(1, productId);
                     try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) currentQty = rs.getInt(1);
+                        if (rs.next()) {
+                            currentQty = rs.getInt(1);
+                        }
                     }
                 }
                 if (currentQty < quantity) {
@@ -192,10 +201,16 @@ public class TransactionDAO extends DBContext {
             conn.commit();
             success = true;
         } catch (SQLException | RuntimeException ex) {
-            try { conn.rollback(); } catch (SQLException ignored) {}
+            try {
+                conn.rollback();
+            } catch (SQLException ignored) {
+            }
             System.err.println("Error creating export batch: " + ex.getMessage());
         } finally {
-            try { conn.setAutoCommit(originalAutoCommit); } catch (SQLException ignored) {}
+            try {
+                conn.setAutoCommit(originalAutoCommit);
+            } catch (SQLException ignored) {
+            }
         }
 
         return success;
@@ -222,15 +237,25 @@ public class TransactionDAO extends DBContext {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM `Transaction` WHERE is_active = 1");
         boolean hasType = (typeFilter != null && !typeFilter.isEmpty());
         boolean hasSearch = (searchNote != null && !searchNote.trim().isEmpty());
-        if (hasType) sql.append(" AND type = ?");
-        if (hasSearch) sql.append(" AND note LIKE ?");
+        if (hasType) {
+            sql.append(" AND type = ?");
+        }
+        if (hasSearch) {
+            sql.append(" AND note LIKE ?");
+        }
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int idx = 1;
-            if (hasType) ps.setString(idx++, typeFilter);
-            if (hasSearch) ps.setString(idx++, "%" + searchNote.trim() + "%");
+            if (hasType) {
+                ps.setString(idx++, typeFilter);
+            }
+            if (hasSearch) {
+                ps.setString(idx++, "%" + searchNote.trim() + "%");
+            }
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt(1);
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error counting transactions: " + e.getMessage());
@@ -242,35 +267,43 @@ public class TransactionDAO extends DBContext {
         List<Transaction> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
         StringBuilder sql = new StringBuilder(
-            "SELECT t.id, t.product_id, p.name as product_name, t.contract_id, t.type, t.quantity, t.transaction_date, t.note, t.is_active " +
-            "FROM `Transaction` t " +
-            "LEFT JOIN Product p ON t.product_id = p.id " +
-            "WHERE t.is_active = 1"
+                "SELECT t.id, t.product_id, p.name as product_name, t.contract_id, t.type, t.quantity, t.transaction_date, t.note, t.is_active "
+                + "FROM `Transaction` t "
+                + "LEFT JOIN Product p ON t.product_id = p.id "
+                + "WHERE t.is_active = 1"
         );
         boolean hasType = (typeFilter != null && !typeFilter.isEmpty());
         boolean hasSearch = (searchNote != null && !searchNote.trim().isEmpty());
-        if (hasType) sql.append(" AND t.type = ?");
-        if (hasSearch) sql.append(" AND t.note LIKE ?");
+        if (hasType) {
+            sql.append(" AND t.type = ?");
+        }
+        if (hasSearch) {
+            sql.append(" AND t.note LIKE ?");
+        }
         sql.append(" ORDER BY t.transaction_date DESC, t.id DESC LIMIT ? OFFSET ?");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int idx = 1;
-            if (hasType) ps.setString(idx++, typeFilter);
-            if (hasSearch) ps.setString(idx++, "%" + searchNote.trim() + "%");
+            if (hasType) {
+                ps.setString(idx++, typeFilter);
+            }
+            if (hasSearch) {
+                ps.setString(idx++, "%" + searchNote.trim() + "%");
+            }
             ps.setInt(idx++, pageSize);
             ps.setInt(idx, offset);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Transaction t = new Transaction(
-                        rs.getInt("id"),
-                        rs.getInt("product_id"),
-                        rs.getString("product_name"),
-                        (Integer) rs.getObject("contract_id"),
-                        rs.getString("type"),
-                        rs.getInt("quantity"),
-                        rs.getTimestamp("transaction_date"),
-                        rs.getString("note"),
-                        rs.getBoolean("is_active")
+                            rs.getInt("id"),
+                            rs.getInt("product_id"),
+                            rs.getString("product_name"),
+                            (Integer) rs.getObject("contract_id"),
+                            rs.getString("type"),
+                            rs.getInt("quantity"),
+                            rs.getTimestamp("transaction_date"),
+                            rs.getString("note"),
+                            rs.getBoolean("is_active")
                     );
                     list.add(t);
                 }
@@ -282,14 +315,15 @@ public class TransactionDAO extends DBContext {
     }
 
     /**
-     * Import products with serial numbers from Excel file
-     * This method handles the complete import flow with serial tracking
+     * Import products with serial numbers from Excel file This method handles
+     * the complete import flow with serial tracking
      *
      * @param serialItems List of serial items from Excel (sku + serial_number)
      * @param transactionDate The transaction timestamp
      * @param supplier Supplier name (optional)
      * @param generalNote General note for the transaction
-     * @return Map with "success" (Boolean) and "errors" (List<String>) or "message" (String)
+     * @return Map with "success" (Boolean) and "errors" (List<String>) or
+     * "message" (String)
      */
     public Map<String, Object> importWithSerials(List<SerialItem> serialItems, Timestamp transactionDate, String supplier, String generalNote) {
         Map<String, Object> result = new HashMap<>();
@@ -418,13 +452,19 @@ public class TransactionDAO extends DBContext {
             result.put("message", "Successfully imported " + serialItems.size() + " items with serial numbers");
 
         } catch (SQLException | RuntimeException ex) {
-            try { conn.rollback(); } catch (SQLException ignored) {}
+            try {
+                conn.rollback();
+            } catch (SQLException ignored) {
+            }
             System.err.println("Error importing with serials: " + ex.getMessage());
             ex.printStackTrace();
             result.put("success", false);
             result.put("errors", Collections.singletonList("Database error: " + ex.getMessage()));
         } finally {
-            try { conn.setAutoCommit(originalAutoCommit); } catch (SQLException ignored) {}
+            try {
+                conn.setAutoCommit(originalAutoCommit);
+            } catch (SQLException ignored) {
+            }
         }
 
         return result;
@@ -443,18 +483,21 @@ public class TransactionDAO extends DBContext {
     }
 
     /**
-     * Import products with serial numbers from manual entry (uses product_id instead of SKU)
-     * This method handles the complete import flow with serial tracking for manual form submission
+     * Import products with serial numbers from manual entry (uses product_id
+     * instead of SKU) This method handles the complete import flow with serial
+     * tracking for manual form submission
      *
      * @param productIds List of product IDs
-     * @param serialNumbers List of serial numbers (must match productIds length)
+     * @param serialNumbers List of serial numbers (must match productIds
+     * length)
      * @param transactionDate The transaction timestamp
      * @param supplier Supplier name (optional)
      * @param generalNote General note for the transaction
-     * @return Map with "success" (Boolean) and "errors" (List<String>) or "message" (String)
+     * @return Map with "success" (Boolean) and "errors" (List<String>) or
+     * "message" (String)
      */
     public Map<String, Object> importWithSerialsManual(List<Integer> productIds, List<String> serialNumbers,
-                                                        Timestamp transactionDate, String supplier, String generalNote) {
+            Timestamp transactionDate, String supplier, String generalNote) {
         Map<String, Object> result = new HashMap<>();
         List<String> errors = new ArrayList<>();
 
@@ -588,7 +631,9 @@ public class TransactionDAO extends DBContext {
 
         } catch (Exception e) {
             try {
-                if (conn != null) conn.rollback();
+                if (conn != null) {
+                    conn.rollback();
+                }
             } catch (SQLException rollbackEx) {
                 System.err.println("Rollback failed: " + rollbackEx.getMessage());
             }
@@ -598,25 +643,32 @@ public class TransactionDAO extends DBContext {
             return result;
         } finally {
             try {
-                if (conn != null) conn.setAutoCommit(true);
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                }
             } catch (SQLException ex) {
                 System.err.println("Failed to reset auto-commit: " + ex.getMessage());
             }
-            if (serialDAO != null) serialDAO.close();
-            if (productDAO != null) productDAO.close();
+            if (serialDAO != null) {
+                serialDAO.close();
+            }
+            if (productDAO != null) {
+                productDAO.close();
+            }
         }
     }
 
     /**
-     * Export products with serial numbers from Excel file
-     * This method handles the complete export flow with serial tracking
+     * Export products with serial numbers from Excel file This method handles
+     * the complete export flow with serial tracking
      *
      * @param serialItems List of serial items from Excel (sku + serial_number)
      * @param transactionDate The transaction timestamp
      * @param generalNote General note for the transaction
-     * @return Map with "success" (Boolean) and "errors" (List<String>) or "message" (String)
+     * @return Map with "success" (Boolean) and "errors" (List<String>) or
+     * "message" (String)
      */
-    public Map<String, Object> exportWithSerials(List<SerialItem> serialItems, Timestamp transactionDate, String generalNote) {
+    public Map<String, Object> exportWithSerials(List<SerialItem> serialItems, Timestamp transactionDate, String generalNote, String exportType) {
         Map<String, Object> result = new HashMap<>();
         List<String> errors = new ArrayList<>();
 
@@ -656,10 +708,28 @@ public class TransactionDAO extends DBContext {
                     skuToProductId.put(sku, productId);
                 }
 
-                // Validation 2: Check if serial exists and is IN_STOCK
-                if (!serialDAO.isSerialInStock(productId, serialNumber)) {
-                    errors.add("Row " + rowNum + ": Serial number '" + serialNumber + "' not found or already sold for SKU '" + sku + "'");
+                // Validation 2: Check if serial exists and status is correct
+                ProductSerial serial = serialDAO.getSerialByNumber(serialNumber);
+                if (serial == null) {
+                    errors.add("Row " + rowNum + ": Serial number '" + serialNumber + "' not found in system");
                     continue;
+                }
+
+                if (serial.getProductId() != productId) {
+                    errors.add("Row " + rowNum + ": Serial number '" + serialNumber + "' does not belong to SKU '" + sku + "'");
+                    continue;
+                }
+
+                if ("DELIVERED".equals(exportType)) {
+                    if (!"SOLD".equals(serial.getStatus())) {
+                        errors.add("Row " + rowNum + ": Serial '" + serialNumber + "' must be 'SOLD' to be delivered (Actual: " + serial.getStatus() + ")");
+                        continue;
+                    }
+                } else if ("WRITTEN_OFF".equals(exportType)) {
+                    if (!"IN_STOCK".equals(serial.getStatus())) {
+                        errors.add("Row " + rowNum + ": Serial '" + serialNumber + "' must be 'IN_STOCK' to be written off (Actual: " + serial.getStatus() + ")");
+                        continue;
+                    }
                 }
 
                 // Count quantities per product
@@ -680,7 +750,7 @@ public class TransactionDAO extends DBContext {
         // Phase 2: Execute Transaction
         boolean originalAutoCommit = true;
         Timestamp effectiveDate = transactionDate != null ? transactionDate : new Timestamp(System.currentTimeMillis());
-
+        String targetStatus = "DELIVERED".equals(exportType) ? "DELIVERED" : "WRITTEN_OFF";
         try {
             originalAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
@@ -689,15 +759,16 @@ public class TransactionDAO extends DBContext {
             for (SerialItem item : serialItems) {
                 String serialNumber = item.getSerialNumber();
 
-                // Update ProductSerial status to SOLD
-                String updateSerial = "UPDATE ProductSerial SET status = 'SOLD' WHERE serial_number = ?";
+                String updateSerial = "UPDATE ProductSerial SET status = ? WHERE serial_number = ?";
                 try (PreparedStatement ps = conn.prepareStatement(updateSerial)) {
-                    ps.setString(1, serialNumber);
+                    ps.setString(1, targetStatus);
+                    ps.setString(2, serialNumber);
                     int updated = ps.executeUpdate();
                     if (updated == 0) {
                         throw new SQLException("Failed to update serial: " + serialNumber);
                     }
                 }
+
             }
 
             // Update Inventory for each product
@@ -711,7 +782,9 @@ public class TransactionDAO extends DBContext {
                 try (PreparedStatement ps = conn.prepareStatement(sel)) {
                     ps.setInt(1, productId);
                     try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) currentQty = rs.getInt(1);
+                        if (rs.next()) {
+                            currentQty = rs.getInt(1);
+                        }
                     }
                 }
 
@@ -732,7 +805,7 @@ public class TransactionDAO extends DBContext {
                 }
 
                 // Insert Transaction record
-                String note = buildSerialExportNote(generalNote, quantity);
+                String note = buildSerialExportNote(generalNote, quantity, exportType);
                 String txSql = "INSERT INTO `Transaction` (product_id, contract_id, type, quantity, transaction_date, note, is_active) VALUES (?, NULL, 'EXPORT', ?, ?, ?, 1)";
                 try (PreparedStatement pst = conn.prepareStatement(txSql)) {
                     pst.setInt(1, productId);
@@ -748,21 +821,28 @@ public class TransactionDAO extends DBContext {
             result.put("message", "Successfully exported " + serialItems.size() + " items with serial numbers");
 
         } catch (SQLException | RuntimeException ex) {
-            try { conn.rollback(); } catch (SQLException ignored) {}
+            try {
+                conn.rollback();
+            } catch (SQLException ignored) {
+            }
             System.err.println("Error exporting with serials: " + ex.getMessage());
             ex.printStackTrace();
             result.put("success", false);
             result.put("errors", Collections.singletonList("Database error: " + ex.getMessage()));
         } finally {
-            try { conn.setAutoCommit(originalAutoCommit); } catch (SQLException ignored) {}
+            try {
+                conn.setAutoCommit(originalAutoCommit);
+            } catch (SQLException ignored) {
+            }
         }
 
         return result;
     }
 
-    private String buildSerialExportNote(String generalNote, int quantity) {
+    private String buildSerialExportNote(String generalNote, int quantity, String exportType) {
         List<String> parts = new ArrayList<>();
-        parts.add("Export with serial tracking (" + quantity + " units)");
+        String typeLabel = "DELIVERED".equals(exportType) ? "Delivery" : "Write-off";
+        parts.add(typeLabel + " with serial tracking (" + quantity + " units)");
         if (generalNote != null && !generalNote.trim().isEmpty()) {
             parts.add(generalNote.trim());
         }
@@ -770,17 +850,20 @@ public class TransactionDAO extends DBContext {
     }
 
     /**
-     * Export products with serial numbers from manual entry (uses product_id instead of SKU)
-     * This method handles the complete export flow with serial tracking for manual form submission
+     * Export products with serial numbers from manual entry (uses product_id
+     * instead of SKU) This method handles the complete export flow with serial
+     * tracking for manual form submission
      *
      * @param productIds List of product IDs
-     * @param serialNumbers List of serial numbers (must match productIds length)
+     * @param serialNumbers List of serial numbers (must match productIds
+     * length)
      * @param transactionDate The transaction timestamp
      * @param generalNote General note for the transaction
-     * @return Map with "success" (Boolean) and "errors" (List<String>) or "message" (String)
+     * @return Map with "success" (Boolean) and "errors" (List<String>) or
+     * "message" (String)
      */
     public Map<String, Object> exportWithSerialsManual(List<Integer> productIds, List<String> serialNumbers,
-                                                        Timestamp transactionDate, String generalNote) {
+            Timestamp transactionDate, String generalNote, String exportType) {
         Map<String, Object> result = new HashMap<>();
         List<String> errors = new ArrayList<>();
 
@@ -833,9 +916,16 @@ public class TransactionDAO extends DBContext {
                     continue;
                 }
 
-                if (!"IN_STOCK".equals(serial.getStatus())) {
-                    errors.add("Row " + rowNum + ": Serial number '" + serialNumber + "' is not available (Status: " + serial.getStatus() + ")");
-                    continue;
+                if ("DELIVERED".equals(exportType)) {
+                    if (!"SOLD".equals(serial.getStatus())) {
+                        errors.add("Row " + rowNum + ": Serial number '" + serialNumber + "' must be 'SOLD' to be delivered (Actual: " + serial.getStatus() + ")");
+                        continue;
+                    }
+                } else if ("WRITTEN_OFF".equals(exportType)) {
+                    if (!"IN_STOCK".equals(serial.getStatus())) {
+                        errors.add("Row " + rowNum + ": Serial number '" + serialNumber + "' must be 'IN_STOCK' to be written off (Actual: " + serial.getStatus() + ")");
+                        continue;
+                    }
                 }
 
                 // Validation 2: Check if serial belongs to the specified product
@@ -861,6 +951,8 @@ public class TransactionDAO extends DBContext {
             }
 
             // Phase 2: Execute transaction
+            String targetStatus = "DELIVERED".equals(exportType) ? "DELIVERED" : "WRITTEN_OFF";
+
             conn.setAutoCommit(false);
 
             System.out.println("DEBUG: Starting manual export transaction with " + productIds.size() + " serial numbers");
@@ -869,8 +961,8 @@ public class TransactionDAO extends DBContext {
             for (int i = 0; i < productIds.size(); i++) {
                 String serialNumber = serialNumbers.get(i);
 
-                serialDAO.updateSerialStatus(serialNumber, "SOLD");
-                System.out.println("DEBUG: Updated serial: " + serialNumber + " to SOLD");
+                serialDAO.updateSerialStatus(serialNumber, targetStatus);
+                System.out.println("DEBUG: Updated serial: " + serialNumber + " to " + targetStatus);
             }
 
             // Update Inventory for each product
@@ -898,7 +990,7 @@ public class TransactionDAO extends DBContext {
                 Integer productId = productIds.get(i);
                 String serialNumber = serialNumbers.get(i);
 
-                String note = buildSerialExportNote(generalNote, 1);
+                String note = buildSerialExportNote(generalNote, 1, exportType);
                 String insertTx = "INSERT INTO `Transaction` (product_id, type, quantity, transaction_date, note) VALUES (?, 'EXPORT', 1, ?, ?)";
                 try (PreparedStatement ps = conn.prepareStatement(insertTx)) {
                     ps.setInt(1, productId);
@@ -917,7 +1009,9 @@ public class TransactionDAO extends DBContext {
 
         } catch (Exception e) {
             try {
-                if (conn != null) conn.rollback();
+                if (conn != null) {
+                    conn.rollback();
+                }
             } catch (SQLException rollbackEx) {
                 System.err.println("Rollback failed: " + rollbackEx.getMessage());
             }
@@ -927,14 +1021,18 @@ public class TransactionDAO extends DBContext {
             return result;
         } finally {
             try {
-                if (conn != null) conn.setAutoCommit(true);
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                }
             } catch (SQLException ex) {
                 System.err.println("Failed to reset auto-commit: " + ex.getMessage());
             }
-            if (serialDAO != null) serialDAO.close();
-            if (productDAO != null) productDAO.close();
+            if (serialDAO != null) {
+                serialDAO.close();
+            }
+            if (productDAO != null) {
+                productDAO.close();
+            }
         }
     }
 }
-
-
