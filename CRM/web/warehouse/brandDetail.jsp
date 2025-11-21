@@ -115,6 +115,7 @@
 
     <aside class="right-side">
         <section class="content">
+            <!-- Lấy dữ liệu thương hiệu được controller gửi tới -->
             <%
                 Brand brand = (Brand) request.getAttribute("brand");
                 if (brand == null) {
@@ -166,12 +167,13 @@
                 </div>
             </div>
 
-            <!-- Products of this Brand -->
+            <!-- Danh sách sản phẩm thuộc thương hiệu -->
             <div class="products-section">
                 <div class="section-title">
                     <i class="fa fa-cubes"></i>
                     Products of this Brand
                 </div>
+                <!-- Hiển thị từng sản phẩm cùng trạng thái -->
                 <%
                     java.util.List<data.Product> products = (java.util.List<data.Product>) request.getAttribute("products");
                     if (products != null && !products.isEmpty()) {
@@ -200,6 +202,7 @@
                         }
                     } else {
                 %>
+                <!-- Trường hợp thương hiệu chưa có sản phẩm -->
                 <div class="no-products">
                     <i class="fa fa-cube"></i>
                     <h4>No Products Found</h4>

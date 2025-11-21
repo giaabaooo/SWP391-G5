@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller for importing products with serial numbers via Excel file
+ * Nhập kho bằng file Excel chứa danh sách serial
  */
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
@@ -36,7 +36,7 @@ public class ImportWithSerialsController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Load products and categories data for the form
+        // Tải danh sách sản phẩm và danh mục để hiển thị sẵn trên form
         ProductDAO productDAO = null;
         try {
             productDAO = new ProductDAO();
@@ -55,10 +55,10 @@ public class ImportWithSerialsController extends HttpServlet {
             if (categoryDAO != null) categoryDAO.close();
         }
 
-        // Set default unit options
+        // Thiết lập danh sách đơn vị mặc định
         request.setAttribute("unitOptions", Arrays.asList("Piece", "Box", "Set", "Kg", "Liter", "Meter"));
 
-        // Forward to JSP
+        // Chuyển tiếp đến trang nhập kho
         request.getRequestDispatcher("/warehouse/importStock.jsp").forward(request, response);
     }
 
@@ -66,13 +66,13 @@ public class ImportWithSerialsController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Get form parameters
+        // Bước 1: Lấy các tham số từ form upload Excel
         String dateParam = request.getParameter("transactionDate");
         String supplier = request.getParameter("supplier");
         String note = request.getParameter("note");
         Part filePart = request.getPart("excelFile");
         
-        // Validate required fields
+        // Bước 2: Kiểm tra ngày nhập và file đính kèm
         if (dateParam == null || dateParam.trim().isEmpty()) {
             request.setAttribute("error", "Transaction date/time is required.");
             doGet(request, response);
@@ -85,7 +85,7 @@ public class ImportWithSerialsController extends HttpServlet {
             return;
         }
         
-        // Validate file type
+        // Bước 3: Kiểm tra định dạng file Excel
         String fileName = getFileName(filePart);
         if (!fileName.toLowerCase().endsWith(".xlsx")) {
             request.setAttribute("error", "Only .xlsx Excel files are supported.");
@@ -93,7 +93,7 @@ public class ImportWithSerialsController extends HttpServlet {
             return;
         }
         
-        // Parse transaction date
+        // Bước 4: Chuyển chuỗi ngày sang Timestamp để lưu DB
         Timestamp txTime;
         try {
             LocalDateTime parsed = LocalDateTime.parse(dateParam);
@@ -104,7 +104,7 @@ public class ImportWithSerialsController extends HttpServlet {
             return;
         }
         
-        // Parse Excel file
+        // Bước 5: Đọc file Excel và biến thành danh sách SerialItem
         List<SerialItem> serialItems;
         try (InputStream fileContent = filePart.getInputStream()) {
             serialItems = ExcelSerialParser.parseExcelFile(fileContent);
@@ -118,7 +118,7 @@ public class ImportWithSerialsController extends HttpServlet {
             return;
         }
         
-        // Process import with serials
+        // Bước 6: Gọi DAO để tạo phiếu nhập dựa trên danh sách serial
         TransactionDAO transactionDAO = null;
         try {
             transactionDAO = new TransactionDAO();
@@ -148,6 +148,7 @@ public class ImportWithSerialsController extends HttpServlet {
      * Extract file name from Part header
      */
     private String getFileName(Part part) {
+        // Hàm tiện ích tách tên file khỏi header upload
         String contentDisposition = part.getHeader("content-disposition");
         for (String content : contentDisposition.split(";")) {
             if (content.trim().startsWith("filename")) {

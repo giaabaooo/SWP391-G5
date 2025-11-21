@@ -6,6 +6,27 @@ CREATE DATABASE crm_device_management
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 USE crm_device_management;
+
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS Payment;
+DROP TABLE IF EXISTS CustomerRequestMeta;
+DROP TABLE IF EXISTS CustomerRequest_Assignment;
+DROP TABLE IF EXISTS MaintenanceSchedule;
+DROP TABLE IF EXISTS Transaction;
+DROP TABLE IF EXISTS Device;
+DROP TABLE IF EXISTS ContractItem;
+DROP TABLE IF EXISTS Contract;
+DROP TABLE IF EXISTS Inventory;
+DROP TABLE IF EXISTS ProductSerial;
+DROP TABLE IF EXISTS Product;
+DROP TABLE IF EXISTS Brand;
+DROP TABLE IF EXISTS Category;
+DROP TABLE IF EXISTS Role_Permission;
+DROP TABLE IF EXISTS Permission;
+DROP TABLE IF EXISTS User;
+DROP TABLE IF EXISTS Role;
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- Server version	8.0.43
 
 CREATE TABLE Role (
@@ -290,53 +311,53 @@ INSERT INTO Brand (name, description, is_active) VALUES
 ('Siemens', 'Industrial automation solutions - Germany', 1);
 
 -- 7. INSERT PRODUCTS (Industrial Machinery)
-INSERT INTO Product (category_id, brand_id, image_url, name, description, purchase_price, selling_price, is_active) VALUES
+INSERT INTO Product (category_id, brand_id, sku, image_url, name, description, purchase_price, selling_price, is_active) VALUES
 -- CNC Machining Centers
-(1, 1, '/images/haas-vf2.jpg', 'Haas VF-2SS CNC Vertical Machining Center', '3-axis vertical CNC milling machine, travel 762x406x508mm, spindle speed 12000 RPM', 1250000000, 1580000000, 1),
-(1, 2, '/images/mazak-vcn510c.jpg', 'Mazak VCN-510C 5-Axis Machining Center', '5-axis machining center, advanced technology, large travel 1020x510x460mm', 3800000000, 4750000000, 1),
-(1, 5, '/images/dmg-dmu50.jpg', 'DMG MORI DMU 50 CNC Universal Milling', 'Universal 5-axis milling center, high precision, travel 500x450x400mm', 4200000000, 5250000000, 1),
-(1, 10, '/images/okuma-mb4000h.jpg', 'Okuma MB-4000H Horizontal Machining', 'Horizontal CNC milling machine, auto rotary table, travel 400x400x350mm', 2100000000, 2650000000, 1),
+(1, 1, 'SKU-CNC-001', '/images/haas-vf2.jpg', 'Haas VF-2SS CNC Vertical Machining Center', '3-axis vertical CNC milling machine, travel 762x406x508mm, spindle speed 12000 RPM', 1250000000, 1580000000, 1),
+(1, 2, 'SKU-CNC-002', '/images/mazak-vcn510c.jpg', 'Mazak VCN-510C 5-Axis Machining Center', '5-axis machining center, advanced technology, large travel 1020x510x460mm', 3800000000, 4750000000, 1),
+(1, 5, 'SKU-CNC-003', '/images/dmg-dmu50.jpg', 'DMG MORI DMU 50 CNC Universal Milling', 'Universal 5-axis milling center, high precision, travel 500x450x400mm', 4200000000, 5250000000, 1),
+(1, 10, 'SKU-CNC-004', '/images/okuma-mb4000h.jpg', 'Okuma MB-4000H Horizontal Machining', 'Horizontal CNC milling machine, auto rotary table, travel 400x400x350mm', 2100000000, 2650000000, 1),
 
 -- Lathe Machines
-(2, 2, '/images/mazak-qtc200.jpg', 'Mazak QTC-200 CNC Turning Center', '2-axis CNC lathe, turning diameter 260mm, length 500mm', 850000000, 1080000000, 1),
-(2, 8, '/images/doosan-lynx220.jpg', 'Doosan LYNX 220 CNC Lathe', 'CNC lathe with advanced servo system, diameter 280mm', 920000000, 1150000000, 1),
-(2, 10, '/images/okuma-lb3000.jpg', 'Okuma LB-3000 EXII Turning Center', 'Premium CNC lathe, integrated C-axis, diameter 365mm', 1580000000, 1980000000, 1),
+(2, 2, 'SKU-LATHE-001', '/images/mazak-qtc200.jpg', 'Mazak QTC-200 CNC Turning Center', '2-axis CNC lathe, turning diameter 260mm, length 500mm', 850000000, 1080000000, 1),
+(2, 8, 'SKU-LATHE-002', '/images/doosan-lynx220.jpg', 'Doosan LYNX 220 CNC Lathe', 'CNC lathe with advanced servo system, diameter 280mm', 920000000, 1150000000, 1),
+(2, 10, 'SKU-LATHE-003', '/images/okuma-lb3000.jpg', 'Okuma LB-3000 EXII Turning Center', 'Premium CNC lathe, integrated C-axis, diameter 365mm', 1580000000, 1980000000, 1),
 
 -- Pressing Machines
-(3, 7, '/images/komatsu-h1f250.jpg', 'Komatsu H1F-250 Hydraulic Press', '250-ton hydraulic press machine, stroke 500mm, bed 1000x800mm', 680000000, 850000000, 1),
-(3, 4, '/images/amada-hfb2204.jpg', 'Amada HFB-2204 Press Brake', 'CNC press brake 220 tons, bed length 4000mm', 1250000000, 1580000000, 1),
-(3, 4, '/images/amada-rg100.jpg', 'Amada RG-100 Turret Punch Press', 'CNC turret punch press with rotating tool tower, bed 1250x2500mm', 2100000000, 2650000000, 1),
+(3, 7, 'SKU-PRESS-001', '/images/komatsu-h1f250.jpg', 'Komatsu H1F-250 Hydraulic Press', '250-ton hydraulic press machine, stroke 500mm, bed 1000x800mm', 680000000, 850000000, 1),
+(3, 4, 'SKU-PRESS-002', '/images/amada-hfb2204.jpg', 'Amada HFB-2204 Press Brake', 'CNC press brake 220 tons, bed length 4000mm', 1250000000, 1580000000, 1),
+(3, 4, 'SKU-PRESS-003', '/images/amada-rg100.jpg', 'Amada RG-100 Turret Punch Press', 'CNC turret punch press with rotating tool tower, bed 1250x2500mm', 2100000000, 2650000000, 1),
 
 -- Welding Equipment
-(4, 13, '/images/lincoln-powerwave.jpg', 'Lincoln Powerwave S500 Welding System', 'MIG/MAG welding machine 500A output, digital control', 185000000, 235000000, 1),
-(4, 14, '/images/miller-deltaweld.jpg', 'Miller Deltaweld 452 MIG Welder', 'CO2/MIG welder 450A with inverter technology', 165000000, 210000000, 1),
-(4, 3, '/images/fanuc-arcmate120.jpg', 'Fanuc ARC Mate 120iC Welding Robot', 'Industrial welding robot 6-axis, payload 12kg, reach 1811mm', 1850000000, 2320000000, 1),
-(4, 17, '/images/mitsubishi-welder.jpg', 'Mitsubishi RV-7FLL Welding Robot', 'Versatile welding robot, 6-axis, 7kg payload, accuracy ±0.05mm', 1680000000, 2100000000, 1),
+(4, 13, 'SKU-WELD-001', '/images/lincoln-powerwave.jpg', 'Lincoln Powerwave S500 Welding System', 'MIG/MAG welding machine 500A output, digital control', 185000000, 235000000, 1),
+(4, 14, 'SKU-WELD-002', '/images/miller-deltaweld.jpg', 'Miller Deltaweld 452 MIG Welder', 'CO2/MIG welder 450A with inverter technology', 165000000, 210000000, 1),
+(4, 3, 'SKU-WELD-003', '/images/fanuc-arcmate120.jpg', 'Fanuc ARC Mate 120iC Welding Robot', 'Industrial welding robot 6-axis, payload 12kg, reach 1811mm', 1850000000, 2320000000, 1),
+(4, 17, 'SKU-WELD-004', '/images/mitsubishi-welder.jpg', 'Mitsubishi RV-7FLL Welding Robot', 'Versatile welding robot, 6-axis, 7kg payload, accuracy ±0.05mm', 1680000000, 2100000000, 1),
 
 -- Cutting Machines
-(5, 6, '/images/trumpf-3030.jpg', 'Trumpf TruLaser 3030 Fiber Laser', 'Fiber laser cutting machine 4kW, bed 3000x1500mm, high speed', 3500000000, 4380000000, 1),
-(5, 4, '/images/amada-ensis.jpg', 'Amada ENSIS-3015AJ Fiber Laser', 'Fiber laser cutter 3kW, automatic loading, bed 3000x1500mm', 3200000000, 4000000000, 1),
-(5, 7, '/images/komatsu-plasma.jpg', 'Komatsu Plasma Cutter PC-1500', 'CNC plasma cutter, 150A power source, bed 2500x6000mm', 425000000, 535000000, 1),
+(5, 6, 'SKU-CUT-001', '/images/trumpf-3030.jpg', 'Trumpf TruLaser 3030 Fiber Laser', 'Fiber laser cutting machine 4kW, bed 3000x1500mm, high speed', 3500000000, 4380000000, 1),
+(5, 4, 'SKU-CUT-002', '/images/amada-ensis.jpg', 'Amada ENSIS-3015AJ Fiber Laser', 'Fiber laser cutter 3kW, automatic loading, bed 3000x1500mm', 3200000000, 4000000000, 1),
+(5, 7, 'SKU-CUT-003', '/images/komatsu-plasma.jpg', 'Komatsu Plasma Cutter PC-1500', 'CNC plasma cutter, 150A power source, bed 2500x6000mm', 425000000, 535000000, 1),
 
 -- Grinding Machines
-(6, 10, '/images/okuma-grinder.jpg', 'Okuma UGM-6 Universal Grinding Machine', 'Universal CNC grinding machine, travel 600x450x350mm', 1150000000, 1450000000, 1),
-(6, 11, '/images/brother-sg408.jpg', 'Brother SG-408 Surface Grinder', 'Surface grinding machine, bed 400x800mm, precision 0.002mm', 385000000, 485000000, 1),
+(6, 10, 'SKU-GRIND-001', '/images/okuma-grinder.jpg', 'Okuma UGM-6 Universal Grinding Machine', 'Universal CNC grinding machine, travel 600x450x350mm', 1150000000, 1450000000, 1),
+(6, 11, 'SKU-GRIND-002', '/images/brother-sg408.jpg', 'Brother SG-408 Surface Grinder', 'Surface grinding machine, bed 400x800mm, precision 0.002mm', 385000000, 485000000, 1),
 
 -- Injection Molding
-(7, 15, '/images/engel-e-max.jpg', 'Engel e-max 310/100 Injection Molding', 'Electric injection molding machine 100 tons, clamping force 1000kN, energy saving', 1450000000, 1820000000, 1),
-(7, 16, '/images/arburg-470a.jpg', 'Arburg Allrounder 470 A Injection Machine', 'Hydraulic injection molding 150 tons, clamping force 1500kN, versatile', 1280000000, 1600000000, 1),
-(7, 15, '/images/engel-duo.jpg', 'Engel duo 2050/350 Large Injection Machine', 'Large injection molding machine 350 tons, clamping force 3500kN, for large products', 3850000000, 4820000000, 1),
+(7, 15, 'SKU-INJ-001', '/images/engel-e-max.jpg', 'Engel e-max 310/100 Injection Molding', 'Electric injection molding machine 100 tons, clamping force 1000kN, energy saving', 1450000000, 1820000000, 1),
+(7, 16, 'SKU-INJ-002', '/images/arburg-470a.jpg', 'Arburg Allrounder 470 A Injection Machine', 'Hydraulic injection molding 150 tons, clamping force 1500kN, versatile', 1280000000, 1600000000, 1),
+(7, 15, 'SKU-INJ-003', '/images/engel-duo.jpg', 'Engel duo 2050/350 Large Injection Machine', 'Large injection molding machine 350 tons, clamping force 3500kN, for large products', 3850000000, 4820000000, 1),
 
 -- Conveyor Systems
-(8, 18, '/images/siemens-conveyor.jpg', 'Siemens SIMATIC Conveyor System S7-1200', 'PLC-controlled conveyor system, length 20m, load capacity 500kg', 285000000, 360000000, 1),
-(8, 17, '/images/mitsubishi-conveyor.jpg', 'Mitsubishi MR-J4 Servo Conveyor Line', 'Precision servo conveyor, length 15m, speed 60m/min', 385000000, 485000000, 1),
+(8, 18, 'SKU-CONV-001', '/images/siemens-conveyor.jpg', 'Siemens SIMATIC Conveyor System S7-1200', 'PLC-controlled conveyor system, length 20m, load capacity 500kg', 285000000, 360000000, 1),
+(8, 17, 'SKU-CONV-002', '/images/mitsubishi-conveyor.jpg', 'Mitsubishi MR-J4 Servo Conveyor Line', 'Precision servo conveyor, length 15m, speed 60m/min', 385000000, 485000000, 1),
 
 -- Packaging Machines
-(9, 18, '/images/siemens-packaging.jpg', 'Siemens Automatic Packaging Line APL-300', 'Automatic packaging line, 30 packs/min, integrated weighing system', 685000000, 860000000, 1),
+(9, 18, 'SKU-PACK-001', '/images/siemens-packaging.jpg', 'Siemens Automatic Packaging Line APL-300', 'Automatic packaging line, 30 packs/min, integrated weighing system', 685000000, 860000000, 1),
 
 -- Quality Inspection Equipment
-(10, 17, '/images/mitsubishi-cmm.jpg', 'Mitsubishi CMM Coordinate Measuring Machine', '3D coordinate measuring machine, travel 700x1000x600mm, accuracy 0.001mm', 1150000000, 1450000000, 1),
-(10, 2, '/images/mazak-probe.jpg', 'Mazak QC-20W Quality Control System', 'Integrated quality control system, optical laser probe', 425000000, 535000000, 1);
+(10, 17, 'SKU-QUAL-001', '/images/mitsubishi-cmm.jpg', 'Mitsubishi CMM Coordinate Measuring Machine', '3D coordinate measuring machine, travel 700x1000x600mm, accuracy 0.001mm', 1150000000, 1450000000, 1),
+(10, 2, 'SKU-QUAL-002', '/images/mazak-probe.jpg', 'Mazak QC-20W Quality Control System', 'Integrated quality control system, optical laser probe', 425000000, 535000000, 1);
 
 -- 8. INSERT INVENTORY
 INSERT INTO Inventory (product_id, quantity, is_active) VALUES
@@ -494,6 +515,8 @@ INSERT INTO Transaction (product_id, contract_id, type, quantity, transaction_da
 -- Additional import for restocking
 (8, NULL, 'IMPORT', 5, '2024-04-01 08:00:00', 'Restocking Komatsu press machines', 1),
 (23, NULL, 'IMPORT', 8, '2024-04-05 09:00:00', 'Restocking Siemens conveyor systems', 1);
+
+SET FOREIGN_KEY_CHECKS = 0;
 
 --
 -- Table structure for table `brand`
@@ -1112,14 +1135,7 @@ LOCK TABLES `user_permission` WRITE;
 /*!40000 ALTER TABLE `user_permission` DISABLE KEYS */;
 /*!40000 ALTER TABLE `user_permission` ENABLE KEYS */;
 UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- Dump completed on 2025-11-11 22:48:10

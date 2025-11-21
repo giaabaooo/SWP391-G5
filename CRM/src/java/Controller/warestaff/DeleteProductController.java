@@ -8,8 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import dal.ProductDAO;
 
 /**
- * Controller for deleting products
- * @author vttrung
+ * Servlet vô hiệu hóa sản phẩm (xóa mềm) để giữ toàn vẹn dữ liệu
  */
 public class DeleteProductController extends HttpServlet {
    
@@ -17,7 +16,7 @@ public class DeleteProductController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
-            // Get product ID from parameter
+            // Bước 1: Lấy ID sản phẩm từ form và kiểm tra tính hợp lệ
             String productIdParam = request.getParameter("id");
             
             if (productIdParam == null || productIdParam.isEmpty()) {
@@ -33,10 +32,11 @@ public class DeleteProductController extends HttpServlet {
                 return;
             }
             
-            // Deactivate product (soft delete) instead of hard delete to preserve referential integrity
+            // Bước 2: Xóa mềm sản phẩm để đảm bảo dữ liệu liên quan không bị mất
             ProductDAO productDAO = new ProductDAO();
             boolean isDeleted = productDAO.deactivateProduct(productId);
 
+            // Bước 3: Điều hướng với thông báo tương ứng
             if (isDeleted) {
                 response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success=Product deactivated successfully");
             } else {
@@ -53,7 +53,7 @@ public class DeleteProductController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        // Redirect GET requests to POST
+        // Nghiệp vụ chỉ cho phép POST nên GET sẽ tái sử dụng logic của doPost
         doPost(request, response);
     }
 

@@ -199,6 +199,7 @@
                     <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Stock In</h1>
                     <p style="color: #718096; margin-bottom: 2rem;">Record product imports and update inventory</p>
 
+                    <!-- Thông báo lỗi server nếu có -->
                     <% if (request.getAttribute("error") != null) { %>
                     <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                         <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
@@ -327,6 +328,7 @@
                                     noteValue = "";
                                 }
                             %>
+                            <!-- Form nhập thủ công từng dòng nhập kho -->
                             <form method="post" action="<%= request.getContextPath() %>/warestaff/addImportTransaction" id="stockInForm" novalidate>
                                 <div class="form-group">
                                     <label class="control-label">Transaction time<span style="color:red">*</span></label>
@@ -343,6 +345,7 @@
 
                                 <div class="form-group">
                                     <label class="control-label">Import items<span style="color:red">*</span></label>
+                                    <!-- Bảng thêm sản phẩm nhập và serial tương ứng -->
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="importItemsTable">
                                             <thead>
@@ -426,6 +429,7 @@
                                 </div>
 
                                 <div class="form-group" style="margin-top:1.5rem;">
+                                    <!-- Nút submit lưu phiếu nhập thủ công -->
                                     <button type="submit" class="btn btn-primary" id="submitBtn"><i class="fa fa-upload"></i> Save</button>
                                     <a href="<%= request.getContextPath() %>/warestaff/viewListProduct" class="btn btn-default">Cancel</a>
                                 </div>
@@ -477,6 +481,7 @@
 
                             <!-- Excel Upload Tab -->
                             <div class="tab-pane" id="excelUpload">
+                                <!-- Form tải Excel để nhập serial hàng loạt -->
                                 <div class="alert alert-info" style="background-color: #e6f7ff; border: 1px solid #91d5ff; color: #0050b3; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
                                     <i class="fa fa-info-circle"></i> <strong>Excel Format:</strong> Your Excel file must have 2 columns: <code>sku</code> and <code>serial_number</code>
                                 </div>
@@ -504,6 +509,7 @@
                                     </div>
 
                                     <div class="form-group" style="margin-top:1.5rem;">
+                                        <!-- Nút gửi file Excel để ghi nhận serial -->
                                         <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Import with Serials</button>
                                         <a href="<%= request.getContextPath() %>/warestaff/viewListProduct" class="btn btn-default">Cancel</a>
                                     </div>

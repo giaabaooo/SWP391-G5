@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller for exporting products with serial numbers via Excel file
+ * Xuất kho bằng cách tải file Excel chứa danh sách serial
  */
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 2, // 2MB
@@ -31,7 +31,7 @@ public class ExportWithSerialsController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Redirect to the main export stock page (which now has tabs)
+        // Chuyển hướng về trang export chính (nơi có tab tải Excel) để tránh duplicate form
         response.sendRedirect(request.getContextPath() + "/warestaff/addExportTransaction");
     }
 
@@ -39,13 +39,13 @@ public class ExportWithSerialsController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Get form parameters
+        // Bước 1: Thu thập dữ liệu từ form tải Excel
         String dateParam = request.getParameter("transactionDate");
         String note = request.getParameter("note");
         Part filePart = request.getPart("excelFile");
         String exportType = request.getParameter("exportType");
 
-        // Validate required fields
+        // Bước 2: Kiểm tra ngày giao dịch và loại phiếu xuất
         if (dateParam == null || dateParam.trim().isEmpty()) {
             request.setAttribute("error", "Transaction date/time is required.");
             doGet(request, response);
@@ -69,7 +69,7 @@ public class ExportWithSerialsController extends HttpServlet {
             return;
         }
 
-        // Validate file type
+        // Bước 3: Đảm bảo file Excel hợp lệ
         String fileName = getFileName(filePart);
         if (!fileName.toLowerCase().endsWith(".xlsx")) {
             request.setAttribute("error", "Only .xlsx Excel files are supported.");
@@ -77,7 +77,7 @@ public class ExportWithSerialsController extends HttpServlet {
             return;
         }
 
-        // Parse transaction date
+        // Bước 4: Chuyển chuỗi ngày giờ sang Timestamp
         Timestamp txTime;
         try {
             LocalDateTime parsed = LocalDateTime.parse(dateParam);
@@ -88,7 +88,7 @@ public class ExportWithSerialsController extends HttpServlet {
             return;
         }
 
-        // Parse Excel file
+        // Bước 5: Đọc file Excel và biến đổi thành danh sách SerialItem
         List<SerialItem> serialItems;
         try (InputStream fileContent = filePart.getInputStream()) {
             serialItems = ExcelSerialParser.parseExcelFile(fileContent);
@@ -102,7 +102,7 @@ public class ExportWithSerialsController extends HttpServlet {
             return;
         }
 
-        // Process export with serials
+        // Bước 6: Gọi DAO để tạo phiếu xuất dựa trên danh sách serial đọc được
         TransactionDAO transactionDAO = null;
         try {
             transactionDAO = new TransactionDAO();
@@ -134,6 +134,7 @@ public class ExportWithSerialsController extends HttpServlet {
      * Extract file name from Part header
      */
     private String getFileName(Part part) {
+        // Hàm tiện ích để lấy tên file từ header content-disposition
         String contentDisposition = part.getHeader("content-disposition");
         for (String content : contentDisposition.split(";")) {
             if (content.trim().startsWith("filename")) {

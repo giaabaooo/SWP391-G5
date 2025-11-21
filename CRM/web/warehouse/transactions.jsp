@@ -139,7 +139,7 @@
                             <h3><i class="fa fa-filter"></i> Filter Transactions</h3>
                         </div>
 
-                        <!-- Filter Bar -->
+                        <!-- Thanh lọc lịch sử giao dịch theo loại/ghi chú -->
                         <div class="filter-bar">
                             <form method="get" action="<%= request.getContextPath() %>/warestaff/transactions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                                 <select name="type" class="search-input" style="min-width: 150px;">
@@ -175,6 +175,7 @@
                                 int currentPage = (Integer) (request.getAttribute("currentPage") != null ? request.getAttribute("currentPage") : 1);
                                 int totalPages = (Integer) (request.getAttribute("totalPages") != null ? request.getAttribute("totalPages") : 1);
                             %>
+                            <!-- Bảng liệt kê phiếu nhập/xuất -->
                             <div class="table-responsive">
                                 <table class="inventory-table">
                                     <thead>
@@ -241,7 +242,7 @@
                                 int endItem = Math.min(currentPage * pageSize, total);
                             %>
 
-                            <!-- Pagination Controls -->
+                            <!-- Bộ phân trang kết hợp giữ tham số lọc -->
                             <div class="pagination-container">
                                 <div class="pagination-info">
                                     <span>Showing <%= startItem %> to <%= endItem %> of <%= total %> transactions</span>

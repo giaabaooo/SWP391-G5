@@ -142,7 +142,7 @@
                 </div>
             </div>
 
-            <!-- Summary charts instead of cards -->
+            <!-- Biểu đồ tổng quan tồn kho và nhập/xuất theo tháng -->
             <div class="row">
                 <div class="col-md-6">
                     <h3 style="margin: 0 0 8px; color:#111827;"><i class="fa fa-cubes"></i> Inventory Summary (Products)</h3>
@@ -154,7 +154,7 @@
                 </div>
             </div>
 
-            <!-- Recent Transactions -->
+            <!-- Bảng giao dịch gần nhất -->
             <div class="row">
                 <div class="col-md-12">
                     <div class="content-card">
@@ -214,6 +214,7 @@
 
 <script>
     (function(){
+        // Dữ liệu biểu đồ tuần (import/export) truyền từ controller
         var labels = <%
             java.util.List<String> lbl = (java.util.List<String>) request.getAttribute("chartLabels");
             out.print(lbl != null ? new com.google.gson.Gson().toJson(lbl) : "[]");

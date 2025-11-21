@@ -69,7 +69,7 @@ public class AddNewProductController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
-            // Load dropdown data from session cache if available
+            // Bước 1: Lấy sẵn dữ liệu thương hiệu/nhóm hàng (tận dụng cache session nếu có)
             loadDropdownData(request);
 
             request.getRequestDispatcher("/warehouse/addProduct.jsp").forward(request, response);
@@ -95,6 +95,7 @@ public class AddNewProductController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
+            // Bước 1: Thu thập toàn bộ tham số người dùng nhập trên form
             String name = request.getParameter("name");
             String description = request.getParameter("description");
             String purchasePriceStr = request.getParameter("purchase_price");
@@ -111,6 +112,7 @@ public class AddNewProductController extends HttpServlet {
                 throw new IllegalArgumentException("Image must be smaller than 5 MB");
             }
             
+            // Bước 2: Kiểm tra ràng buộc tối thiểu để tránh dữ liệu trống hoặc sai định dạng
             if (name == null || name.trim().isEmpty()) {
                 throw new IllegalArgumentException("Product name is required");
             }
@@ -128,6 +130,7 @@ public class AddNewProductController extends HttpServlet {
             BigDecimal purchasePrice;
             BigDecimal sellingPrice = null;
             
+            // Bước 3: Chuyển đổi chuỗi sang kiểu số, đồng thời xác thực giá trị hợp lệ
             try {
                 categoryId = Integer.parseInt(categoryIdStr);
             } catch (NumberFormatException e) {
@@ -164,6 +167,7 @@ public class AddNewProductController extends HttpServlet {
             
             boolean isActive = isActiveStr != null;
             
+            // Bước 4: Nếu người dùng tải lên ảnh mới thì lưu file vào thư mục server
             String storedImagePath = null;
             if (imagePart != null && imagePart.getSize() > 0) {
                 if (imagePart.getContentType() == null || !imagePart.getContentType().startsWith("image/")) {
@@ -204,6 +208,7 @@ public class AddNewProductController extends HttpServlet {
                 storedImagePath = "img/products/" + newFileName;
             }
 
+            // Bước 5: Gán dữ liệu đã chuẩn hóa vào đối tượng Product để chuẩn bị ghi DB
             Product product = new Product();
             product.setName(name.trim());
             product.setDescription(description != null ? description.trim() : "");
@@ -222,6 +227,7 @@ public class AddNewProductController extends HttpServlet {
             ProductDAO productDAO = null;
             try {
                 productDAO = new ProductDAO();
+                // Bước 6: Gọi DAO để lưu sản phẩm mới và điều hướng khi thành công
                 int generatedId = productDAO.addProduct(product);
                 if (generatedId > 0) {
                     response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success=" + java.net.URLEncoder.encode("Product '" + name.trim() + "' added successfully!", java.nio.charset.StandardCharsets.UTF_8));
@@ -265,26 +271,26 @@ public class AddNewProductController extends HttpServlet {
             List<Brand> brands = null;
             List<Category> categories = null;
 
-            // Check if data exists in session
+            // Ưu tiên sử dụng dữ liệu đã cache trong session để giảm truy vấn
             if (request.getSession().getAttribute("cachedBrands") != null &&
                 request.getSession().getAttribute("cachedCategories") != null) {
-                // Use cached data from session
+                // Lấy trực tiếp từ session
                 brands = (List<Brand>) request.getSession().getAttribute("cachedBrands");
                 categories = (List<Category>) request.getSession().getAttribute("cachedCategories");
             } else {
-                // Load from database and cache in session
+                // Nếu chưa có thì truy vấn DB và ghi đệm cho các lần dùng sau
                 brandDAO = new BrandDAO();
                 categoryDAO = new CategoryDAO();
 
                 brands = brandDAO.getAllActiveBrands();
                 categories = categoryDAO.getAllActiveCategories();
 
-                // Store in session for future requests
+                // Lưu lại vào session
                 request.getSession().setAttribute("cachedBrands", brands);
                 request.getSession().setAttribute("cachedCategories", categories);
             }
 
-            // Set as request attributes for the JSP to use
+            // Gắn vào request để JSP hiển thị dropdown
             request.setAttribute("brands", brands);
             request.setAttribute("categories", categories);
 
@@ -292,7 +298,7 @@ public class AddNewProductController extends HttpServlet {
             System.err.println("Error loading dropdown data: " + e.getMessage());
             request.setAttribute("dropdownError", "Unable to refresh brand/category options.");
         } finally {
-            // IMPORTANT: Always close DAO connections to prevent memory leaks and connection pool exhaustion
+            // Luôn đóng DAO để tránh rò rỉ kết nối
             if (brandDAO != null) {
                 try {
                     brandDAO.close();

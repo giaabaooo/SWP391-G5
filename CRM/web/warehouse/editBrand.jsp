@@ -119,6 +119,7 @@
                     <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Edit Brand</h1>
                     <p style="color: #718096; margin-bottom: 2rem;">Update brand details</p>
                     <% Brand brand = (Brand) request.getAttribute("brand"); %>
+                    <!-- Thông báo lỗi trả về từ EditBrandController -->
                     <% if (request.getAttribute("error") != null && !"Brand name is required".equals(request.getAttribute("error"))) { %>
                         <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                             <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
@@ -134,6 +135,7 @@
                             <h3><i class="fa fa-edit"></i> Brand Information</h3>
                         </div>
                         <div class="card-body">
+                            <!-- Form cập nhật thông tin thương hiệu -->
                             <form method="post" action="../warestaff/editBrand" novalidate>
                                 <input type="hidden" name="id" value="<%= brand != null ? brand.getId() : 0 %>" />
                                 <div class="form-row">
@@ -168,6 +170,7 @@
 
                                 <div class="form-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; margin-bottom: 0;">
                                     <div class="form-col-full text-center">
+                                        <!-- Nút submit lưu thay đổi -->
                                         <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                             <i class="fa fa-save"></i> Save Changes
                                         </button>

@@ -229,6 +229,7 @@
             <!-- MAIN CONTENT -->
             <aside class="right-side">
                 <section class="content">
+                    <!-- Lấy dữ liệu sản phẩm và danh sách serial -->
                     <%
                         Product product = (Product) request.getAttribute("product");
                         Category category = (Category) request.getAttribute("category");
@@ -399,6 +400,7 @@
                                 </div>
                                 <div class="card-body" style="padding: 0;">
                                     <% if (serials != null && !serials.isEmpty()) { %>
+                                    <!-- Bảng serial có phân trang -->
                                     <table class="table table-striped table-hover" style="margin-bottom: 0;">
                                         <thead>
                                             <tr>
@@ -447,6 +449,7 @@
                                     <% } %>
 
                                     <c:if test="${totalPages > 1}">
+                                        <!-- Điều khiển phân trang cho danh sách serial -->
                                         <div class="pagination-container" style="padding: 15px 20px; border-top: 1px solid #f4f4f4;">
                                             <span class="pagination-info">
                                                 Showing ${(page-1)*pageSize + 1} to ${page*pageSize > totalItems ? totalItems : page*pageSize} of ${totalItems} serial numbers

@@ -120,6 +120,7 @@
                 <div class="col-md-12">
                     <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Add New Brand</h1>
                     <p style="color: #718096; margin-bottom: 2rem;">Create a new brand</p>
+                    <!-- Hiển thị thông báo lỗi trả về từ server (ngoài lỗi validate tên) -->
                     <% if (request.getAttribute("error") != null && !"Brand name is required".equals(request.getAttribute("error"))) { %>
                         <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                             <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
@@ -135,6 +136,7 @@
                             <h3><i class="fa fa-plus"></i> Brand Information</h3>
                         </div>
                         <div class="card-body">
+                            <!-- Form gửi dữ liệu tạo thương hiệu mới -->
                             <form method="post" action="../warestaff/addBrand" novalidate>
                                 <div class="form-row">
                                     <div class="form-col">
@@ -168,6 +170,7 @@
 
                                 <div class="form-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; margin-bottom: 0;">
                                     <div class="form-col-full text-center">
+                                        <!-- Nút submit gửi form lên AddBrandController -->
                                         <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                             <i class="fa fa-save"></i> Create Brand
                                         </button>

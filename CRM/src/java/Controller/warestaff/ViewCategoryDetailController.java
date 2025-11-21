@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * View category details including products in this category
+ * Xem chi tiết danh mục cùng số liệu tổng hợp liên quan
  */
 public class ViewCategoryDetailController extends HttpServlet {
 
@@ -20,6 +20,7 @@ public class ViewCategoryDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
+            // Bước 1: Lấy ID danh mục từ URL và xác thực
             String idParam = request.getParameter("id");
             if (idParam == null) {
                 response.sendRedirect(request.getContextPath() + "/warestaff/categoryList?error=Missing%20category%20id");
@@ -37,31 +38,23 @@ public class ViewCategoryDetailController extends HttpServlet {
             CategoryDAO categoryDAO = new CategoryDAO();
             ProductDAO productDAO = new ProductDAO();
             
-            // Get category details
+            // Bước 2: Lấy thông tin danh mục
             Category category = categoryDAO.getCategoryById(categoryId);
             if (category == null) {
                 response.sendRedirect(request.getContextPath() + "/warestaff/categoryList?error=Category%20not%20found");
                 return;
             }
             
-            // Get products in this category
+            // Bước 3: Lấy danh sách và các thống kê liên quan tới sản phẩm thuộc danh mục
             List<Product> products = productDAO.getProductsByCategoryId(categoryId);
             
-            // Get total count of products in this category
             int totalProducts = productDAO.getTotalProductsByCategoryId(categoryId);
-            
-            // Get active products count
             int activeProducts = productDAO.getActiveProductsByCategoryId(categoryId);
-            
-            // Get inventory statistics
             int[] inventoryStats = productDAO.getInventoryStatsByCategoryId(categoryId);
-            
-            // Get contract statistics
             Object[] contractStats = productDAO.getContractStatsByCategoryId(categoryId);
-            
-            // Get device statistics
             int[] deviceStats = productDAO.getDeviceStatsByCategoryId(categoryId);
             
+            // Bước 4: Gắn dữ liệu cho JSP hiển thị
             request.setAttribute("category", category);
             request.setAttribute("products", products);
             request.setAttribute("totalProducts", totalProducts);

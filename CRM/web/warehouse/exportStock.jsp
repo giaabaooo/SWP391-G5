@@ -189,6 +189,7 @@
                         <div class="col-md-12">
                             <h1 style="color:#2d3748;font-weight:600;margin-bottom:0.5rem;margin-top:0;">Stock Out</h1>
                             <p style="color:#718096;margin-bottom:2rem;">Record product exports and update inventory</p>
+                            <!-- Thông báo lỗi khi controller trả về -->
                             <% if (request.getAttribute("error") != null) {%>
                             <div class="alert alert-danger" style="background-color:#fed7d7;border:1px solid #fc8181;color:#742a2a;padding:1rem;border-radius:8px;margin-bottom:1rem;">
                                 <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error")%>
@@ -217,6 +218,7 @@
                                 <div class="tab-content" style="padding:1.25rem;">
                                     <!-- Manual Export Tab -->
                                     <div class="tab-pane active" id="manualExport">
+                                        <!-- Form nhập thủ công từng dòng xuất kho -->
                                         <%
                                             List<Product> products = (List<Product>) request.getAttribute("products");
                                             List<data.Category> categories = (List<data.Category>) request.getAttribute("categories");
@@ -320,6 +322,7 @@
                                                 </div>
 
                                                 <label class="control-label">Export items<span style="color:red">*</span></label>
+                                                <!-- Bảng động để thêm từng dòng sản phẩm và serial -->
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered" id="exportItemsTable">
                                                         <thead>
@@ -404,6 +407,7 @@
                                             </div>
 
                                             <div class="form-group" style="margin-top:1.5rem;">
+                                                <!-- Nút submit lưu phiếu xuất thủ công -->
                                                 <button type="submit" class="btn btn-primary" id="submitBtn"><i class="fa fa-download"></i> Save</button>
                                                 <a href="<%= request.getContextPath()%>/warestaff/viewListProduct" class="btn btn-default">Cancel</a>
                                             </div>
@@ -454,7 +458,8 @@
                                     <!-- End Manual Export Tab -->
 
                                     <!-- Excel Export Tab -->
-                                    <div class="tab-pane" id="excelExport">
+                                                <div class="tab-pane" id="excelExport">
+                                                    <!-- Form upload Excel chứa serial đã chuẩn hóa -->
                                         <div class="alert alert-warning" style="background-color: #fff7e6; border: 1px solid #ffd591; color: #ad6800; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                                             <i class="fa fa-exclamation-triangle"></i> <strong>Warning:</strong> This action will mark serial numbers as SOLD and cannot be undone!
                                         </div>
@@ -463,6 +468,7 @@
                                             <i class="fa fa-info-circle"></i> <strong>Excel Format:</strong> Your Excel file must have 2 columns: <code>sku</code> and <code>serial_number</code>
                                         </div>
 
+                                        <!-- Form tải file Excel chứa serial -->
                                         <form method="post" action="<%= request.getContextPath()%>/warestaff/exportWithSerials" enctype="multipart/form-data" id="excelExportForm">
                                             <div class="form-group">
                                                 <label class="control-label">Excel File (.xlsx)<span style="color:red">*</span></label>
@@ -489,6 +495,7 @@
                                             </div>
 
                                             <div class="form-group" style="margin-top:1.5rem;">
+                                                <!-- Nút submit gửi file Excel để tạo phiếu -->
                                                 <button type="submit" class="btn btn-danger"><i class="fa fa-download"></i> Export with Serials</button>
                                                 <a href="<%= request.getContextPath()%>/warestaff/viewListProduct" class="btn btn-default">Cancel</a>
                                             </div>

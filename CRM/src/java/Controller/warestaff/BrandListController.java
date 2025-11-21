@@ -10,7 +10,7 @@ import dal.BrandDAO;
 import data.Brand;
 
 /**
- * List/search/filter/paginate brands for warehouse staff
+ * Liệt kê thương hiệu với các bộ lọc tìm kiếm cho nhân viên kho
  */
 public class BrandListController extends HttpServlet {
 
@@ -20,6 +20,7 @@ public class BrandListController extends HttpServlet {
         try {
             BrandDAO brandDAO = new BrandDAO();
 
+            // Bước 1: Lấy tham số phân trang / tìm kiếm / trạng thái
             String pageParam = request.getParameter("page");
             String pageSizeParam = request.getParameter("pageSize");
             String searchQuery = request.getParameter("search");
@@ -47,10 +48,12 @@ public class BrandListController extends HttpServlet {
                 }
             }
 
+            // Bước 2: Truy vấn danh sách thương hiệu theo các bộ lọc đã chuẩn hóa
             List<Brand> brands = brandDAO.getBrandsWithFilters(page, pageSize, searchQuery, isActive);
             int total = brandDAO.getTotalBrandsWithFilters(searchQuery, isActive);
             int totalPages = (int) Math.ceil((double) total / pageSize);
 
+            // Bước 3: Gắn dữ liệu để JSP render bảng + phân trang
             request.setAttribute("brands", brands);
             request.setAttribute("currentPage", page);
             request.setAttribute("pageSize", pageSize);

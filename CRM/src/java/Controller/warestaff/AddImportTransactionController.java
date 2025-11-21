@@ -19,6 +19,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Tạo phiếu nhập kho kèm theo danh sách serial
+ */
 public class AddImportTransactionController extends HttpServlet {
 
     @Override
@@ -26,6 +29,7 @@ public class AddImportTransactionController extends HttpServlet {
     throws ServletException, IOException {
         ProductDAO productDAO = null;
         try {
+            // Lấy danh sách sản phẩm đang hoạt động để nhân viên chọn
             productDAO = new ProductDAO();
             List<Product> products = productDAO.getAllActiveProducts();
             request.setAttribute("products", products);
@@ -35,6 +39,7 @@ public class AddImportTransactionController extends HttpServlet {
 
         CategoryDAO categoryDAO = null;
         try {
+            // Chuẩn bị thêm danh sách danh mục để lọc/hiển thị thông tin phụ
             categoryDAO = new CategoryDAO();
             List<Category> categories = categoryDAO.getAllActiveCategories();
             request.setAttribute("categories", categories);
@@ -42,10 +47,12 @@ public class AddImportTransactionController extends HttpServlet {
             if (categoryDAO != null) categoryDAO.close();
         }
 
+        // Đổ sẵn các đơn vị tính thường dùng
         request.setAttribute("unitOptions", getDefaultUnitOptions());
 
         String productIdParam = request.getParameter("productId");
         if (productIdParam != null && !productIdParam.isEmpty()) {
+            // Nếu người dùng chuyển từ trang chi tiết sản phẩm sang, tự động chọn đúng sản phẩm
             request.setAttribute("prefillProductId", productIdParam);
         }
 
@@ -55,6 +62,7 @@ public class AddImportTransactionController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        // Bước 1: Thu thập dữ liệu từ form nhập kho
         String[] productIds = request.getParameterValues("productId");
         String[] quantities = request.getParameterValues("quantity");
         String[] units = request.getParameterValues("unit");
@@ -64,6 +72,7 @@ public class AddImportTransactionController extends HttpServlet {
         String supplier = request.getParameter("supplier");
         String note = request.getParameter("note");
 
+        // Bước 2: Xác thực thời gian giao dịch để đảm bảo định dạng chuẩn
         if (dateParam == null || dateParam.trim().isEmpty()) {
             request.setAttribute("error", "Transaction date/time is required.");
             storeSubmittedItems(request, productIds, quantities, units, itemNotes, supplier, note, dateParam);
@@ -96,7 +105,7 @@ public class AddImportTransactionController extends HttpServlet {
             return;
         }
 
-        // Build list of product IDs and serial numbers for manual entry
+        // Bước 3: Chuẩn hóa dữ liệu thành danh sách ID + serial để truyền xuống DAO
         List<Integer> productIdList = new ArrayList<>();
         List<String> serialNumberList = new ArrayList<>();
 
@@ -139,7 +148,7 @@ public class AddImportTransactionController extends HttpServlet {
                 return;
             }
 
-            // Collect serial numbers for this product
+            // Với mỗi sản phẩm phải thu đủ serial tương ứng với số lượng nhập
             for (int j = 0; j < quantity; j++) {
                 if (serialIndex >= serialNumbers.length) {
                     request.setAttribute("error", "Missing serial numbers for row " + (i + 1) + ".");
@@ -169,7 +178,7 @@ public class AddImportTransactionController extends HttpServlet {
             return;
         }
 
-        // Use importWithSerialsManual for manual entry (uses product_id instead of SKU)
+        // Bước 4: Gọi TransactionDAO để ghi nhận phiếu nhập cùng serial
         TransactionDAO transactionDAO = null;
         try {
             transactionDAO = new TransactionDAO();
@@ -200,6 +209,7 @@ public class AddImportTransactionController extends HttpServlet {
 
     private void storeSubmittedItems(HttpServletRequest request, String[] productIds, String[] quantities,
                                      String[] units, String[] itemNotes, String supplier, String note, String dateParam) {
+        // Lưu lại các trường đã nhập để hiển thị lại khi có lỗi
         if (productIds != null) {
             request.setAttribute("submittedProductIds", productIds);
         }
@@ -218,6 +228,7 @@ public class AddImportTransactionController extends HttpServlet {
     }
 
     private List<String> getDefaultUnitOptions() {
+        // Danh sách đơn vị cơ bản để chọn nhanh
         return Collections.unmodifiableList(Arrays.asList("Bộ", "Cái", "Chiếc", "Mét", "Kilogram", "Lít", "Thùng", "Hộp"));
     }
 }

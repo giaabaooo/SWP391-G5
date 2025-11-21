@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * View brand details (basic info). Can be extended with related products stats if needed.
+ * Xem thông tin chi tiết của thương hiệu cùng danh sách sản phẩm liên quan
  */
 public class ViewBrandDetailController extends HttpServlet {
 
@@ -19,6 +19,7 @@ public class ViewBrandDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
+            // Bước 1: Đọc và kiểm tra ID thương hiệu từ query string
             String idParam = request.getParameter("id");
             if (idParam == null) {
                 response.sendRedirect(request.getContextPath() + "/warestaff/brandList?error=Missing%20brand%20id");
@@ -40,10 +41,11 @@ public class ViewBrandDetailController extends HttpServlet {
                 return;
             }
 
-            // Load products for this brand
+            // Bước 2: Lấy danh sách sản phẩm thuộc thương hiệu này
             ProductDAO productDAO = new ProductDAO();
             java.util.List<Product> products = productDAO.getProductsByBrand(brandId);
 
+            // Bước 3: Gắn dữ liệu để JSP hiển thị chi tiết
             request.setAttribute("brand", brand);
             request.setAttribute("products", products);
             request.getRequestDispatcher("/warehouse/brandDetail.jsp").forward(request, response);

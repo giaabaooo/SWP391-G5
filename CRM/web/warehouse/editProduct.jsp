@@ -140,6 +140,7 @@
                     <p style="color: #718096; margin-bottom: 2rem;">Update product information in the warehouse inventory</p>
                     
                     <%-- Display error message if any --%>
+                    <!-- Hiển thị lỗi phía server -->
                     <% if (request.getAttribute("error") != null) { %>
                         <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                             <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
@@ -160,6 +161,7 @@
                             <h3><i class="fa fa-edit"></i> Product Information</h3>
                         </div>
                         <div class="card-body">
+                            <!-- Form cập nhật sản phẩm (có hỗ trợ upload ảnh) -->
                             <form method="post" action="../warestaff/editProduct" enctype="multipart/form-data" novalidate>
                                 <!-- Hidden field for product ID -->
                                 <input type="hidden" name="id" value="<%= product.getId() %>" />
@@ -206,6 +208,7 @@
                                     <div class="form-col">
                                         <div class="form-group">
                                             <label class="control-label">Category<span style="color:red">*</span></label>
+                                            <!-- Dropdown lấy danh sách danh mục do controller truyền sang -->
                                             <select name="category_id" id="categoryId" class="form-control">
                                                 <option value="">-- Select Category --</option>
                                                 <%-- Populate categories from request attribute --%>
@@ -265,6 +268,7 @@
                                     <div class="form-col">
                                         <div class="form-group">
                                             <label class="control-label">Product Image</label>
+                                            <!-- Khu vực xem trước và chọn ảnh sản phẩm -->
                                             <div class="image-upload-section">
                                                 <%
                                                     String rawImageUrl = product.getImageUrl();
@@ -277,17 +281,20 @@
                                                             resolvedImageSrc = request.getContextPath() + "/" + rawImageUrl;
                                                         }
                                                     }
+                                                    String imageStyleAttr = hasImage ? "" : " style=\"display: none;\"";
+                                                    String placeholderStyleAttr = hasImage ? " style=\"display: none;\"" : "";
+                                                    String resetButtonStyleAttr = hasImage ? "" : " style=\"display: none;\"";
                                                 %>
                                                 <div class="image-preview-wrapper <%= hasImage ? "has-image" : "" %>" id="imagePreviewWrapper">
                                                     <img
                                                         id="imagePreview"
                                                         src="<%= hasImage ? resolvedImageSrc : "#" %>"
                                                         alt="Product preview"
-                                                        style="<%= hasImage ? "" : "display: none;" %>"
+                                                        <%= imageStyleAttr %>
                                                         data-original-src="<%= hasImage ? resolvedImageSrc : "" %>"
                                                         data-has-initial="<%= hasImage %>"
                                                     />
-                                                    <div class="image-preview-placeholder" id="imagePreviewPlaceholder" style="<%= hasImage ? "display: none;" : "" %>">
+                                                    <div class="image-preview-placeholder" id="imagePreviewPlaceholder"<%= placeholderStyleAttr %>>
                                                         <i class="fa fa-image"></i>
                                                         <span>No image selected</span>
                                                     </div>
@@ -301,7 +308,7 @@
                                                         <input type="url" name="image_url" id="imageUrl" class="form-control" placeholder="https://example.com/image.jpg" value="<%= product.getImageUrl() != null && !product.getImageUrl().startsWith("img/products/") ? product.getImageUrl() : "" %>" />
                                                         <small class="image-help-text">Upload from device or provide an image URL. Supported formats: JPG, JPEG, PNG, GIF, SVG, WEBP (max 5 MB).</small>
                                                     </div>
-                                                    <button type="button" class="image-reset" id="resetImage" style="<%= hasImage ? "" : "display: none;" %>">
+                                                    <button type="button" class="image-reset" id="resetImage"<%= resetButtonStyleAttr %>>
                                                         <i class="fa fa-undo"></i> Remove image
                                                     </button>
                                                 </div>
@@ -333,6 +340,7 @@
                                 <!-- Form Actions -->
                                 <div class="form-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; margin-bottom: 0;">
                                     <div class="form-col-full text-center">
+                                        <!-- Nút submit gửi dữ liệu cập nhật -->
                                         <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                             <i class="fa fa-save"></i> Update Product
                                         </button>

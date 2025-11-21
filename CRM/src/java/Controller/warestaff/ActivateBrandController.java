@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import dal.BrandDAO;
 
 /**
- * Controller for activating brands
+ * Bộ điều khiển dùng để kích hoạt lại thương hiệu trong kho
  */
 public class ActivateBrandController extends HttpServlet {
 
@@ -16,9 +16,12 @@ public class ActivateBrandController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
+            // Bước 1: Lấy ID thương hiệu từ form để biết bản ghi cần bật lại
             int id = Integer.parseInt(request.getParameter("id"));
             BrandDAO dao = new BrandDAO();
+            // Bước 2: Gọi DAO để cập nhật trạng thái hoạt động
             boolean ok = dao.activateBrand(id);
+            // Bước 3: Điều hướng về danh sách kèm thông báo thành công/thất bại
             if (ok) {
                 response.sendRedirect(request.getContextPath() + "/warestaff/brandList?success=Brand%20activated");
             } else {

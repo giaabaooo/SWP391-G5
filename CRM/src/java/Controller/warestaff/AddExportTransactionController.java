@@ -19,6 +19,9 @@ import java.util.List;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Tạo phiếu xuất kho có kèm danh sách serial do nhân viên tự nhập
+ */
 public class AddExportTransactionController extends HttpServlet {
 
     @Override
@@ -27,6 +30,7 @@ public class AddExportTransactionController extends HttpServlet {
         ProductDAO productDAO = null;
         CategoryDAO categoryDAO = null;
         try {
+            // Chuẩn bị dữ liệu sản phẩm và danh mục để hiển thị trong form xuất
             productDAO = new ProductDAO();
             categoryDAO = new CategoryDAO();
             List<Product> products = productDAO.getAllActiveProducts();
@@ -39,6 +43,7 @@ public class AddExportTransactionController extends HttpServlet {
             if (categoryDAO != null) categoryDAO.close();
         }
 
+        // Đổ sẵn danh sách đơn vị tính thường dùng
         request.setAttribute("unitOptions", getDefaultUnitOptions());
 
         request.getRequestDispatcher("/warehouse/exportStock.jsp").forward(request, response);
@@ -47,6 +52,7 @@ public class AddExportTransactionController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        // Bước 1: Thu thập tất cả trường người dùng nhập trên form
         String[] productIds = request.getParameterValues("productId");
         String[] quantities = request.getParameterValues("quantity");
         String[] units = request.getParameterValues("unit");
@@ -56,6 +62,7 @@ public class AddExportTransactionController extends HttpServlet {
         String note = request.getParameter("note");
         String exportType = request.getParameter("exportType");
 
+        // Bước 2: Kiểm tra thời gian giao dịch để đảm bảo chuẩn ISO-8601
         if (dateParam == null || dateParam.trim().isEmpty()) {
             request.setAttribute("error", "Transaction date/time is required.");
             storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
@@ -87,6 +94,7 @@ public class AddExportTransactionController extends HttpServlet {
             return;
         }
         
+        // Bước 3: Đảm bảo người dùng chọn ít nhất một sản phẩm và đã sinh serial tương ứng
         if (productIds == null || quantities == null) {
             request.setAttribute("error", "Please add at least one product line to the export slip.");
             storeSubmittedItems(request, productIds, quantities, units, itemNotes, note, dateParam);
@@ -101,7 +109,7 @@ public class AddExportTransactionController extends HttpServlet {
             return;
         }
 
-        // Build list of product IDs and serial numbers for manual entry
+        // Bước 4: Biến đổi dữ liệu thành danh sách ID + serial để truyền vào DAO
         List<Integer> productIdList = new ArrayList<>();
         List<String> serialNumberList = new ArrayList<>();
 
@@ -144,7 +152,7 @@ public class AddExportTransactionController extends HttpServlet {
                 return;
             }
 
-            // Collect serial numbers for this product
+            // Với mỗi sản phẩm, lấy đủ số lượng serial mà nhân viên đã nhập
             for (int j = 0; j < quantity; j++) {
                 if (serialIndex >= serialNumbers.length) {
                     request.setAttribute("error", "Missing serial numbers for row " + (i + 1) + ".");
@@ -174,7 +182,7 @@ public class AddExportTransactionController extends HttpServlet {
             return;
         }
 
-        // Use exportWithSerialsManual for manual entry (uses product_id instead of SKU)
+        // Bước 5: Gọi TransactionDAO để ghi nhận phiếu xuất kèm serial
         TransactionDAO transactionDAO = null;
         try {
             transactionDAO = new TransactionDAO();
@@ -205,6 +213,7 @@ public class AddExportTransactionController extends HttpServlet {
 
     private void storeSubmittedItems(HttpServletRequest request, String[] productIds, String[] quantities,
                                      String[] units, String[] itemNotes, String note, String dateParam) {
+        // Lưu lại dữ liệu người dùng nhập để hiển thị lại khi có lỗi
         if (productIds != null) {
             request.setAttribute("submittedProductIds", productIds);
         }
@@ -222,6 +231,7 @@ public class AddExportTransactionController extends HttpServlet {
     }
 
     private List<String> getDefaultUnitOptions() {
+        // Danh sách đơn vị cơ bản để tránh người dùng phải nhập thủ công
         return Collections.unmodifiableList(Arrays.asList("Bộ", "Cái", "Chiếc", "Mét", "Kilogram", "Lít", "Thùng", "Hộp"));
     }
 }

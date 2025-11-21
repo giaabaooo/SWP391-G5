@@ -174,7 +174,7 @@
                             </a>
                         </div>
 
-                        <!-- Filter Bar -->
+                        <!-- Thanh tìm kiếm/ lọc danh mục -->
                         <div class="filter-bar">
                             <input type="text" id="searchInput" class="search-input" placeholder="Search by category name..." 
                                    value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>">
@@ -198,6 +198,7 @@
                                 
                                 if (categories != null && !categories.isEmpty()) {
                             %>
+                            <!-- Bảng danh mục kèm hành động -->
                             <div class="table-responsive">
                                 <table class="inventory-table">
                                     <thead>
@@ -253,7 +254,7 @@
                                 </table>
                             </div>
                             
-                            <!-- Pagination Controls -->
+                            <!-- Bộ phân trang và chọn số bản ghi mỗi trang -->
                             <div class="pagination-container">
                                 <div class="pagination-info">
                                     <span id="paginationInfo">Showing 1 to 10 of 0 categories</span>
@@ -309,7 +310,7 @@
     </aside>
 </div>
 
-<!-- Status Change Confirmation Modal -->
+<!-- Modal xác nhận kích hoạt/ vô hiệu hóa danh mục -->
 <div id="deleteModal" class="modal-overlay">
     <div class="delete-modal" style="max-width:380px;width:80%">
         <div class="modal-header-custom" style="background:#f8f9fa;border-bottom:1px solid #f1f3f4;">

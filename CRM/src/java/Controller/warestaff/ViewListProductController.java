@@ -18,8 +18,7 @@ import java.util.Map;
 import java.util.ArrayList;
 
 /**
- * Controller for viewing list of products
- * @author vttrung
+ * Trang danh sách sản phẩm với lọc, tìm kiếm, phân trang và lượng tồn
  */
 public class ViewListProductController extends HttpServlet {
    
@@ -31,7 +30,7 @@ public class ViewListProductController extends HttpServlet {
             CategoryDAO categoryDAO = new CategoryDAO();
             BrandDAO brandDAO = new BrandDAO();
             
-            // Get pagination parameters
+            // Bước 1: Nhận các tham số phân trang, lọc và tìm kiếm từ request
             String pageParam = request.getParameter("page");
             String pageSizeParam = request.getParameter("pageSize");
             String searchQuery = request.getParameter("search");
@@ -45,7 +44,7 @@ public class ViewListProductController extends HttpServlet {
             Integer brandId = null;
             Integer status = null;
             
-            // Parse page number
+            // Chuẩn hóa số trang
             if (pageParam != null && !pageParam.isEmpty()) {
                 try {
                     page = Integer.parseInt(pageParam);
@@ -55,7 +54,7 @@ public class ViewListProductController extends HttpServlet {
                 }
             }
             
-            // Parse page size
+            // Chuẩn hóa kích thước trang
             if (pageSizeParam != null && !pageSizeParam.isEmpty()) {
                 try {
                     pageSize = Integer.parseInt(pageSizeParam);
@@ -66,7 +65,7 @@ public class ViewListProductController extends HttpServlet {
                 }
             }
             
-            // Parse category ID
+            // Chuyển đổi filter danh mục/ thương hiệu sang dạng số
             if (categoryParam != null && !categoryParam.isEmpty() && !categoryParam.equals("0")) {
                 try {
                     categoryId = Integer.parseInt(categoryParam);
@@ -75,7 +74,6 @@ public class ViewListProductController extends HttpServlet {
                 }
             }
             
-            // Parse brand ID
             if (brandParam != null && !brandParam.isEmpty() && !brandParam.equals("0")) {
                 try {
                     brandId = Integer.parseInt(brandParam);
@@ -84,7 +82,7 @@ public class ViewListProductController extends HttpServlet {
                 }
             }
 
-            // Parse status
+            // Chỉ nhận trạng thái 0 (ẩn) hoặc 1 (hiển thị)
             if (statusParam != null && !statusParam.isEmpty()) {
                 try {
                     status = Integer.parseInt(statusParam);
@@ -96,22 +94,21 @@ public class ViewListProductController extends HttpServlet {
                 }
             }
 
-            // Get products with filters
+            // Bước 2: Lấy danh sách sản phẩm theo các điều kiện đã chuẩn hóa
             List<Product> products;
             int totalProducts;
 
-            // Use the new filter method
             products = productDAO.getProductsWithFilters(page, pageSize, searchQuery, categoryId, brandId, status);
             totalProducts = productDAO.getTotalProductsWithFilters(searchQuery, categoryId, brandId, status);
             
-            // Calculate total pages
+            // Tính tổng số trang để phục vụ phân trang trên giao diện
             int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
             
-            // Get all categories and brands for mapping
+            // Bước 3: Lấy danh mục/ thương hiệu để hiển thị filter drop-down
             List<Category> categories = categoryDAO.getAllCategories();
             List<Brand> brands = brandDAO.getAllBrands();
             
-            // Create maps for easy lookup
+            // Dùng map để dễ hiển thị tên từ id
             Map<Integer, String> categoryMap = new HashMap<>();
             for (Category c : categories) {
                 categoryMap.put(c.getId(), c.getName());
@@ -137,7 +134,7 @@ public class ViewListProductController extends HttpServlet {
             request.setAttribute("selectedBrandId", brandId);
             request.setAttribute("selectedStatus", statusParam);
 
-            // Build inventory map: productId -> quantity
+            // Bước 4: Tính lượng tồn kho hiện tại của từng sản phẩm trong trang
             Map<Integer, Integer> inventoryMap = new HashMap<>();
             if (products != null && !products.isEmpty()) {
                 InventoryDAO inventoryDAO = new InventoryDAO();

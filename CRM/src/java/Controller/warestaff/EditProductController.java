@@ -19,8 +19,7 @@ import dal.BrandDAO;
 import data.Product;
 
 /**
- * Controller for editing products
- * @author vttrung
+ * Chỉnh sửa sản phẩm, bao gồm cập nhật ảnh và thông tin giá
  */
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 5 * 1024 * 1024, maxRequestSize = 6 * 1024 * 1024)
 public class EditProductController extends HttpServlet {
@@ -29,7 +28,7 @@ public class EditProductController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
-            // Get product ID from parameter
+            // Bước 1: Lấy ID sản phẩm cần chỉnh sửa từ query string
             String productIdParam = request.getParameter("id");
             
             if (productIdParam == null || productIdParam.isEmpty()) {
@@ -53,7 +52,7 @@ public class EditProductController extends HttpServlet {
                 categoryDAO = new CategoryDAO();
                 brandDAO = new BrandDAO();
 
-                // Get product details
+                // Bước 2: Lấy chi tiết sản phẩm và danh sách danh mục/thương hiệu để đổ vào form
                 Product product = productDAO.getProductById(productId);
                 
                 if (product == null) {
@@ -70,7 +69,7 @@ public class EditProductController extends HttpServlet {
                 if (brandDAO != null) brandDAO.close();
             }
             
-            // Forward to edit page
+            // Bước 3: Chuyển tiếp tới trang chỉnh sửa
             request.getRequestDispatcher("/warehouse/editProduct.jsp").forward(request, response);
             
         } catch (Exception e) {
@@ -84,7 +83,7 @@ public class EditProductController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
-            // Get product ID
+            // Bước 1: Lấy ID sản phẩm từ form và đảm bảo tồn tại
             String productIdParam = request.getParameter("id");
             if (productIdParam == null || productIdParam.isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?error=Product ID is required");
@@ -93,7 +92,7 @@ public class EditProductController extends HttpServlet {
             
             int productId = Integer.parseInt(productIdParam);
             
-            // Get form data
+            // Bước 2: Thu thập các trường dữ liệu người dùng nhập
             String name = request.getParameter("name");
             String description = request.getParameter("description");
             String purchasePriceStr = request.getParameter("purchase_price");
@@ -112,7 +111,7 @@ public class EditProductController extends HttpServlet {
                 // No file uploaded, that's fine
             }
             
-            // Validate required fields
+            // Bước 3: Kiểm tra các trường bắt buộc
             if (name == null || name.trim().isEmpty() || 
                 purchasePriceStr == null || purchasePriceStr.trim().isEmpty() ||
                 categoryIdStr == null || categoryIdStr.trim().isEmpty()) {
@@ -122,7 +121,7 @@ public class EditProductController extends HttpServlet {
                 return;
             }
             
-            // Parse values
+            // Bước 4: Parse các giá trị số và ID cần thiết
             BigDecimal purchasePrice = new BigDecimal(purchasePriceStr);
             BigDecimal sellingPrice = null;
             if (sellingPriceStr != null && !sellingPriceStr.trim().isEmpty()) {
@@ -137,7 +136,7 @@ public class EditProductController extends HttpServlet {
             
             boolean isActive = (isActiveStr != null && isActiveStr.equals("on"));
             
-            // Handle image upload
+            // Bước 5: Nếu người dùng tải ảnh mới thì xử lý lưu xuống thư mục img/products
             String storedImagePath = null;
             if (imagePart != null && imagePart.getSize() > 0) {
                 if (imagePart.getContentType() == null || !imagePart.getContentType().startsWith("image/")) {
@@ -193,14 +192,14 @@ public class EditProductController extends HttpServlet {
             ProductDAO productDAO = null;
             try {
                 productDAO = new ProductDAO();
-                // Get existing product to preserve image if not uploading new one
+                // Bước 6: Lấy dữ liệu hiện tại để giữ lại ảnh cũ nếu không có ảnh mới
                 Product existingProduct = productDAO.getProductById(productId);
                 if (existingProduct == null) {
                     response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?error=Product not found");
                     return;
                 }
                 
-                // Create Product object
+                // Bước 7: Đóng gói dữ liệu đã chuẩn hóa vào model Product
                 Product product = new Product();
                 product.setId(productId);
                 product.setCategoryId(categoryId);
@@ -212,7 +211,7 @@ public class EditProductController extends HttpServlet {
                 product.setSellingPrice(sellingPrice);
                 product.setActive(isActive);
                 
-                // Set image URL - use uploaded file if available, otherwise use URL input, otherwise keep existing
+                // Ưu tiên ảnh mới, nếu không có thì dùng URL người dùng nhập hoặc giữ ảnh cũ
                 if (storedImagePath != null) {
                     product.setImageUrl(storedImagePath);
                 } else if (imageUrl != null && !imageUrl.trim().isEmpty()) {
@@ -221,7 +220,7 @@ public class EditProductController extends HttpServlet {
                     product.setImageUrl(existingProduct.getImageUrl());
                 }
                 
-                // Update product
+                // Bước 8: Cập nhật DB và phản hồi kết quả
                 boolean success = productDAO.updateProduct(product);
                 
                 if (success) {

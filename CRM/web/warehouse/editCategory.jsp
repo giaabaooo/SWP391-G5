@@ -120,6 +120,7 @@
                     <h1 style="color: #2d3748; font-weight: 600; margin-bottom: 0.5rem; margin-top: 0;">Edit Category</h1>
                     <p style="color: #718096; margin-bottom: 2rem;">Update category details</p>
                     <% Category category = (Category) request.getAttribute("category"); %>
+                    <!-- Hiển thị lỗi trả về từ EditCategoryController -->
                     <% if (request.getAttribute("error") != null && !"Category name is required".equals(request.getAttribute("error"))) { %>
                         <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                             <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
@@ -135,6 +136,7 @@
                             <h3><i class="fa fa-edit"></i> Category Information</h3>
                         </div>
                         <div class="card-body">
+                            <!-- Form cập nhật thông tin danh mục -->
                             <form method="post" action="../warestaff/editCategory" novalidate>
                                 <input type="hidden" name="id" value="<%= category != null ? category.getId() : 0 %>" />
                                 <div class="form-row">
@@ -169,6 +171,7 @@
 
                                 <div class="form-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; margin-bottom: 0;">
                                     <div class="form-col-full text-center">
+                                        <!-- Nút submit lưu dữ liệu -->
                                         <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                             <i class="fa fa-save"></i> Save Changes
                                         </button>

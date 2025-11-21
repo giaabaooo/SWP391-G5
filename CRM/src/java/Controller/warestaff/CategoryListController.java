@@ -10,7 +10,7 @@ import dal.CategoryDAO;
 import data.Category;
 
 /**
- * List/search/paginate categories for warehouse staff
+ * Danh sách danh mục kèm chức năng lọc, tìm kiếm, phân trang
  */
 public class CategoryListController extends HttpServlet {
 
@@ -20,6 +20,7 @@ public class CategoryListController extends HttpServlet {
         try {
             CategoryDAO categoryDAO = new CategoryDAO();
 
+            // Bước 1: Nhận các tham số lọc/ phân trang từ URL
             String pageParam = request.getParameter("page");
             String pageSizeParam = request.getParameter("pageSize");
             String searchQuery = request.getParameter("search");
@@ -47,10 +48,12 @@ public class CategoryListController extends HttpServlet {
                 }
             }
 
+            // Bước 2: Truy vấn dữ liệu phù hợp từ DAO
             List<Category> categories = categoryDAO.getCategoriesWithFilters(page, pageSize, searchQuery, isActive);
             int total = categoryDAO.getTotalCategoriesWithFilters(searchQuery, isActive);
             int totalPages = (int) Math.ceil((double) total / pageSize);
 
+            // Bước 3: Gắn thông tin phân trang để JSP hiển thị
             request.setAttribute("categories", categories);
             request.setAttribute("currentPage", page);
             request.setAttribute("pageSize", pageSize);

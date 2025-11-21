@@ -150,6 +150,7 @@
                             </a>
                         </div>
 
+                        <!-- Thanh tìm kiếm và bộ lọc trạng thái -->
                         <div class="filter-bar">
                             <input type="text" id="searchInput" class="search-input" placeholder="Search by brand name..." 
                                    value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>">
@@ -173,6 +174,7 @@
                                 List<Brand> brands = (List<Brand>) request.getAttribute("brands");
                                 if (brands != null && !brands.isEmpty()) {
                             %>
+                            <!-- Bảng hiển thị danh sách thương hiệu -->
                             <div class="table-responsive">
                                 <table class="inventory-table">
                                     <thead>
@@ -226,6 +228,7 @@
                                 </table>
                             </div>
 
+                            <!-- Khu vực phân trang và chọn số dòng -->
                             <div class="pagination-container">
                                 <div class="pagination-info">
                                     <span id="paginationInfo">Showing 1 to 10 of 0 brands</span>
@@ -277,6 +280,7 @@
     </aside>
 </div>
 
+<!-- Modal xác nhận kích hoạt/ vô hiệu hóa thương hiệu -->
 <div id="deleteModal" class="modal-overlay">
     <div class="delete-modal" style="max-width:380px;width:80%">
         <div class="modal-header-custom" style="background:#f8f9fa;border-bottom:1px solid #f1f3f4;">

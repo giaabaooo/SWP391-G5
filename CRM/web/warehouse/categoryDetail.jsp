@@ -126,6 +126,7 @@
     <!-- MAIN CONTENT -->
     <aside class="right-side">
         <section class="content">
+            <!-- Lấy dữ liệu danh mục và các thống kê do controller gửi sang -->
             <%
                 Category category = (Category) request.getAttribute("category");
                 List<Product> products = (List<Product>) request.getAttribute("products");
@@ -173,7 +174,7 @@
                 </div>
             </div>
             
-            <!-- Products in this Category -->
+            <!-- Danh sách sản phẩm thuộc danh mục -->
             <div class="products-section">
                 <div class="section-title">
                     <i class="fa fa-cubes"></i>
@@ -181,6 +182,7 @@
                 </div>
                 
                 <% if (products != null && !products.isEmpty()) { %>
+                    <!-- Hiển thị từng sản phẩm thuộc danh mục -->
                     <% for (Product product : products) { %>
                     <div class="product-card">
                         <div class="product-name">
@@ -203,6 +205,7 @@
                     </div>
                     <% } %>
                 <% } else { %>
+                <!-- Trường hợp chưa có sản phẩm nào -->
                 <div class="no-products">
                     <i class="fa fa-cube"></i>
                     <h4>No Products Found</h4>

@@ -16,9 +16,7 @@ import data.ProductSerial;
 import java.util.List;
 
 /**
- * Controller for viewing product details
- *
- * @author vttrung
+ * Hiển thị chi tiết sản phẩm và danh sách serial đang quản lý
  */
 public class ViewProductDetailController extends HttpServlet {
 
@@ -26,7 +24,7 @@ public class ViewProductDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Get product ID from parameter
+            // Bước 1: Nhận ID sản phẩm từ request và kiểm tra hợp lệ
             String productIdParam = request.getParameter("id");
 
             if (productIdParam == null || productIdParam.isEmpty()) {
@@ -54,7 +52,7 @@ public class ViewProductDetailController extends HttpServlet {
                 }
             }
 
-            // Get product details
+            // Bước 2: Lấy thông tin sản phẩm, danh mục, thương hiệu và serial
             ProductDAO productDAO = null;
             CategoryDAO categoryDAO = null;
             BrandDAO brandDAO = null;
@@ -84,7 +82,7 @@ public class ViewProductDetailController extends HttpServlet {
                 int totalPages = (int) Math.ceil((double) totalSerials / pageSize);
                 List<ProductSerial> serials = serialDAO.getSerialsByProductId(productId, page, pageSize);
 
-                // Set attributes
+                // Bước 3: Đặt attribute để JSP hiển thị thông tin chi tiết + phân trang serial
                 request.setAttribute("product", product);
                 request.setAttribute("category", category);
                 request.setAttribute("brand", brand);

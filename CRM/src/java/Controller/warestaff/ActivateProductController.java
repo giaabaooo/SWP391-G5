@@ -8,8 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import dal.ProductDAO;
 
 /**
- * Controller for activating products
- * @author vttrung
+ * Servlet phục hồi trạng thái hoạt động cho sản phẩm bị khóa
  */
 public class ActivateProductController extends HttpServlet {
    
@@ -17,7 +16,7 @@ public class ActivateProductController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
-            // Get product ID from parameter
+            // Bước 1: Lấy và kiểm tra ID sản phẩm được gửi từ form
             String productIdParam = request.getParameter("id");
             
             if (productIdParam == null || productIdParam.isEmpty()) {
@@ -33,10 +32,11 @@ public class ActivateProductController extends HttpServlet {
                 return;
             }
             
-            // Activate product
+            // Bước 2: Gọi DAO đổi cờ active cho sản phẩm
             ProductDAO productDAO = new ProductDAO();
             boolean isActivated = productDAO.activateProduct(productId);
             
+            // Bước 3: Điều hướng về trang danh sách với thông báo tương ứng
             if (isActivated) {
                 response.sendRedirect(request.getContextPath() + "/warestaff/viewListProduct?success=Product activated successfully");
             } else {
@@ -53,7 +53,7 @@ public class ActivateProductController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        // Redirect GET requests to POST
+        // Với nghiệp vụ này chỉ cho phép POST, GET sẽ gọi lại doPost để tận dụng chung logic
         doPost(request, response);
     }
 

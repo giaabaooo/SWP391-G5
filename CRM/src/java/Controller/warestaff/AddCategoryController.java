@@ -9,13 +9,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Create new category
+ * Servlet thêm mới nhóm sản phẩm cho kho
  */
 public class AddCategoryController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        // Hiển thị form tạo danh mục
         request.getRequestDispatcher("/warehouse/addCategory.jsp").forward(request, response);
     }
 
@@ -23,19 +24,23 @@ public class AddCategoryController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
+            // Bước 1: Nhận dữ liệu từ form
             String name = request.getParameter("name");
             String description = request.getParameter("description");
             boolean isActive = request.getParameter("is_active") != null;
 
+            // Bước 2: Kiểm tra tên danh mục
             if (name == null || name.trim().isEmpty()) {
                 throw new IllegalArgumentException("Category name is required");
             }
 
+            // Bước 3: Tạo đối tượng Category để truyền cho DAO
             Category category = new Category();
             category.setName(name.trim());
             category.setDescription(description != null ? description.trim() : "");
             category.setActive(isActive);
 
+            // Bước 4: Lưu danh mục và phản hồi kết quả
             CategoryDAO dao = new CategoryDAO();
             int id = dao.addCategory(category);
             if (id > 0) {

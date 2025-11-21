@@ -9,11 +9,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Liệt kê lịch sử phiếu nhập/xuất với bộ lọc cơ bản
+ */
 public class ViewTransactionHistoryController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        // Bước 1: Đọc các tham số phân trang, loại giao dịch và từ khóa ghi chú
         String pageParam = request.getParameter("page");
         String pageSizeParam = request.getParameter("pageSize");
         String typeFilter = request.getParameter("type"); // IMPORT/EXPORT or null
@@ -30,8 +34,10 @@ public class ViewTransactionHistoryController extends HttpServlet {
         if (totalPages == 0) totalPages = 1;
         if (page > totalPages) page = totalPages;
 
+        // Bước 2: Lấy danh sách giao dịch theo bộ lọc hiện tại
         List<Transaction> list = dao.getTransactions(page, pageSize, typeFilter, searchNote);
 
+        // Bước 3: Gắn dữ liệu để JSP hiển thị bảng + phân trang
         request.setAttribute("transactions", list);
         request.setAttribute("currentPage", page);
         request.setAttribute("pageSize", pageSize);

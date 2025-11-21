@@ -179,7 +179,7 @@
                             </a>
                         </div>
 
-                        <!-- Filter Bar -->
+                        <!-- Thanh tìm kiếm + bộ lọc sản phẩm -->
                         <div class="filter-bar">
                             <input type="text" id="searchInput" class="search-input" placeholder="Search by product name..."
                                    value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>">
@@ -243,6 +243,7 @@
                                 
                                 if (products != null && !products.isEmpty()) {
                             %>
+                            <!-- Bảng hiển thị danh sách sản phẩm + tồn kho -->
                             <div class="table-responsive">
                                 <table class="inventory-table">
                                     <thead>
@@ -325,7 +326,7 @@
                                 </table>
                             </div>
                             
-                            <!-- Pagination Controls -->
+                            <!-- Khu vực phân trang và chọn số dòng mỗi trang -->
                             <div class="pagination-container">
                                 <div class="pagination-info">
                                     <span id="paginationInfo">Showing 1 to 10 of 0 products</span>
@@ -381,7 +382,7 @@
     </aside>
 </div>
 
-<!-- Status Change Confirmation Modal -->
+<!-- Modal xác nhận kích hoạt/vô hiệu hóa sản phẩm -->
 <div id="deleteModal" class="modal-overlay">
     <div class="delete-modal" style="max-width:380px;width:80%">
         <div class="modal-header-custom" style="background:#f8f9fa;border-bottom:1px solid #f1f3f4;">

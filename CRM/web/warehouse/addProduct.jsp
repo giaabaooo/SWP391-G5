@@ -137,11 +137,13 @@
                     <p style="color: #718096; margin-bottom: 2rem;">Add a new item to the warehouse inventory</p>
                     
                     <%-- Display error message if any --%>
+                    <!-- Hiển thị lỗi trả về từ AddNewProductController -->
                     <% if (request.getAttribute("error") != null) { %>
                         <div class="alert alert-danger" style="background-color: #fed7d7; border: 1px solid #fc8181; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                             <i class="fa fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
                         </div>
                     <% } %>
+                    <!-- Cảnh báo khi không tải được danh sách dropdown -->
                     <% if (request.getAttribute("dropdownError") != null) { %>
                         <div class="alert alert-warning" style="background-color: #fefcbf; border: 1px solid #faf089; color: #744210; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
                             <i class="fa fa-info-circle"></i> <%= request.getAttribute("dropdownError") %>
@@ -158,6 +160,7 @@
                             <h3><i class="fa fa-plus"></i> Product Information</h3>
                         </div>
                         <div class="card-body">
+                            <!-- Form submit về AddNewProductController -->
                             <form method="post" action="../warestaff/addNewProduct" enctype="multipart/form-data" novalidate>
                                 <!-- Row 1: Product Name and Purchase Price -->
                                 <div class="form-row">
@@ -261,6 +264,7 @@
                                     <div class="form-col">
                                         <div class="form-group">
                                             <label class="control-label">Product Image</label>
+                                            <!-- Khu vực upload ảnh hoặc nhập URL -->
                                             <div class="image-upload-section">
                                                 <div class="image-preview-wrapper" id="imagePreviewWrapper">
                                                     <img id="imagePreview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Product preview" style="display: none;" />
@@ -310,6 +314,7 @@
                                 <!-- Form Actions -->
                                 <div class="form-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; margin-bottom: 0;">
                                     <div class="form-col-full text-center">
+                                        <!-- Nút submit lưu sản phẩm -->
                                         <button type="submit" class="btn btn-primary" style="margin-right: 1rem; min-width: 150px;">
                                             <i class="fa fa-save"></i> Save Product
                                         </button>
